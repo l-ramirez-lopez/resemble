@@ -1,0 +1,13 @@
+\name{plsCv}
+\alias{plsCv}
+\title{Cross validation for PLS regression}
+\usage{
+  plsCv(x, y, ncomp, scaled, weights, p = 0.75,
+    resampling = 10,
+    retrieve = c("final.model", "all.models", "none"))
+}
+\description{
+  Cross validation for PLS regression
+}
+\keyword{internal}
+

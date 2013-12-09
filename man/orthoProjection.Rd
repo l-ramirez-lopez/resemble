@@ -1,0 +1,236 @@
+\name{orthoProjection}
+\alias{orthoProjection}
+\alias{pcProjection}
+\alias{plsProjection}
+\title{Orthogonal projections using partial least squares and principal component analysis}
+\usage{
+  orthoProjection(Xr, X2 = NULL, Yr = NULL, method = 'pca',
+    pcSelection = list('cumvar', 0.99), center = TRUE,
+    scaled = FALSE, ...)
+
+  plsProjection(Xr, X2 = NULL, Yr, pcSelection =
+    list('opc', 40), center = TRUE, scaled = FALSE, ...)
+
+  pcProjection(Xr, X2 = NULL, Yr = NULL, pcSelection =
+    list("cumvar", 0.99), center = TRUE, scaled = FALSE,
+    ...)
+}
+\arguments{
+  \item{Xr}{a \code{matrix} (or \code{data.frame})
+  containing the (reference) data.}
+
+  \item{X2}{an optional \code{matrix} (or
+  \code{data.frame}) containing data of a second set of
+  observations(samples).}
+
+  \item{Yr}{either if the method used in the
+  \code{pcSelection} argument is \code{'opc'} or if the
+  \code{sm} argument is either \code{'pls'} or
+  \code{'loc.pls'}, then it must be a \code{vector}
+  containing the side information corresponding to the
+  spectra in \code{Xr}. It is equivalent to the
+  \code{sideInf} parameter of the \code{\link{simEval}}
+  function. It can be a numeric \code{vector} or
+  \code{matrix} (regarding one or more continuous
+  variables). The root mean square of differences (rmsd) is
+  used for assessing the similarity between the samples and
+  their corresponding most similar samples in terms of the
+  side information provided. When \code{sm = 'pc'}, this
+  parameter can also be a single discrete variable of class
+  \code{factor}. In such a case the kappa index is used.
+  See \code{\link{simEval}} function for more details.}
+
+  \item{pcSelection}{a list which specifies the method to
+  be used for identifying the number of principal
+  components to be retained for computing the Mahalanobis
+  distance of each sample in \code{sm = 'Xu'} to the centre
+  of \code{sm = 'Xr'}. It also specifies the number of
+  components in any of the following cases: \code{sm =
+  'pc'}, \code{sm = 'loc.pc'}, \code{sm = 'pls'} and
+  \code{sm = 'loc.pls'}. This list must contain two objects
+  in the following order: \itemize{
+  \item{\code{method}:}{the method for selecting the number
+  of components. Possible options are: \code{'opc'}
+  (optimized pc selection based on Ramirez-Lopez et al.
+  (2013a, 2013b). See the \code{\link{orthoProjection}}
+  function for more details; \code{'cumvar'} (for selecting
+  the number of principal components based on a given
+  cumulative amount of explained variance); \code{'var'}
+  (for selecting the number of principal components based
+  on a given amount of explained variance); and
+  \code{'manual'} (for specifying manually the desired
+  number of principal components)} \item{\code{value}:}{a
+  numerical value that complements the selected method. If
+  \code{'opc'} is chosen, it must be a value indicating the
+  maximal number of principal components to be tested (see
+  Ramirez-Lopez et al., 2013a, 2013b). If \code{'cumvar'}
+  is chosen, it must be a value (higher than 0 and lower
+  than 1) indicating the maximum amount of cumulative
+  variance that the retained components should explain. If
+  \code{'var'} is chosen, it must be a value (higher than 0
+  and lower than 1) indicating that components that explain
+  (individually) a variance lower than this threshold must
+  be excluded. If \code{'manual'} is chosen, it must be a
+  value specifying the desired number of principal
+  components to retain.  }} The default method for the
+  \code{pcSelection} argument is \code{'opc'} and the
+  maximal number of principal components to be tested is
+  set to 40.  Optionally, the \code{pcSelection} argument
+  admits \code{'opc'} or \code{'cumvar'} or \code{'var'} or
+  \code{'manual'} as a single character string. In such a
+  case the default for \code{'value'} when either
+  \code{'opc'} or \code{'manual'} are used is 40. When
+  \code{'cumvar'} is used the default \code{'value'} is set
+  to 0.99 and when \code{'var'} is used the default
+  \code{'value'} is set to 0.01.}
+
+  \item{method}{the method for projecting the data. Options
+  are: 'pca' (principal component analysis) and 'pls'
+  (partial least squares). See the
+  \code{\link{orthoProjection}} function for further
+  details on the projection methods.}
+
+  \item{center}{a logical indicating if the data \code{Xr}
+  (and \code{X2} if specified) must be centered. If
+  \code{X2} is specified the data is scaled on the basis of
+  \eqn{Xr \cup Xu}.}
+
+  \item{scaled}{a logical indicating if \code{Xr} (and
+  \code{X2} if specified) must be scaled. If \code{X2} is
+  specified the data is scaled on the basis of \eqn{Xr \cup
+  Xu}.}
+
+  \item{...}{additional parameters (for internal use
+  only).}
+}
+\value{
+  a \code{list} with the following components:
+
+  a moco \itemize{ \item{\code{scores}}{ a \code{matrix} of
+  scores corresponding to the samples in \code{Xr} and
+  \code{X2} (if it applies). The number of components that
+  the scores represent is given by the number of components
+  chosen in the function.} \item{\code{X.loadings}}{ a
+  \code{matrix} of loadings corresponding to the
+  explanatory variables. The number of components that
+  these loadings represent is given by the number of
+  components chosen in the function.}
+  \item{\code{Y.loadings}}{ a \code{matrix} of partial
+  least squares loadings corresponding to \code{Yr}. The
+  number of components that these loadings represent is
+  given by the number of components chosen in the function.
+  This object is only returned if the partial least squares
+  algorithm was used.} \item{\code{weigths}}{ a
+  \code{matrix} of partial least squares ('pls') weights.
+  This object is only returned if the 'pls' algorithm was
+  used.} \item{\code{projectionM}}{ a \code{matrix} that
+  can be used to project new data onto a 'pls' space. This
+  object is only returned if the 'pls' algorithm was used.}
+  \item{\code{variance}}{ a \code{matrix} indicating the
+  standard deviation of each component (sdv), the
+  cumulative explained variance (cumExplVar) and the
+  variance explained by each single component (explVar).
+  These values are computed based on the data used to
+  create the projection matrices.  For example if the 'pls'
+  method was used, then these values are computed based
+  only on the data that contains information on \code{Yr}
+  (i.e. the \code{Xr} data) If the principal component
+  method is used, the this data is computed on the basis of
+  \code{Xr} and \code{X2} (if it applies) since both
+  matrices are employed in the computation of the
+  projection matrix (loadings in this case)}.
+  \item{\code{svd}}{ the standard deviation of the
+  retrieved scores.} \item{\code{n.components}}{ the number
+  of components (either principal components or partial
+  least squares components) used for computing the global
+  distances.} \item{\code{opcEval}}{ a \code{data.frame}
+  containing the statistics computed for optimizing the
+  number of principal components based on the variable(s)
+  specified in the \code{Yr} argument. If \code{Yr} was a
+  continuous was a continuous \code{vector} or
+  \code{matrix} then this object indicates the root mean
+  square of differences (rmse) for each number of
+  components. If \code{Yr} was a categorical variable this
+  object indicates the kappa values for each number of
+  components.  This object is returned only if \code{'opc'}
+  was used within the \code{pcSelection} argument. See the
+  \code{\link{simEval}} function for more details.}
+  \item{\code{method}}{ the \code{orthoProjection} method
+  used.} }
+}
+\description{
+  Functions to perform orthogonal projections of high
+  dimensional data matrices using partial least squares
+  (pls) and principal component analysis (pca)
+}
+\details{
+  In the case of the principal components projection, the
+  method used is the singular value decomposition in which
+  given a data matrix \eqn{X}, is factorized as follows:
+  \deqn{ X = UDV^{\mathrm{T}} } where \eqn{U} and \eqn{V}
+  are othogonal matrices, and where \eqn{U} is a matrix of
+  the left singular vectors of \eqn{X}, \eqn{D} is a
+  diagonal matrix containing the singular values of \eqn{X}
+  and \eqn{V} is the is a matrix of the right singular
+  vectors of \eqn{X}. The matrix of principal component
+  scores is obtained by a matrix multiplication of \eqn{U}
+  and \eqn{D}, and the matrix of principal component
+  loadings is equivalent to the matrix \eqn{V}. In th case
+  of the of the partial least squares projection (a.k.a
+  projection to latent structures) the 'non-linear
+  iterative partial least squares (nipals)' algorithm is
+  used in which the computation of the covariance matrix is
+  avoided. The 'nipals' algorithm is presented in Martens
+  (1991).
+}
+\examples{
+require(prospectr)
+data(NIRsoil)
+Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]
+Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
+Xr <- NIRsoil$spc[as.logical(NIRsoil$train),]
+
+Xu <- Xu[!is.na(Yu),]
+Yu <- Yu[!is.na(Yu)]
+
+Xr <- Xr[!is.na(Yr),]
+Yr <- Yr[!is.na(Yr)]
+
+# A partial least squares projection using the 'opc' method
+# for the selection of the optimal number of components
+plsProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
+                           method = "pls", pcSelection = list("opc", 40))
+
+# A principal components projection using the 'opc' method
+# for the selection of the optimal number of components
+pcProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
+                          method = "pca", pcSelection = list("opc", 40))
+
+# A partial least squares projection using the 'cumvar' method
+# for the selection of the optimal number of components
+plsProj2 <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
+                            method = "pls", pcSelection = list("cumvar", 0.99))
+}
+\author{
+  Leonardo Ramirez-Lopez
+}
+\references{
+  Martens, H. (1991). Multivariate calibration. John Wiley
+  & Sons.
+
+  Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A.,
+  Dematte, J.A.M., Scholten, T. 2013a. The spectrum-based
+  learner: A new local approach for modeling soil vis-NIR
+  spectra of complex datasets. Geoderma 195-196, 268-279.
+
+  Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra
+  Rossel, R., Dematte, J. A. M., Scholten, T. 2013b.
+  Distance and similarity-search metrics for use with soil
+  vis-NIR spectra. Geoderma 199, 43-53.
+}
+\seealso{
+  \code{\link{orthoDiss}}, \code{\link{simEval}},
+  \code{\link{mbl}}
+}
+

@@ -1,0 +1,45 @@
+Package: resemble
+Type: Package
+Title: Regression and similarity evaluation for memory-based learning of spectral data
+Version: 1.0
+Date: 2013-11-20
+Author: Leonardo Ramirez-Lopez and Antoine Stevens
+Maintainer: Leonardo Ramirez-Lopez <leonardo.ramirez@usys.ethz.ch>
+Description: This package implements functions for spectral similarity/dissimilarity analysis and memory-based learning (MBL) for non-linear modelling of complex visible and infrared spectral data. MBL is also known as instance-based learning or local modelling in the chemometrics literature. 
+License: GPL (>=3)
+Depends:
+    Rcpp (>= 0.10.0),
+    RcppArmadillo (>= 0.3.4.4),
+    foreach,
+    iterators,
+    kernlab,
+    pls
+Suggests:
+  prospectr,
+  parallel,
+  doParallel
+LinkingTo: Rcpp, RcppArmadillo
+BuildManual: yes
+Imports:
+    foreach,
+    iterators,
+    foreach,
+    iterators,
+    kernlab,
+    pls
+Collate:
+    'corDiss.R'
+    'fDiss.R'
+    'getPredictions.R'
+    'mbl.R'
+    'mblController.R'
+    'neigCleaning.R'
+    'orthoDiss.R'
+    'orthoProjection.R'
+    'plot.mbl.R'
+    'RcppExports.R'
+    'resemblepackage.r'
+    'sid.R'
+    'simEval.R'
+    'print.localOrthoDiss.R'
+    'print.mbl.R'

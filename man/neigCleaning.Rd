@@ -1,0 +1,254 @@
+\name{neigCleaning}
+\alias{neigCleaning}
+\title{A function for identifying samples that do not belong to any of the neighbourhoods of a given set of samples (neigCleaning)}
+\usage{
+  neigCleaning(Xr, Xu, sm = 'pc', pcSelection =
+    list("cumvar", 0.99), Yr = NULL, ws, k0, center = TRUE,
+    scaled = TRUE, k.thr, k.dist.thr, k.range, returnDiss =
+    FALSE)
+}
+\arguments{
+  \item{Xr}{input (spectral) \code{matrix} (or
+  \code{data.frame}) in which the neighbours of the samples
+  in \code{Xu} shall be searched.}
+
+  \item{Xu}{input (spectral) \code{matrix} (or
+  \code{data.frame}) containing the samples for which their
+  neighbours will be searched in \code{Xr}.}
+
+  \item{sm}{a character string indicating the spectral
+  similarity/dissimilarity metric to be used in the
+  selection of the nearest neighbours of each observation
+  in \code{'Xu'} (see the \code{\link{mbl}} function).
+  Options are: \code{'euclid'} (Euclidean distance),
+  \code{'cosine'} (cosine distance), \code{'sidF'}
+  (spectral information divergence computed on the spectral
+  variables), \code{'sidD'} (spectral information
+  divergence computed on the density distributions of the
+  spectra) \code{'cor'} (correlation
+  similarity/dissimilarity), \code{'movcor'} (moving window
+  correlation similarity/dissimilarity), \code{'pc'}
+  (principal components distance: Mahalanobis distance
+  computed on the principal components space) and
+  \code{'loc.pc'} (similarity/dissimilarity estimation
+  based on local principal components), \code{'pls'}
+  (partial least squares distance: Mahalanobis distance
+  computed on the partial least squares space) and
+  \code{'loc.pls'} (similarity/dissimilarity estimation
+  based on local partial least squares). The \code{'pc'}
+  spectral similarity/dissimilarity metric is the default.
+  If the \code{'sidD'} is chosen, the default parameters of
+  the \code{sid} function are used.}
+
+  \item{pcSelection}{if \code{sm = 'pc'}, \code{sm =
+  'loc.pc'}, \code{sm = 'pls'} or \code{sm = 'loc.pls'} a
+  list which specifies the method to be used for
+  identifying the number of principal components to be
+  retained for computing the Mahalanobis distance of each
+  sample in \code{sm = 'Xu'} to the centre of \code{sm =
+  'Xr'}. It also specifies the number of components in any
+  of the following cases: \code{sm = 'pc'}, \code{sm =
+  'loc.pc'}, \code{sm = 'pls'} and \code{sm = 'loc.pls'}.
+  This list must contain two objects in the following
+  order: \itemize{ \item{\code{method}:}{the method for
+  selecting the number of components. Possible options are:
+  \code{'opc'} (optimized pc selection based on
+  Ramirez-Lopez et al. (2013a, 2013b). See the
+  \code{\link{orthoProjection}} function for more details;
+  \code{'cumvar'} (for selecting the number of principal
+  components based on a given cumulative amount of
+  explained variance); \code{'var'} (for selecting the
+  number of principal components based on a given amount of
+  explained variance); and \code{'manual'} (for specifying
+  manually the desired number of principal components)}
+  \item{\code{value}:}{a numerical value that complements
+  the selected method. If \code{'opc'} is chosen, it must
+  be a value indicating the maximal number of principal
+  components to be tested (see Ramirez-Lopez et al., 2013a,
+  2013b). If \code{'cumvar'} is chosen, it must be a value
+  (higher than 0 and lower than 1) indicating the maximum
+  amount of cumulative variance that the retained
+  components should explain. If \code{'var'} is chosen, it
+  must be a value (higher than 0 and lower than 1)
+  indicating that components that explain (individually) a
+  variance lower than this treshold must be excluded. If
+  \code{'manual'} is chosen, it must be a value specifying
+  the desired number of principal components to retain.  }}
+  The default method for the \code{pcSelection} argument is
+  \code{'opc'} and the maximal number of principal
+  components to be tested is set to 40.  Optionally, the
+  \code{pcSelection} argument admits \code{'opc'} or
+  \code{'cumvar'} or \code{'var'} or \code{'manual'} as a
+  single character string. In such a case the default for
+  \code{'value'} when either \code{'opc'} or
+  \code{'manual'} are used is 40. When \code{'cumvar'} is
+  used the default \code{'value'} is set to 0.99 and when
+  \code{'var'} is used the default \code{'value'} is set to
+  0.01.}
+
+  \item{Yr}{either if the method used in the
+  \code{pcSelection} argument is \code{'opc'} or if the
+  \code{sm} argument is either \code{'pls'} or
+  \code{'loc.pls'}, then it must be a \code{vector}
+  containing the side information corresponding to the
+  spectra in \code{Xr}. It is equivalent to the
+  \code{sideInf} parameter of the \code{\link{simEval}}
+  function. It can be a numeric \code{vector} or
+  \code{matrix} (regarding one or more continuous
+  variables). The root mean square of differences (rmsd) is
+  used for assessing the similarity between the samples and
+  their corresponding most similar samples in terms of the
+  side information provided. When \code{sm = 'pc'}, this
+  parameter can also be a single discrete variable of class
+  \code{factor}. In such a case the kappa index is used.
+  See \code{\link{simEval}} function for more details.}
+
+  \item{ws}{an odd integer value which specifies the window
+  size when the moving window correlation
+  similarity/dissimilarity is used (i.e \code{sm =
+  'movcor'}). The default value is 41.}
+
+  \item{k0}{if any of the local similarity/dissimilarity
+  methods is used (i.e. either \code{sm = 'loc.pc'} or
+  \code{sm = 'loc.pls'}) a numeric integer value. This
+  argument controls the number of initial
+  neighbours(\eqn{k0}) to retain in order to compute the
+  local principal components (at each neighbourhood).}
+
+  \item{center}{a logical indicating if \code{Xr} and
+  \code{Xu} must be centered (on the basis of \eqn{Xr \cup
+  Xu}).}
+
+  \item{scaled}{a logical indicating if \code{Xr} and
+  \code{Xu} must be scaled (on the basis of \eqn{Xr \cup
+  Xu}).}
+
+  \item{k.thr}{an integer value indicating the k-nearest
+  neighbours of each sample in \code{Xu} that must be
+  selected from \code{Xr}.}
+
+  \item{k.dist.thr}{an integer value indicating a distance
+  treshold. When the distance between a sample in \code{Xr}
+  and a sample in \code{Xu} is below the given treshold,
+  the sample in sample in \code{Xr} is retained, otherwise
+  it is ignored.  The treshold depends on the corresponding
+  similarity/dissimilarity metric specified in \code{sm}.
+  Either \code{k.thr} or \code{k.dist.thr} must be
+  specified.}
+
+  \item{k.range}{a vector of length 2 which specifies the
+  minimum (first value) and the maximum (second value)
+  number of neighbours allowed when the \code{k.dist.thr}
+  argument is used.}
+
+  \item{returnDiss}{a logical indicating if the
+  similarity/dissimilarity matrix must be returned. Default
+  is \code{FALSE}.}
+}
+\value{
+  \code{neigCleaning} returns a \code{list} containing the
+  following objects: \itemize{ \item{\code{select}}{ the
+  indices of the observations in \code{Xr} that belong to
+  the negihborhood of the samples in \code{Xu}}.
+  \item{\code{reject}}{ the indices of the observations in
+  \code{Xr} that do not belong to the negihborhood of the
+  samples in \code{Xu}}.  \item{\code{rn.lower.k.dist}}{ a
+  \code{data.frame} that is returned only if the
+  \code{k.dist.thr} argument was used. It comprises three
+  columns, the first one (\code{sampleIndex}) indicates the
+  index of the samples in \code{Xu}, the second column
+  (\code{nk}) indicates the number of neighbours found in
+  \code{Xr} for each sample in \code{Xr} and the third
+  column (\code{neighbours.used}) indicates whether the
+  original number of neighbours (below the distance
+  treshold) was used or if the number of neighbours was
+  reset to one of the range values specified in the
+  \code{k.range} argument.} \item{\code{dissimilarity}}{
+  the distance matrix used.} }
+}
+\description{
+  This function can be used to identify the samples in a
+  spectral dataset \eqn{Xr} that do not belong to the
+  neighbourhood of any sample in another spectral dataset
+  \eqn{Xu}.
+}
+\details{
+  This function may be specially useful when the reference
+  set (\code{Xr}) is very large. In some cases the number
+  of observations in the reference set can be reduced by
+  removing irrelevant samples (i.e. samples that are not
+  neighbours of a particular target set). If \code{Xr} is
+  very large, it is recommended to consider the use this
+  function prior using the \code{mbl} function.
+}
+\examples{
+\dontrun{
+require(prospectr)
+data(NIRsoil)
+Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]
+Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
+Xr <- NIRsoil$spc[as.logical(NIRsoil$train),]
+
+Xu <- Xu[!is.na(Yu),]
+Yu <- Yu[!is.na(Yu)]
+
+Xr <- Xr[!is.na(Yr),]
+Yr <- Yr[!is.na(Yr)]
+
+# Identify the non-neighbour samples using the default parameters
+# (In this example all the samples in Xr belong at least to the first 100 neighbours of
+# one sample in Xu)
+ex1 <- neigCleaning(Xr = Xr, Xu = Xu,
+                            k.thr = 100)
+
+# Identify the non-neighbour samples using principal component(PC) and
+# partial least squares (PLS) distances, and using the 'opc' approach
+# for selecting the number of components
+ex2 <- neigCleaning(Xr = Xr, Xu = Xu,
+                            Yr = Yr,
+                            sm = "pc",
+                            pcSelection = list("opc", 40),
+                            k.thr = 150)
+
+ex3 <- neigCleaning(Xr = Xr, Xu = Xu,
+                            Yr = Yr,
+                            sm = "pls",
+                            pcSelection = list("opc", 40),
+                            k.thr = 150)
+
+# Identify the non-neighbour samples using distances computed based on local PC analysis
+# and using the 'cumvar' and 'var' approaches for selecting the number of PCs
+ex4 <- neigCleaning(Xr = Xr, Xu = Xu,
+                            sm = "loc.pc",
+                            pcSelection = list("cumvar", 0.999),
+                            k0 = 200,
+                            k.thr = 150)
+
+ex5 <- neigCleaning(Xr = Xr, Xu = Xu,
+                            sm = "loc.pc",
+                            pcSelection = list("var", 0.001),
+                            k0 = 200,
+                            k.thr = 150)
+}
+}
+\author{
+  Leonardo Ramirez-Lopez
+}
+\references{
+  Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A.,
+  Dematte, J.A.M., Scholten, T. 2013a. The spectrum-based
+  learner: A new local approach for modeling soil vis-NIR
+  spectra of complex datasets. Geoderma 195-196, 268-279.
+
+  Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra
+  Rossel, R., Dematte, J. A. M., Scholten, T. 2013b.
+  Distance and similarity-search metrics for use with soil
+  vis-NIR spectra. Geoderma 199, 43-53.
+}
+\seealso{
+  \code{\link{fDiss}}, \code{\link{corDiss}},
+  \code{\link{sid}}, \code{\link{orthoDiss}},
+  \code{\link{mbl}}
+}
+
