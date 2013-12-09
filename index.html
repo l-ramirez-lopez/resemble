@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>resemble Project by l-ramirez-lopez</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">resemble Project</h1>
+        <p class="header"></p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/l-ramirez-lopez/resemble_v0.1/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/l-ramirez-lopez/resemble_v0.1/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/l-ramirez-lopez/resemble_v0.1">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/l-ramirez-lopez">l-ramirez-lopez</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a name="resemble-regression-and-similarity-evaluation-for-memory-based-learning-of-spectral-data" class="anchor" href="#resemble-regression-and-similarity-evaluation-for-memory-based-learning-of-spectral-data"><span class="octicon octicon-link"></span></a>resemble: Regression and similarity evaluation for memory-based learning of spectral data</h1>
+
+<p>Click <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.tar.gz">here to download the tar.gz file</a> 
+or <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.zip">here to download the zip file</a> 
+of the <code>resemble</code> package.</p>
+
+<p><a href="http://l-ramirez-lopez.github.io/resemble_v0.1/"><code>resemble</code></a> implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, <em>a.k.a</em> instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. </p>
+
+<p>The functions for computing and evaluate spectral similarity/dissimilarity matrices can be summarized as follows:</p>
+
+<table>
+<thead><tr>
+<th>Function</th>
+<th>Description/computes...</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>fDiss</code></td>
+<td>Euclidean and Mahalanobis distances as well as the cosine dissimilarity (<em>a.k.a</em> spectral angle mapper)</td>
+</tr>
+<tr>
+<td><code>corDiss</code></td>
+<td>correlation and moving window correlation dissimilarity</td>
+</tr>
+<tr>
+<td><code>sid</code></td>
+<td>spectral information divergence between spectra or between the probability distributions of spectra</td>
+</tr>
+<tr>
+<td><code>orthoDiss</code></td>
+<td>principal components and partial least squares dissimilarity (including several options)</td>
+</tr>
+<tr>
+<td><code>simEval</code></td>
+<td>evaluates a given similarity/dissimilarity matrix based on the concept of side information</td>
+</tr>
+</tbody>
+</table><p>The functions for projecting the spectra onto low dimensional orthogonal variables are:</p>
+
+<table>
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>pcProjection</code></td>
+<td>projects the spectra onto a principal component space</td>
+</tr>
+<tr>
+<td><code>plsProjection</code></td>
+<td>projects the spectra onto a partial least squares component space  (<em>a.k.a</em> projection to latent structures)</td>
+</tr>
+<tr>
+<td><code>orthoProjection</code></td>
+<td>reproduces either the <code>pcProjection</code> or the <code>plsProjection</code> functions</td>
+</tr>
+</tbody>
+</table><p>The projection functions also offer different options for optimizing/selecting the number of components involved in the projection.</p>
+
+<p>The functions modelling the spectra using memory-based learning are:</p>
+
+<table>
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>mblController</code></td>
+<td>controls some modelling aspects of the <code>mbl</code> function</td>
+</tr>
+<tr>
+<td><code>mbl</code></td>
+<td>models the spectra by memory-based learning</td>
+</tr>
+</tbody>
+</table><p>Some additional miscellaneous functions are:</p>
+
+<table>
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>print.mbl</code></td>
+<td>prints a summary of the results obtained by the <code>mbl</code> function</td>
+</tr>
+<tr>
+<td><code>plot.mbl</code></td>
+<td>plots a summary of the results obtained by the <code>mbl</code> function</td>
+</tr>
+<tr>
+<td><code>print.localOrthoDiss</code></td>
+<td>prints local distance matrices generated with the <code>orthoDiss</code> function</td>
+</tr>
+</tbody>
+</table><p>In order to expand a little bit more the explanation on the <code>mbl</code> function, let's define first the basic input datasets:</p>
+
+<ul>
+<li><p><strong>Reference (training) set</strong>: Dataset with <em>n</em> reference samples (e.g. spectral library) to be used in the calibration of a spectral models. Xr represents the matrix of samples (containing the spectral predictor variables) and Yr represents a given response variable corresponding to Xr.</p></li>
+<li><p><strong>Prediction set</strong> : Data set with <em>m</em> samples where the response variable (Yu) is unknown. However it can be predicted by applying a spectral model (calibrated by using Xr and Yr) on the spectra of these samples (Xu). </p></li>
+</ul><p>In order to predict each value in Yu, the <code>mbl</code> function takes each sample in Xu and searches in Xr for its <em>k</em>-nearest neighbours (most spectrally similar samples). Then a (local) model is calibrated with these (reference) neighbours and it immediately predicts the correspondent value in Yu from Xu. In the function, the <em>k</em>-nearest neighbour search is performed by computing spectral similarity/dissimilarity matrices between samples. The <code>mbl</code> function offers the following regression options for calibrating the (local) models:</p>
+
+<table>
+<thead><tr>
+<th>Regression methods in the <code>mbl</code> function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>'gpr'</code></td>
+<td>Gaussian process with linear kernel</td>
+</tr>
+<tr>
+<td><code>'pls'</code></td>
+<td>Partial least squares</td>
+</tr>
+<tr>
+<td><code>'wapls1'</code></td>
+<td>Weighted average partial least squares 1</td>
+</tr>
+<tr>
+<td><code>'wapls2'</code></td>
+<td>Weighted average partial least squares 2</td>
+</tr>
+</tbody>
+</table><h2>
+<a name="keywords" class="anchor" href="#keywords"><span class="octicon octicon-link"></span></a>Keywords</h2>
+
+<ul>
+<li><em>Infrared spectroscopy</em></li>
+<li><em>Chemometrics</em></li>
+<li><em>Local modelling</em></li>
+<li><em>Spectral library</em></li>
+<li><em>Lazy learning</em></li>
+<li><em>Soil spectroscopy</em></li>
+</ul><h2>
+<a name="bug-report-and-development-version" class="anchor" href="#bug-report-and-development-version"><span class="octicon octicon-link"></span></a>Bug report and development version</h2>
+
+<p>You can send an email to the package maintainer (<a href="mailto:leonardo.ramirez@usys.ethz.ch">leonardo.ramirez@usys.ethz.ch</a>; <a href="mailto:leonardo.ramirez@wsl.ch">leonardo.ramirez@wsl.ch</a>) or create an <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/issues">issue</a> on github. </p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
