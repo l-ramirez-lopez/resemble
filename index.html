@@ -88,6 +88,8 @@ sbl.u &lt;- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
              distUsage = "predictors",
              k = seq(40, 150, by = 10),
              method = "gpr")
+
+getPredictions(sbl.u)
 </code></pre>
 
 <p><a href="http://l-ramirez-lopez.github.io/resemble_v0.1/"><code>resemble</code></a> implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, <em>a.k.a</em> instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. </p>
