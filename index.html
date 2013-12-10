@@ -1,40 +1,79 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>resemble Project by l-ramirez-lopez</title>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="resemble Project : " />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>resemble Project</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1 class="header">resemble Project</h1>
-        <p class="header"></p>
 
-        <ul>
-          <li class="download"><a class="buttons" href="https://github.com/l-ramirez-lopez/resemble_v0.1/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/l-ramirez-lopez/resemble_v0.1/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/l-ramirez-lopez/resemble_v0.1">View On GitHub</a></li>
-        </ul>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/l-ramirez-lopez/resemble_v0.1">View on GitHub</a>
 
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/l-ramirez-lopez">l-ramirez-lopez</a></p>
+          <h1 id="project_title">resemble Project</h1>
+          <h2 id="project_tagline"></h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/l-ramirez-lopez/resemble_v0.1/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/l-ramirez-lopez/resemble_v0.1/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
 
-      </header>
-      <section>
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>
 <a name="resemble-regression-and-similarity-evaluation-for-memory-based-learning-of-spectral-data" class="anchor" href="#resemble-regression-and-similarity-evaluation-for-memory-based-learning-of-spectral-data"><span class="octicon octicon-link"></span></a>resemble: Regression and similarity evaluation for memory-based learning of spectral data</h1>
 
-<p>Click <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.tar.gz?raw=true">here to download the tar.gz file</a> 
-or <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.zip?raw=true">here to download the zip file</a> of the <code>resemble</code> package.</p>
+<p>For the moment, installing the <code>resemble</code> package directly from github is not possible (we are currently working on that). Therefore, try to download the <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.zip">binary (.zip) file from here</a> or the <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.tar.gz">source file (.tar.gz) from here</a>. Do not use the links of the icons. Remeber you should have R&gt;3.0.0. Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:</p>
+
+<pre><code>install.packages('C:/MyFolder/resemble_1.0.zip')
+</code></pre>
+
+<p>After installing <code>resemble</code> you should be also able to run the following lines:</p>
+
+<pre><code>require(resemble)
+
+help(mbl)
+
+#install.packages(prospectr)
+require(prospectr)
+
+data(NIRsoil)
+
+Xu &lt;- NIRsoil$spc[!as.logical(NIRsoil$train),]
+Yu &lt;- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+Yr &lt;- NIRsoil$CEC[as.logical(NIRsoil$train)]
+Xr &lt;- NIRsoil$spc[as.logical(NIRsoil$train),]
+
+Xu &lt;- Xu[!is.na(Yu),]
+Xr &lt;- Xr[!is.na(Yr),]
+
+Yu &lt;- Yu[!is.na(Yu)]
+Yr &lt;- Yr[!is.na(Yr)]
+
+# Example of the mbl function
+# A mbl approach (the spectrum-based learner) as implemented in Ramirez-Lopez et al. (2013)
+# An exmaple where Yu is supposed to be unknown, but the Xu (spectral variables) are known
+ctrl1 &lt;- mblController(sm = "pc", pcSelection = list("opc", 40),
+                       valMethod = "NNv",
+                       scaled = TRUE, center = TRUE)
+
+sbl.u &lt;- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
+             mblCtrl = ctrl1,
+             distUsage = "predictors",
+             k = seq(40, 150, by = 10),
+             method = "gpr")
+</code></pre>
 
 <p><a href="http://l-ramirez-lopez.github.io/resemble_v0.1/"><code>resemble</code></a> implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, <em>a.k.a</em> instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. </p>
 
@@ -173,11 +212,17 @@ or <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Install
 
 <p>You can send an email to the package maintainer (<a href="mailto:leonardo.ramirez@usys.ethz.ch">leonardo.ramirez@usys.ethz.ch</a>; <a href="mailto:leonardo.ramirez@wsl.ch">leonardo.ramirez@wsl.ch</a>) or create an <a href="https://github.com/l-ramirez-lopez/resemble_v0.1/issues">issue</a> on github. </p>
       </section>
-      <footer>
-        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">resemble Project maintained by <a href="https://github.com/l-ramirez-lopez">l-ramirez-lopez</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+
+    
+
   </body>
 </html>
