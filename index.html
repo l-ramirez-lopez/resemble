@@ -53,12 +53,12 @@
 
 <p>First, if you do not have the following packages installed, you shoudl install them first</p>
 
-<pre><code>install.packages("Rcpp")
-install.packages("RcppArmadillo")
-install.packages("pls")
-install.packages("foreach")
-install.packages("iterators")
-install.packages("kernlab")
+<pre><code>install.packages('Rcpp')
+install.packages('RcppArmadillo')
+install.packages('pls')
+install.packages('foreach')
+install.packages('iterators')
+install.packages('kernlab')
 </code></pre>
 
 <p>Then, install <code>resemble</code></p>
@@ -68,7 +68,7 @@ install.packages("kernlab")
 
 <p>or</p>
 
-<pre><code>install.packages("C:/MyFolder/resemble_1.0.tar.gz", type = "source")
+<pre><code>install.packages('C:/MyFolder/resemble_1.0.tar.gz', type = 'source')
 </code></pre>
 
 <p>After installing <code>resemble</code> you should be also able to run the following lines:</p>
@@ -96,15 +96,15 @@ Yr &lt;- Yr[!is.na(Yr)]
 # Example of the mbl function
 # A mbl approach (the spectrum-based learner) as implemented in Ramirez-Lopez et al. (2013)
 # An exmaple where Yu is supposed to be unknown, but the Xu (spectral variables) are known
-ctrl1 &lt;- mblController(sm = "pc", pcSelection = list("opc", 40),
-                       valMethod = "NNv",
+ctrl1 &lt;- mblController(sm = 'pc', pcSelection = list('opc', 40),
+                       valMethod = 'NNv',
                        scaled = TRUE, center = TRUE)
 
 sbl.u &lt;- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
              mblCtrl = ctrl1,
-             distUsage = "predictors",
+             distUsage = 'predictors',
              k = seq(40, 150, by = 10),
-             method = "gpr")
+             method = 'gpr')
 
 getPredictions(sbl.u)
 </code></pre>
