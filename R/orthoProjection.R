@@ -69,7 +69,9 @@
 #' @seealso \code{\link{orthoDiss}}, \code{\link{simEval}}, \code{\link{mbl}}
 #' @examples
 #' require(prospectr)
+#' 
 #' data(NIRsoil)
+#' 
 #' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]
 #' Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 #' Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]

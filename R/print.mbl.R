@@ -1,13 +1,15 @@
 #' @title Print method for an object of class \code{mbl}
 #' @aliases print.mbl
 #' @usage \method{print}{mbl}(x, ...)
-#' @param x an object of class \code{mbl} (as returned by \code{mbl}). 
+#' @param x an object of class \code{mbl} (as returned by the \code{mbl} function). 
 #' @param ... arguments to be passed to methods (not yet functional).
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @export
 
 print.mbl <- function(x, ...){
+  
   object <- x
+  
   if(!is.null(object$nnValStats)){
     nnValStats <- object$nnValStats
   } else {nnValStats <- NULL}

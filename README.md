@@ -1,6 +1,8 @@
 # resemble: Regression and similarity evaluation for memory-based learning of spectral data
 
-Click [here](http://l-ramirez-lopez.github.io/resemble_v0.1/) to visit the page where you can download the [`resemble`](http://l-ramirez-lopez.github.io/resemble_v0.1/) package!
+Click [here to download the tar.gz file](https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.tar.gz) 
+or [here to download the zip file](https://github.com/l-ramirez-lopez/resemble_v0.1/blob/master/Installers/resemble_1.0.zip) 
+of the `resemble` package.
 
 [`resemble`](http://l-ramirez-lopez.github.io/resemble_v0.1/) implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, _a.k.a_ instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. 
 

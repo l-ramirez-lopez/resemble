@@ -1,12 +1,12 @@
 #' @title Print method for an object of class \code{orthoDiss}
 #' @aliases print.localOrthoDiss
 #' @usage \method{print}{localOrthoDiss}(x, ...)
-#' @param x an object of class \code{localOrthoDiss} (which is returned by \code{orthoDiss} when it uses \code{local = TRUE}). 
+#' @param x an object of class \code{localOrthoDiss} (returned by \code{orthoDiss} when it uses \code{local = TRUE}). 
 #' @param ... arguments to be passed to methods (not yet functional).
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @export
 
-"print.localOrthoDiss" <- function(x,...){
+print.localOrthoDiss <- function(x,...){
   obj <- x
   if(is.list(obj))
   {

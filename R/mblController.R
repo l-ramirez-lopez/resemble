@@ -52,7 +52,7 @@
 #' #A control list with the default parameters
 #' mblController()
 #' 
-#' #A control list which specifies the moving/rolling correlation similarity/dissimilarity metric with a moving window of 30
+#' #A control list which specifies the moving correlation similarity/dissimilarity metric with a moving window of 30
 #' mblController(sm = "movcor", ws = 31)
 #' @export
 

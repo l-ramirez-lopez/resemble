@@ -38,7 +38,9 @@
 #' @examples
 #' \dontrun{
 #' require(prospectr)
+#' 
 #' data(NIRsoil)
+#' 
 #' Yr <- NIRsoil$Nt[as.logical(NIRsoil$train)]
 #' Xr <- NIRsoil$spc[as.logical(NIRsoil$train),]
 #' 

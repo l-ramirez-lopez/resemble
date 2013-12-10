@@ -29,6 +29,7 @@
 #' @author Leonardo Ramirez-Lopez and Antine Stevens
 #' @examples
 #' require(prospectr)
+#' 
 #' data(NIRsoil)
 #' 
 #' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]

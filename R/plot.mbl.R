@@ -6,13 +6,15 @@
 #' @param param one of the following options 'rmse', 'st.rmse' or 'r2'. The respective validation statistic is then plotted. It is only available if \code{'validation'} is specified in the \code{g} argument. 
 #' @param pcs a vector of length one or two indicating the principal components to be plotted. Default is \code{c(1, 2)}. It is only available if \code{'pca'} is specified in the \code{g} argument. 
 #' @param ... arguments to be passed to methods (not yet functional).
-#' @authors Leonardo Ramirez-Lopez and Antoine Stevens
+#' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematt?, J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 #' @seealso \code{\link{mbl}}
 #' @examples
 #' \dontrun{
 #' require(prospectr)
+#' 
 #' data(NIRsoil)
+#' 
 #' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]
 #' Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 #' Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]

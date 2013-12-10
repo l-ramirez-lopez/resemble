@@ -6,7 +6,7 @@
 }
 \arguments{
   \item{x}{an object of class \code{mbl} (as returned by
-  \code{mbl}).}
+  the \code{mbl} function).}
 
   \item{...}{arguments to be passed to methods (not yet
   functional).}

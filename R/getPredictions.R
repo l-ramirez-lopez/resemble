@@ -8,7 +8,9 @@
 #' @examples
 #' \dontrun{
 #' require(prospectr)
+#' 
 #' data(NIRsoil)
+#' 
 #' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]
 #' Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 #' Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]

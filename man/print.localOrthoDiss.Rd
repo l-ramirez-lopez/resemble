@@ -5,9 +5,9 @@
   \method{print}{localOrthoDiss}(x, ...)
 }
 \arguments{
-  \item{x}{an object of class \code{localOrthoDiss} (which
-  is returned by \code{orthoDiss} when it uses \code{local
-  = TRUE}).}
+  \item{x}{an object of class \code{localOrthoDiss}
+  (returned by \code{orthoDiss} when it uses \code{local =
+  TRUE}).}
 
   \item{...}{arguments to be passed to methods (not yet
   functional).}

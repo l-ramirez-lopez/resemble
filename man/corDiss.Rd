@@ -54,6 +54,7 @@
 }
 \examples{
 require(prospectr)
+
 data(NIRsoil)
 
 Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]

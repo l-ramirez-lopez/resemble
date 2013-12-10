@@ -42,4 +42,4 @@
 #'@useDynLib resemble
 #'@author Leonardo Ramirez-Lopez & Antoine Stevens
 #'
-NULL 
+NULL
