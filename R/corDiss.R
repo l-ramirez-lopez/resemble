@@ -93,11 +93,11 @@ corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
   }else{
     if(!is.null(X2))
     {
-      rslt <- (1 - cor(t(Xr), t(X2)))/2
+      rslt <- fastDist(X2, Xr, "cor")
       colnames(rslt) <- paste("X2", 1:nrow(X2), sep = ".")
       rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
     }else{
-      rslt <- (1 - cor(t(Xr)))/2
+      rslt <- fastDist(Xr, Xr, "cor")
       colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
       colnames(rslt) <- rownames(rslt)
     }
