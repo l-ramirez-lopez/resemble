@@ -20,13 +20,6 @@ Suggests:
   doParallel
 LinkingTo: Rcpp, RcppArmadillo
 BuildManual: yes
-Imports:
-    foreach,
-    iterators,
-    foreach,
-    iterators,
-    kernlab,
-    pls
 Collate:
     'corDiss.R'
     'fDiss.R'
