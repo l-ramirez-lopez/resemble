@@ -26,7 +26,7 @@
 #' where \eqn{p} is the number of variables of the observations.
 #' @return 
 #' a \code{matrix} of the computed dissimilarities. 
-#' @author Leonardo Ramirez-Lopez and Antine Stevens
+#' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @examples
 #' require(prospectr)
 #' 
