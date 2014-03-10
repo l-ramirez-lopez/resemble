@@ -1,0 +1,28 @@
+Package: resemble
+Type: Package
+Title: Regression and similarity evaluation for memory-based learning in
+    spectral chemometrics.
+Version: 1.0
+Date: 2013-11-20
+Author: Leonardo Ramirez-Lopez and Antoine Stevens
+Maintainer: Leonardo Ramirez-Lopez <leonardo.ramirez@usys.ethz.ch>
+Description: This package implements functions for spectral
+    similarity/dissimilarity analysis and memory-based learning (MBL) for
+    non-linear modelling in complex spectral datasets. MBL is
+    also known as local modelling in the chemometrics literature.
+License: GPL (>=3)
+URL: https://github.com/l-ramirez-lopez/resemble
+Depends:
+    Rcpp (>= 0.11.0),
+    RcppArmadillo (>= 0.4)
+Imports:
+    foreach,
+    iterators,
+    pls
+Suggests:
+    prospectr,
+    parallel,
+    doParallel
+LinkingTo: Rcpp, RcppArmadillo
+NeedsCompilation: yes
+Repository: CRAN

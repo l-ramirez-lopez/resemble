@@ -1,0 +1,17 @@
+citHeader("To cite package 'resemble' in publications use:")
+     
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+vers <- paste("R package version", meta$Version)
+     
+citEntry(entry="Manual",
+  title = "resemble: Regression and similarity evaluation for memory-based learning of spectral data",
+  author = personList(as.person("Leornardo Ramirez-Lopez"),
+                      as.person("Antoine Stevens")),
+  year = year,
+  note = vers,
+
+  textVersion =
+  paste("Leornardo Ramirez-Lopez and Antoine Stevens (",
+        year,
+        "). resemble: Regression and similarity evaluation for memory-based learning of spectral data",
+        vers, ".", sep=""))

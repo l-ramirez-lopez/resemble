@@ -1,0 +1,27 @@
+\name{which_min}
+\alias{which_min}
+\title{A function to compute row-wise index of minimum values of a square distance matrix}
+\usage{
+which_min(X,cores)
+}
+\arguments{
+  \item{X}{a square \code{matrix} of distance}
+
+  \item{cores}{number of cores used to run the computation}
+}
+\value{
+a \code{vector} of the indices of the minimum value in each
+row of the input \code{matrix}
+}
+\description{
+A function to compute row-wise index of minimum values of a
+square distance matrix
+}
+\details{
+Used internally to find the nearest neighbours
+}
+\author{
+Antoine Stevens
+}
+\keyword{internal}
+

@@ -1,0 +1,47 @@
+\name{plot.orthoProjection}
+\alias{plot.orthoProjection}
+\title{Plot method for an object of class \code{orthoProjection}}
+\usage{
+\method{plot}{orthoProjection}(x, ...)
+}
+\arguments{
+  \item{x}{an object of class \code{orthoProjection} (as
+  returned by \code{orthoProjection}).}
+
+  \item{...}{arguments to be passed to methods.}
+}
+\description{
+Plot method for an object of class \code{orthoProjection}
+}
+\examples{
+\dontrun{
+require(prospectr)
+
+data(NIRsoil)
+
+Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]
+Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
+Xr <- NIRsoil$spc[as.logical(NIRsoil$train),]
+
+Xu <- Xu[!is.na(Yu),]
+Yu <- Yu[!is.na(Yu)]
+
+Xr <- Xr[!is.na(Yr),]
+Yr <- Yr[!is.na(Yr)]
+
+# A partial least squares projection using the "opc" method
+# for the selection of the optimal number of components
+plsProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
+                           method = "pls", pcSelection = list("opc", 40))
+
+plot(plsProj)
+}
+}
+\author{
+Leonardo Ramirez-Lopez and Antoine Stevens
+}
+\seealso{
+\code{\link{orthoProjection}}
+}
+

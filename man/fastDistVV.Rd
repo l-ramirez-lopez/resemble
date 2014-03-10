@@ -1,0 +1,25 @@
+\name{fastDistVV}
+\alias{fastDistVV}
+\title{A fast (parallel) algorithm of (squared) Euclidean cross-distance for vectors written in C++}
+\usage{
+fastDistVV(X, cores)
+}
+\arguments{
+  \item{X}{a \code{vector}}
+}
+\value{
+a \code{vector} of distance (lower triangle of the distance
+matrix, stored by column)
+}
+\description{
+A fast (parallel) algorithm of (squared) Euclidean
+cross-distance for vectors written in C++
+}
+\details{
+used internally in orthoProjection
+}
+\author{
+Antoine Stevens
+}
+\keyword{internal}
+

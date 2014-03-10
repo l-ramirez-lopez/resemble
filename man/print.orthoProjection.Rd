@@ -1,0 +1,20 @@
+\name{print.orthoProjection}
+\alias{print.orthoProjection}
+\title{Print method for an object of class \code{orthoProjection}}
+\usage{
+\method{print}{orthoProjection}(x, ...)
+}
+\arguments{
+  \item{x}{an object of class \code{orthoProjection} (as
+  returned by the \code{orthoProjection} function).}
+
+  \item{...}{arguments to be passed to methods (not yet
+  functional).}
+}
+\description{
+Print method for an object of class \code{orthoProjection}
+}
+\author{
+Leonardo Ramirez-Lopez and Antoine Stevens
+}
+
