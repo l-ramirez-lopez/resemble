@@ -1,6 +1,6 @@
 # resemble: Regression and similarity evaluation for memory-based learning of spectral data
 
-Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble_v0.1/)
+Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
 You can install the `resemble` package directly from github using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html) (with a proper installed version of [Rtools](http://cran.r-project.org/bin/windows/Rtools/)):
 
@@ -70,7 +70,7 @@ sbl.u <- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
 getPredictions(sbl.u)
 ````
 
-[`resemble`](http://l-ramirez-lopez.github.io/resemble_v0.1/) implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, _a.k.a_ instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. 
+[`resemble`](http://l-ramirez-lopez.github.io/resemble/) implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, _a.k.a_ instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. 
 
 
 The functions for computing and evaluate spectral similarity/dissimilarity matrices can be summarized as follows:
@@ -133,4 +133,4 @@ In order to predict each value in Yu, the `mbl` function takes each sample in Xu
 
 ## Bug report and development version
 
-You can send an email to the package maintainer (<leonardo.ramirez@usys.ethz.ch>; <leonardo.ramirez@wsl.ch>) or create an [issue](https://github.com/l-ramirez-lopez/resemble_v0.1/issues) on github. 
+You can send an email to the package maintainer (<leonardo.ramirez@usys.ethz.ch>; <leonardo.ramirez@wsl.ch>) or create an [issue](https://github.com/l-ramirez-lopez/resemble/issues) on github. 
