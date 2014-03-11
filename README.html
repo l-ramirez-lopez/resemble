@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics</h1>
+
+<p><em>Antoine Stevens &amp; Leonardo Ramirez-Lopez</em></p>
+
+<p>Visit the <a href="http://l-ramirez-lopez.github.io/resemble/"><code>resemble</code> site here</a></p>
+
+<p>You can install the <code>resemble</code> package directly from github using <a href="http://cran.r-project.org/web/packages/devtools/index.html"><code>devtools</code></a> (with a proper installed version of <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>):</p>
+
+<pre><code>require(&quot;devtools&quot;)
+install_github(&quot;resemble&quot;,&quot;l-ramirez-lopez&quot;)
+</code></pre>
+
+<p>You can also download the <a href="https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.zip?raw=true">binary (.zip) file from here</a> or the <a href="https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.tar.gz?raw=true">source file (.tar.gz) from here</a>. Remeber you should have R&gt;3.0.0. Supose you downloaded the binary file to &#39;C:/MyFolder/&#39;, then you should be able to install the package as follows:</p>
+
+<p>First, if you do not have the following packages installed, you shoudl install them first</p>
+
+<pre><code>install.packages(&#39;Rcpp&#39;)
+install.packages(&#39;RcppArmadillo&#39;)
+install.packages(&#39;pls&#39;)
+install.packages(&#39;foreach&#39;)
+install.packages(&#39;iterators&#39;)
+install.packages(&#39;kernlab&#39;)
+</code></pre>
+
+<p>Then, install <code>resemble</code></p>
+
+<pre><code>install.packages(&#39;C:/MyFolder/resemble_1.0.zip&#39;)
+</code></pre>
+
+<p>or</p>
+
+<pre><code>install.packages(&#39;C:/MyFolder/resemble_1.0.tar.gz&#39;, type = &#39;source&#39;)
+</code></pre>
+
+<p>After installing <code>resemble</code> you should be also able to run the following lines:</p>
+
+<pre><code>require(resemble)
+
+help(mbl)
+
+#install.packages(&#39;prospectr&#39;)
+require(prospectr)
+
+data(NIRsoil)
+
+Xu &lt;- NIRsoil$spc[!as.logical(NIRsoil$train),]
+Yu &lt;- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+Yr &lt;- NIRsoil$CEC[as.logical(NIRsoil$train)]
+Xr &lt;- NIRsoil$spc[as.logical(NIRsoil$train),]
+
+Xu &lt;- Xu[!is.na(Yu),]
+Xr &lt;- Xr[!is.na(Yr),]
+
+Yu &lt;- Yu[!is.na(Yu)]
+Yr &lt;- Yr[!is.na(Yr)]
+
+# Example of the mbl function
+# A mbl approach (the spectrum-based learner) as implemented in Ramirez-Lopez et al. (2013)
+# An exmaple where Yu is supposed to be unknown, but the Xu (spectral variables) are known
+ctrl1 &lt;- mblController(sm = &#39;pc&#39;, pcSelection = list(&#39;opc&#39;, 40),
+                       valMethod = &#39;NNv&#39;,
+                       scaled = TRUE, center = TRUE)
+
+sbl.u &lt;- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
+             mblCtrl = ctrl1,
+             distUsage = &#39;predictors&#39;,
+             k = seq(40, 150, by = 10),
+             method = &#39;gpr&#39;)
+
+getPredictions(sbl.u)
+</code></pre>
+
+<p><a href="http://l-ramirez-lopez.github.io/resemble/"><code>resemble</code></a> implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, <em>a.k.a</em> instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. </p>
+
+<p>The functions for computing and evaluate spectral similarity/dissimilarity matrices can be summarized as follows:</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description/computes&hellip;</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>fDiss</code></td>
+<td>Euclidean and Mahalanobis distances as well as the cosine dissimilarity (<em>a.k.a</em> spectral angle mapper)</td>
+</tr>
+<tr>
+<td><code>corDiss</code></td>
+<td>correlation and moving window correlation dissimilarity</td>
+</tr>
+<tr>
+<td><code>sid</code></td>
+<td>spectral information divergence between spectra or between the probability distributions of spectra</td>
+</tr>
+<tr>
+<td><code>orthoDiss</code></td>
+<td>principal components and partial least squares dissimilarity (including several options)</td>
+</tr>
+<tr>
+<td><code>simEval</code></td>
+<td>evaluates a given similarity/dissimilarity matrix based on the concept of side information</td>
+</tr>
+</tbody></table>
+
+<p>The functions for projecting the spectra onto low dimensional orthogonal variables are:</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>pcProjection</code></td>
+<td>projects the spectra onto a principal component space</td>
+</tr>
+<tr>
+<td><code>plsProjection</code></td>
+<td>projects the spectra onto a partial least squares component space  (<em>a.k.a</em> projection to latent structures)</td>
+</tr>
+<tr>
+<td><code>orthoProjection</code></td>
+<td>reproduces either the <code>pcProjection</code> or the <code>plsProjection</code> functions</td>
+</tr>
+</tbody></table>
+
+<p>The projection functions also offer different options for optimizing/selecting the number of components involved in the projection.</p>
+
+<p>The functions modelling the spectra using memory-based learning are:</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>mblControl</code></td>
+<td>controls some modelling aspects of the <code>mbl</code> function</td>
+</tr>
+<tr>
+<td><code>mbl</code></td>
+<td>models the spectra by memory-based learning</td>
+</tr>
+</tbody></table>
+
+<p>Some additional miscellaneous functions are:</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>print.mbl</code></td>
+<td>prints a summary of the results obtained by the <code>mbl</code> function</td>
+</tr>
+<tr>
+<td><code>plot.mbl</code></td>
+<td>plots a summary of the results obtained by the <code>mbl</code> function</td>
+</tr>
+<tr>
+<td><code>print.localOrthoDiss</code></td>
+<td>prints local distance matrices generated with the <code>orthoDiss</code> function</td>
+</tr>
+</tbody></table>
+
+<p>In order to expand a little bit more the explanation on the <code>mbl</code> function, let&#39;s define first the basic input datasets:</p>
+
+<ul>
+<li><p><strong>Reference (training) set</strong>: Dataset with <em>n</em> reference samples (e.g. spectral library) to be used in the calibration of a spectral models. Xr represents the matrix of samples (containing the spectral predictor variables) and Yr represents a given response variable corresponding to Xr.</p></li>
+<li><p><strong>Prediction set</strong> : Data set with <em>m</em> samples where the response variable (Yu) is unknown. However it can be predicted by applying a spectral model (calibrated by using Xr and Yr) on the spectra of these samples (Xu). </p></li>
+</ul>
+
+<p>In order to predict each value in Yu, the <code>mbl</code> function takes each sample in Xu and searches in Xr for its <em>k</em>-nearest neighbours (most spectrally similar samples). Then a (local) model is calibrated with these (reference) neighbours and it immediately predicts the correspondent value in Yu from Xu. In the function, the <em>k</em>-nearest neighbour search is performed by computing spectral similarity/dissimilarity matrices between samples. The <code>mbl</code> function offers the following regression options for calibrating the (local) models:</p>
+
+<table><thead>
+<tr>
+<th>Regression methods in the <code>mbl</code> function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>&#39;gpr&#39;</code></td>
+<td>Gaussian process with linear kernel</td>
+</tr>
+<tr>
+<td><code>&#39;pls&#39;</code></td>
+<td>Partial least squares</td>
+</tr>
+<tr>
+<td><code>&#39;wapls1&#39;</code></td>
+<td>Weighted average partial least squares 1</td>
+</tr>
+<tr>
+<td><code>&#39;wapls2&#39;</code></td>
+<td>Weighted average partial least squares 2</td>
+</tr>
+</tbody></table>
+
+<h2>Keywords</h2>
+
+<ul>
+<li><em>Infrared spectroscopy</em></li>
+<li><em>Chemometrics</em></li>
+<li><em>Local modelling</em></li>
+<li><em>Spectral library</em></li>
+<li><em>Lazy learning</em></li>
+<li><em>Soil spectroscopy</em></li>
+</ul>
+
+<h2>Bug report and development version</h2>
+
+<p>You can send an email to the package maintainer (<a href="mailto:leonardo.ramirez@usys.ethz.ch">leonardo.ramirez@usys.ethz.ch</a>; <a href="mailto:leonardo.ramirez@wsl.ch">leonardo.ramirez@wsl.ch</a>) or create an <a href="https://github.com/l-ramirez-lopez/resemble/issues">issue</a> on github. </p>
+
+</body>
+
+</html>
+
