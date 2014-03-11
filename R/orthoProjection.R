@@ -80,6 +80,7 @@
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte, J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 #' @seealso \code{\link{orthoDiss}}, \code{\link{simEval}}, \code{\link{mbl}}
 #' @examples
+#' \dontrun{
 #' require(prospectr)
 #' 
 #' data(NIRsoil)
@@ -109,8 +110,23 @@
 #' # for the selection of the optimal number of components
 #' plsProj2 <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu, 
 #'                             method = "pls", pcSelection = list("cumvar", 0.99))
-#'                             
+#' }                            
 #' @export
+
+#######################################################################
+# resemble
+# Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#######################################################################
 
 orthoProjection <- function(Xr, X2 = NULL, 
                             Yr = NULL, 

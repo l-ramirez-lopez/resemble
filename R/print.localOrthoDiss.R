@@ -6,6 +6,21 @@
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @export
 
+#######################################################################
+# resemble
+# Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#######################################################################
+
 print.localOrthoDiss <- function(x,...){
   obj <- x
   if(is.list(obj))
@@ -32,26 +47,8 @@ print.localOrthoDiss <- function(x,...){
   if(!is.logical(drop))
     drop <- FALSE
   class(object) <- NULL
-  obj <- tryMod(object[rr,cl, drop = drop])
+  obj <- object[rr,cl, drop = drop]
   if(!drop)
     class(obj) <- "localOrthoDiss"
   return(obj)
 }  
-
-
-tryMod <- function (expr, addMss = NULL, silent = FALSE) 
-{
-  tryCatch(expr, error = function(e) {
-    call <- conditionCall(e)
-    prefix <- "Error: "
-    msg <- paste0(prefix, conditionMessage(e), "\n")
-    .Internal(seterrmessage(msg[1L]))
-    if (!silent && identical(getOption("show.error.messages"), TRUE)) 
-    {
-      cat(msg, file = stderr())
-      .Internal(printDeferredWarnings())
-    }
-    invisible(structure(msg, class = "try-error", condition = e))
-  })
-}
-

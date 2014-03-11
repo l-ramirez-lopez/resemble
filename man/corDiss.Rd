@@ -51,6 +51,7 @@ size which rolls sequantially fom 1 up to \eqn{p - ws} and
 \eqn{p} is the number of variables of the observations.
 }
 \examples{
+\dontrun{
 require(prospectr)
 data(NIRsoil)
 
@@ -64,6 +65,7 @@ corDiss(Xr = Xr, X2 = Xu)
 corDiss(Xr = Xr, ws = 41)
 
 corDiss(Xr = Xr, X2 = Xu, ws = 41)
+}
 }
 \author{
 Antine Stevens and Leonardo Ramirez-Lopez

@@ -233,6 +233,7 @@ in the case of categorical variables. In this process the
 side information of the samples).
 }
 \examples{
+\dontrun{
 require(prospectr)
 
 data(NIRsoil)
@@ -262,6 +263,7 @@ pcProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
 # for the selection of the optimal number of components
 plsProj2 <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
                             method = "pls", pcSelection = list("cumvar", 0.99))
+}
 }
 \author{
 Leonardo Ramirez-Lopez

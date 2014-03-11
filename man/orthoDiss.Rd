@@ -169,6 +169,7 @@ other hand, when \code{local = FALSE}, the dissimilarity
 matrix obtained can be considered as a distance matrix.
 }
 \examples{
+\dontrun{
 require(prospectr)
 
 data(NIRsoil)
@@ -210,6 +211,7 @@ ex4 <- orthoDiss(Xr = Xr, X2 = Xu,
                  method = "pls",
                  local = TRUE,
                  k0 = 200)
+}
 }
 \author{
 Leonardo Ramirez-Lopez

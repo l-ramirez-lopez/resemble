@@ -23,6 +23,7 @@
 #' a \code{matrix} of the computed dissimilarities. 
 #' @author Antine Stevens and Leonardo Ramirez-Lopez
 #' @examples
+#' \dontrun{
 #' require(prospectr)
 #' data(NIRsoil)
 #' 
@@ -36,7 +37,23 @@
 #' corDiss(Xr = Xr, ws = 41)
 #' 
 #' corDiss(Xr = Xr, X2 = Xu, ws = 41) 
+#' }
 #' @export
+
+#######################################################################
+# resemble 
+# Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#######################################################################
 
 corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
 {

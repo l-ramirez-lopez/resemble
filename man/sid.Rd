@@ -148,6 +148,7 @@ algorithm. Note that if \code{mode = "density"}, the
 centering will be possible.
 }
 \examples{
+\dontrun{
 require(prospectr)
 
 data(NIRsoil)
@@ -174,6 +175,7 @@ xru.sid
 # Compute the SID distance between the samples in Xr and the samples in Xu using the histograms
 xru.sid.hist <- sid(Xr = Xr, X2 = Xu, mode = "feature")
 xru.sid.hist
+}
 }
 \author{
 Leonardo Ramirez-Lopez
