@@ -1,4 +1,4 @@
-# resemble: Regression and similarity evaluation for memory-based learning of spectral data
+# resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
