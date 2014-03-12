@@ -48,7 +48,9 @@ follows: \deqn{ mcd(x_i, x_j) = \frac{1}{2
 ws}\sum_{k=1}^{p-ws}(1 - cor(x_{i,(k:k+ws)},
 x_{j,(k:k+ws)})) } where \eqn{ws} represents a given window
 size which rolls sequantially fom 1 up to \eqn{p - ws} and
-\eqn{p} is the number of variables of the observations.
+\eqn{p} is the number of variables of the observations. The
+function does not accept input data containing missing
+values.
 }
 \examples{
 \dontrun{

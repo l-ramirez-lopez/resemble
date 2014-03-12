@@ -24,6 +24,7 @@
 #' S(x_i, x_j) = cos^{-1}{\frac{\sum_{k=1}^{p}x_{i,k} x_{j,k}}{\sqrt{\sum_{k=1}^{p} x_{i,k}^{2}} \sqrt{\sum_{k=1}^{p} x_{j,k}^{2}}}}
 #'      }
 #' where \eqn{p} is the number of variables of the observations.
+#' The function does not accept input data containing missing values.
 #' @return 
 #' a \code{matrix} of the computed dissimilarities. 
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
@@ -67,9 +68,14 @@
 
 fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE)
 {
-  if(!is.null(X2))
+  if(!is.null(X2)){
     if(ncol(X2) != ncol(Xr))
       stop("The number of columns (variables) in Xr must be equal to the number of columns (variables) in X2")
+  if(sum(is.na(X2)) > 0)
+    stop("Input data contains missing values")
+  }
+  if(sum(is.na(Xr)) > 0)
+    stop("Matrices with missing values are not accepted")
   
   mtd <- match.arg(method, c("euclid", "mahalanobis","cosine"))
   if(length(mtd) > 1)
@@ -127,6 +133,7 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
     colnames(rslt) <- rownames(rslt)
   }
+  rslt[is.na(rslt)] <- 0
   return(rslt)
 }
 

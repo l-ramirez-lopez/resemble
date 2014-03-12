@@ -19,6 +19,7 @@
 #'      mcd(x_i, x_j) = \frac{1}{2 ws}\sum_{k=1}^{p-ws}(1 - cor(x_{i,(k:k+ws)}, x_{j,(k:k+ws)}))
 #'      }
 #' where \eqn{ws} represents a given window size which rolls sequantially fom 1 up to \eqn{p - ws} and  \eqn{p} is the number of variables of the observations.
+#' The function does not accept input data containing missing values.
 #' @return 
 #' a \code{matrix} of the computed dissimilarities. 
 #' @author Antine Stevens and Leonardo Ramirez-Lopez
@@ -57,9 +58,15 @@
 
 corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
 {
-  if(!is.null(X2))
+  if(!is.null(X2)){
     if(ncol(X2) != ncol(Xr))
       stop("The number of columns (variables) in Xr must be equal to the number of columns (variables) in X2")
+    if(sum(is.na(X2)) > 0)
+      stop("Input data contains missing values")
+  }
+
+  if(sum(is.na(Xr)) > 0)
+    stop("Matrices with missing values are not accepted")
   
   if(!is.logical(center))
     stop("'center' argument must be logical")
@@ -114,10 +121,11 @@ corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
       colnames(rslt) <- paste("X2", 1:nrow(X2), sep = ".")
       rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
     }else{
-      rslt <- fastDist(Xr, Xr, "cor")      
+      rslt <- fastDist(Xr, Xr, "cor")
       colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
       colnames(rslt) <- rownames(rslt)
     }
   }
+  rslt[is.na(rslt)] <- 0
   return(rslt)
 }

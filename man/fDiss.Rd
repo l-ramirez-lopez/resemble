@@ -66,7 +66,8 @@ and \eqn{x_j} is computed as follows: \deqn{ S(x_i, x_j) =
 cos^{-1}{\frac{\sum_{k=1}^{p}x_{i,k}
 x_{j,k}}{\sqrt{\sum_{k=1}^{p} x_{i,k}^{2}}
 \sqrt{\sum_{k=1}^{p} x_{j,k}^{2}}}} } where \eqn{p} is the
-number of variables of the observations.
+number of variables of the observations. The function does
+not accept input data containing missing values.
 }
 \examples{
 require(prospectr)
