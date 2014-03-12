@@ -171,7 +171,7 @@ sqrtSm <- function(X, method = c("svd", "eigen")){
     out <- svd(X)
     D <- diag(out$d)
     U <- out$v
-    return(U %*% sqrt(D) %*% t(U))
+    return(U %*% (D^0.5) %*% t(U))
   }
   
   if(method == "eigen")
@@ -179,6 +179,6 @@ sqrtSm <- function(X, method = c("svd", "eigen")){
     out <- eigen(X)
     D <- diag(out$values)
     U <- out$vectors
-    return(U %*% sqrt(D) %*% t(U))
+    return(U %*% (D^0.5) %*% t(U))
   }
 }

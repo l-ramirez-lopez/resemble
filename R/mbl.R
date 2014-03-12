@@ -859,7 +859,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(mblCtrl$valMethod %in% c("NNv", "both"))
   {
     nn.stats <- function(x,...){
-      nn.rmse <- sqrt(mean((x$y.nearest - x$y.nearest.pred)^2))
+      nn.rmse <- (mean((x$y.nearest - x$y.nearest.pred)^2))^0.5
       nn.st.rmse <- nn.rmse / diff(range(x$y.nearest))  
       nn.rsq <- (cor(x$y.nearest, x$y.nearest.pred))^2
       return(c(nn.rmse = nn.rmse, nn.st.rmse = nn.st.rmse, nn.rsq = nn.rsq))
@@ -875,7 +875,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(!is.null(Yu))
   {
     yu.stats <- function(x,...){
-      yu.rmse <- sqrt(mean((x$yu.obs - x$pred)^2))
+      yu.rmse <- (mean((x$yu.obs - x$pred)^2))^0.5
       yu.st.rmse <- yu.rmse / diff(range(x$yu.obs)) 
       yu.rsq <- (cor(x$yu.obs, x$pred))^2
       return(c(yu.rmse = yu.rmse, yu.st.rmse = yu.st.rmse, yu.rsq = yu.rsq))
@@ -1194,7 +1194,7 @@ gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, noise
     rspi[,jj]<- strs
     fit.gp <-  gpr.dp(Xn = x[-rspi[,jj],], Yn = y[-rspi[,jj]], scaled = scaled, noise.v = noise.v)
     y.pred <-  pred.gpr.dp(fit.gp, x[rspi[,jj],])
-    rmse.seg[jj] <- sqrt(mean((y.pred - y[rspi[,jj]])^2))
+    rmse.seg[jj] <- (mean((y.pred - y[rspi[,jj]])^2))^0.5
     st.rmse.seg[jj] <- rmse.seg[jj] /diff(range(y[rspi[,jj]]))
     rsq.seg[jj] <- (cor(y.pred, y[rspi[,jj]]))^2
   }
@@ -1247,7 +1247,7 @@ plsCv <- function(x, y, ncomp, scaled, weights, p = 0.75, resampling = 10, retri
     rspi[,jj]<- strs
     fit <- plsr(y[-rspi[,jj]] ~ x[-rspi[,jj],], scale = scaled, ncomp = ncomp, method = "oscorespls")
     y.pred <- (predict(fit, x[rspi[,jj],]))[,,1:ncomp]
-    rmse.seg[,jj] <- sqrt(colMeans((y.pred - y[rspi[,jj]])^2))
+    rmse.seg[,jj] <- (colMeans((y.pred - y[rspi[,jj]])^2))^0.5
     st.rmse.seg[,jj] <- rmse.seg[,jj] /diff(range(y[rspi[,jj]]))
     rsq.seg[,jj] <- (cor(y.pred, y[rspi[,jj]]))^2
   }
@@ -1325,9 +1325,9 @@ wapls.weights <- function(plsO, orgX, type = c("w1", "w2"), newX = NULL, pls.c, 
     for(ii in minF:maxF)
     {
       xrec <- (sc[,1:ii]) %*% t(as.matrix(plsO$loadings[,1:ii]))
-      x.rms.res[ii] <- sqrt(mean((newX.tr - xrec)^2))
+      x.rms.res[ii] <- (mean((newX.tr - xrec)^2))^0.5
     }
-    rms.b <- sqrt(colMeans((coef(plsO, ncomp = 1:maxF)[,,1:maxF])^2))
+    rms.b <- (colMeans((coef(plsO, ncomp = 1:maxF)[,,1:maxF])^2))^0.5
     rms.b_x <- (rms.b * x.rms.res)[minF:maxF]
     whgt <- 1/(rms.b_x)
     whgt <- whgt/sum(whgt)

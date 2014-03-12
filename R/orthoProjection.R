@@ -327,10 +327,11 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       iter <- keepg <- T
       while(keepg){
         pp <- (t(xx) %*% tt)/(t(tt) %*% tt)[[1]]
-        pp <- pp / sqrt(t(pp)%*%pp)[[1]]
+        pp <- pp / ((t(pp)%*%pp)^0.5)[[1]]
         #tt.i <- (t(pp)%*%t(xx) / (t(pp)%*%pp)[[1]]) # ths can be removed (t(pp)%*%pp)[[1]]
         tt.i <- t(pp)%*%t(xx)
-        keepg <- !sqrt(((tt-tt.i)%*%t(tt-tt.i))) <= tol
+        val.n <- (((tt-tt.i)%*%t(tt-tt.i)))^0.5
+        keepg <- !(val.n <= tol)
         if(max.iter <= iter)
           keepg <- FALSE
         iter <- 1 + iter
