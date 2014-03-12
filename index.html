@@ -104,7 +104,7 @@ ctrl1 &lt;- mblControl(sm = 'pc', pcSelection = list('opc', 40),
 
 sbl.u &lt;- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
              mblCtrl = ctrl1,
-             distUsage = 'predictors',
+             dissUsage = 'predictors',
              k = seq(40, 150, by = 10),
              method = 'gpr')
 
