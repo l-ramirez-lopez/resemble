@@ -19,7 +19,6 @@ install.packages('RcppArmadillo')
 install.packages('pls')
 install.packages('foreach')
 install.packages('iterators')
-install.packages('kernlab')
 ```
 Then, install `resemble`
 

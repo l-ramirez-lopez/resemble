@@ -9,7 +9,7 @@ orthoDiss(Xr, X2 = NULL,
           local = FALSE,
           k0,
           center = TRUE, scaled = TRUE,
-          return.all = FALSE, cores, ...)
+          return.all = FALSE, cores = 1, ...)
 }
 \arguments{
   \item{Xr}{a \code{matrix} (or \code{data.frame})
@@ -117,7 +117,7 @@ orthoDiss(Xr, X2 = NULL,
   \item{cores}{number of cores used when \code{method} in
   \code{pcSelection} is \code{"opc"} (which can be
   computationally intensive) and \code{local = FALSE}
-  (default = 1)}
+  (default = 1). Dee details.}
 
   \item{...}{additional arguments to be passed to the
   \code{\link{orthoProjection}} function.}
@@ -137,7 +137,9 @@ dissimilarity matrix. If \code{local = FALSE} a distance
 \code{matrix}. If \code{local = TRUE} a \code{matrix} of
 class \code{orthoDiss}. In this case each column represent
 the dissimilarity between a target sample and its
-neighbourhood.} }
+neighbourhood.} } Multi-core processing works currently
+only on windows and linux (at least for the C++ code used
+in the package that use multi-threading).
 }
 \description{
 This function computes orthogonal dissimilarities between

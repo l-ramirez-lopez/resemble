@@ -2,7 +2,7 @@
 \alias{simEval}
 \title{A function for evaluating similarity/dissimilarity matrices (simEval)}
 \usage{
-simEval(d, sideInf, lower.tri = FALSE, cores, ...)
+simEval(d, sideInf, lower.tri = FALSE, cores = 1, ...)
 }
 \arguments{
   \item{d}{a \code{vector} or a square symmetric
@@ -30,7 +30,7 @@ simEval(d, sideInf, lower.tri = FALSE, cores, ...)
 
   \item{cores}{number of cores used to find the neareast
   neighbours of similarity/dissimilarity scores (default =
-  1)}
+  1). See details.}
 
   \item{...}{additional parameters (for internal use
   only).}
@@ -84,7 +84,9 @@ between the the side information of the samples and the
 side information of their corrresponding nearest samples
 (i.e. most similar samples). While \eqn{p_o} is the
 relative agreement \eqn{p_e} is the the agreement expected
-by chance.
+by chance. Multi-core processing works currently only on
+windows and linux (at least for the C++ code used in the
+package that use multi-threading).
 }
 \examples{
 \dontrun{

@@ -1,6 +1,6 @@
 #include <RcppArmadillo.h>
-#if defined(_OPENMP)
-#include <omp.h>
+#ifdef _OPENMP
+#include <omp.h>    // OpenMP
 #endif
 
 using namespace Rcpp;
@@ -19,7 +19,9 @@ using namespace Rcpp;
 //' @author Antoine Stevens 
 // [[Rcpp::export]]   
 NumericVector which_min(NumericMatrix X, int cores){  
+   #ifdef _OPENMP
    omp_set_num_threads(cores);
+   #endif
    int nX = X.nrow(), kX = X.ncol();
    arma::mat XX(X.begin(), nX, kX, false); 
    arma::uword  index;
@@ -28,7 +30,7 @@ NumericVector which_min(NumericMatrix X, int cores){
    for(int i = 0; i < nX; i++){
     arma::rowvec x = XX.row(i);
     x(i) = arma::datum::nan; // remove diag
-    //double z = x.min(index);
+    double z = x.min(index);
     vindex[i] = index;
    }
    return wrap(vindex +1);   
@@ -46,11 +48,13 @@ NumericVector which_min(NumericMatrix X, int cores){
 //' @author Antoine Stevens 
 // [[Rcpp::export]]   
 NumericVector which_minV(NumericVector X,int cores){  
-  omp_set_num_threads(cores);
+   #ifdef _OPENMP
+   omp_set_num_threads(cores);
+   #endif
   arma::uword  index;
-  double vct = (sqrt(((double)X.size())*8.0+1.0)+1.0)/2.0;
-  int len = vct;
-  //int len = (sqrt(X.size()*8+1)+1)/2;
+  // double vct = (sqrt(((double)X.size())*8.0+1.0)+1.0)/2.0;
+  // int len = vct;
+  int len = (sqrt(X.size()*8+1)+1)/2;
   arma::uvec vindex(len);    
   int i,j;
   #pragma omp parallel for private(i,j) schedule(dynamic)
@@ -67,7 +71,7 @@ NumericVector which_minV(NumericVector X,int cores){
       x[j] = X(k2);             
     }
     x[i] = arma::datum::nan; // remove diag
-    //double z = x.min(index);
+    double z = x.min(index);
     vindex[i] = index;
   }
   return wrap(vindex +1);

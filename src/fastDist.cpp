@@ -1,8 +1,7 @@
 #include <RcppArmadillo.h>
-#if defined(_OPENMP)
-#include <omp.h>
+#ifdef _OPENMP
+#include <omp.h>    // OpenMP
 #endif
-
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
 
@@ -82,11 +81,13 @@ NumericVector fastDistV(NumericMatrix X, NumericVector Y, String method){
 //' @useDynLib resemble
 // [[Rcpp::export]]   
 NumericVector fastDistVV(NumericVector X, int cores){  
+   #ifdef _OPENMP
    omp_set_num_threads(cores);
+   #endif
    int nX = X.size();
    int n = ((nX*nX)-nX)/2;
    NumericVector output(n);   
-   int k = 0;
+   int k;
    #pragma omp parallel for schedule(dynamic)
    for(int i = 0; i < nX-1; i++)
      for(int j = i+1; j < nX; j++){

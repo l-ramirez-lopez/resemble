@@ -37,7 +37,7 @@
 #' @param scaled a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.
 #' @param tol tolerance limit for convergence of the algorithm in the nipals algorithm (default is 1e-06). In the case of PLS this applies only to Yr with more than two variables.
 #' @param max.iter maximum number of iterations (default is 1000). In the case of \code{method = "pls"} this applies only to \code{Yr} matrices with more than one variable.
-#' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1)
+#' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1). Dee details.
 #' @param ... additional arguments to be passed to \code{pcProjection} or \code{plsProjection}.
 #' @param object  object of class "orthoProjection" (as returned by \code{orthoProjection}, \code{pcProjection} or \code{plsProjection}).
 #' @param newdata an optional data frame or matrix in which to look for variables with which to predict. If omitted, the scores are used. It must contain the same number of columns, to be used in the same order.
@@ -54,6 +54,7 @@
 #' At each iteration, the function computes a dissimilarity matrix retaining \eqn{p_i} components. The values of the side information of the samples are compared against the side information values of their most spectrally similar samples. 
 #' The optimal number of components retrieved by the function is the one that minimizes the root mean squared differences (RMSD) in the case of continuous variables, or maximizes the kappa index in the case of categorical variables. In this process the \code{\link{simEval}} function is used. 
 #' Note that for the \code{"opc"} method is necessary to specify \code{Yr} (the side information of the samples).
+#' Multi-core processing works currently only on windows and linux (at least for the C++ code used in the package that use multi-threading).
 #' @return \code{orthoProjection}, \code{pcProjection}, \code{plsProjectiona}, return a \code{list} of class \code{orthoProjection} with the following components:
 #' \itemize{
 #'  \item{\code{scores}}{ a \code{matrix} of scores corresponding to the samples in \code{Xr} and \code{X2} (if it applies). The number of components that the scores represent is given by the number of components chosen in the function.}

@@ -151,7 +151,7 @@ mblControl(sm = "pc",
 
   \item{cores}{number of cores used when \code{method} in
   \code{pcSelection} is \code{"opc"} (which can be
-  computationally intensive) (default = 1)}
+  computationally intensive) (default = 1). See details.}
 }
 \value{
 \code{mblControl} returns a \code{list} of class \code{mbl}
@@ -198,7 +198,15 @@ mean square errors.} \item{No validation (\code{"none"}):}{
 No validation is carried out. If \code{"none"} is seleceted
 along with \code{"NNv"} and/or \code{"loc_crossval"}, then
 it will be ignored and the respective validation(s) will be
-carried out.} }
+carried out.} } Multi-core processing works currently only
+on windows and linux (at least for the C++ code used in the
+package that use multi-threading). However, the loop used
+to iterate over the \code{Xu} samples uses the
+\code{\%dopar\%} operator of the \code{\link{foreach}}
+package, which ca be used to parallelize this internal
+loop. The last example given in the \code{\link{mbl}}
+function ilustrates how to parallelize the
+\code{\link{mbl}} function.
 }
 \examples{
 #A control list with the default parameters

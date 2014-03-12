@@ -6,11 +6,11 @@
 #' the correlation coefficient are computed for continuous variables and for discrete variables the kappa index 
 #' is calculated. 
 #' @usage 
-#' simEval(d, sideInf, lower.tri = FALSE, cores, ...)
+#' simEval(d, sideInf, lower.tri = FALSE, cores = 1, ...)
 #' @param d a \code{vector} or a square symmetric \code{matrix} (or \code{data.frame}) of similarity/dissimilarity scores between samples of a given dataset (see \code{lower.tri}).
 #' @param sideInf a \code{vector} containing the side information corresponding to the samples in the dataset from which the similarity/dissimilarity matrix was computed. It can be either a numeric vector (continuous variable) or a factor (discrete variable). If it is a numeric \code{vector},  the root mean square of differences is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. If it is a factor, then the kappa index is used. See details.
 #' @param lower.tri a \code{logical} indicating whether the input similarities/dissimilarities are given as a \code{vector} of the lower triangle of the distance matrix (as returned e.g. by \code{base::dist}) or as a square symmetric \code{matrix} (or \code{data.frame}) (default = \code{FALSE})
-#' @param cores number of cores used to find the neareast neighbours of similarity/dissimilarity scores (default = 1)
+#' @param cores number of cores used to find the neareast neighbours of similarity/dissimilarity scores (default = 1). See details.
 #' @param ... additional parameters (for internal use only).
 #' @details
 #' For the evaluation of similarity/dissimilarity matrices this function uses side information (information about one variable which is available for a
@@ -26,7 +26,7 @@
 #' \deqn{\kappa = \frac{p_{o}-p_{e}}{1-p_{e}}}
 #' where both \eqn{p_o} and \eqn{p_e} are two different agreement indexes between the the side information of the samples and the side information of their corrresponding nearest samples (i.e. most similar samples). 
 #' While \eqn{p_o} is the relative agreement \eqn{p_e} is the the agreement expected by chance. 
-#' 
+#' Multi-core processing works currently only on windows and linux (at least for the C++ code used in the package that use multi-threading).
 #' @return \code{simEval} returns a \code{list} with the following components:
 #' \itemize{
 #'  \item{"\code{eval}}{either the RMSD (and the correlation coefficient) or the kappa index}

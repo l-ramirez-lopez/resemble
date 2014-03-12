@@ -122,7 +122,7 @@ plsProjection(Xr, X2 = NULL, Yr,
 
   \item{cores}{number of cores used when \code{method} in
   \code{pcSelection} is \code{"opc"} (which can be
-  computationally intensive) (default = 1)}
+  computationally intensive) (default = 1). Dee details.}
 
   \item{...}{additional arguments to be passed to
   \code{pcProjection} or \code{plsProjection}.}
@@ -230,7 +230,9 @@ case of continuous variables, or maximizes the kappa index
 in the case of categorical variables. In this process the
 \code{\link{simEval}} function is used. Note that for the
 \code{"opc"} method is necessary to specify \code{Yr} (the
-side information of the samples).
+side information of the samples). Multi-core processing
+works currently only on windows and linux (at least for the
+C++ code used in the package that use multi-threading).
 }
 \examples{
 \dontrun{
