@@ -6,7 +6,7 @@
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @export
 
-#######################################################################
+######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
 #
@@ -19,7 +19,11 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#######################################################################
+######################################################################
+
+## History:
+## 09.03.2014 Leo     The tryMod function was removed
+
 
 print.localOrthoDiss <- function(x,...){
   obj <- x

@@ -38,7 +38,7 @@
 #' }
 #' @export
 
-#######################################################################
+######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
 #
@@ -51,7 +51,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#######################################################################
+######################################################################
 getPredictions <- function(object){
   if(is.na(match("mbl", class(object))))
     stop("the object is not of class 'mbl'")

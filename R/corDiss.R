@@ -41,7 +41,7 @@
 #' }
 #' @export
 
-#######################################################################
+######################################################################
 # resemble 
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
 #
@@ -54,7 +54,12 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#######################################################################
+######################################################################
+
+## History:
+## 09.03.2014 Leo     The line rslt[is.na(rslt)] <- 0 was added in order 
+##                    to deal with NaNs produced by the C++ code    
+
 
 corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
 {

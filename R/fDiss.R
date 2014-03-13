@@ -37,10 +37,12 @@
 #' Xr <- NIRsoil$spc[as.logical(NIRsoil$train),]
 #' 
 #' # Euclidean distances between all the samples in Xr
-#' ed <- fDiss(Xr = Xr, method = "euclid", center = TRUE, scaled = TRUE)
+#' ed <- fDiss(Xr = Xr, method = "euclid", 
+#'             center = TRUE, scaled = TRUE)
 #' 
 #' # Euclidean distances between samples in Xr and samples in Xu
-#' ed.xr.xu <- fDiss(Xr = Xr, X2 = Xu, method = "euclid", center = TRUE, scaled = TRUE)
+#' ed.xr.xu <- fDiss(Xr = Xr, X2 = Xu, method = "euclid", 
+#'                   center = TRUE, scaled = TRUE)
 #' 
 #' # Mahalanobis distance computed on the first 20 spectral variables
 #' md.xr.xu <- fDiss(Xr = Xr[,1:20], X2 = Xu[,1:20], 
@@ -48,10 +50,11 @@
 #'                  center = TRUE, scaled = TRUE)
 #' 
 #' # Cosine dissimilarity matrix
-#' cdiss.xr.xu <- fDiss(Xr = Xr, X2 = Xu, method = "cosine", center = TRUE, scaled = TRUE)
+#' cdiss.xr.xu <- fDiss(Xr = Xr, X2 = Xu, method = "cosine", 
+#'                      center = TRUE, scaled = TRUE)
 #' @export
 
-#######################################################################
+######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
 #
@@ -64,13 +67,17 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#######################################################################
+######################################################################
+
+## History:
+## 09.03.2014 Leo     The line rslt[is.na(rslt)] <- 0 was added in order 
+##                    to deal with NaNs produced by the C++ code    
 
 fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE)
 {
   if(!is.null(X2)){
     if(ncol(X2) != ncol(Xr))
-      stop("The number of columns (variables) in Xr must be equal to the number of columns (variables) in X2")
+      stop("The number of columns (variables) in Xr must be equal to \n the number of columns (variables) in X2")
   if(sum(is.na(X2)) > 0)
     stop("Input data contains missing values")
   }
@@ -102,10 +109,10 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
     if(method == "mahalanobis")
     {
       if(nrow(X) < ncol(X))
-        stop("For computing the Mahalanobis distance, the total number of samples (rows) must be larger than the number of variables (columns).")
+        stop("For computing the Mahalanobis distance, the total number of samples (rows) \n must be larger than the number of variables (columns).")
       X <- try(e2m(X, sm.method = "svd"), TRUE)
       if(!is.matrix(X))
-        stop("The covariance matrix (for the computation of the Mahalanobis distance) is exactly singular. Try another metod.")
+        stop("The covariance matrix (for the computation of the Mahalanobis distance) is exactly singular. \n Try another method.")
       method <- "euclid"
     }
     

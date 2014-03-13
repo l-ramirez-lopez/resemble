@@ -108,8 +108,9 @@
 #' 
 #' data(NIRsoil)
 #' 
-#' # Filter the data using the Savitzky and Golay smoothing filter with a window size of 
-#' # 11 spectral variables and a polynomial order of 3 (no differentiation).
+#' # Filter the data using the Savitzky and Golay smoothing filter with 
+#' # a window size of 11 spectral variables and a polynomial order of 3 
+#' # (no differentiation).
 #' sg <- savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0) 
 #'
 #' # Replace the original spectra with the filtered ones
@@ -126,11 +127,13 @@
 #' 
 #' Yu <- Yu[!is.na(Yu)]
 #' Yr <- Yr[!is.na(Yr)]
-#'
+#' 
 #' # Example 1
-#' # A mbl approach (the spectrum-based learner) as implemented in Ramirez-Lopez et al. (2013)
+#' # A mbl approach (the spectrum-based learner) as implemented 
+#' # in Ramirez-Lopez et al. (2013)
 #' # Example 1.1
-#' # An exmaple where Yu is supposed to be unknown, but the Xu (spectral variables) are known 
+#' # An exmaple where Yu is supposed to be unknown, but the Xu 
+#' # (spectral variables) are known 
 #' ctrl1 <- mblControl(sm = "pc", pcSelection = list("opc", 40), 
 #'                     valMethod = "NNv", 
 #'                     scaled = TRUE, center = TRUE)
@@ -153,8 +156,9 @@
 #' sbl.u2
 #'
 #' # Example 1.3
-#' # A variation of the spectrum-based learner implemented in Ramirez-Lopez et al. (2013)
-#' # where the dissimilarity matrices are recomputed based on partial least squares scores
+#' # A variation of the spectrum-based learner implemented in 
+#' # Ramirez-Lopez et al. (2013)where the dissimilarity matrices are 
+#' # recomputed based on partial least squares scores
 #' ctrl_1.3 <- mblControl(sm = "pls", pcSelection = list("opc", 40), 
 #'                        valMethod = "NNv", 
 #'                        scaled = TRUE, center = TRUE)
@@ -168,9 +172,11 @@
 #' sbl_1.3
 #' 
 #' # Example 2
-#' # A mbl approach similar to the ones implemented in Ramirez-Lopez et al. (2013) 
+#' # A mbl approach similar to the ones implemented in 
+#' # Ramirez-Lopez et al. (2013) 
 #' # and Fernandez Pierna and Dardenne (2008)
-#' ctrl.mbl <- mblControl(sm = "cor", pcSelection = list("cumvar", 0.999), 
+#' ctrl.mbl <- mblControl(sm = "cor", 
+#'                        pcSelection = list("cumvar", 0.999), 
 #'                        valMethod = "NNv", 
 #'                        scaled = TRUE, center = TRUE)
 #'                           
@@ -185,8 +191,10 @@
 #'
 #' # Example 3
 #' # A WA-LOCAL approach as implemented in Zhang et al. (2004)
-#' ctrl.wa <- mblControl(sm = "cor", pcSelection = list("cumvar", 0.999), 
-#'                       valMethod = c("NNv", "loc_crossval"), resampling = 10, p = 0.75,
+#' ctrl.wa <- mblControl(sm = "cor", 
+#'                       pcSelection = list("cumvar", 0.999), 
+#'                       valMethod = c("NNv", "loc_crossval"), 
+#'                       resampling = 10, p = 0.75,
 #'                       scaled = TRUE, center = TRUE)
 #'                          
 #' wa.local <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
@@ -199,19 +207,23 @@
 #' 
 #' # Example 4
 #' # Using the function with user-defined dissimilarities
-#' # Examples 4.1 - 4.2: Compute a square symetric matrix of dissimilarities between 
+#' # Examples 4.1 - 4.2: Compute a square symetric matrix of 
+#' # dissimilarities between 
 #' # all the elements in Xr and Xu (dissimilarities will be used as 
 #' # additional predictor variables later in the mbl function)
-#' # Examples 4.3 - 4.4: Derive a dissimilarity value of each element in Xu to each element in Xr
-#' # (in this case dissimilarities will not be used as additional predictor 
-#' # variables later in the mbl function)
-#' 
+#' # Examples 4.3 - 4.4: Derive a dissimilarity value of each element 
+#' # in Xu to each element in Xr (in this case dissimilarities will 
+#' # not be used as additional predictor variables later in the 
+#' # mbl function)
 #' # Example 4.1
-#' manhattanD <- dist(rbind(Xr, Xu), method = "manhattan") # the manhattan distance 
+#' # the manhattan distance 
+#' manhattanD <- dist(rbind(Xr, Xu), method = "manhattan") 
 #' manhattanD <- as.matrix(manhattanD)
 #'
-#' ctrl.udd <- mblControl(sm = "none", pcSelection = list("cumvar", 0.999), 
-#'                        valMethod = c("NNv", "loc_crossval"), resampling = 10, p = 0.75,
+#' ctrl.udd <- mblControl(sm = "none", 
+#'                        pcSelection = list("cumvar", 0.999), 
+#'                        valMethod = c("NNv", "loc_crossval"), 
+#'                        resampling = 10, p = 0.75,
 #'                        scaled = TRUE, center = TRUE)
 #'
 #' mbl.udd1 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
@@ -223,10 +235,13 @@
 #' mbl.udd1
 #' 
 #' #Example 4.2
-#' der.sp <- t(diff(t(rbind(Xr, Xu)), lag = 1, differences = 1)) # first derivative spectra
+#' # first derivative spectra
+#' der.sp <- t(diff(t(rbind(Xr, Xu)), lag = 1, differences = 1)) 
 #' 
-#' # The euclidean dissimilarity on the derivative spectra (a.k.a spectral dissimilarity) 
-#' spc.dist <- fDiss(Xr = der.sp, method = "euclid", center = FALSE, scale = FALSE) 
+#' # The euclidean dissimilarity on the derivative spectra 
+#' # (a.k.a spectral dissimilarity) 
+#' spc.dist <- fDiss(Xr = der.sp, method = "euclid", 
+#'                   center = FALSE, scale = FALSE) 
 #' 
 #' mbl.udd2 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
 #'                 mblCtrl = ctrl.udd, 
@@ -234,12 +249,14 @@
 #'                 dissUsage = "predictors",
 #'                 k = seq(40, 150, by = 10), 
 #'                 method = "gpr")
-#'                  
+#'                                 
 #' #Example 4.3
-#' der.Xr <- t(diff(t(Xr), lag = 1, differences = 1)) # first derivative spectra
-#' der.Xu <- t(diff(t(Xu), lag = 1, differences = 1)) # first derivative spectra
+#' # first derivative spectra
+#' der.Xr <- t(diff(t(Xr), lag = 1, differences = 1)) 
+#' der.Xu <- t(diff(t(Xu), lag = 1, differences = 1))
 #' # the sid on the derivative spectra
-#' der.sid <- sid(Xr = der.Xr, X2 = der.Xu, mode = "density", center = TRUE, scaled = TRUE) 
+#' der.sid <- sid(Xr = der.Xr, X2 = der.Xu, mode = "density", 
+#'                center = TRUE, scaled = TRUE) 
 #' der.sid <- der.sid$sid
 #' 
 #' mbl.udd3 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
@@ -251,7 +268,7 @@
 #' mbl.udd3
 #' 
 #' # Example 5
-#' #For running the sbl function in parallel
+#' # For running the sbl function in parallel
 #' n.cores <- 2   # two cores
 #' 
 #' # Set the number of cores according to the OS
@@ -281,7 +298,7 @@
 #' }
 #' @export
 
-#######################################################################
+######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
 #
@@ -294,7 +311,11 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#######################################################################
+######################################################################
+
+## History:
+## 09.03.2014 Leo     Doc examples  were formated with a max. line width
+##                       
 
 mbl <- function(Yr, Xr, Yu = NULL, Xu, 
                 mblCtrl = mblControl(),

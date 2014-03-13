@@ -187,26 +187,29 @@ Yu <- Yu[!is.na(Yu)]
 Xr <- Xr[!is.na(Yr),]
 Yr <- Yr[!is.na(Yr)]
 
-# Computation of the orthogonal dissimilarity matrix using the default parameters
+# Computation of the orthogonal dissimilarity matrix using the
+# default parameters
 ex1 <- orthoDiss(Xr = Xr, X2 = Xu)
 
-# Computation of a principal component dissimilarity matrix using the
-# "opc" method for the selection of the principal components
+# Computation of a principal component dissimilarity matrix using
+# the "opc" method for the selection of the principal components
 ex2 <- orthoDiss(Xr = Xr, X2 = Xu,
                  Yr = Yr,
                  pcSelection = list("opc", 40),
                  method = "pca",
                  return.all = TRUE)
 
-# Computation of a partial least squares (PLS) dissimilarity matrix using the
-# "opc" method for the selection of the PLS components
+# Computation of a partial least squares (PLS) dissimilarity
+# matrix using the "opc" method for the selection of the PLS
+# components
 ex3 <- orthoDiss(Xr = Xr, X2 = Xu,
                  Yr = Yr,
                  pcSelection = list("opc", 40),
                  method = "pls")
 
-# Computation of a partial least squares (PLS) local dissimilarity matrix using the
-# "opc" method for the selection of the PLS components
+# Computation of a partial least squares (PLS) local dissimilarity
+# matrix using the "opc" method for the selection of the PLS
+# components
 ex4 <- orthoDiss(Xr = Xr, X2 = Xu,
                  Yr = Yr,
                  pcSelection = list("opc", 40),

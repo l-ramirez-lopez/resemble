@@ -10,7 +10,7 @@ spectra(\acronym{vis-IR}). The packages includes functions
 for for projecting spectral data onto orthogonal spaces,
 computing spectral similarity/dissimilarity matrices,
 removing irrelevant spectra from a reference set, and
-modelling spectral data using memory-based learning.
+modeling spectral data using memory-based learning.
 
 The functions available for projecting the spectra are:
 \itemize{ \item{\code{\link{orthoProjection}}}

@@ -33,7 +33,8 @@ Yr <- Yr[!is.na(Yr)]
 # A partial least squares projection using the "opc" method
 # for the selection of the optimal number of components
 plsProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
-                           method = "pls", pcSelection = list("opc", 40))
+                           method = "pls",
+                           pcSelection = list("opc", 40))
 
 plot(plsProj)
 }

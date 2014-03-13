@@ -223,14 +223,14 @@ Xr <- Xr[!is.na(Yr),]
 Yr <- Yr[!is.na(Yr)]
 
 # Identify the non-neighbour samples using the default parameters
-# (In this example all the samples in Xr belong at least to the first 100 neighbours of
-# one sample in Xu)
+# (In this example all the samples in Xr belong at least to the
+# first 100 neighbours of one sample in Xu)
 ex1 <- neigCleaning(Xr = Xr, Xu = Xu,
                             k.thr = 100)
 
-# Identify the non-neighbour samples using principal component(PC) and
-# partial least squares (PLS) distances, and using the "opc" approach
-# for selecting the number of components
+# Identify the non-neighbour samples using principal component(PC)
+# and partial least squares (PLS) distances, and using the "opc"
+# approach for selecting the number of components
 ex2 <- neigCleaning(Xr = Xr, Xu = Xu,
                             Yr = Yr,
                             sm = "pc",
@@ -243,8 +243,9 @@ ex3 <- neigCleaning(Xr = Xr, Xu = Xu,
                             pcSelection = list("opc", 40),
                             k.thr = 150)
 
-# Identify the non-neighbour samples using distances computed based on local PC analysis
-# and using the "cumvar" and "var" approaches for selecting the number of PCs
+# Identify the non-neighbour samples using distances computed
+# based on local PC analysis and using the "cumvar" and "var"
+# approaches for selecting the number of PCs
 ex4 <- neigCleaning(Xr = Xr, Xu = Xu,
                             sm = "loc.pc",
                             pcSelection = list("cumvar", 0.999),

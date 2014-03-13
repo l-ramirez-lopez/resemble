@@ -12,7 +12,7 @@ install_github("resemble","l-ramirez-lopez")
 
 You can also download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.zip?raw=true) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.tar.gz?raw=true). Remeber you should have R>3.0.0. Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
 
-First, if you do not have the following packages installed, you shoudl install them first
+First, if you do not have the following packages installed, you should install them first
 ```
 install.packages('Rcpp')
 install.packages('RcppArmadillo')
@@ -63,7 +63,7 @@ ctrl1 <- mblController(sm = 'pc', pcSelection = list('opc', 40),
 
 sbl.u <- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
              mblCtrl = ctrl1,
-             distUsage = 'predictors',
+             dissUsage = 'predictors',
              k = seq(40, 150, by = 10),
              method = 'gpr')
 
@@ -110,7 +110,7 @@ Some additional miscellaneous functions are:
 
 In order to expand a little bit more the explanation on the `mbl` function, let's define first the basic input datasets:
 
-* __Reference (training) set__: Dataset with *n* reference samples (e.g. spectral library) to be used in the calibration of a spectral models. Xr represents the matrix of samples (containing the spectral predictor variables) and Yr represents a given response variable corresponding to Xr.
+* __Reference (training) set__: Dataset with *n* reference samples (e.g. spectral library) to be used in the calibration of spectral models. Xr represents the matrix of samples (containing the spectral predictor variables) and Yr represents a given response variable corresponding to Xr.
 
 * __Prediction set__ : Data set with _m_ samples where the response variable (Yu) is unknown. However it can be predicted by applying a spectral model (calibrated by using Xr and Yr) on the spectra of these samples (Xu). 
 
@@ -130,6 +130,13 @@ In order to predict each value in Yu, the `mbl` function takes each sample in Xu
 * _Spectral library_
 * _Lazy learning_
 * _Soil spectroscopy_
+
+## News
+
+2014-03: The package was released on CRAN!
+
+## Other R'elated stuff
+* Check our other project called [`prospectr` here](http://antoinestevens.github.io/prospectr/)
 
 ## Bug report and development version
 

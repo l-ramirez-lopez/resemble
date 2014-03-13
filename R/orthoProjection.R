@@ -100,21 +100,24 @@
 #' # A partial least squares projection using the "opc" method
 #' # for the selection of the optimal number of components
 #' plsProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu, 
-#'                            method = "pls", pcSelection = list("opc", 40))
+#'                            method = "pls", 
+#'                            pcSelection = list("opc", 40))
 #'                            
 #' # A principal components projection using the "opc" method
 #' # for the selection of the optimal number of components
 #' pcProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu, 
-#'                           method = "pca", pcSelection = list("opc", 40))
+#'                           method = "pca", 
+#'                           pcSelection = list("opc", 40))
 #'                            
 #' # A partial least squares projection using the "cumvar" method
 #' # for the selection of the optimal number of components
 #' plsProj2 <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu, 
-#'                             method = "pls", pcSelection = list("cumvar", 0.99))
+#'                             method = "pls", 
+#'                             pcSelection = list("cumvar", 0.99))
 #' }                            
 #' @export
 
-#######################################################################
+######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
 #
@@ -127,7 +130,11 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#######################################################################
+######################################################################
+
+## History:
+## 09.03.2014 Leo     In the doc was specified that multi-threading is 
+##                    not working for mac
 
 orthoProjection <- function(Xr, X2 = NULL, 
                             Yr = NULL, 

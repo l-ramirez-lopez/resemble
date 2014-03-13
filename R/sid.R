@@ -83,12 +83,14 @@
 #' xr.sid
 #' 
 #' # Example 2
-#' # Compute the SID distance between the samples in Xr and the samples in Xu
+#' # Compute the SID distance between the samples in Xr and the samples 
+#' # in Xu
 #' xru.sid <- sid(Xr = Xr, X2 = Xu)
 #' xru.sid
 #' 
 #' # Example 3
-#' # Compute the SID distance between the samples in Xr and the samples in Xu using the histograms
+#' # Compute the SID distance between the samples in Xr and the samples 
+#' # in Xu using the histograms
 #' xru.sid.hist <- sid(Xr = Xr, X2 = Xu, mode = "feature")
 #' xru.sid.hist
 #' }
@@ -108,6 +110,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #######################################################################
+
+## History:
+## 09.03.2014 Leo     Doc examples  were formated with a max. line width
+##                       
+
 
 sid <- function(Xr, X2 = NULL, 
                 mode = "density", 
