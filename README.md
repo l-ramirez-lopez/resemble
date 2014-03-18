@@ -3,7 +3,7 @@ _Leonardo Ramirez-Lopez & Antoine Stevens_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
-You download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.1.1.zip?raw=true) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.1.1.tar.gz?raw=true). Remeber you should have R>=3.0.2. Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
+You download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.1.1.zip?raw=true) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.1.1.tar.gz?raw=true). Remeber you should have [R>=3.0.2](http://cran.r-project.org/). Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
 
 First, if you do not have the following packages installed, you should install them first
 ```
