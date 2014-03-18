@@ -26,7 +26,7 @@
 #' \deqn{\kappa = \frac{p_{o}-p_{e}}{1-p_{e}}}
 #' where both \eqn{p_o} and \eqn{p_e} are two different agreement indexes between the the side information of the samples and the side information of their corrresponding nearest samples (i.e. most similar samples). 
 #' While \eqn{p_o} is the relative agreement \eqn{p_e} is the the agreement expected by chance. 
-#' Multi-core processing works currently only on windows and linux (at least for the C++ code used in the package that use multi-threading).
+#' Multi-threading for the computation of dissimilarities (see \code{cores} parameter) is based on OpenMP and hence works only on windows and linux. 
 #' @return \code{simEval} returns a \code{list} with the following components:
 #' \itemize{
 #'  \item{"\code{eval}}{either the RMSD (and the correlation coefficient) or the kappa index}
@@ -151,6 +151,9 @@
 ## History:
 ## 09.03.2014 Leo     In the doc was specified that multi-threading is 
 ##                    not working for mac
+## 13.03.2014 Antoine The explanation of the cores argument was modified
+## 18.03.2014 Antoine Add error message when input dissimilarity matrix 
+##                    in simEval is not squared
 
 
 simEval <- function(d, sideInf, lower.tri = FALSE, cores = 1, ...){
@@ -169,8 +172,11 @@ simEval <- function(d, sideInf, lower.tri = FALSE, cores = 1, ...){
     sideInf <- as.matrix(sideInf)
     ny <- ncol(sideInf)
     if(!lower.tri){
-      if(!(is.data.frame(d)|is.matrix(d)))
+      if(!(is.data.frame(d) | is.matrix(d)))
         stop("'d' must be a matrix or a data.frame when lower.tri = FALSE", call. = call.)
+      dimd <- dim(d)
+      if(dimd[1] != dimd[2])
+        stop("'d' must be a square matrix when lower.tri = FALSE", call. = call.)
       if(nrow(d) != nrow(sideInf))
         stop("The number of rows of the 'd' matrix does not match the number of observations in 'sideInf'", call. = call.)
       most <- which_min(d,cores)  # find nearest neighbours

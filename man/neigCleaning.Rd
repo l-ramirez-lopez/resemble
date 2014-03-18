@@ -168,7 +168,7 @@ neigCleaning(Xr, Xu,
 
   \item{cores}{number of cores used when \code{method} in
   \code{pcSelection} is \code{"opc"} (which can be
-  computationally intensive) (default = 1)}
+  computationally intensive) (default = 1).}
 }
 \value{
 \code{neigCleaning} returns a \code{list} containing the

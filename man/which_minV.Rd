@@ -18,7 +18,11 @@ A function to compute indices of minimum values of a
 distance vector
 }
 \details{
-Used internally to find the nearest neighbours
+Used internally to find the nearest neighbours. It searches
+in lower (or upper?) trianguular matrix. Therefore this
+must be the format of the input data. The piece of code int
+\code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in
+CRAN since \code{sqrt} cannot be applied to integers.
 }
 \author{
 Antoine Stevens

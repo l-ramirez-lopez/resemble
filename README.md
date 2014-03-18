@@ -75,38 +75,30 @@ getPredictions(sbl.u)
 
 The functions for computing and evaluate spectral similarity/dissimilarity matrices can be summarized as follows:
 
-| Function                 | Description/computes...                                                                                  |
-| -----------------------  | -------------------------------------------------------------------------------------------------------  |
-| `fDiss`                  | Euclidean and Mahalanobis distances as well as the cosine dissimilarity (_a.k.a_ spectral angle mapper)  |            
-| `corDiss`                | correlation and moving window correlation dissimilarity                                                  |
-| `sid`                    | spectral information divergence between spectra or between the probability distributions of spectra      |
-| `orthoDiss`              | principal components and partial least squares dissimilarity (including several options)                 | 
-| `simEval`                | evaluates a given similarity/dissimilarity matrix based on the concept of side information               |  
+`fDiss`:                  Euclidean and Mahalanobis distances as well as the cosine dissimilarity (_a.k.a_ spectral angle mapper)              
+`corDiss`:                correlation and moving window correlation dissimilarity                                                 
+`sid`:                    spectral information divergence between spectra or between the probability distributions of spectra      
+`orthoDiss`:              principal components and partial least squares dissimilarity (including several options)                  
+`simEval`:                evaluates a given similarity/dissimilarity matrix based on the concept of side information                 
 
 The functions for projecting the spectra onto low dimensional orthogonal variables are:
 
-| Function                 | Description                                                                                                  |
-| -----------------------  | ------------------------------------------------------------------------------------------------------------ |
-| `pcProjection`           | projects the spectra onto a principal component space                                                        |                      
-| `plsProjection`          | projects the spectra onto a partial least squares component space  (_a.k.a_ projection to latent structures) |                                      
-| `orthoProjection`        | reproduces either the `pcProjection` or the `plsProjection` functions                                        |  
+`pcProjection`:            projects the spectra onto a principal component space                                                                              
+`plsProjection`:           projects the spectra onto a partial least squares component space  (_a.k.a_ projection to latent structures)                                       
+`orthoProjection`:         reproduces either the `pcProjection` or the `plsProjection` functions                                          
 
 The projection functions also offer different options for optimizing/selecting the number of components involved in the projection.
 
 The functions modelling the spectra using memory-based learning are:
 
-| Function                 | Description                                              |
-| -----------------------  | -------------------------------------------------------  |
-| `mblControl`             | controls some modelling aspects of the `mbl` function    |                     
-| `mbl`                    | models the spectra by memory-based learning              |                                      
+`mblControl`:              controls some modelling aspects of the `mbl` function                         
+`mbl`:                     models the spectra by memory-based learning                                                    
 
 Some additional miscellaneous functions are:
 
-| Function                 | Description                                                            |
-| -----------------------  | ---------------------------------------------------------------------  |
-| `print.mbl`              | prints a summary of the results obtained by the `mbl` function         |                     
-| `plot.mbl`               | plots a summary of the results obtained by the `mbl` function          |       
-| `print.localOrthoDiss`   | prints local distance matrices generated with the `orthoDiss` function |
+`print.mbl`:               prints a summary of the results obtained by the `mbl` function                              
+`plot.mbl`:                plots a summary of the results obtained by the `mbl` function                 
+`print.localOrthoDiss`:    prints local distance matrices generated with the `orthoDiss` function 
 
 In order to expand a little bit more the explanation on the `mbl` function, let's define first the basic input datasets:
 
@@ -116,12 +108,10 @@ In order to expand a little bit more the explanation on the `mbl` function, let'
 
 In order to predict each value in Yu, the `mbl` function takes each sample in Xu and searches in Xr for its _k_-nearest neighbours (most spectrally similar samples). Then a (local) model is calibrated with these (reference) neighbours and it immediately predicts the correspondent value in Yu from Xu. In the function, the _k_-nearest neighbour search is performed by computing spectral similarity/dissimilarity matrices between samples. The `mbl` function offers the following regression options for calibrating the (local) models:
                           
-| Regression methods in the `mbl` function | Description                                                                             
-| ---------------------------------------  | ----------------------------------------- | 
-| `'gpr'`                                  | Gaussian process with linear kernel       | 
-| `'pls'`                                  | Partial least squares                     | 
-| `'wapls1'`                               | Weighted average partial least squares 1  | 
-| `'wapls2'`                               | Weighted average partial least squares 2  | 
+`'gpr'`:                                   Gaussian process with linear kernel        
+`'pls'`:                                   Partial least squares                      
+`'wapls1'`:                                Weighted average partial least squares 1   
+`'wapls2'`:                                Weighted average partial least squares 2   
 
 ## Keywords
 * _Infrared spectroscopy_
@@ -136,7 +126,7 @@ In order to predict each value in Yu, the `mbl` function takes each sample in Xu
 2014-03: The package was released on CRAN!
 
 ## Other R'elated stuff
-* Check our other project called [`prospectr` here](http://antoinestevens.github.io/prospectr/)
+* Check our other project called [`prospectr`](http://antoinestevens.github.io/prospectr/)
 
 ## Bug report and development version
 

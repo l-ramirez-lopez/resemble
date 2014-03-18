@@ -50,7 +50,7 @@
 #' @param p a value indicating the percentage of samples to be retained in each resampling iteration at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 0.75 (i.e. 75 "\%")
 #' @param range.pred.lim a logical value. It indicates whether the prediction limits at each local regression are determined by the range of the response variable values employed at each local regression. If \code{FALSE}, no prediction limits are imposed. Default is \code{TRUE}.
 #' @param progress a logical indicating whether or not to print a progress bar for each sample to be predicted. Default is \code{TRUE}. Note: In case multicore processing is used, this progress bar will not be printed.
-#' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1). See details.
+#' @param cores number of cores used for the computation of dissimilarities when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1). See details.
 #' @details
 #' The validation methods avaliable for assessing the predictive performance of the memory-based learning method used are described as follows:
 #'  \itemize{
@@ -58,7 +58,8 @@
 #'  \item{Local leave-group-out cross validation (\code{"loc_crossval"}):}{ The group of neighbours of each sample to be predicted is partitioned into different equal size subsets. Each partition is selected based on a stratified random sampling which takes into account the values of the response variable of the corresponding set of neighbours. The selected local subset is used as local validation subset and the remaining samples are used for fitting a model. This model is used to predict the target response variable values of the local validation subset and the local root mean square error is computed. This process is repeated \eqn{m} times and the final local error is computed as the average of the local root mean square error of all the \eqn{m} iterations. In the \code{mbl} function \eqn{m} is controlled by the \code{resampling} argument and the size of the subsets is controlled by the \code{p} argument which indicates the percentage of samples to be selected from the subset of nearest neighbours. The global error of the predictions is computed as the average of the local root mean square errors.}
 #'  \item{No validation (\code{"none"}):}{ No validation is carried out. If \code{"none"} is seleceted along with \code{"NNv"} and/or \code{"loc_crossval"}, then it will be ignored and the respective validation(s) will be carried out.} 
 #'  }
-#' Multi-core processing works currently only on windows and linux (at least for the C++ code used in the package that use multi-threading). However, the loop used to iterate over the \code{Xu} samples uses the \code{\%dopar\%} operator of the \code{\link{foreach}} package, which ca be used to parallelize this internal loop. The last example given in the \code{\link{mbl}} function ilustrates how to parallelize the \code{\link{mbl}} function.
+#' Multi-threading for the computation of dissimilarities is based on OpenMP and hence works only on windows and linux. 
+#' However, the loop used to iterate over the \code{Xu} samples in \code{mbl} uses the \code{\%dopar\%} operator of the \code{\link{foreach}} package, which can be used to parallelize this internal loop. The last example given in the \code{\link{mbl}} function ilustrates how to parallelize the \code{\link{mbl}} function.
 #' @return \code{mblControl} returns a \code{list} of class \code{mbl} with the specified parameters
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @references 
@@ -93,7 +94,7 @@
 ## History:
 ## 09.03.2014 Leo     In the doc was specified that multi-threading is 
 ##                    not working for mac
-
+## 13.03.2014 Antoine The explanation of the cores argument was modified
 
 mblControl <- function(sm = "pc",
                        pcSelection = list("opc", 40),

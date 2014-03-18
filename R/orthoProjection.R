@@ -54,7 +54,7 @@
 #' At each iteration, the function computes a dissimilarity matrix retaining \eqn{p_i} components. The values of the side information of the samples are compared against the side information values of their most spectrally similar samples. 
 #' The optimal number of components retrieved by the function is the one that minimizes the root mean squared differences (RMSD) in the case of continuous variables, or maximizes the kappa index in the case of categorical variables. In this process the \code{\link{simEval}} function is used. 
 #' Note that for the \code{"opc"} method is necessary to specify \code{Yr} (the side information of the samples).
-#' Multi-core processing works currently only on windows and linux (at least for the C++ code used in the package that use multi-threading).
+#' Multi-threading for the computation of dissimilarities (see \code{cores} parameter) is based on OpenMP and hence works only on windows and linux. 
 #' @return \code{orthoProjection}, \code{pcProjection}, \code{plsProjectiona}, return a \code{list} of class \code{orthoProjection} with the following components:
 #' \itemize{
 #'  \item{\code{scores}}{ a \code{matrix} of scores corresponding to the samples in \code{Xr} and \code{X2} (if it applies). The number of components that the scores represent is given by the number of components chosen in the function.}
@@ -135,6 +135,9 @@
 ## History:
 ## 09.03.2014 Leo     In the doc was specified that multi-threading is 
 ##                    not working for mac
+## 10.03.2014 Leo     Sanity check for the number of cases in Yr and Xr
+## 13.03.2014 Antoine The explanation of the cores argument was modified
+
 
 orthoProjection <- function(Xr, X2 = NULL, 
                             Yr = NULL, 
@@ -194,6 +197,8 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
   if(is.factor(Yr))
     if(length(Yr) != nrow(Xr))
       stop("The number of obsevations in 'Yr' does not match with the number of observations in 'Xr'. In addition, when 'Yr' is a factor, only one variable is accepted", call. = call.)
+  
+  nxr <- nrow(Xr)
   
   if(!is.null(X2))
   {
@@ -383,6 +388,8 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
     {
       Yr <- as.matrix(Yr)
       ny <- ncol(Yr)
+      if(nrow(Yr) != nxr)
+        stop("The number of rows in Xr does not match the number of cases in Yr")
     }else{ 
       ny <- 1
     }
@@ -558,6 +565,8 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
   
   psel <- pcSelection
   Yr <- as.matrix(Yr)
+  if(nrow(Yr) != nrow(Xr))
+    stop("The number of rows in Xr does not match the number of cases in Yr")
   nas <- rowSums(is.na(Yr)) > 0
   
   ny <- ncol(Yr)

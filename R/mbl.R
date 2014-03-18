@@ -1,9 +1,9 @@
 #' @title A function for memory-based learning (mbl)
 #' @description
-#' This function is implemented for memory-based learning (a.k.a. instance-based learning or local regression) which is a non-linear approach 
-#' for predicting attributes of a set of samples based on the spectral information. For each sample in an prediction set  a specific local 
-#' regression is carried out based on a subset of similar samples (or nearest neighbours) selected from a reference set. The local model is 
-#' then used to predict a given attribute of the target prediction sample. Therefore this function does not yield a global model. 
+#' This function is implemented for memory-based learning (a.k.a. instance-based learning or local regression) which is a non-linear lazy learning approach 
+#' for predicting a given response variable from a set of (spectral) predictor variables. For each sample in an prediction set  a specific local 
+#' regression is carried out based on a subset of similar samples (nearest neighbours) selected from a reference set. The local model is 
+#' then used to predict the response value of the target (prediction) sample. Therefore this function does not yield a global regression model. 
 #' @usage
 #' mbl(Yr, Xr, Yu = NULL, Xu,
 #'     mblCtrl = mblControl(), 
@@ -69,6 +69,7 @@
 #'     }
 #'     }
 #'  }
+#' The loop used to iterate over the \code{Xu} samples in \code{mbl} uses the \code{\%dopar\%} operator of the \code{\link{foreach}} package, which can be used to parallelize this internal loop. The last example given in the \code{\link{mbl}} function ilustrates how to parallelize the \code{\link{mbl}} function.
 #' @return a \code{list} of class \code{mbl} with the following components (sorted by either \code{k} or \code{k.diss} according to the case):
 #' \itemize{
 #'  \item{\code{call}}{ the call used.}
@@ -315,7 +316,7 @@
 
 ## History:
 ## 09.03.2014 Leo     Doc examples  were formated with a max. line width
-##                       
+## 13.03.2014 Antoine The explanation of the cores argument was modified                   
 
 mbl <- function(Yr, Xr, Yu = NULL, Xu, 
                 mblCtrl = mblControl(),

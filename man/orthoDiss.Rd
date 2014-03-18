@@ -137,9 +137,9 @@ dissimilarity matrix. If \code{local = FALSE} a distance
 \code{matrix}. If \code{local = TRUE} a \code{matrix} of
 class \code{orthoDiss}. In this case each column represent
 the dissimilarity between a target sample and its
-neighbourhood.} } Multi-core processing works currently
-only on windows and linux (at least for the C++ code used
-in the package that use multi-threading).
+neighbourhood.} } Multi-threading for the computation of
+dissimilarities (see \code{cores} parameter) is based on
+OpenMP and hence works only on windows and linux.
 }
 \description{
 This function computes orthogonal dissimilarities between

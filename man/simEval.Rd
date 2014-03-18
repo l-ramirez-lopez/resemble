@@ -84,9 +84,9 @@ between the the side information of the samples and the
 side information of their corrresponding nearest samples
 (i.e. most similar samples). While \eqn{p_o} is the
 relative agreement \eqn{p_e} is the the agreement expected
-by chance. Multi-core processing works currently only on
-windows and linux (at least for the C++ code used in the
-package that use multi-threading).
+by chance. Multi-threading for the computation of
+dissimilarities (see \code{cores} parameter) is based on
+OpenMP and hence works only on windows and linux.
 }
 \examples{
 \dontrun{

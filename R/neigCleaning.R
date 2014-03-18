@@ -50,7 +50,7 @@
 #'        on the corresponding similarity/dissimilarity metric specified in \code{sm}. Either \code{k.thr} or \code{k.dist.thr} must be specified.
 #' @param k.range a vector of length 2 which specifies the minimum (first value) and the maximum (second value) number of neighbours allowed when the \code{k.dist.thr} argument is used. 
 #' @param returnDiss a logical indicating if the similarity/dissimilarity matrix must be returned. Default is \code{FALSE}.
-#' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1)
+#' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1).
 #' @details
 #' This function may be specially useful when the reference set (\code{Xr}) is very large. In some cases the number of observations in the reference set can be reduced by removing irrelevant samples (i.e. samples that are not neighbours of a particular target set). If \code{Xr} is very large, it is recommended to consider the use this function prior using the \code{mbl} function.
 #' @return \code{neigCleaning} returns a \code{list} containing the following objects:

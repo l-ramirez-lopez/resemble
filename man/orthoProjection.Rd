@@ -230,9 +230,10 @@ case of continuous variables, or maximizes the kappa index
 in the case of categorical variables. In this process the
 \code{\link{simEval}} function is used. Note that for the
 \code{"opc"} method is necessary to specify \code{Yr} (the
-side information of the samples). Multi-core processing
-works currently only on windows and linux (at least for the
-C++ code used in the package that use multi-threading).
+side information of the samples). Multi-threading for the
+computation of dissimilarities (see \code{cores} parameter)
+is based on OpenMP and hence works only on windows and
+linux.
 }
 \examples{
 \dontrun{

@@ -16,7 +16,8 @@ fastDist(X,Y,method)
 a distance \code{matrix}
 }
 \description{
-A fast distance algorithm for two matrices written in C++
+Computes distances between two data matrices using
+"euclid", "cor", "cosine"
 }
 \author{
 Antoine Stevens and Leonardo Ramirez-Lopez

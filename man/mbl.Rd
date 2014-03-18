@@ -171,14 +171,14 @@ the results of the predictions for each either \code{k} or
 \description{
 This function is implemented for memory-based learning
 (a.k.a. instance-based learning or local regression) which
-is a non-linear approach for predicting attributes of a set
-of samples based on the spectral information. For each
-sample in an prediction set a specific local regression is
-carried out based on a subset of similar samples (or
-nearest neighbours) selected from a reference set. The
-local model is then used to predict a given attribute of
-the target prediction sample. Therefore this function does
-not yield a global model.
+is a non-linear lazy learning approach for predicting a
+given response variable from a set of (spectral) predictor
+variables. For each sample in an prediction set a specific
+local regression is carried out based on a subset of
+similar samples (nearest neighbours) selected from a
+reference set. The local model is then used to predict the
+response value of the target (prediction) sample. Therefore
+this function does not yield a global regression model.
 }
 \details{
 \code{dissUsage} is used to specifiy wheter or not and how
@@ -259,7 +259,13 @@ vector (\eqn{Y}) as follows: \deqn{ A = (X X^\textup{T} +
 variance of the noise and \eqn{I} the identity matrix (with
 dimensions equal to the number of observations in \eqn{X}).
 The prediction of \eqn{y_{new}} is then carried out by:
-\deqn{ y_{new} = (x_{new}x_{new}^\textup{T}) A } } }
+\deqn{ y_{new} = (x_{new}x_{new}^\textup{T}) A } } } The
+loop used to iterate over the \code{Xu} samples in
+\code{mbl} uses the \code{\%dopar\%} operator of the
+\code{\link{foreach}} package, which can be used to
+parallelize this internal loop. The last example given in
+the \code{\link{mbl}} function ilustrates how to
+parallelize the \code{\link{mbl}} function.
 }
 \examples{
 \dontrun{

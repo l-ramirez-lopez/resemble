@@ -39,7 +39,7 @@
 #'  \item{\code{loc.n.components}}{ if \code{local = TRUE}, a \code{data.frame} which specifies the number of local components (either principal components or partial least squares components) used for computing the dissimilarity between each target sample and its neighbour samples.}
 #'  \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If \code{local = FALSE} a distance \code{matrix}. If \code{local = TRUE} a \code{matrix} of class \code{orthoDiss}. In this case each column represent the dissimilarity between a target sample and its neighbourhood.}
 #'  }
-#' Multi-core processing works currently only on windows and linux (at least for the C++ code used in the package that use multi-threading).
+#' Multi-threading for the computation of dissimilarities (see \code{cores} parameter) is based on OpenMP and hence works only on windows and linux.
 #' @author Leonardo Ramirez-Lopez
 #' @references 
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., Scholten, T. 2013a. The spectrum-based learner: A new local approach for modeling soil vis-NIR spectra of complex datasets. Geoderma 195-196, 268-279.
@@ -113,6 +113,7 @@
 ## History:
 ## 09.03.2014 Leo     In the doc was specified that multi-threading is 
 ##                    not working for mac
+## 13.03.2014 Antoine The explanation of the cores argument was modified
 
 orthoDiss <- function(Xr, X2 = NULL, 
                       Yr = NULL, 

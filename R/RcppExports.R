@@ -2,6 +2,7 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @title A fast distance algorithm for two matrices written in C++ 
+#' @description Computes distances between two data matrices using "euclid", "cor", "cosine" 
 #' @usage 
 #' fastDist(X,Y,method)
 #' @param X a \code{matrix}
@@ -75,7 +76,11 @@ which_min <- function(X, cores) {
 #' @param X a \code{vector} of distance (as computed in \code{resemble:::fastDistVV} or \code{base::dist})
 #' @param cores number of cores used to run the computation
 #' @return a \code{vector} of the indices of the nearest neighbours
-#' @details Used internally to find the nearest neighbours
+#' @details 
+#' Used internally to find the nearest neighbours. 
+#' It searches in lower (or upper?) trianguular matrix. Therefore this must be the format of the 
+#' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
+#' since \code{sqrt} cannot be applied to integers.
 #' @keywords internal
 #' @useDynLib resemble
 #' @author Antoine Stevens 
