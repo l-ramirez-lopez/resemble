@@ -1,58 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta name="google-site-verification" content="C-XnfMeBtODSwtaAnH3t9DR2LstZUmkb1nB3C99ZQk0" />
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=640" />
-
-    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
-    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
-
-    <script type="text/javascript" src="javascripts/modernizr.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $('#main_content').headsmart()
-      })
-    </script>
     <title>welcome to the resemble Project by l-ramirez-lopez</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
-    <a id="forkme_banner" href="https://github.com/l-ramirez-lopez/resemble">View on GitHub</a>
-    <div class="shell">
-
+    <div class="wrapper">
       <header>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <h1>welcome to the resemble Project</h1>
-            <h2></h2>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
+        <h1>welcome to the resemble Project</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/l-ramirez-lopez/resemble">View the Project on GitHub <small>l-ramirez-lopez/resemble</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/l-ramirez-lopez/resemble/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/l-ramirez-lopez/resemble/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/l-ramirez-lopez/resemble">View On <strong>GitHub</strong></a></li>
+        </ul>
       </header>
+      <section>
+        <p><img src="https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_logo.png?raw=true" alt="image"></p>
 
-      <section id="downloads">
-        <span class="inner">
-          <a href="https://github.com/l-ramirez-lopez/resemble/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/l-ramirez-lopez/resemble/tarball/master" class="tgz"><em>download</em> .TGZ</a>
-        </span>
-      </section>
+<h1>
+<a name="regression-and-similarity-evaluation-for-memory-based-learning-in-spectral-chemometrics-" class="anchor" href="#regression-and-similarity-evaluation-for-memory-based-learning-in-spectral-chemometrics-"><span class="octicon octicon-link"></span></a>Regression and similarity evaluation for memory-based learning in spectral chemometrics ©</h1>
 
+<p><em>Leonardo Ramirez-Lopez &amp; Antoine Stevens</em></p>
 
-      <span class="banner-fix"></span>
+<hr><p>Visit the <a href="http://l-ramirez-lopez.github.io/resemble/"><code>resemble</code> site here</a></p>
 
+<p>You can install the <code>resemble</code> package directly from github using <a href="http://cran.r-project.org/web/packages/devtools/index.html"><code>devtools</code></a> (with a proper installed version of <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>):</p>
 
-      <section id="main_content">
-        <h1>
-<a name="resemble-regression-and-similarity-evaluation-for-memory--based-learning-in-spectral-chemometrics" class="anchor" href="#resemble-regression-and-similarity-evaluation-for-memory-based-learning-in-spectral-chemometrics"><span class="octicon octicon-link"></span></a>resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics</h1>
+<pre><code>require("devtools")
+install_github("resemble","l-ramirez-lopez")
+</code></pre>
 
-<p><em> Leonardo Ramirez-Lopez &amp; Antoine Stevens</em></p>
-
-<p>Note: For the moment, installing the R package <code>resemble</code> directly from github is not possible (we are currently working on that). Therefore, try to download the <a href="https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.zip?raw=true">binary (.zip) file by clicking this link</a> or the <a href="https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.tar.gz?raw=true">source file (.tar.gz) by clicking this link</a>. Do not use the links of the icons in the blue panel. Remeber you should have R&gt;3.0.0. Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:</p>
+<p>You can also download the <a href="https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.zip?raw=true">binary (.zip) file from here</a> or the <a href="https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.tar.gz?raw=true">source file (.tar.gz) from here</a>. Remeber you should have R&gt;3.0.0. Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:</p>
 
 <p>First, if you do not have the following packages installed, you should install them first</p>
 
@@ -73,7 +64,7 @@ install.packages('iterators')
 <pre><code>install.packages('C:/MyFolder/resemble_1.0.tar.gz', type = 'source')
 </code></pre>
 
-<p>After installing <code>resemble</code> you should be also able to run the following code lines:</p>
+<p>After installing <code>resemble</code> you should be also able to run the following lines:</p>
 
 <pre><code>require(resemble)
 
@@ -98,9 +89,9 @@ Yr &lt;- Yr[!is.na(Yr)]
 # Example of the mbl function
 # A mbl approach (the spectrum-based learner) as implemented in Ramirez-Lopez et al. (2013)
 # An exmaple where Yu is supposed to be unknown, but the Xu (spectral variables) are known
-ctrl1 &lt;- mblControl(sm = 'pc', pcSelection = list('opc', 40),
-                    valMethod = 'NNv',
-                    scaled = TRUE, center = TRUE)
+ctrl1 &lt;- mblController(sm = 'pc', pcSelection = list('opc', 40),
+                       valMethod = 'NNv',
+                       scaled = TRUE, center = TRUE)
 
 sbl.u &lt;- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
              mblCtrl = ctrl1,
@@ -111,133 +102,36 @@ sbl.u &lt;- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
 getPredictions(sbl.u)
 </code></pre>
 
-<h1>
-<a name="the-package" class="anchor" href="#the-package"><span class="octicon octicon-link"></span></a>The package</h1>
-
 <p><a href="http://l-ramirez-lopez.github.io/resemble/"><code>resemble</code></a> implements a function dedicated to non-linear modelling of complex visible and infrared spectral data based on memory-based learning (MBL, <em>a.k.a</em> instance-based learning or local modelling in the chemometrics literature). The package also includes functions for: computing and evaluate spectral similarity/dissimilarity matrices; projecting the spectra onto low dimensional orthogonal variables; removing irrelevant spectra from a reference set; etc. </p>
 
-<p>The functions for computing and evaluate spectral similarity/dissimilarity matrices can be summarized as follows:</p>
+<hr><p>The functions for computing and evaluate spectral similarity/dissimilarity matrices can be summarized as follows:</p>
 
-<table>
-<thead><tr>
-<th>Function</th>
-<th>Description/computes...</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code>fDiss</code></td>
-<td>Euclidean and Mahalanobis distances as well as the cosine dissimilarity (<em>a.k.a</em> spectral angle mapper)</td>
-</tr>
-<tr>
-<td><code>corDiss</code></td>
-<td>correlation and moving window correlation dissimilarity</td>
-</tr>
-<tr>
-<td><code>sid</code></td>
-<td>spectral information divergence between spectra or between the probability distributions of spectra</td>
-</tr>
-<tr>
-<td><code>orthoDiss</code></td>
-<td>principal components and partial least squares dissimilarity (including several options)</td>
-</tr>
-<tr>
-<td><code>simEval</code></td>
-<td>evaluates a given similarity/dissimilarity matrix based on the concept of side information</td>
-</tr>
-</tbody>
-</table><p>The functions for projecting the spectra onto low dimensional orthogonal variables are:</p>
+<p><strong><code>fDiss</code></strong>: Euclidean and Mahalanobis distances as well as the cosine dissimilarity (<em>a.k.a</em> spectral angle mapper)<br><strong><code>corDiss</code>:</strong>                correlation and moving window correlation dissimilarity<br><strong><code>sid</code></strong>:                    spectral information divergence between spectra or between the probability distributions of spectra<br><strong><code>orthoDiss</code></strong>:              principal components and partial least squares dissimilarity (including several options)<br><strong><code>simEval</code></strong>:                evaluates a given similarity/dissimilarity matrix based on the concept of side information                 </p>
 
-<table>
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code>pcProjection</code></td>
-<td>projects the spectra onto a principal component space</td>
-</tr>
-<tr>
-<td><code>plsProjection</code></td>
-<td>projects the spectra onto a partial least squares component space  (<em>a.k.a</em> projection to latent structures)</td>
-</tr>
-<tr>
-<td><code>orthoProjection</code></td>
-<td>reproduces either the <code>pcProjection</code> or the <code>plsProjection</code> functions</td>
-</tr>
-</tbody>
-</table><p>The projection functions also offer different options for optimizing/selecting the number of components involved in the projection.</p>
+<hr><p>The functions for projecting the spectra onto low dimensional orthogonal variables are:</p>
+
+<p><strong><code>pcProjection</code></strong>:            projects the spectra onto a principal component space<br><strong><code>plsProjection</code></strong>:           projects the spectra onto a partial least squares component space  (<em>a.k.a</em> projection to latent structures)<br><strong><code>orthoProjection</code></strong>:         reproduces either the <code>pcProjection</code> or the <code>plsProjection</code> functions                                          </p>
+
+<hr><p>The projection functions also offer different options for optimizing/selecting the number of components involved in the projection.</p>
 
 <p>The functions modelling the spectra using memory-based learning are:</p>
 
-<table>
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code>mblControl</code></td>
-<td>controls some modelling aspects of the <code>mbl</code> function</td>
-</tr>
-<tr>
-<td><code>mbl</code></td>
-<td>models the spectra by memory-based learning</td>
-</tr>
-</tbody>
-</table><p>Some additional miscellaneous functions are:</p>
+<p><strong><code>mblControl</code></strong>:              controls some modelling aspects of the <code>mbl</code> function<br><strong><code>mbl</code></strong>:                     models the spectra by memory-based learning                                                    </p>
 
-<table>
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code>print.mbl</code></td>
-<td>prints a summary of the results obtained by the <code>mbl</code> function</td>
-</tr>
-<tr>
-<td><code>plot.mbl</code></td>
-<td>plots a summary of the results obtained by the <code>mbl</code> function</td>
-</tr>
-<tr>
-<td><code>print.localOrthoDiss</code></td>
-<td>prints local distance matrices generated with the <code>orthoDiss</code> function</td>
-</tr>
-</tbody>
-</table><p>In order to expand a little bit more the explanation on the <code>mbl</code> function, let's define first the basic input datasets:</p>
+<hr><p>Some additional miscellaneous functions are:</p>
+
+<p><strong><code>print.mbl</code></strong>:prints a summary of the results obtained by the <code>mbl</code> function<br><strong><code>plot.mbl</code></strong>:                plots a summary of the results obtained by the <code>mbl</code> function<br><strong><code>print.localOrthoDiss</code></strong>:    prints local distance matrices generated with the <code>orthoDiss</code> function </p>
+
+<hr><p>In order to expand a little bit more the explanation on the <code>mbl</code> function, let's define first the basic input datasets:</p>
 
 <ul>
-<li><p><strong>Reference (training) set</strong>: Dataset with <em>n</em> reference samples (e.g. spectral library) to be used in the calibration of a spectral models. Xr represents the matrix of samples (containing the spectral predictor variables) and Yr represents a given response variable corresponding to Xr.</p></li>
+<li><p><strong>Reference (training) set</strong>: Dataset with <em>n</em> reference samples (e.g. spectral library) to be used in the calibration of spectral models. Xr represents the matrix of samples (containing the spectral predictor variables) and Yr represents a given response variable corresponding to Xr.</p></li>
 <li><p><strong>Prediction set</strong> : Data set with <em>m</em> samples where the response variable (Yu) is unknown. However it can be predicted by applying a spectral model (calibrated by using Xr and Yr) on the spectra of these samples (Xu). </p></li>
 </ul><p>In order to predict each value in Yu, the <code>mbl</code> function takes each sample in Xu and searches in Xr for its <em>k</em>-nearest neighbours (most spectrally similar samples). Then a (local) model is calibrated with these (reference) neighbours and it immediately predicts the correspondent value in Yu from Xu. In the function, the <em>k</em>-nearest neighbour search is performed by computing spectral similarity/dissimilarity matrices between samples. The <code>mbl</code> function offers the following regression options for calibrating the (local) models:</p>
 
-<table>
-<thead><tr>
-<th>Regression methods in the <code>mbl</code> function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code>'gpr'</code></td>
-<td>Gaussian process with linear kernel</td>
-</tr>
-<tr>
-<td><code>'pls'</code></td>
-<td>Partial least squares</td>
-</tr>
-<tr>
-<td><code>'wapls1'</code></td>
-<td>Weighted average partial least squares 1</td>
-</tr>
-<tr>
-<td><code>'wapls2'</code></td>
-<td>Weighted average partial least squares 2</td>
-</tr>
-</tbody>
-</table><h2>
+<p><strong><code>'gpr'</code></strong>:                                   Gaussian process with linear kernel<br><strong><code>'pls'</code></strong>:                                   Partial least squares<br><strong><code>'wapls1'</code></strong>:                                Weighted average partial least squares 1<br><strong><code>'wapls2'</code></strong>:                                Weighted average partial least squares 2   </p>
 
+<h2>
 <a name="keywords" class="anchor" href="#keywords"><span class="octicon octicon-link"></span></a>Keywords</h2>
 
 <ul>
@@ -245,37 +139,32 @@ getPredictions(sbl.u)
 <li><em>Chemometrics</em></li>
 <li><em>Local modelling</em></li>
 <li><em>Spectral library</em></li>
-<li><em>Machine learning</em></li>
 <li><em>Lazy learning</em></li>
 <li><em>Soil spectroscopy</em></li>
 </ul><h2>
+<a name="news" class="anchor" href="#news"><span class="octicon octicon-link"></span></a>News</h2>
 
+<p>2014-03: The package was released on CRAN!</p>
+
+<h2>
+<a name="other-related-stuff" class="anchor" href="#other-related-stuff"><span class="octicon octicon-link"></span></a>Other R'elated stuff</h2>
+
+<ul>
+<li>Check our other project called <a href="http://antoinestevens.github.io/prospectr/"><code>prospectr</code></a>
+</li>
+</ul><h2>
 <a name="bug-report-and-development-version" class="anchor" href="#bug-report-and-development-version"><span class="octicon octicon-link"></span></a>Bug report and development version</h2>
 
 <p>You can send an email to the package maintainer (<a href="mailto:leonardo.ramirez@usys.ethz.ch">leonardo.ramirez@usys.ethz.ch</a>; <a href="mailto:leonardo.ramirez@wsl.ch">leonardo.ramirez@wsl.ch</a>) or create an <a href="https://github.com/l-ramirez-lopez/resemble/issues">issue</a> on github. </p>
 
-<h2>
-<a name="Additional information" class="anchor" href="#Additional information"><span class="octicon octicon-link"></span></a>Additional information</h2>
-
-<p> If you want to know more about how the package works, have a look on <a href="http://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf">this presentation on modelling complex spectral libraries using memory-based learning</a></p>
-
 
       </section>
-
       <footer>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <p>this project by <a href="https://github.com/l-ramirez-lopez">l-ramirez-lopez</a> can be found on <a href="https://github.com/l-ramirez-lopez/resemble">GitHub</a></p>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
-        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
-        <span class="octocat"></span>
+        <p>This project is maintained by <a href="https://github.com/l-ramirez-lopez">l-ramirez-lopez</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
-
     </div>
-
+    <script src="javascripts/scale.fix.js"></script>
               <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
