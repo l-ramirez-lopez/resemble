@@ -3,14 +3,7 @@ _Leonardo Ramirez-Lopez & Antoine Stevens_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
-You can install the `resemble` package directly from github using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html) (with a proper installed version of [Rtools](http://cran.r-project.org/bin/windows/Rtools/)):
-
-```
-require("devtools")
-install_github("resemble","l-ramirez-lopez")
-```
-
-You can also download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.zip?raw=true) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.0.tar.gz?raw=true). Remeber you should have R>3.0.0. Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
+You download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.1.1.zip?raw=true) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/blob/master/Installers/resemble_1.1.1.tar.gz?raw=true). Remeber you should have R>=3.0.2. Supose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
 
 First, if you do not have the following packages installed, you should install them first
 ```
@@ -23,13 +16,20 @@ install.packages('iterators')
 Then, install `resemble`
 
 ```
-install.packages('C:/MyFolder/resemble_1.0.zip')
+install.packages('C:/MyFolder/resemble_1.1.1.zip')
 ````
 or
 
 ```
-install.packages('C:/MyFolder/resemble_1.0.tar.gz', type = 'source')
+install.packages('C:/MyFolder/resemble_1.1.1.tar.gz', type = 'source')
 ```
+You can also install the `resemble` package directly from github using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html) (with a proper installed version of [Rtools](http://cran.r-project.org/bin/windows/Rtools/)):
+
+```
+require("devtools")
+install_github("resemble","l-ramirez-lopez")
+```
+
 
 After installing `resemble` you should be also able to run the following lines:
 
@@ -75,30 +75,30 @@ getPredictions(sbl.u)
 
 The functions for computing and evaluate spectral similarity/dissimilarity matrices can be summarized as follows:
 
-`fDiss`:                  Euclidean and Mahalanobis distances as well as the cosine dissimilarity (_a.k.a_ spectral angle mapper)              
-`corDiss`:                correlation and moving window correlation dissimilarity                                                 
-`sid`:                    spectral information divergence between spectra or between the probability distributions of spectra      
-`orthoDiss`:              principal components and partial least squares dissimilarity (including several options)                  
-`simEval`:                evaluates a given similarity/dissimilarity matrix based on the concept of side information                 
+__`fDiss`__:                  Euclidean and Mahalanobis distances as well as the cosine dissimilarity (_a.k.a_ spectral angle mapper)              
+__`corDiss`__:                correlation and moving window correlation dissimilarity                                                 
+__`sid`__:                    spectral information divergence between spectra or between the probability distributions of spectra      
+__`orthoDiss`__:              principal components and partial least squares dissimilarity (including several options)                  
+__`simEval`__:                evaluates a given similarity/dissimilarity matrix based on the concept of side information                 
 
 The functions for projecting the spectra onto low dimensional orthogonal variables are:
 
-`pcProjection`:            projects the spectra onto a principal component space                                                                              
-`plsProjection`:           projects the spectra onto a partial least squares component space  (_a.k.a_ projection to latent structures)                                       
-`orthoProjection`:         reproduces either the `pcProjection` or the `plsProjection` functions                                          
+__`pcProjection`__:            projects the spectra onto a principal component space                                                                              
+__`plsProjection`__:           projects the spectra onto a partial least squares component space  (_a.k.a_ projection to latent structures)                                       
+__`orthoProjection`__:         reproduces either the `pcProjection` or the `plsProjection` functions                                          
 
 The projection functions also offer different options for optimizing/selecting the number of components involved in the projection.
 
 The functions modelling the spectra using memory-based learning are:
 
-`mblControl`:              controls some modelling aspects of the `mbl` function                         
-`mbl`:                     models the spectra by memory-based learning                                                    
+__`mblControl`__:              controls some modelling aspects of the `mbl` function                         
+__`mbl`__:                     models the spectra by memory-based learning                                                    
 
 Some additional miscellaneous functions are:
 
-`print.mbl`:               prints a summary of the results obtained by the `mbl` function                              
-`plot.mbl`:                plots a summary of the results obtained by the `mbl` function                 
-`print.localOrthoDiss`:    prints local distance matrices generated with the `orthoDiss` function 
+__`print.mbl`__:               prints a summary of the results obtained by the `mbl` function                              
+__`plot.mbl`__:                plots a summary of the results obtained by the `mbl` function                 
+__`print.localOrthoDiss`__:    prints local distance matrices generated with the `orthoDiss` function 
 
 In order to expand a little bit more the explanation on the `mbl` function, let's define first the basic input datasets:
 
@@ -108,10 +108,10 @@ In order to expand a little bit more the explanation on the `mbl` function, let'
 
 In order to predict each value in Yu, the `mbl` function takes each sample in Xu and searches in Xr for its _k_-nearest neighbours (most spectrally similar samples). Then a (local) model is calibrated with these (reference) neighbours and it immediately predicts the correspondent value in Yu from Xu. In the function, the _k_-nearest neighbour search is performed by computing spectral similarity/dissimilarity matrices between samples. The `mbl` function offers the following regression options for calibrating the (local) models:
                           
-`'gpr'`:                                   Gaussian process with linear kernel        
-`'pls'`:                                   Partial least squares                      
-`'wapls1'`:                                Weighted average partial least squares 1   
-`'wapls2'`:                                Weighted average partial least squares 2   
+__`'gpr'`__:                                   Gaussian process with linear kernel        
+__`'pls'`__:                                   Partial least squares                      
+__`'wapls1'`__:                                Weighted average partial least squares 1   
+__`'wapls2'`__:                                Weighted average partial least squares 2   
 
 ## Keywords
 * _Infrared spectroscopy_
@@ -126,7 +126,8 @@ In order to predict each value in Yu, the `mbl` function takes each sample in Xu
 2014-03: The package was released on CRAN!
 
 ## Other R'elated stuff
-* Check our other project called [`prospectr`](http://antoinestevens.github.io/prospectr/)
+* [Check our other project called `prospectr`.](http://antoinestevens.github.io/prospectr/)
+* [Check this presentation in which we used the resemble package was used to predict soil attributes from large scale soil spectral libraries.](http://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
 
 ## Bug report and development version
 

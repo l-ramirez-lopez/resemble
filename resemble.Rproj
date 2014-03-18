@@ -14,4 +14,3 @@ LaTeX: pdfLaTeX
 
 BuildType: Package
 PackageCheckArgs: --as-cran
-PackageRoxygenize: rd
