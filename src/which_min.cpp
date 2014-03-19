@@ -32,6 +32,7 @@ NumericVector which_min(NumericMatrix X, int cores){
     x(i) = arma::datum::nan; // remove diag
     double z = x.min(index);
     vindex[i] = index;
+    z = z;
    }
    return wrap(vindex +1);   
 }
@@ -77,6 +78,7 @@ NumericVector which_minV(NumericVector X,int cores){
     x[i] = arma::datum::nan; // remove diag
     double z = x.min(index);
     vindex[i] = index;
+    z = z;
   }
   return wrap(vindex +1);
 }
