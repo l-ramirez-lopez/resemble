@@ -1,6 +1,6 @@
-#' @title A function for computing orthogonal dissimilarity matrices (orthoDiss)
+#' @title A function for computing dissimilarity matrices from orthogonal projections (orthoDiss)
 #' @description
-#' This function computes orthogonal dissimilarities between either observations in a given set or between observations in two different sets.
+#' This function computes dissimilarities (in an orthogonal space) between either observations in a given set or between observations in two different sets.
 #' The dissimilarities are computed based on either principal component projection or partial least squares projection of the data. After projecting the data, 
 #' the Mahalanobis distance is applied.
 #' @usage 
