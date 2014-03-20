@@ -2,7 +2,7 @@ Package: resemble
 Type: Package
 Title: Regression and similarity evaluation for memory-based learning in
     spectral chemometrics.
-Version: 1.1.1
+Version: 1.1.2
 Date: 2014-03-13
 Author: Leonardo Ramirez-Lopez and Antoine Stevens
 Maintainer: Leonardo Ramirez-Lopez <leonardo.ramirez@usys.ethz.ch>
