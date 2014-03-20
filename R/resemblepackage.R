@@ -1,8 +1,8 @@
 #'@description 
 #' This package implements a number of \code{R} functions useful for 
 #' modelling complex visible and infrared spectra(\acronym{vis-IR}). 
-#' The packages includes functions for for projecting spectral data 
-#' onto orthogonal spaces, computing spectral similarity/dissimilarity
+#' The package includes functions for projecting spectral data 
+#' onto orthogonal spaces, computing spectral dissimilarity
 #' matrices, removing irrelevant spectra from a reference set, 
 #' and modeling spectral data using memory-based learning.
 #' 
