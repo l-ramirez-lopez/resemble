@@ -1,6 +1,6 @@
 \name{orthoDiss}
 \alias{orthoDiss}
-\title{A function for computing orthogonal dissimilarity matrices (orthoDiss)}
+\title{A function for computing dissimilarity matrices from orthogonal projections (orthoDiss)}
 \usage{
 orthoDiss(Xr, X2 = NULL,
           Yr = NULL,
@@ -142,12 +142,13 @@ dissimilarities (see \code{cores} parameter) is based on
 OpenMP and hence works only on windows and linux.
 }
 \description{
-This function computes orthogonal dissimilarities between
-either observations in a given set or between observations
-in two different sets. The dissimilarities are computed
-based on either principal component projection or partial
-least squares projection of the data. After projecting the
-data, the Mahalanobis distance is applied.
+This function computes dissimilarities (in an orthogonal
+space) between either observations in a given set or
+between observations in two different sets. The
+dissimilarities are computed based on either principal
+component projection or partial least squares projection of
+the data. After projecting the data, the Mahalanobis
+distance is applied.
 }
 \details{
 When \code{local = TRUE}, first a global distance matrix is

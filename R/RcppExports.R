@@ -51,6 +51,8 @@ fastDistVV <- function(X, cores) {
 #' @param Y a \code{matrix}
 #' @param w window size (must be odd)
 #' @return a \code{matrix} of correlation distance
+#' @keywords internal
+#' @useDynLib resemble
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 movcorDist <- function(X, Y, w) {
     .Call('resemble_movcorDist', PACKAGE = 'resemble', X, Y, w)
