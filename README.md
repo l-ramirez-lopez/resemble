@@ -131,4 +131,4 @@ __`'wapls2'`__:                                Weighted average partial least sq
 
 ## Bug report and development version
 
-You can send an email to the package maintainer (<leonardo.ramirez@usys.ethz.ch>; <leonardo.ramirez@wsl.ch>) or create an [issue](https://github.com/l-ramirez-lopez/resemble/issues) on github. 
+You can send an e-mail to the package maintainer (<leonardo.ramirez@usys.ethz.ch>; <leonardo.ramirez@wsl.ch>) or create an [issue](https://github.com/l-ramirez-lopez/resemble/issues) on github. 
