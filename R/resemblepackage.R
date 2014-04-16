@@ -1,4 +1,3 @@
-#'@description 
 #' This package implements a number of \code{R} functions useful for 
 #' modelling complex visible and infrared spectra(\acronym{vis-IR}). 
 #' The package includes functions for projecting spectral data 
@@ -46,8 +45,8 @@
 #'   \item{\code{\link{print.orthoProjection}}}
 #'   }
 #'@docType package
-#'@name resemble
-#'@title resemble package
+#'@name resemble-package
+#'@title Overview of the functions in the resemble package
 #'@import Rcpp RcppArmadillo foreach iterators pls
 #'@useDynLib resemble
 #'@author Leonardo Ramirez-Lopez & Antoine Stevens
