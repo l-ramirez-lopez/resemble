@@ -1,6 +1,8 @@
+.Rhistory
+.Rbuildignore
+resemble\.Rproj
 .Rproj.user
 resemble.Rproj
-.Rhistory
 .RData
 src/*.o
 src/*.so
