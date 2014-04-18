@@ -5,6 +5,6 @@
 ## Version 1.1.2
 * 20.03.2013 The function movcorDist was removed since 
              it was included by mistake in the previous 
-             package version. The corDiss function can 
-             be used in raplacement of movcorDist.
+             version of the package. The corDiss function  
+             can be used in raplacement of movcorDist.
              
