@@ -3,8 +3,14 @@
 * 19.03.2013 Hello world! Initial release of the package
 
 ## Version 1.1.2
-* 20.03.2013 The function movcorDist was removed since 
+* 23.04.2014 Added default variable names when they are missing 
+             and an error message when the names of Xr do not match
+             the names of Xu.
+* 23.04.2014 plot.mbl draws now the circles around the actual centre
+             function when the spectra is not centred for mbl
+* 20.03.2013 The function movcorDist was removed since.
              it was included by mistake in the previous 
              version of the package. The corDiss function  
              can be used in raplacement of movcorDist.
+
              
