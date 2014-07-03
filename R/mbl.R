@@ -359,7 +359,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(is.null(colnames(Xu)))
     colnames(Xu) <- 1:ncol(Xu)
   
-  if(colnames(Xu) !=  colnames(Xr))
+  if(sum(!colnames(Xu) ==  colnames(Xr)) != 0)
     stop("The names of the variables in Xr do not match the names of the variables in Xu")
   
   if(is.null(mblCtrl$sm) & is.null(dissimilarityM))
