@@ -41,6 +41,13 @@
 #' }
 #' @export
 
+## History:
+## 23.04.2014 Leo     Plot function when the data is not centred now 
+##                    draws the circles around the actual centre
+
+
+
+
 plot.mbl <- function(x, 
                      g = c("validation", "pca"), 
                      param = "rmse", 
@@ -147,19 +154,24 @@ plot.mbl <- function(x,
       legend("topright", legend = c("Xr", "Xu"),
              col = c(rainbow(1, s = 1, v = 0, alpha = 0.3), heat.colors(1, alpha = 0.4)), pch = 16, cex = 0.8, box.lty = 3, box.col = "grey")
     }else{
-      rng <- range(object$pcAnalysis$scores_Xr[,pcs], object$pcAnalysis$scores_Xu[,pcs])
-      rng <- 1.2 * c(-max(abs(rng)), max(abs(rng)))
+      if(object$cntrlParam$center){
+        rng <- 1.2 * range(object$pcAnalysis$scores_Xr[,pcs], object$pcAnalysis$scores_Xu[,pcs])
+        rng1 <- rng2 <-  c(-max(abs(rng)), max(abs(rng)))
+      }else{
+        rng1 <- range(object$pcAnalysis$scores_Xr[,pcs[1]], object$pcAnalysis$scores_Xu[,pcs[1]])
+        rng2 <- range(object$pcAnalysis$scores_Xr[,pcs[2]], object$pcAnalysis$scores_Xu[,pcs[2]])
+      }
       
       xl <- paste(colnames(object$pcAnalysis$scores_Xr[,pcs[1],drop=F]), " (standardized)", sep = "") 
       yl <- paste(colnames(object$pcAnalysis$scores_Xr[,pcs[2],drop=F]), " (standardized)", sep = "") 
       
-      plot(object$pcAnalysis$scores_Xr[,pcs], xlab = xl, ylab = yl, xlim = rng, ylim = rng, 
+      plot(object$pcAnalysis$scores_Xr[,pcs], xlab = xl, ylab = yl, xlim = rng1, ylim = rng2, 
            col = rainbow(1, s = 1, v = 0, alpha = 0.3), pch = pch,
            col.axis = col.axis, ...)
       
       mtext("Prinipal component analyisis", col = grey(0.3))
       
-      points(object$pcAnalysis$scores_Xu[,pcs], xlim = rng, ylim = rng, col = heat.colors(1, alpha = 0.4), pch = pch)
+      points(object$pcAnalysis$scores_Xu[,pcs], xlim = rng1, ylim = rng2, col = heat.colors(1, alpha = 0.4), pch = pch)
       grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
            lwd = par("lwd"), equilogs = TRUE)
       legend("topright", legend = c("Xr", "Xu"),
@@ -174,9 +186,12 @@ plot.mbl <- function(x,
         }
         return(a)
       }
+        
       for(i in 1:floor(max(object$pcAnalysis$scores_Xr[,pcs]))){
         crc <- pntCirc(i)
         crc <- rbind(crc, crc[1,])
+        if(!object$cntrlParam$center)
+          crc <- sweep(x= crc, FUN = "+", MARGIN = 2, STATS = colMeans(object$pcAnalysis$scores_Xr[,pcs]))
         lines(crc, col = "dodgerblue", lty = 5, lwd = 0.5)
       }
     }

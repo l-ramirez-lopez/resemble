@@ -316,7 +316,8 @@
 
 ## History:
 ## 09.03.2014 Leo     Doc examples  were formated with a max. line width
-## 13.03.2014 Antoine The explanation of the cores argument was modified                   
+## 13.03.2014 Antoine The explanation of the cores argument was modified   
+## 23.04.2014 Leo     Added default variable names when they are missing 
 
 mbl <- function(Yr, Xr, Yu = NULL, Xu, 
                 mblCtrl = mblControl(),
@@ -334,10 +335,10 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   
   # Sanity checks
   if(ncol(Xr) != ncol(Xu))
-    stop("the number of predictor variables in Xr must be equal to the number of variables in Xu")
+    stop("The number of predictor variables in Xr must be equal to the number of variables in Xu")
   
   if(ncol(Xr) < 4)
-    stop("this function works only with matrices containing more than 3 predictor variables")
+    stop("This function works only with matrices containing more than 3 predictor variables")
   
   if(length(Yr) != nrow(Xr))
     stop("length(Yr) must be equal to nrow(Xr)")
@@ -352,27 +353,36 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   rownames(Xr) <- 1:nrow(Xr)
   rownames(Xu) <- 1:nrow(Xu)
   
+  if(is.null(colnames(Xr)))
+    colnames(Xr) <- 1:ncol(Xr)
+  
+  if(is.null(colnames(Xu)))
+    colnames(Xu) <- 1:ncol(Xu)
+  
+  if(sum(!colnames(Xu) ==  colnames(Xr)) != 0)
+    stop("The names of the variables in Xr do not match the names of the variables in Xu")
+  
   if(is.null(mblCtrl$sm) & is.null(dissimilarityM))
-    stop("both mblCtrl$sm and 'dissimilarityM' are NULL. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
+    stop("Both mblCtrl$sm and 'dissimilarityM' are NULL. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
   
   if(!is.null(dissimilarityM)){
     if(mblCtrl$sm != "none"){
-      warning(paste("both 'dissimilarityM' and 'sm' ('mblCtrl$sm = ", mblCtrl$sm,"') were specified, only the 'dissimilarityM' argument will be taken into account and mblCtrl$sm will be set to NULL"))
+      warning(paste("Both 'dissimilarityM' and 'sm' ('mblCtrl$sm = ", mblCtrl$sm,"') were specified, only the 'dissimilarityM' argument will be taken into account and mblCtrl$sm will be set to NULL"))
       mblCtrl$sm <- NULL
     } 
     if(dissUsage == "predictors")
       if(sum(dim(dissimilarityM) - (nrow(Xr) + nrow(Xu))) != 0 & sum(diag(dissimilarityM)==0) != 0)
-        stop("when dissUsage = 'predictors', 'dissimilarityM' must be a square symmetric matrix of dissimilarities (derived from rbind(Xr, Xu)) for which the diagonal values are zeros")
+        stop("When dissUsage = 'predictors', 'dissimilarityM' must be a square symmetric matrix of dissimilarities (derived from rbind(Xr, Xu)) for which the diagonal values are zeros")
     if(dissUsage %in% c("weights", "none"))
       if(nrow(dissimilarityM) != nrow(Xr) & ncol(dissimilarityM) != nrow(Xu))
-        stop("when the 'dissUsage' argument is set to either 'weights' or 'none', 'dissimilarityM' must be a matrix representing the dissimilarity of each element in 'Xu' to each element in 'Xr'. The number of columns in 'dissimilarityM' must be equal to the number of rows of 'Xu' and the number of rows equal to the number of rows of 'Xr'")
+        stop("When the 'dissUsage' argument is set to either 'weights' or 'none', 'dissimilarityM' must be a matrix representing the dissimilarity of each element in 'Xu' to each element in 'Xr'. The number of columns in 'dissimilarityM' must be equal to the number of rows of 'Xu' and the number of rows equal to the number of rows of 'Xr'")
   } else{   
     if(mblCtrl$sm == "movcor"){
       if(mblCtrl$ws < 3 | mblCtrl$ws > (ncol(Xr) - 1) | length(mblCtrl$ws) != 1) 
         mblCtrl$ws <- round(ncol(Xr) * 0.10)
       if(!mblCtrl$ws %% 2){
         mblCtrl$ws <- mblCtrl$ws - 1
-        warning(paste("in this case the ws specified in mblCtrl$ws must be an unique odd value between 3 and ", (ncol(Xr) - 1), ". Therefore the window size was reset to ", mblCtrl$ws,"."))
+        warning(paste("In this case the ws specified in mblCtrl$ws must be an unique odd value between 3 and ", (ncol(Xr) - 1), ". Therefore the window size was reset to ", mblCtrl$ws,"."))
       }
     }
   }
@@ -382,19 +392,19 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   trsh <- mblCtrl$pcSelection$value
   
   if(pcSel == "opc" & mblCtrl$pcSelection$value > min(nrow(Xr) + nrow(Xu), ncol(Xr))){
-    warning(paste("if 'mblCtrl$pcSelection$method = 'opc'' the value specified in 'mblCtrl$pcSelection$value' cannot be greater than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
+    warning(paste("If 'mblCtrl$pcSelection$method = 'opc'' the value specified in 'mblCtrl$pcSelection$value' cannot be greater than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
     trsh <- min(nrow(Xr) + nrow(Xr), ncol(Xr))
   }
   
   if(pcSel == "manual" & mblCtrl$pcSelection$value > min(nrow(Xr) + nrow(Xu), ncol(Xr))){
-    warning(paste("if 'mblCtrl$pcSelection$method = 'manual'' the value specified in 'mblCtrl$pcSelection$value' cannot be greater than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
+    warning(paste("If 'mblCtrl$pcSelection$method = 'manual'' the value specified in 'mblCtrl$pcSelection$value' cannot be greater than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
     trsh <- min(nrow(Xr) + nrow(Xr), ncol(Xr))
   }
   
   match.arg(dissUsage, c("predictors", "weights", "none"))
   
   if(missing(k) & missing(k.diss)) 
-    stop("either k or k.diss must be specified")
+    stop("Either k or k.diss must be specified")
   
   if(!missing(k) & !missing(k.diss)) 
     stop("Only one of k or k.diss can be specified")  
@@ -402,12 +412,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(mblCtrl$sm == "loc.pc")
     if(!missing(k))
       if(max(k) >= mblCtrl$k0)
-        stop(paste("the maximum number of neighbours specified in the k vector (", max(k) ,") cannot be greather than the initial number of neighbours specified in 'mblCtrl$k0' (",mblCtrl$k0,")", sep = ""))
+        stop(paste("The maximum number of neighbours specified in the k vector (", max(k) ,") cannot be greather than the initial number of neighbours specified in 'mblCtrl$k0' (",mblCtrl$k0,")", sep = ""))
   
   if(!missing(k.diss)){
     dtc <- k.diss
     if(missing(k.range))
-      stop("if the k.diss argument is used, k.range must be specified")
+      stop("If the k.diss argument is used, k.range must be specified")
     if(length(k.range) != 2 | !is.numeric(k.range) | diff(k.range) < 0)
       stop("k.range must be a vector (of length 2) which specifies the minimum (first value) and the maximum (second value) number of neighbours") 
     k.min <- as.integer(k.range[1])
@@ -427,9 +437,9 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(method %in% c("pls", "wapls1", "wapls2")){
     if(method %in% c("wapls1", "wapls2")){
       if(missing(pls.c))
-        stop("when either 'wapls1' or 'wapls2' are chosen, 'pls.c' must be specified")
+        stop("When either 'wapls1' or 'wapls2' are chosen, 'pls.c' must be specified")
       if(length(pls.c) != 2 | !is.numeric(pls.c) | missing(pls.c))
-        stop("when either 'wapls1' or 'wapls2' are chosen, 'pls.c' must be a numerical vector of length 2 which specifies both the minimum (first value) and the maximum (second value) number of PLS components")
+        stop("When either 'wapls1' or 'wapls2' are chosen, 'pls.c' must be a numerical vector of length 2 which specifies both the minimum (first value) and the maximum (second value) number of PLS components")
       if(diff(pls.c) < 0)
         stop("The number of minimum PLS components specified exedes the maximum. The first value in 'pls.c' must be the minimum number of PLS components")
     }else{
@@ -1037,15 +1047,15 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
     stop("if the argument weights is specified it must be a vector")
   if(!is.null(weights)){
     if(length(weights) != length(y))
-      stop("length of the vector of weights does not match with the number of observations in x and y")
+      stop("Length of the vector of weights does not match with the number of observations in x and y")
   }
   
   if(predMethod != "gpr"){
     if(predMethod == "pls" & length(pls.c) != 1)
-      stop("when predMethod = 'pls', pls.c must be a vector of length 1")
+      stop("When predMethod = 'pls', pls.c must be a vector of length 1")
     if(predMethod %in% c("wapls1", "wapls2"))
       if(length(pls.c) != 2)
-        stop("when either 'wapls1' or 'wapls2' are used as regression methods, pls.c must be a vector of length 2 indicating a minimum and a maximum number of PLS components")
+        stop("When either 'wapls1' or 'wapls2' are used as regression methods, pls.c must be a vector of length 2 indicating a minimum and a maximum number of PLS components")
   }
   
   if(is.null(weights)) {weights <- 1}
@@ -1062,7 +1072,7 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
       stop("'newdata' must be a vector")
     
     if(length(newdata) != ncol(x))
-      stop("length of vector newdata must be equal to the number of columns of x")
+      stop("Length of vector newdata must be equal to the number of columns of x")
     
     newdata <- t(newdata)
   }
