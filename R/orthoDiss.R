@@ -310,12 +310,12 @@ orthoDiss <- function(Xr, X2 = NULL,
     }
     resultsList <- list(n.components = n.components, loc.n.components = data.frame(sample.nm = colnames(distnc), sample = 1:ncol(distnc), loc.n.components = loc.n.components), dissimilarity = distnc)
     class(resultsList) <- c("orthoDiss", "list") 
-    class(resultsList$dissimilarity) <- c("localOrthoDiss")
+    class(resultsList$dissimilarity) <- c("localOrthoDiss","matrix")
     return(resultsList)    
   }else{
     resultsList <- list(n.components = n.components, dissimilarity = distnc)
     class(resultsList) <- c("orthoDiss", "list") 
-    class(resultsList$dissimilarity) <- c("orthoDiss") 
+    class(resultsList$dissimilarity) <- c("orthoDiss","matrix") 
     return(resultsList)
   }
 }

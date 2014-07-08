@@ -366,6 +366,8 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     stop("Both mblCtrl$sm and 'dissimilarityM' are NULL. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
   
   if(!is.null(dissimilarityM)){
+    if(!is.matrix(dissimilarityM))
+      stop("'dissimilarityM' must be a matrix")
     if(mblCtrl$sm != "none"){
       warning(paste("Both 'dissimilarityM' and 'sm' ('mblCtrl$sm = ", mblCtrl$sm,"') were specified, only the 'dissimilarityM' argument will be taken into account and mblCtrl$sm will be set to NULL"))
       mblCtrl$sm <- NULL
