@@ -272,3 +272,13 @@ system.time(mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu, mblCtrl = ctrl, dissUsage = 
 # I get a ~3 x speed-up ...
 registerDoSEQ() # un-register
 stopCluster(cl) # delete R instances
+
+# another example of parallel execution available in resemble is with the opc method
+# opc can be time-intensive because it requires to compute a distance matrix and neareast-neighbours for each pc component
+# In orthoProjection, the 'core' argument allows to do that in parallel 
+#  (this will work only on Windows and Linux)
+# Let's test this on a large matrix 
+X <- matrix(rnorm(2*10^6),nrow=20000, ncol=100) # input (spectral) matrix of 20000 rows and 100 columns
+y <- rnorm(2*10^4) # 'side' information used in the simEval function
+system.time(orthoProjection(Xr = X,Yr=y, method = "pca",pcSelection = list("opc",40))) # this takes 285 sec on my machine
+system.time(orthoProjection(Xr = X,Yr=y, method = "pca",pcSelection = list("opc",40),cores=4)) # and 136 sec with 4 cores...
