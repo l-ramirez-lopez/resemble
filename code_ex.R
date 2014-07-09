@@ -264,19 +264,11 @@ library(parallel)
 library(doParallel)
 # here is the time spent with one core
 ctrl <- mblControl(sm="pls",pcSelection = list("manual",10),progress = T)
-<<<<<<< HEAD
 system.time(mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu, mblCtrl = ctrl, dissUsage = "none", k = seq(25, 150, by = 25),  method = "gpr"))
 # now with 4 cores
 cl <- makeCluster(4) # create a set 4 running R copies
 registerDoParallel(cl) # register them to work with foreach
 system.time(mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu, mblCtrl = ctrl, dissUsage = "none", k = seq(25, 150, by = 25),  method = "gpr"))
-=======
-system.time(mbl_test <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu, mblCtrl = ctrl, dissUsage = "none", k = seq(25, 150, by = 25),  method = "gpr"))
-# now with 4 cores
-cl <- makeCluster(4) # create a set 4 running R copies
-registerDoParallel(cl) # register them to work with foreach
-system.time(mbl_test <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu, mblCtrl = ctrl, dissUsage = "none", k = seq(25, 150, by = 25),  method = "gpr"))
->>>>>>> d9e8596248ed123ae8764316c71d1c81a06d911b
 # I get a ~3 x speed-up ...
 registerDoSEQ() # un-register
 stopCluster(cl) # delete R instances
