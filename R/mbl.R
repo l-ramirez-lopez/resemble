@@ -362,8 +362,8 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(sum(!colnames(Xu) ==  colnames(Xr)) != 0)
     stop("The names of the variables in Xr do not match the names of the variables in Xu")
   
-  if(is.null(mblCtrl$sm) & is.null(dissimilarityM))
-    stop("Both mblCtrl$sm and 'dissimilarityM' are NULL. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
+  if((is.null(mblCtrl$sm)|mblCtrl$sm=="none") & is.null(dissimilarityM))
+    stop("mblCtrl$sm is NULL or set to 'none' while 'dissimilarityM' is NULL. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
   
   if(!is.null(dissimilarityM)){
     if(!is.matrix(dissimilarityM))
