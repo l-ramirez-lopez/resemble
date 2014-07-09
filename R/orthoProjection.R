@@ -403,9 +403,15 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       for(i in 1:pcSelection$value){        
         sc <- s.scores[1:nr, i, drop = FALSE]       
         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
-          d <- fastDistVV(sc, cores)          
+          if(cores>1)
+            d <- fastDistVV(sc, cores)
+          else
+            d <- dist(sc)
         } else {
-          d <- d+fastDistVV(sc, cores)
+          if(cores>1)
+            d <- d + fastDistVV(sc, cores)
+          else
+            d <- d + dist(sc)
         }
         tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, lower.tri = TRUE,  cores = cores)        
         result[i,1:ny] <- getElement(tmp$eval, "rmsd")
@@ -426,9 +432,15 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       for(i in 1:pcSelection$value){           
         sc <- s.scores[1:nr,i, drop=FALSE]
         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
-          d <- fastDistVV(sc, cores)
+          if(cores>1)
+            d <- fastDistVV(sc, cores)
+          else
+            d <- dist(sc)
         } else {
-          d <- d+fastDistVV(sc, cores)
+          if(cores>1)
+            d <- d + fastDistVV(sc, cores)
+          else
+            d <- d + dist(sc)
         }
         tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, lower.tri = TRUE, cores = cores)
         result[i] <- getElement(tmp$eval, ext)
@@ -747,10 +759,16 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       for(i in 1:pcSelection$value){
         sc <- s.scores[,i, drop=FALSE]
         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
-          d <- fastDistVV(sc, cores)
+          if(cores>1)
+            d <- fastDistVV(sc, cores)
+          else
+            d <- dist(sc)
         } else {
-          d <- d+fastDistVV(sc, cores)
-        }        
+          if(cores>1)
+            d <- d + fastDistVV(sc, cores)
+          else
+            d <- d + dist(sc)
+        }
         tmp <- simEval(d = d, sideInf = Yr[inx.in,,drop=FALSE], lower.tri = TRUE, cores = cores)
         result[i,1:ny] <- getElement(tmp$eval, "rmsd")
         result[i,1+ny] <- getElement(tmp$global.eval, "mn.sd.rmsd")
@@ -765,9 +783,15 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       for(i in 1:pcSelection$value){
         sc <- s.scores[,i, drop=FALSE]
         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
-          d <- fastDistVV(sc, cores)
+          if(cores>1)
+            d <- fastDistVV(sc, cores)
+          else
+            d <- dist(sc)
         } else {
-          d <- d+fastDistVV(sc, cores)
+          if(cores>1)
+            d <- d + fastDistVV(sc, cores)
+          else
+            d <- d + dist(sc)
         }
         tmp <- simEval(d = d, sideInf = Yr[inx.in,,drop=FALSE], lower.tri = TRUE, cores = cores)
         result[i] <- getElement(tmp$eval, "rmsd")
