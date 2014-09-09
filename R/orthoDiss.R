@@ -114,6 +114,7 @@
 ## 09.03.2014 Leo     In the doc was specified that multi-threading is 
 ##                    not working for mac
 ## 13.03.2014 Antoine The explanation of the cores argument was modified
+## 07.09.2014 Antoine A bug handling Yr as a matrix was fixed
 
 orthoDiss <- function(Xr, X2 = NULL, 
                       Yr = NULL, 
@@ -154,7 +155,8 @@ orthoDiss <- function(Xr, X2 = NULL,
   
   if(!is.null(Yr))
   {
-    Yr <- matrix(Yr,length(Yr))
+    if(is.null(dim(Yr)))
+      Yr <- matrix(Yr, length(Yr))
     Yr <- as.data.frame(Yr)
   }
   

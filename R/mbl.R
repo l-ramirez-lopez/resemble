@@ -8,6 +8,7 @@
 #' mbl(Yr, Xr, Yu = NULL, Xu,
 #'     mblCtrl = mblControl(), 
 #'     dissimilarityM = NULL,
+#'     group = NULL,
 #'     dissUsage = "predictors", 
 #'     k, k.diss, k.range,
 #'     method, 
@@ -22,6 +23,7 @@
 #' @param dissimilarityM (optional) a dissimilarity matrix. This argument can be used in case a user-defined dissimilarity matrix is preferred over the automatic dissimilarity matrix computation specified in the \code{sm} argument of the  \code{\link{mblControl}} function. When \code{dissUsage = "predictors"}, \code{dissimilarityM} must be a square symmetric dissimilarity matrix (derived from a matrix of the form \code{rbind(Xr, Xu)}) for which the diagonal values are zeros (since the dissimilarity between an object and itself must be 0). 
 #'        On the other hand if \code{dissUsage} is set to either \code{"weights"} or \code{"none"}, \code{dissimilarityM} must be a \code{matrix} representing the dissimilarity of each element in \code{Xu} to each element in \code{Xr}. The number of columns of the object correspondent to \code{dissimilarityM} must be equal to the number of rows in \code{Xu} and the number of rows equal to the number of rows in \code{Xr}.
 #'        If both \code{dissimilarityM} and  \code{sm} are specified, only the \code{dissimilarityM} argument will be taken into account.
+#' @param group an optional factor (or vector that can be coerced to a factor by \code{as.factor}) to be taken into account for internal validations. The length of the vector must be equal to \code{nrow(Xr)}, giving the identifier of related observations (e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). When one observation is selected for cross validation, all observations of the same group are removed together and assigned to validation. See details.
 #' @param dissUsage specifies how the dissimilarity information shall be used. The possible options are: \code{"predictors"}, \code{"weights"} and \code{"none"} (see details below).
 #'        Default is "predictors".
 #' @param k a numeric (integer) \code{vector} containing the sequence of k nearest neighbours to be tested. Either \code{k} or \code{k.diss} must be specified. Numbers with decimal values will be coerced to their next higher integer values. This vector will be automatically sorted into ascending order.
@@ -36,6 +38,7 @@
 #' @param noise.v a value indicating the variance of the noise for Gaussian process regression. Default is 0.001. 
 #' @param ... additional arguments to be passed to other functions. 
 #' @details
+#' By using the \code{group} argument one can specify observations (spectra) groups of samples that have something in common e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc) which could produce biased cross-validation results due to pseudo-replication. This argumentallows to select calibration points that are independent from the validation ones in cross-validation. In this regard, when  \code{valMethod = "loc_crossval"} (used in \code{\link{mblControl}} function), then the \code{p} argument refer to the percentage of groups of samples (rather than single samples) to be retained in each resampling iteration at each local segment. 
 #' \code{dissUsage} is used to specifiy wheter or not and how to use dissimilarity information for local regressions. When \code{dissUsage = "predictors"}
 #' the local (square symmetric) dissimilarity matrix corresponding the selected neighbourhood is used as source
 #' of additional predictors (i.e the columns of this local matrix are treated as predictor variables). In some cases this may result in an improvement 
@@ -318,10 +321,13 @@
 ## 09.03.2014 Leo     Doc examples  were formated with a max. line width
 ## 13.03.2014 Antoine The explanation of the cores argument was modified   
 ## 23.04.2014 Leo     Added default variable names when they are missing 
+## 08.09.2014 Leo     A bug related with the computations of the weights
+##                    for wapls2 was fixed
 
-mbl <- function(Yr, Xr, Yu = NULL, Xu, 
+mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
                 dissimilarityM = NULL,
+                group = NULL,
                 dissUsage = "predictors",
                 k, 
                 k.diss,
@@ -389,6 +395,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     }
   }
   
+  if(!is.null(group))
+  {
+    if(length(group) != nrow(Xr))
+      stop("The length of 'group' must be equal to the number of observations in 'Xr'")
+  }
+    
   pcSel <- match.arg(mblCtrl$pcSelection[[1]], c("opc", "var", "cumvar", "manual"))
   
   trsh <- mblCtrl$pcSelection$value
@@ -756,6 +768,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
      if(mblCtrl$progress)
        setTxtProgressBar(pb, kk/length(it$k))
      
+     # If the sample has not been predicted before then create a model and predict it
      if(knkk != ifelse(kk == 1, 0, it$k[kk-1])){
        
        predobs$rep[kk] <- 0
@@ -765,6 +778,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
        
        # Select cal
        tmp.cal <- data.frame(y=Yr[dk])
+       
+       if(!is.null(group))
+         tmp.group <- as.factor(as.character(group[dk]))
+       else
+         tmp.group <- NULL
+       
        tmp.cal$mat  <- it$x[1:knkk,,drop=F]                           
        
        minmax <- range(tmp.cal$y, na.rm=T) 
@@ -804,13 +823,14 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
          }
        }else{scale <- FALSE}
        
-       # instance-based regression
+       # local fit
        i.pred <- locFit(x = tmp.cal$mat, y = tmp.cal$y, 
                         predMethod = method, 
                         scaled = scale, pls.c = plsF,
                         weights = i.wgts,
                         pred.new = TRUE, newdata = as.vector(tmp.val.k$mat), 
                         CV = mblCtrl$valMethod %in% c("loc_crossval", "both"), 
+                        group = tmp.group,
                         p = mblCtrl$p, resampling = mblCtrl$resampling,
                         w2_warning = FALSE, noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim)
        
@@ -825,7 +845,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
        
        if(mblCtrl$valMethod %in% c("NNv","both"))
        {
-         nearest.pred <- locFit(x = tmp.cal$mat[-1,], y = tmp.cal$y[-1], 
+         if(!is.null(group))
+           out.g <- which(tmp.group == tmp.group[[1]])
+         else
+           out.g <- 1
+         
+         nearest.pred <- locFit(x = tmp.cal$mat[-c(out.g),], y = tmp.cal$y[-c(out.g)], 
                                 predMethod = method, 
                                 scaled = scale, pls.c = plsF, 
                                 pred.new = TRUE, newdata = as.vector(tmp.cal$mat[1,]), 
@@ -1039,7 +1064,7 @@ pred.gpr.dp <- function(object, newdata){
 #' @title Local multivariate regression
 #' @keywords internal
 locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = TRUE, newdata, 
-                   pls.c, CV = FALSE, resampling = 10, p = 0.75, w2_warning = TRUE, noise.v = 0.001, range.pred.lim = TRUE){
+                   pls.c, CV = FALSE, resampling = 10, p = 0.75, group = NULL, w2_warning = TRUE, noise.v = 0.001, range.pred.lim = TRUE){
   # Fit mvr models and return prediction 
   
   if(nrow(x) != length(y))
@@ -1085,7 +1110,7 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
     if(CV)
     {
       cvVal <- gprCv(x = x, y = y, scaled = scaled, weights = weights, p = p, resampling = resampling, 
-                     retrieve = "final.model")
+                     group = group, retrieve = "final.model")
       fit <- cvVal$model
     } else { 
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
@@ -1104,7 +1129,12 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
     
     if(CV)
     {
-      cvVal <- plsCv(x = x, y = y, ncomp = pls.c, scaled = scaled, weights = weights, p = p, resampling = resampling, retrieve = "final.model")
+      cvVal <- plsCv(x = x, y = y, ncomp = pls.c, 
+                     scaled = scaled, 
+                     weights = weights, 
+                     p = p, resampling = resampling, 
+                     group = group, 
+                     retrieve = "final.model")
       fit <- cvVal$models
       ncomp <- cvVal$bestpls.c
       
@@ -1122,7 +1152,13 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
   if(predMethod == "wapls1"){
     if(CV)
     {
-      cvVal <- plsCv(x = x, y = y, scaled = scaled, ncomp = pls.c[[2]], weights = weights, p = p, resampling = resampling, retrieve = "all.models")
+      cvVal <- plsCv(x = x, y = y, 
+                     scaled = scaled, 
+                     ncomp = pls.c[[2]], 
+                     weights = weights, 
+                     p = p, resampling = resampling, 
+                     group = group, 
+                     retrieve = "all.models")
       
       # compute weights for PLS components
       w <- wapls.weights(plsO = cvVal, orgX = x, type = "w1",  newX = t(newdata), pls.c = pls.c, w2_warning = w2_warning)
@@ -1155,7 +1191,12 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
     
     if(CV)
     {
-      cvVal <- plsCv(x = x, y = y, scaled = scaled, ncomp = pls.c[[2]], weights = weights, p = p, resampling = resampling, retrieve = "all.models")
+      cvVal <- plsCv(x = x, y = y, scaled = scaled, 
+                     ncomp = pls.c[[2]], 
+                     weights = weights, 
+                     p = p, resampling = resampling, 
+                     group = group, 
+                     retrieve = "all.models")
       
       # compute weights for PLS components
       w <- wapls.weights(plsO = cvVal, orgX = x, type = "w2", pls.c = pls.c, w2_warning = w2_warning)
@@ -1180,7 +1221,7 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
     if(pred.new)
     {
       # compute the weighted average of the multiple PLS predictions
-      pred <- sum(c(predict(fit, newdata = x, ncomp = pls.c[[1]]:pls.c[[2]])) * w) # weighted preds
+      pred <- sum(c(predict(fit, newdata = newdata, ncomp = pls.c[[1]]:pls.c[[2]])) * w) # weighted preds
     }
   } 
   
@@ -1200,37 +1241,75 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
 
 #' @title Cross validation for Gaussian process regression
 #' @keywords internal
-gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, noise.v = 0.001, retrieve = c("final.model", "none")){
+gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group = NULL, noise.v = 0.001, retrieve = c("final.model", "none")){
   
   if(is.null(weights)) {weights <- 1}
   
   st.rmse.seg <- rmse.seg <- rsq.seg <- rep(0,resampling)
-  nv <- floor((1-p)*nrow(x))
-  y.str <- quantile(y, probs = seq(0, 1, length = (nv+1)))
-  y.cut <- cut(y, unique(y.str), include.lowest = TRUE)
-  levels(y.cut) <- 1:length(y)
-  prob.g <- data.frame(orig.order = 1:length(y), prob.group = as.numeric (y.cut))
-  
-  smpl <- function (x) sample(x, size = 1)
-  rspi <- matrix(0, nv, resampling)
-  colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
-  rownames(rspi) <- paste("index", seq(1:nv), sep = "")
-  
-  for(jj in 1:resampling)
-  {
-    strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
-    if(length(strs) < nv)
-    {
-      adds <- sample((1:length(y))[-strs], nv - length(strs))
-      strs <- c(strs, adds)
-    }
+  if(is.null(group)){
+    nv <- floor((1-p)*nrow(x))
+    y.str <- quantile(y, probs = seq(0, 1, length = (nv+1)))
+    y.cut <- cut(y, unique(y.str), include.lowest = TRUE)
+    levels(y.cut) <- 1:length(y)
+    prob.g <- data.frame(orig.order = 1:length(y), prob.group = as.numeric (y.cut))
     
-    rspi[,jj]<- strs
-    fit.gp <-  gpr.dp(Xn = x[-rspi[,jj],], Yn = y[-rspi[,jj]], scaled = scaled, noise.v = noise.v)
-    y.pred <-  pred.gpr.dp(fit.gp, x[rspi[,jj],])
-    rmse.seg[jj] <- (mean((y.pred - y[rspi[,jj]])^2))^0.5
-    st.rmse.seg[jj] <- rmse.seg[jj] /diff(range(y[rspi[,jj]]))
-    rsq.seg[jj] <- (cor(y.pred, y[rspi[,jj]]))^2
+    smpl <- function (x) sample(x, size = 1)
+    rspi <- matrix(0, nv, resampling)
+    colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rownames(rspi) <- paste("index", seq(1:nv), sep = "")
+    
+    for(jj in 1:resampling)
+    {
+      strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
+      if(length(strs) < nv)
+      {
+        adds <- sample((1:length(y))[-strs], nv - length(strs))
+        strs <- c(strs, adds)
+      }
+      
+      rspi[,jj]<- strs
+      fit.gp <-  gpr.dp(Xn = x[-rspi[,jj],], Yn = y[-rspi[,jj]], scaled = scaled, noise.v = noise.v)
+      y.pred <-  pred.gpr.dp(fit.gp, x[rspi[,jj],])
+      rmse.seg[jj] <- (mean((y.pred - y[rspi[,jj]])^2))^0.5
+      st.rmse.seg[jj] <- rmse.seg[jj] /diff(range(y[rspi[,jj]]))
+      rsq.seg[jj] <- (cor(y.pred, y[rspi[,jj]]))^2
+    }
+  }else{
+    ygr <- data.frame(y, grp = as.factor(as.character(group)))
+    lvls <- levels(ygr$grp)
+    nlv <- nlevels(ygr$grp)
+    yg <- tapply(X = ygr$y, INDEX = ygr$grp, FUN = mean)
+    
+    nv <- floor((1-p)*nlv)
+    y.str <- quantile(yg, probs = seq(0, 1, length = (nv+1)))
+    y.cut <- cut(yg, unique(y.str), include.lowest = TRUE)
+    levels(y.cut) <- 1:length(yg)
+    prob.g <- data.frame(orig.order = 1:length(yg), prob.group = as.numeric (y.cut))
+    
+    smpl <- function (x) sample(x, size = 1)
+    rspi <- matrix(0, nv, resampling)
+    colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rownames(rspi) <- paste("index", seq(1:nv), sep = "")
+    
+    for(jj in 1:resampling)
+    {
+      strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
+      
+      if(length(strs) < nv)
+      {
+        adds <- sample((1:nlv)[-strs], nv - length(strs))
+        strs <- c(strs, adds)
+      }
+      
+      strs <- lvls[strs]
+      
+      rspi[,jj] <- strs
+      fit.gp <-  gpr.dp(Xn = x[!(ygr$grp %in% strs),], Yn = y[!(ygr$grp %in% strs)], scaled = scaled, noise.v = noise.v)
+      y.pred <-  pred.gpr.dp(fit.gp, x[(ygr$grp %in% strs),])
+      rmse.seg[jj] <- (mean((y.pred - y[(ygr$grp %in% strs)])^2))^0.5
+      st.rmse.seg[jj] <- rmse.seg[jj] /diff(range(y[(ygr$grp %in% strs)]))
+      rsq.seg[jj] <- (cor(y.pred, y[(ygr$grp %in% strs)]))^2
+    }
   }
   
   val <- NULL
@@ -1255,35 +1334,74 @@ cSds <-  function(x){
 
 #' @title Cross validation for PLS regression
 #' @keywords internal
-plsCv <- function(x, y, ncomp, scaled, weights, p = 0.75, resampling = 10, retrieve = c("final.model", "all.models", "none")){
+plsCv <- function(x, y, ncomp, scaled, weights, p = 0.75, resampling = 10, group = NULL,retrieve = c("final.model", "all.models", "none")){
   
   if(min(ncol(x), nrow(x)) < floor(ncomp * (1 + p))) {ncomp <- (floor(min(ncol(x), nrow(x)) * p))-1} 
   
   st.rmse.seg <- rmse.seg <- rsq.seg <- matrix(0, ncomp, resampling)
-  nv <- floor((1-p)*nrow(x))
-  y.str <- quantile(y, probs = seq(0, 1, length = (nv+1)))
-  y.cut <- cut(y, unique(y.str), include.lowest = TRUE)
-  levels(y.cut) <- 1:length(y)
-  prob.g <- data.frame(orig.order = 1:length(y), prob.group = as.numeric (y.cut))
   
-  smpl <- function (x) sample(x, size=1)
-  rspi <- matrix(0, nv, resampling)
-  colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
-  rownames(rspi) <- paste("index", seq(1:nv), sep = "")
-  for(jj in 1:resampling)
+  if(is.null(group))
   {
-    strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
-    if(length(strs) < nv)
+    nv <- floor((1-p)*nrow(x))
+    y.str <- quantile(y, probs = seq(0, 1, length = (nv+1)))
+    y.cut <- cut(y, unique(y.str), include.lowest = TRUE)
+    levels(y.cut) <- 1:length(y)
+    prob.g <- data.frame(orig.order = 1:length(y), prob.group = as.numeric (y.cut))
+    
+    smpl <- function (x) sample(x, size=1)
+    rspi <- matrix(0, nv, resampling)
+    colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rownames(rspi) <- paste("index", seq(1:nv), sep = "")
+    for(jj in 1:resampling)
     {
-      adds <- sample((1:length(y))[-strs], nv - length(strs))
-      strs <- c(strs, adds)
+      strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
+      if(length(strs) < nv)
+      {
+        adds <- sample((1:length(y))[-strs], nv - length(strs))
+        strs <- c(strs, adds)
+      }
+      rspi[,jj]<- strs
+      fit <- plsr(y[-rspi[,jj]] ~ x[-rspi[,jj],], scale = scaled, ncomp = ncomp, method = "oscorespls")
+      y.pred <- (predict(fit, x[rspi[,jj],]))[,,1:ncomp]
+      rmse.seg[,jj] <- (colMeans((y.pred - y[rspi[,jj]])^2))^0.5
+      st.rmse.seg[,jj] <- rmse.seg[,jj] /diff(range(y[rspi[,jj]]))
+      rsq.seg[,jj] <- (cor(y.pred, y[rspi[,jj]]))^2
     }
-    rspi[,jj]<- strs
-    fit <- plsr(y[-rspi[,jj]] ~ x[-rspi[,jj],], scale = scaled, ncomp = ncomp, method = "oscorespls")
-    y.pred <- (predict(fit, x[rspi[,jj],]))[,,1:ncomp]
-    rmse.seg[,jj] <- (colMeans((y.pred - y[rspi[,jj]])^2))^0.5
-    st.rmse.seg[,jj] <- rmse.seg[,jj] /diff(range(y[rspi[,jj]]))
-    rsq.seg[,jj] <- (cor(y.pred, y[rspi[,jj]]))^2
+  }else{
+    ygr <- data.frame(y, grp = as.factor(as.character(group)))
+    lvls <- levels(ygr$grp)
+    nlv <- nlevels(ygr$grp)
+    yg <- tapply(X = ygr$y, INDEX = ygr$grp, FUN = mean)
+    
+    nv <- floor((1-p)*nlv)
+    y.str <- quantile(yg, probs = seq(0, 1, length = (nv+1)))
+    y.cut <- cut(yg, unique(y.str), include.lowest = TRUE)
+    levels(y.cut) <- 1:length(yg)
+    prob.g <- data.frame(orig.order = 1:length(yg), prob.group = as.numeric (y.cut))
+    
+    smpl <- function (x) sample(x, size = 1)
+    rspi <- matrix(0, nv, resampling)
+    colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rownames(rspi) <- paste("index", seq(1:nv), sep = "")
+    
+    for(jj in 1:resampling)
+    {
+      strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
+      if(length(strs) < nv)
+      {
+        adds <- sample((1:length(y))[-strs], nv - length(strs))
+        strs <- c(strs, adds)
+      }
+      
+      strs <- lvls[strs]
+      
+      rspi[,jj]<- strs
+      fit <- plsr(y[!(ygr$grp %in% strs)] ~ x[!(ygr$grp %in% strs),], scale = scaled, ncomp = ncomp, method = "oscorespls")
+      y.pred <- (predict(fit, x[ygr$grp %in% strs,]))[,,1:ncomp]
+      rmse.seg[,jj] <- sqrt(colMeans((y.pred - y[ygr$grp %in% strs])^2))
+      st.rmse.seg[,jj] <- rmse.seg[,jj] /diff(range(y[ygr$grp %in% strs]))
+      rsq.seg[,jj] <- (cor(y.pred, y[ygr$grp %in% strs]))^2
+    }
   }
   
   val <- NULL

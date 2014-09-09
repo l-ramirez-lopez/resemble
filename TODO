@@ -1,0 +1,14 @@
+## 31.08.2014: There is a bug in the orthoDiss function, when Yr is a matrix containing different variables
+It seems to be that works in windows but not in linux? is because the version of R
+As an example see the internal code in "soil_contest_exploratory_analysis.R"
+pc.dis <- orthoDiss(Xr = data.tr$spec, X2 = data.pred$spec,
+                    Yr = data.tr[,soil.attr[-2]],
+                    pcSelection = list("opc", 50),
+                    method = "pls",
+                    local = FALSE,
+                    center = TRUE, scaled = TRUE,
+                    return.all = FALSE, cores = 30)
+
+On the other hand when method = "pls" or method = "pca" it would be good to include the results from the simEval or the explained variances
+
+# It seems to be that there is a bug in the  mbl function when method = "wapls2", the accurcies (reported by the cross-validation results) are extremely bad

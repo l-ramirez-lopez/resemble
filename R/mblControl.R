@@ -45,7 +45,7 @@
 #' @param center a logical indicating whether or not the predictor variables must be centered at each local segment (before regression).
 #' @param scaled a logical indicating whether or not the predictor variables must be scaled at each local segment (before regression).
 #' @param valMethod a character vector which indicates the (internal) validation method(s) to be used for assessing the global performance of the local models. Possible
-#'        options are: \code{"NNv"} and \code{"loc_crossval"}. For no validation \code{"none"} is used (see details below).
+#'        options are: \code{"NNv"} and \code{"loc_crossval"}. Alternatively \code{"none"} can be used when corss-validation is not required (see details below).
 #' @param resampling a value indicating the number of resampling iterations at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 10.
 #' @param p a value indicating the percentage of samples to be retained in each resampling iteration at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 0.75 (i.e. 75 "\%")
 #' @param range.pred.lim a logical value. It indicates whether the prediction limits at each local regression are determined by the range of the response variable values employed at each local regression. If \code{FALSE}, no prediction limits are imposed. Default is \code{TRUE}.
