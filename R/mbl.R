@@ -324,6 +324,8 @@
 ## 08.09.2014 Leo     A bug related with the computations of the weights
 ##                    for wapls2 was fixed
 
+
+
 mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
                 dissimilarityM = NULL,
@@ -334,9 +336,11 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 k.range,
                 method,
                 pls.c,
-                noise.v = 0.001,
+                noise.v = 0.001,                
                 ...){
-    
+  
+  '%mydo%' <- if (mblCtrl$allowParallel) get('%dopar%') else get('%do%')    
+  
   ini.cntrl <- mblCtrl
   
   # Sanity checks
@@ -717,7 +721,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                  "simEval", "corDiss", "fDiss", 
                                  "gpr.dp", "pred.gpr.dp",
                                  "locFit", "plsCv", "cSds", "wapls.weights"),
-                     .packages=c("pls")) %dopar%{            
+                     .packages=c("pls")) %mydo%{            
   
    if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method != "gpr")
    {
@@ -816,12 +820,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
          colnames(tmp.val.k$mat) <- nms
        }
        
-       if(mblCtrl$scaled){
+       if(mblCtrl$scaled&method=="gpr"){
          scale <- rep(TRUE, length(tmp.val.k$mat))
          if(dissUsage == "predictors"){
            scale[1:knkk] <- rep(TRUE, knkk)
          }
-       }else{scale <- FALSE}
+       } else{scale <- mblCtrl$scaled}
        
        # local fit
        i.pred <- locFit(x = tmp.cal$mat, y = tmp.cal$y, 
@@ -1104,6 +1108,10 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
     newdata <- t(newdata)
   }
   
+  if(any(cSds(x)==0)){
+    warning("One of the variables has zero variance. Data will not be scaled")
+    scaled <- FALSE
+  }
   
   results <- cvVal <- pred <- NULL
   if(predMethod=="gpr") {    
@@ -1138,7 +1146,7 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
       fit <- cvVal$models
       ncomp <- cvVal$bestpls.c
       
-    } else{
+    } else {
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
       y <- y * weights
       fit <- plsr(y~x, ncomp = pls.c, validation = "none", scale = scaled, method = "oscorespls")

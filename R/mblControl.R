@@ -15,7 +15,8 @@
 #'            p = 0.75,
 #'            range.pred.lim = TRUE,
 #'            progress = TRUE,
-#'            cores = 1)
+#'            cores = 1,            
+#'            allowParallel=T)
 #' 
 #' @param sm a character string indicating the spectral dissimilarity metric to be used in the selection of the nearest neighbours of each observation for which a prediction is required (see \code{\link{mbl}}). 
 #'        Options are: 
@@ -51,6 +52,7 @@
 #' @param range.pred.lim a logical value. It indicates whether the prediction limits at each local regression are determined by the range of the response variable values employed at each local regression. If \code{FALSE}, no prediction limits are imposed. Default is \code{TRUE}.
 #' @param progress a logical indicating whether or not to print a progress bar for each sample to be predicted. Default is \code{TRUE}. Note: In case multicore processing is used, this progress bar will not be printed.
 #' @param cores number of cores used for the computation of dissimilarities when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1). See details.
+#' @param allowParallel To allow parallel execution of the sample loop (default is \code{TRUE})
 #' @details
 #' The validation methods avaliable for assessing the predictive performance of the memory-based learning method used are described as follows:
 #'  \itemize{
@@ -108,8 +110,10 @@ mblControl <- function(sm = "pc",
                        resampling = 10, 
                        p = 0.75,
                        range.pred.lim = TRUE,
-                       progress = TRUE, cores = 1){
+                       progress = TRUE, cores = 1,allowParallel=TRUE){
   # Sanity checks
+  if(!is.logical(allowParallel))
+    stop("allowParallel should be a logical value")
   if(sm == "none")
   {
     message("'sm' was set to 'none'. You will have to provide a dissimilarity matrix to the mbl function by using the 'dissimilarityM' argument")
@@ -242,7 +246,7 @@ mblControl <- function(sm = "pc",
                   p = p,
                   range.pred.lim = range.pred.lim,
                   progress = progress, 
-                  cores = cores)
+                  cores = cores, allowParallel = allowParallel)
     nm <- ifelse(sm == "movcor", "ws", "k0")
     names(cntrl)[names(cntrl) == "smParam"] <- nm
     
@@ -258,7 +262,7 @@ mblControl <- function(sm = "pc",
                   p = p,
                   range.pred.lim = range.pred.lim,
                   progress = progress, 
-                  cores = cores)
+                  cores = cores, allowParallel = allowParallel)
   }
   return(cntrl)
 }
