@@ -323,6 +323,9 @@
 ## 23.04.2014 Leo     Added default variable names when they are missing 
 ## 08.09.2014 Leo     A bug related with the computations of the weights
 ##                    for wapls2 was fixed
+## 23.09.2014 Leo     A bug that prevented the mbl function of using 
+##                    the 'dissimilarityM' argument was fixed
+## 03.10.2014 Antoine Fix bug when scale = T and add allowParallel argument
 
 
 

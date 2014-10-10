@@ -269,7 +269,7 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
     }
     max.i <- min(dim(Xr)) - 1
   }
- 
+  
   psel <- pcSelection
   
   # center 
@@ -280,7 +280,7 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
     cvec <- rep(0, ncol(Xr))
     X0 <- Xr
   }
-
+  
   if(scaled)
   {
     sf <- cSds(X0)
@@ -467,7 +467,7 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
   if(pcSel == "opc") {
     sel <- sum(sel)
   }
-
+  
   fresults <- list(scores = pcScores[,1:sel, drop = FALSE], 
                    X.loadings = pcLoadings[1:sel,, drop = FALSE], 
                    variance = variance[,1:sel, drop = FALSE], 
