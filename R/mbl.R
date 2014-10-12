@@ -326,8 +326,8 @@
 ## 23.09.2014 Leo     A bug that prevented the mbl function of using 
 ##                    the 'dissimilarityM' argument was fixed
 ## 03.10.2014 Antoine Fix bug when scale = T and add allowParallel argument
-
-
+## 12.10.2014 Leo     noise.v was missing in the locFit function used for 
+##                    the nearest neighbor validation
 
 mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
@@ -860,6 +860,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
          nearest.pred <- locFit(x = tmp.cal$mat[-c(out.g),], y = tmp.cal$y[-c(out.g)], 
                                 predMethod = method, 
                                 scaled = scale, pls.c = plsF, 
+                                noise.v = noise.v,
                                 pred.new = TRUE, newdata = as.vector(tmp.cal$mat[1,]), 
                                 CV = FALSE, w2_warning = FALSE, range.pred.lim = mblCtrl$range.pred.lim)$prediction
          
