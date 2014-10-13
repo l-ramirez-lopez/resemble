@@ -375,10 +375,10 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(sum(!colnames(Xu) ==  colnames(Xr)) != 0)
     stop("The names of the variables in Xr do not match the names of the variables in Xu")
   
-  if((is.null(mblCtrl$sm) | mblCtrl$sm=="none") & is.missing(dissimilarityM))
-    stop("mblCtrl$sm is NULL or set to 'none' while 'dissimilarityM' is missing. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
+  if(mblCtrl$sm=="none" & missing(dissimilarityM))
+    stop("mblCtrl$sm is set to 'none' while 'dissimilarityM' is missing. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
    
-  if(!is.missing(dissimilarityM)){
+  if(!missing(dissimilarityM)){
     if(!is.matrix(dissimilarityM))
       stop("'dissimilarityM' must be a matrix")
     if(mblCtrl$sm != "none"){
@@ -508,7 +508,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   call.f <-(match.call())    
   components <- NULL
   
-  if(!is.missing(dissimilarityM)){
+  if(!missing(dissimilarityM)){
     if(dissUsage == "predictors"){
       d.cal.mat <- dissimilarityM[1:nrow(Xr), 1:nrow(Xr)]
       d.mat <- dissimilarityM[1:nrow(Xr),(1+nrow(Xr)):ncol(dissimilarityM)]
