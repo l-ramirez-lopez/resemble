@@ -726,7 +726,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                  "locFit", "plsCv", "cSds", "wapls.weights"),
                      .packages=c("pls")) %mydo%{            
   
-   if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method != "gpr")
+   if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method %in% c("pls", "wapls1", "wapls2"))
    {
      if(((floor(min(it$k, nrow(it$d)) * mblCtrl$p)) - 1) < min(plsF)){
        stop(paste("The number of pls components must be lower than ", mblCtrl$p*100, "% (i.e. mblCtrl$p) of the number of neighbours to be used"))
