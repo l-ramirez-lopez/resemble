@@ -16,7 +16,7 @@
 #'            range.pred.lim = TRUE,
 #'            progress = TRUE,
 #'            cores = 1,            
-#'            allowParallel=T)
+#'            allowParallel = TRUE)
 #' 
 #' @param sm a character string indicating the spectral dissimilarity metric to be used in the selection of the nearest neighbours of each observation for which a prediction is required (see \code{\link{mbl}}). 
 #'        Options are: 
@@ -111,7 +111,8 @@ mblControl <- function(sm = "pc",
                        resampling = 10, 
                        p = 0.75,
                        range.pred.lim = TRUE,
-                       progress = TRUE, cores = 1,allowParallel=TRUE){
+                       progress = TRUE, cores = 1,
+                       allowParallel = TRUE){
   # Sanity checks
   if(!is.logical(allowParallel))
     stop("allowParallel should be a logical value")
