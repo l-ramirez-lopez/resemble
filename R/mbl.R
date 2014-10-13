@@ -7,7 +7,7 @@
 #' @usage
 #' mbl(Yr, Xr, Yu = NULL, Xu,
 #'     mblCtrl = mblControl(), 
-#'     dissimilarityM = NULL,
+#'     dissimilarityM,
 #'     group = NULL,
 #'     dissUsage = "predictors", 
 #'     k, k.diss, k.range,
@@ -331,7 +331,7 @@
 
 mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
-                dissimilarityM = NULL,
+                dissimilarityM,
                 group = NULL,
                 dissUsage = "predictors",
                 k, 
@@ -375,10 +375,10 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(sum(!colnames(Xu) ==  colnames(Xr)) != 0)
     stop("The names of the variables in Xr do not match the names of the variables in Xu")
   
-  if((is.null(mblCtrl$sm)|mblCtrl$sm=="none") & is.null(dissimilarityM))
-    stop("mblCtrl$sm is NULL or set to 'none' while 'dissimilarityM' is NULL. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
-  
-  if(!is.null(dissimilarityM)){
+  if((is.null(mblCtrl$sm) | mblCtrl$sm=="none") & is.missing(dissimilarityM))
+    stop("mblCtrl$sm is NULL or set to 'none' while 'dissimilarityM' is missing. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
+   
+  if(!is.missing(dissimilarityM)){
     if(!is.matrix(dissimilarityM))
       stop("'dissimilarityM' must be a matrix")
     if(mblCtrl$sm != "none"){
@@ -386,7 +386,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
       mblCtrl$sm <- "none"
     } 
     if(dissUsage == "predictors")
-      if(sum(dim(dissimilarityM) - (nrow(Xr) + nrow(Xu))) != 0 & sum(diag(dissimilarityM)==0) != 0)
+      if(sum(dim(dissimilarityM) - (nrow(Xr) + nrow(Xu))) != 0 & sum(diag(dissimilarityM) == 0) != 0)
         stop("When dissUsage = 'predictors', 'dissimilarityM' must be a square symmetric matrix of dissimilarities (derived from rbind(Xr, Xu)) for which the diagonal values are zeros")
     if(dissUsage %in% c("weights", "none"))
       if(nrow(dissimilarityM) != nrow(Xr) & ncol(dissimilarityM) != nrow(Xu))
@@ -508,7 +508,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   call.f <-(match.call())    
   components <- NULL
   
-  if(!is.null(dissimilarityM)){
+  if(!is.missing(dissimilarityM)){
     if(dissUsage == "predictors"){
       d.cal.mat <- dissimilarityM[1:nrow(Xr), 1:nrow(Xr)]
       d.mat <- dissimilarityM[1:nrow(Xr),(1+nrow(Xr)):ncol(dissimilarityM)]
@@ -996,7 +996,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   }
     
   if(ini.cntrl$returnDiss){
-    s.meth <- ifelse(is.null(mblCtrl$sm), "A matrix provided by the user through the 'dissimilarityM' argument", mblCtrl$sm)
+    s.meth <- ifelse(mblCtrl$sm == "none", "A matrix provided by the user through the 'dissimilarityM' argument", mblCtrl$sm)
     if(dissUsage == "predictors"){
       dissimilarities <- list(method = s.meth, Xr_Xu = d.mat, Xr_Xr = d.cal.mat)
     }else{
