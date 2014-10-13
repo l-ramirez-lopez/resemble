@@ -382,8 +382,8 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     if(!is.matrix(dissimilarityM))
       stop("'dissimilarityM' must be a matrix")
     if(mblCtrl$sm != "none"){
-      warning(paste("Both 'dissimilarityM' and 'sm' ('mblCtrl$sm = ", mblCtrl$sm,"') were specified, only the 'dissimilarityM' argument will be taken into account and mblCtrl$sm will be set to NULL"))
-      mblCtrl$sm <- NULL
+      warning(paste("Both 'dissimilarityM' and 'sm' ('mblCtrl$sm = ", mblCtrl$sm,"') were specified, only the 'dissimilarityM' argument will be taken into account and mblCtrl$sm will be set to 'none'"))
+      mblCtrl$sm <- "none"
     } 
     if(dissUsage == "predictors")
       if(sum(dim(dissimilarityM) - (nrow(Xr) + nrow(Xu))) != 0 & sum(diag(dissimilarityM)==0) != 0)
