@@ -3,7 +3,7 @@ _Leonardo Ramirez-Lopez & Antoine Stevens_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
-For the development version, download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/archive/resemble_1.1.2.zip) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/archive/1.1.2.tar.gz). Remember you should have [R>=3.0.2](http://cran.r-project.org/). Suppose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
+For the development version, download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.1.3.zip) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.1.3.tar.gz). Remember you should have [R>=3.0.2](http://cran.r-project.org/). Suppose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
 
 If you do not have the following packages installed, you should install them first
 ```
@@ -16,12 +16,12 @@ install.packages('iterators')
 Then, install `resemble`
 
 ```
-install.packages('C:/MyFolder/resemble_1.1.2.zip')
+install.packages('C:/MyFolder/resemble-1.1.3.zip', repos = NULL)
 ````
 or
 
 ```
-install.packages('C:/MyFolder/resemble_1.1.2.tar.gz', type = 'source')
+install.packages('C:/MyFolder/resemble-1.1.3.tar.gz', type = 'source', repos = NULL)
 ```
 
 You can also install the `resemble` package directly from github using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html) (with a proper installed version of [Rtools](http://cran.r-project.org/bin/windows/Rtools/)):
@@ -123,6 +123,7 @@ __`'wapls2'`__:                                Weighted average partial least sq
 * _Soil spectroscopy_
 
 ## News
+* 2014-10: A pre-release of the version 1.1.3 of the package is already available at this website. We hope it will be available at CRAN very soon!
 * 2014-06: Check  [this video](https://www.youtube.com/watch?v=7sCIEeNehgE&feature=youtu.be) where a renowned NIR scientist talks about local calibrations.
 * 2014-04: A short note on the resemble and prospectr packages was published in [this newsletter](www.pedometrics.org/Pedometron/Pedometron34.pdf). There we provide some examples on representative subset selection and on how to reproduce the LOCAL and spectrum-based learner algorithms. In those examples the dataset of the Chemometric challenge of 'Chimiométrie 2006' (included in the prospectr package) is used.
 * 2014-03: The package was released on CRAN!
