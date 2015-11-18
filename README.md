@@ -3,7 +3,7 @@ _Leonardo Ramirez-Lopez & Antoine Stevens_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
-For the development version, download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.2.zip) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.2.tar.gz). Remember you should have [R>=3.0.2](http://cran.r-project.org/). Suppose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
+For the development version, download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.2.zip) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.2.tar.gz). Remember you should have [R>=3.2.1](http://cran.r-project.org/). Suppose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
 
 If you do not have the following packages installed, you should install them first
 ```
