@@ -1,3 +1,7 @@
+## 18.11.2015: Fix this: not possible to use plsProjection nor pcProjection nor predict.orthoProjection.
+##             Tip: they can only be used if resemble:::plsProjection is used
+## 18.11.2015: Check documentation.
+## 18.11.2015: remove or inhabilitate the osplos2 function in Rcpp. It is not being used by any R function/code.
 ## 18.11.2015: check the gaussian process function since it retrieves poorer results than in the previous resemble version (only in NNv validation, the predictions are actually good). The scale argument now does something
 ##		different to what it was doing before (scale and centering: both x and y). If at the and stays like that 
 ##		check documentation and indicate that both x nd y are centered and scaled
