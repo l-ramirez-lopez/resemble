@@ -32,7 +32,8 @@
 #'        \item{\code{"pls"}: Partial least squares dissimilarity: Mahalanobis dissimilarity computed on the partial least squares space.}
 #'        \item{\code{"loc.pls"} Dissimilarity estimation based on local partial least squares.}
 #'        }
-#'        The \code{"pc"} spectral dissimilarity metric is the default. If the \code{"sidD"} is chosen, the default parameters of the \code{sid} function are used however they cab be modified by specifying them as additional arguments in the \code{\link{mbl}} function. 
+#'        The \code{"pc"} spectral dissimilarity metric is the default. If the \code{"sidD"} is chosen, the default parameters of the \code{sid} function are used however they cab be modified by specifying them as additional arguments in the \code{\link{mbl}} function.  
+#'        
 #'        This argument can also be set to \code{"none"}, in such a case, a dissimilarity matrix must be specified in the \code{dissimilarityM} argument of the \code{\link{mbl}} function.
 #' @param pcSelection a list which specifies the method to be used for identifying the number of principal components to be retained for computing the Mahalanobis dissimilarity of each sample in \code{sm = "Xu"} to the centre of \code{sm = "Xr"}. It also specifies the number of components in any of the following cases: \code{sm = "pc"}, \code{sm = "loc.pc"}, \code{sm = "pls"} and \code{sm = "loc.pls"}. This list must contain two objects in the following order: \itemize{
 #'        \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b). See the \code{\link{orthoProjection}} function for more details;  \code{"cumvar"} (for selecting the number of principal components based on a given cumulative amount of explained variance); \code{"var"} (for selecting the number of principal components based on a given amount of explained variance); and  \code{"manual"} (for specifying manually the desired number of principal components)}
@@ -98,6 +99,9 @@
 ## 09.03.2014 Leo     In the doc was specified that multi-threading is 
 ##                    not working for mac
 ## 13.03.2014 Antoine The explanation of the cores argument was modified
+## 18.11.2015 Leo     A sanity check for avoiding potential sm = NULL was 
+##                    introduced
+
 
 mblControl <- function(sm = "pc",
                        pcSelection = list("opc", 40),
@@ -115,33 +119,34 @@ mblControl <- function(sm = "pc",
                        allowParallel = TRUE){
   # Sanity checks
   if(!is.logical(allowParallel))
-    stop("allowParallel should be a logical value")
-  if(sm == "none")
-  {
-    message("'sm' was set to 'none'. You will have to provide a dissimilarity matrix to the mbl function by using the 'dissimilarityM' argument")
-  }else{
-    
-    if(!missing(sm))
-      match.arg(sm, c("euclid", "cosine", "sidF", "sidD", "cor", "movcor", "pc", "loc.pc", "pls", "loc.pls", "none"))
+    stop("allowParallel must be a logical value")
   
-    if(sm == "pc")
-      match.arg(pcMethod, c("svd", "nipals"))
-    
-    if(sm == "movcor"){
-      if(ws < 3 | length(ws) != 1) 
-        stop(paste("'ws' must be an unique odd value greater than 2")) 
-      if((ws %% 2) == 0)
-        stop("'ws' must be an odd value")
-      smParam <- ws
-    }
-    
-    if(sm %in% c("loc.pc", "loc.pls")){
-      if(missing(k0))
-        stop("If 'sm' is either 'loc.pc' or 'loc.pls', k0 must be provided")
-      if(k0 < 10 | length(k0) != 1) 
-        stop(paste("'k0' must be an positive integer value greater than 10")) 
-      smParam <- k0
-    }
+  
+  ## "none" must go first in case sm = NULL (argument wrongly set)
+  sm <- match.arg(sm, c("none", "euclid", "cosine", "sidF", "sidD", "cor", "movcor", "pc", "loc.pc", "pls", "loc.pls"))
+  
+  if(sm == "none"){
+    message("A spectral dissimilarity metric ('sm' argument) was not specified and it has been set to 'none'. You will have to provide a dissimilarity matrix to the mbl function by using the 'dissimilarityM' argument")
+  }
+  
+  
+  if(sm == "pc")
+    match.arg(pcMethod, c("svd", "nipals"))
+  
+  if(sm == "movcor"){
+    if(ws < 3 | length(ws) != 1) 
+      stop(paste("'ws' must be an unique odd value greater than 2")) 
+    if((ws %% 2) == 0)
+      stop("'ws' must be an odd value")
+    smParam <- ws
+  }
+  
+  if(sm %in% c("loc.pc", "loc.pls")){
+    if(missing(k0))
+      stop("If 'sm' is either 'loc.pc' or 'loc.pls', k0 must be provided")
+    if(k0 < 10 | length(k0) != 1) 
+      stop(paste("'k0' must be an positive integer value greater than 10")) 
+    smParam <- k0
   }
   
   if(!is.logical(returnDiss))

@@ -8,6 +8,7 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 //' @title A function to compute row-wise index of minimum values of a square distance matrix
+//' @description For internal use only
 //' @usage 
 //' which_min(X,cores)
 //' @param X a square \code{matrix} of distance
@@ -37,6 +38,7 @@ NumericVector which_min(NumericMatrix X, int cores){
 }
 
 //' @title A function to compute indices of minimum values of a distance vector
+//' @description For internal use only
 //' @usage 
 //' which_minV(X,cores)
 //' @param X a \code{vector} of distance (as computed in \code{resemble:::fastDistVV} or \code{base::dist})

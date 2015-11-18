@@ -1,4 +1,5 @@
 #' @title Plot method for an object of class \code{mbl}
+#' @description  Plots the content of an object of class \code{mbl}
 #' @aliases plot.mbl
 #' @usage \method{plot}{mbl}(x, g = c("validation", "pca"), param = "rmse", pcs = c(1,2), ...)
 #' @param x an object of class \code{mbl} (as returned by \code{mbl}). 
@@ -44,6 +45,9 @@
 ## History:
 ## 23.04.2014 Leo     Plot function when the data is not centred now 
 ##                    draws the circles around the actual centre
+## 12.04.2015         When the circle was plotted there was an small
+##                    gap in it. This was fixed by modifiying the pntCirc 
+##                    function
 
 
 
@@ -177,13 +181,14 @@ plot.mbl <- function(x,
       legend("topright", legend = c("Xr", "Xu"),
              col = c(rainbow(1, s = 1, v = 0, alpha = 0.3), heat.colors(1, alpha = 0.4)), pch = pch, cex = 0.8, box.lty = 3, box.col = "grey")
       
-      pntCirc <- function(r){
+      pntCirc <- function(r) {
         n <- 100
-        a <- matrix(0, n, 2)
-        for(i in 1:n){
-          pnts <- (c(cos(2*pi/n*i)*r,sin(2*pi/n*i)*r))
-          a[i,] <- pnts
+        a <- matrix(0, n + 1, 2)
+        for (i in 1:n) {
+          pnts <- (c(cos(2 * pi/n * i) * r, sin(2 * pi/n * i) * r))
+          a[i, ] <- pnts
         }
+        a[i+1, ] <- a[1,]
         return(a)
       }
         

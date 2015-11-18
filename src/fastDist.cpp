@@ -39,7 +39,8 @@ arma::mat fastDist(NumericMatrix X, NumericMatrix Y, String method){
    }   
 }
 
-//' @title A fast distance algorithm for a matrix and a vector written in C++ 
+//' @title A fast distance algorithm for a matrix and a vector written in C++
+//' @description A fast distance algorithm for a matrix and a vector written in C++  
 //' @usage 
 //' fastDistV(X,Y,method)
 //' @param X a \code{matrix}
@@ -72,6 +73,7 @@ NumericVector fastDistV(NumericMatrix X, NumericVector Y, String method){
 }
 
 //' @title A fast (parallel) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+//' @description A fast (parallel) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
 //' @usage 
 //' fastDistVV(X, cores)
 //' @param X a \code{vector}

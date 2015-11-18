@@ -1,4 +1,5 @@
 #' @title Extract predictions from an object of class \code{mbl}
+#' @description Extract predictions from an object of class \code{mbl}
 #' @usage 
 #' getPredictions(object)
 #' @param object an object of class \code{mbl} as returned by \code{mbl}

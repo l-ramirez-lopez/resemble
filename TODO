@@ -1,3 +1,10 @@
+## 18.11.2015: check the gaussian process function since it retrieves poorer results than in the previous resemble version (only in NNv validation, the predictions are actually good). The scale argument now does something
+##		different to what it was doing before (scale and centering: both x and y). If at the and stays like that 
+##		check documentation and indicate that both x nd y are centered and scaled
+## 13.10.2015: when pcSelection = list("cumvar", x) and x is larger than the maximum explained variance when the projection method is "pls", then an error message appears due to the fact that x is not reached by the projection. The erros is "Error in solve.default((X.loadings) %*% t(weights)) : 
+  system is computationally singular"
+
+
 ## 31.08.2014: There is a bug in the orthoDiss function, when Yr is a matrix containing different variables
 It seems to be that works in windows but not in linux? is because the version of R
 As an example see the internal code in "soil_contest_exploratory_analysis.R"

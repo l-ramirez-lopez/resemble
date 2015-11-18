@@ -44,12 +44,13 @@
 #'   \item{\code{\link{plot.orthoProjection}}}
 #'   \item{\code{\link{print.orthoProjection}}}
 #'   }
-#'@docType package
-#'@name resemble-package
-#'@title Overview of the functions in the resemble package
-#'@import Rcpp RcppArmadillo foreach iterators pls
-#'@useDynLib resemble
-#'@author Leonardo Ramirez-Lopez & Antoine Stevens
+#' @docType package
+#' @name resemble-package
+#' @aliases resemble-package resemble
+#' @title Overview of the functions in the resemble package
+#' @import Rcpp RcppArmadillo foreach iterators
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@@gmail.com} & Antoine Stevens
 #'
 ######################################################################
 # resemble

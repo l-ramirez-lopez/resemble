@@ -16,7 +16,8 @@ fastDist <- function(X, Y, method) {
     .Call('resemble_fastDist', PACKAGE = 'resemble', X, Y, method)
 }
 
-#' @title A fast distance algorithm for a matrix and a vector written in C++ 
+#' @title A fast distance algorithm for a matrix and a vector written in C++
+#' @description A fast distance algorithm for a matrix and a vector written in C++  
 #' @usage 
 #' fastDistV(X,Y,method)
 #' @param X a \code{matrix}
@@ -31,6 +32,7 @@ fastDistV <- function(X, Y, method) {
 }
 
 #' @title A fast (parallel) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @description A fast (parallel) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
 #' @usage 
 #' fastDistVV(X, cores)
 #' @param X a \code{vector}
@@ -58,7 +60,284 @@ movcorDist <- function(X, Y, w) {
     .Call('resemble_movcorDist', PACKAGE = 'resemble', X, Y, w)
 }
 
+#' @title Function for identifiying the column in a \code{matrix} with the largest standard deviation
+#' @description Identifies the column with the largest standard deviation. For internal use only!
+#' @usage wcolSds(X)
+#' @param X a \code{matrix}.
+#' @return a value indicating the index of the column with the largest standard deviation. 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+wcolSds <- function(X) {
+    .Call('resemble_wcolSds', PACKAGE = 'resemble', X)
+}
+
+#' @title Function for computing the standard deviation of each column in a \code{matrix}
+#' @description Computes the standard deviation of each column in a \code{matrix}. For internal use only!
+#' @usage colSds(X)
+#' @param X a a \code{matrix}.
+#' @return a vector of standard deviation values. 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+colSds <- function(X) {
+    .Call('resemble_colSds', PACKAGE = 'resemble', X)
+}
+
+#' @title Function for computing the mean of each column in a \code{matrix}
+#' @description Computes the mean of each column in a \code{matrix}. For internal use only!
+#' @usage colSds(X)
+#' @param X a a \code{matrix}.
+#' @return a vector of mean values. 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+cms <- function(X) {
+    .Call('resemble_cms', PACKAGE = 'resemble', X)
+}
+
+#' @title orthogonal scores algorithn of partial leat squares 2 (ospls2)
+#' @description Computes a partial least square (PLS) model for multiple reponse variables. For internal use only!
+#' @usage 
+#' ospls2(X, Y, ncomp, center, scale, maxiter, tol) 
+#' @param X a \code{matrix}.
+#' @param Y a \code{matrix}.
+#' @param ncomp the number of PLS components.
+#' @param center logical indicating whether \code{X} must be centered.
+#' @param scale logical indicating whether \code{X} must be scaled.
+#' @param maxiter maximum number of iterations.
+#' @param tol limit for convergence of the algorithm in the nipals algorithm (default is 1e-06).
+#' @return a list containing the following elements:
+#' \itemize{
+#' \item{\code{scores}}{ the \code{matrix} of scores.}
+#' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
+#' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
+#' \item{\code{projectionM}}{ the projection \code{matrix}.}
+#' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+#' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+#' } 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+ospls2 <- function(X, Y, ncomp, center, scale, maxiter, tol) {
+    .Call('resemble_ospls2', PACKAGE = 'resemble', X, Y, ncomp, center, scale, maxiter, tol)
+}
+
+#' @title orthogonal scores algorithn of partial leat squares (ospls)
+#' @description Computes a partial least square (PLS) model for a single response variable. 
+#' For internal use only!
+#' @usage 
+#' ospls(X, Y, ncomp, scale) 
+#' @param X a \code{matrix} of predictor variables.
+#' @param Y a \code{matrix} of a single response variable.
+#' @param ncomp the number of PLS components.
+#' @param center logical indicating whether \code{Xz} must be centered.
+#' @param scale logical indicating whether \code{Xz} must be scaled.
+#' @return a list containing the following elements:
+#' \itemize{
+#' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+#' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+#' \item{\code{scores}}{ the \code{matrix} of scores.}
+#' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
+#' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
+#' \item{\code{projectionM}}{ the projection \code{matrix}.}
+#' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+#' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
+#' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+#' } 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+ospls <- function(X, Y, ncomp, scale) {
+    .Call('resemble_ospls', PACKAGE = 'resemble', X, Y, ncomp, scale)
+}
+
+#' @title Prediction function for the \code{ospls} and \code{ospls2} functions
+#' @description Predicts response values based on a model generated by either by \code{ospls} or the \code{ospls2} functions. 
+#' For internal use only!. 
+#' @usage predospls(bo, b, ncomp, newdata, scale, Xscale)
+#' @param bo a numeric value indicating the intercept.
+#' @param b the \code{matrix} of regression coefficients.
+#' @param ncomp an integer value indicating how may components must be used in the prediction.
+#' @param newdata a \code{matrix} containing the predictor variables.
+#' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
+#' (either in \code{ospls} or \code{ospls2}) was scaled.
+#' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
+#' @return a \code{matrix} of predicted values
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+predospls <- function(bo, b, ncomp, newdata, scale, Xscale) {
+    .Call('resemble_predospls', PACKAGE = 'resemble', bo, b, ncomp, newdata, scale, Xscale)
+}
+
+#' @title Projection function for the \code{ospls} and \code{ospls2} functions
+#' @description Projects new spectra onto a PLS space based on a model generated by either by \code{ospls} or the \code{ospls2} functions. 
+#' For internal use only!. 
+#' @usage projectpls(projectionm, ncomp, newdata, scale, Xcenter, Xscale)
+#' @param projectionm the projection \code{matrix} generated either by the \code{ospls} or \code{ospls2}.
+#' @param ncomp an integer value indicating how may components must be used in the prediction.
+#' @param newdata a \code{matrix} containing the predictor variables.
+#' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
+#' (either in \code{ospls} or \code{ospls2}) was scaled.
+#' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
+#' @param Xcenter a \code{matrix} of one row with the values that must be used for centering \code{newdata}.
+#' @return a \code{matrix} corresponding to the new spectra projected onto the PLS space 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+projectpls <- function(projectionm, ncomp, newdata, scale, Xcenter, Xscale) {
+    .Call('resemble_projectpls', PACKAGE = 'resemble', projectionm, ncomp, newdata, scale, Xcenter, Xscale)
+}
+
+#' @title Internal Cpp function for computing the weights of the PLS components necessary for weighted average PLS
+#' @description For internal use only!. 
+#' @usage waplsoneweights_cpp(projectionm, 
+#' xloadings, 
+#' coefficients, 
+#' newX, 
+#' minF, 
+#' maxF, 
+#' scale, 
+#' Xcenter, 
+#' Xscale)
+#' @param projectionm the projection \code{matrix} generated either by the \code{ospls} or \code{ospls2}.
+#' @param xloadings .
+#' @param coefficients the \code{matrix} of regression coefficients.
+#' @param newX a \code{matrix} of one new spectra to be predicted.
+#' @param minF an integer indicating the minimum number of pls components.
+#' @param maxF an integer indicating the maximum number of pls components.
+#' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
+#' (either in \code{ospls} or \code{ospls2}) was scaled.
+#' @param Xcenter a \code{matrix} of one row with the values that must be used for centering \code{newdata}.
+#' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
+#' @return a \code{matrix} of one row with the weights for each component between the max. and min. specified. 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+waplsoneweights_cpp <- function(projectionm, xloadings, coefficients, newX, minF, maxF, scale, Xcenter, Xscale) {
+    .Call('resemble_waplsoneweights_cpp', PACKAGE = 'resemble', projectionm, xloadings, coefficients, newX, minF, maxF, scale, Xcenter, Xscale)
+}
+
+#' @title Internal Cpp function for performing leave-group-out cross validations for pls regression 
+#' @description For internal use only!. 
+#' @usage pplscv_cpp(X, Y, mindices, pindices, ncomp, scale)
+#' @param X a \code{matrix} of predictor variables.
+#' @param Y a \code{matrix} of a single response variable.
+#' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
+#' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
+#' iteration.
+#' @param pindices a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
+#' resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
+#' iteration.
+#' @param ncomp an integer indicating the number of pls components.
+#' @param scale a logical indicating whether the matrix of predictors must be scaled.
+#' @return a list containing the following one-row matrices:
+#' \itemize{
+#' \item{\code{rmse.seg}}{ the RMSEs.}
+#' \item{\code{st.rmse.seg}}{ the standardized RMSEs.}
+#' \item{\code{rsq.seg}}{ the coefficients of determination.}
+#' } 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+pplscv_cpp <- function(X, Y, mindices, pindices, ncomp, scale) {
+    .Call('resemble_pplscv_cpp', PACKAGE = 'resemble', X, Y, mindices, pindices, ncomp, scale)
+}
+
+#' @title Gaussian process regression with linear kernel (gprdp)
+#' @description Carries out a gaussian process regression with a linear kernel (dot product). For internal use only!
+#' @usage gprdp(X, Y, noisev, scale) 
+#' @param X a matrix of predictor variables
+#' @param Y a matrix with a single response variable
+#' @param noisev a value indicating the variance of the noise for Gaussian process regression. Default is 0.001. a matrix with a single response variable
+#' @param scale a logical indicating whether both the predictors 
+#' and the response variable must be scaled to zero mean and unit variance.
+#' @return a list containing the following elements:
+#' \itemize{
+#' \item{\code{Xz}}{ the (final transformed) \code{matrix} of predictor variables.}
+#' \item{\code{alpha}}{ the alpha \code{matrix}.}
+#' \item{\code{is.scaled}}{ logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
+#' \item{\code{Xcenter}}{ if matrix of predictors was scaled, the centering vector used for \code{X}.}
+#' \item{\code{Xscale}}{ if matrix of predictors was scaled, the scaling vector used for \code{X}.}
+#' \item{\code{Ycenter}}{ if matrix of predictors was scaled, the centering vector used for \code{Y}.}
+#' \item{\code{Yscale}}{ if matrix of predictors was scaled, the scaling vector used for \code{Y}.}
+#' }
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+gprdp <- function(X, Y, noisev = 0.001, scale = TRUE) {
+    .Call('resemble_gprdp', PACKAGE = 'resemble', X, Y, noisev, scale)
+}
+
+#' @title Prediction function for the \code{gprdp} function (Gaussian process regression with dot product covariance)
+#' @description Predicts response values based on a model generated by the \code{gprdp} function (Gaussian process regression with dot product covariance). For internal use only!. 
+#' @usage predgprdp(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
+#' @param Xz the final (scaled?) matrix of predictors used to create the regression model in the \code{gprdp} function
+#' @param alpha the alpha matrix corresponding to the regression model in the \code{gprdp} function
+#' @param newdata a \code{matrix} containing the predictor variables
+#' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
+#' (in the \code{gprdp} function) was scaled
+#' @param Xcenter if \code{center = TRUE} a \code{matrix} of one row with the values that must be used for centering \code{newdata}.
+#' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
+#' @param Ycenter if \code{center = TRUE} a \code{matrix} of one row with the values that must be used for accounting for the centering of the response variable.
+#' @param Yscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used  for accounting for the scaling of the response variable.
+#' @return a \code{matrix} of predicted values
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+predgprdp <- function(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale) {
+    .Call('resemble_predgprdp', PACKAGE = 'resemble', Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
+}
+
+#' @title Internal Cpp function for performing leave-group-out cross validations for pls regression 
+#' @description For internal use only!. 
+#' @usage pgpcv_cpp(X, Y, mindices, pindices, noisev = 0.001, scale)
+#' @param X a \code{matrix} of predictor variables.
+#' @param Y a \code{matrix} of a single response variable.
+#' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
+#' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
+#' iteration.
+#' @param pindices a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
+#' resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
+#' iteration.
+#' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
+#' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
+#' iteration.
+#' @param pindices a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
+#' resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
+#' iteration.
+#' @param ncomp an integer indicating the number of pls components.
+#' @param scale a logical indicating whether both the predictors 
+#' and the response variable must be scaled to zero mean and unit variance.
+#' @return a list containing the following one-row matrices:
+#' \itemize{
+#' \item{\code{rmse.seg}}{ the RMSEs.}
+#' \item{\code{st.rmse.seg}}{ the standardized RMSEs.}
+#' \item{\code{rsq.seg}}{ the coefficients of determination.}
+#' } 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+pgpcv_cpp <- function(X, Y, mindices, pindices, noisev = 0.001, scale = TRUE) {
+    .Call('resemble_pgpcv_cpp', PACKAGE = 'resemble', X, Y, mindices, pindices, noisev, scale)
+}
+
 #' @title A function to compute row-wise index of minimum values of a square distance matrix
+#' @description For internal use only
 #' @usage 
 #' which_min(X,cores)
 #' @param X a square \code{matrix} of distance
@@ -73,6 +352,7 @@ which_min <- function(X, cores) {
 }
 
 #' @title A function to compute indices of minimum values of a distance vector
+#' @description For internal use only
 #' @usage 
 #' which_minV(X,cores)
 #' @param X a \code{vector} of distance (as computed in \code{resemble:::fastDistVV} or \code{base::dist})

@@ -1,4 +1,5 @@
 #' @title Plot method for an object of class \code{orthoProjection}
+#' @description Plots the content pf an object of class \code{orthoProjection}
 #' @aliases plot.orthoProjection
 #' @usage \method{plot}{orthoProjection}(x, ...)
 #' @param x an object of class \code{orthoProjection} (as returned by \code{orthoProjection}). 

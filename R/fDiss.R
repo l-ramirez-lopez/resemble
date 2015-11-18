@@ -72,6 +72,8 @@
 ## History:
 ## 09.03.2014 Leo     The line rslt[is.na(rslt)] <- 0 was added in order 
 ##                    to deal with NaNs produced by the C++ code    
+## 18.11.2015 Leo     Bug fixed. Code crashed When Xr was of one row  
+
 
 fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE)
 {
@@ -119,7 +121,7 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
     if(!is.null(X2))
     {
       X2 <- X[(nrow(X) - nrow(X2) +1):nrow(X), , drop = FALSE]
-      Xr <- X[1:(nrow(X) - nrow(X2)), ]
+      Xr <- X[1:(nrow(X) - nrow(X2)), , drop = FALSE]
     }else{
       Xr <- X
     }
@@ -146,6 +148,7 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
 
 
 #' @title A function for transforming a matrix from its Euclidean spcae to its Mahalanobis space
+#' @description For internal use only
 #' @keywords internal
 e2m <- function(X, sm.method = c("svd", "eigen")){
   
@@ -170,6 +173,7 @@ e2m <- function(X, sm.method = c("svd", "eigen")){
 
 
 #' @title Square root of (square) symetric matrices
+#' @description For internal use only
 #' @keywords internal
 sqrtSm <- function(X, method = c("svd", "eigen")){
   

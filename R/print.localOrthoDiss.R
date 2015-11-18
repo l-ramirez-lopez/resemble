@@ -1,4 +1,5 @@
 #' @title Print method for an object of class \code{orthoDiss}
+#' @description Prints the content of an object of class \code{orthoDiss}
 #' @aliases print.localOrthoDiss
 #' @usage \method{print}{localOrthoDiss}(x, ...)
 #' @param x an object of class \code{localOrthoDiss} (returned by \code{orthoDiss} when it uses \code{local = TRUE}). 

@@ -9,7 +9,6 @@ If you do not have the following packages installed, you should install them fir
 ```
 install.packages('Rcpp')
 install.packages('RcppArmadillo')
-install.packages('pls')
 install.packages('foreach')
 install.packages('iterators')
 ```

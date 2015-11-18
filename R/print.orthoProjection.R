@@ -1,4 +1,5 @@
 #' @title Print method for an object of class \code{orthoProjection}
+#' @description Prints the contents of an object of class \code{orthoProjection}
 #' @aliases print.orthoProjection
 #' @usage \method{print}{orthoProjection}(x, ...)
 #' @param x an object of class \code{orthoProjection} (as returned by the \code{orthoProjection} function). 
