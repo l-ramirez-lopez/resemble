@@ -3,7 +3,7 @@ _Leonardo Ramirez-Lopez & Antoine Stevens_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
-For the development version, download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.1.3.zip) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.1.3.tar.gz). Remember you should have [R>=3.0.2](http://cran.r-project.org/). Suppose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
+For the development version, download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.2.zip) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/archive/v1.2.tar.gz). Remember you should have [R>=3.0.2](http://cran.r-project.org/). Suppose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
 
 If you do not have the following packages installed, you should install them first
 ```
@@ -15,12 +15,12 @@ install.packages('iterators')
 Then, install `resemble`
 
 ```
-install.packages('C:/MyFolder/resemble-1.1.3.zip', repos = NULL)
+install.packages('C:/MyFolder/resemble-1.2.zip', repos = NULL)
 ````
 or
 
 ```
-install.packages('C:/MyFolder/resemble-1.1.3.tar.gz', type = 'source', repos = NULL)
+install.packages('C:/MyFolder/resemble-1.2.tar.gz', type = 'source', repos = NULL)
 ```
 
 You can also install the `resemble` package directly from github using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html) (with a proper installed version of [Rtools](http://cran.r-project.org/bin/windows/Rtools/)):
