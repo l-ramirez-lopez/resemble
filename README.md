@@ -124,7 +124,7 @@ __`'wapls2'`__:                                Weighted average partial least sq
 ## News
 * 2015-11: A pre-release of a version (1.2) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon! (we promise).
 * 2015-10: Well, the version 1.1.3 was never released on CRAN since we decided to carry out major improvements in terms of computational performance. 
-A pre-release of the version 1.1.3 of the package is already available at this website. We hope it will be available at CRAN very soon!
+* A pre-release of the version 1.1.3 of the package is already available at this website. We hope it will be available at CRAN very soon!
 * 2014-10: A pre-release of the version 1.1.3 of the package is already available at this website. We hope it will be available at CRAN very soon!
 * 2014-06: Check  [this video](https://www.youtube.com/watch?v=7sCIEeNehgE&feature=youtu.be) where a renowned NIR scientist talks about local calibrations.
 * 2014-04: A short note on the resemble and prospectr packages was published in [this newsletter](www.pedometrics.org/Pedometron/Pedometron34.pdf). There we provide some examples on representative subset selection and on how to reproduce the LOCAL and spectrum-based learner algorithms. In those examples the dataset of the Chemometric challenge of 'Chimiométrie 2006' (included in the prospectr package) is used.
