@@ -1,3 +1,4 @@
+## 19.11.2015: Modify the way in wich the error parameters of the cross validation for wapls 1 and 2 are computed.
 ## 18.11.2015: Fix this: not possible to use plsProjection nor pcProjection nor predict.orthoProjection.
 ##             Tip: they can only be used if resemble:::plsProjection is used
 ## 18.11.2015: Check documentation.
