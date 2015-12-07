@@ -60,8 +60,7 @@ Yr <- Yr[!is.na(Yr)]
 # A mbl approach (the spectrum-based learner) as implemented in Ramirez-Lopez et al. (2013)
 # An exmaple where Yu is supposed to be unknown, but the Xu (spectral variables) are known
 ctrl1 <- mblControl(sm = 'pc', pcSelection = list('opc', 40),
-                    valMethod = 'NNv',
-                    scaled = TRUE, center = TRUE)
+                    valMethod = 'NNv', center = TRUE)
 
 sbl.u <- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
              mblCtrl = ctrl1,

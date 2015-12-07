@@ -140,7 +140,7 @@
 #' # (spectral variables) are known 
 #' ctrl1 <- mblControl(sm = "pc", pcSelection = list("opc", 40), 
 #'                     valMethod = "NNv", 
-#'                     scaled = TRUE, center = TRUE)
+#'                     scaled = FALSE, center = TRUE)
 #' 
 #' sbl.u <- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
 #'              mblCtrl = ctrl1, 
@@ -165,7 +165,7 @@
 #' # recomputed based on partial least squares scores
 #' ctrl_1.3 <- mblControl(sm = "pls", pcSelection = list("opc", 40), 
 #'                        valMethod = "NNv", 
-#'                        scaled = TRUE, center = TRUE)
+#'                        scaled = FALSE, center = TRUE)
 #'                           
 #' sbl_1.3 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
 #'                mblCtrl = ctrl_1.3,
@@ -181,7 +181,7 @@
 #' ctrl.mbl <- mblControl(sm = "cor", 
 #'                        pcSelection = list("cumvar", 0.999), 
 #'                        valMethod = "NNv", 
-#'                        scaled = TRUE, center = TRUE)
+#'                        scaled = FALSE, center = TRUE)
 #'                           
 #' local.mbl <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
 #'                  mblCtrl = ctrl.mbl,
@@ -193,7 +193,7 @@
 #'
 #' # Example 3
 #' # A variation of the previous example (using the optimized pc 
-#' dissmilarity matrix) using the control list of the example 1
+#' # dissmilarity matrix) using the control list of the example 1
 #'                          
 #' local.mbl2 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
 #'                   mblCtrl = ctrl1,
@@ -224,7 +224,7 @@
 #'                        pcSelection = list("cumvar", 0.999), 
 #'                        valMethod = c("NNv", "loc_crossval"), 
 #'                        resampling = 10, p = 0.75,
-#'                        scaled = TRUE, center = TRUE)
+#'                        scaled = FALSE, center = TRUE)
 #'
 #' mbl.udd1 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
 #'                 mblCtrl = ctrl.udd, 
@@ -256,7 +256,7 @@
 #' der.Xu <- t(diff(t(Xu), lag = 1, differences = 1))
 #' # the sid on the derivative spectra
 #' der.sid <- sid(Xr = der.Xr, X2 = der.Xu, mode = "density", 
-#'                center = TRUE, scaled = TRUE) 
+#'                center = TRUE, scaled = FALSE) 
 #' der.sid <- der.sid$sid
 #' 
 #' mbl.udd3 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
@@ -285,7 +285,7 @@
 #' 
 #' ctrl <- mblControl(sm = "pc", pcSelection = list("opc", 40), 
 #'                    valMethod = "NNv",
-#'                    scaled = TRUE, center = TRUE)
+#'                    scaled = FALSE, center = TRUE)
 #'
 #' mbl.p <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
 #'              mblCtrl = ctrl, 
