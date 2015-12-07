@@ -90,26 +90,9 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// ospls2
-List ospls2(Rcpp::NumericMatrix X, Rcpp::NumericMatrix Y, int ncomp, bool center, bool scale, double maxiter, double tol);
-RcppExport SEXP resemble_ospls2(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP centerSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
-    Rcpp::traits::input_parameter< bool >::type center(centerSEXP);
-    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
-    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    __result = Rcpp::wrap(ospls2(X, Y, ncomp, center, scale, maxiter, tol));
-    return __result;
-END_RCPP
-}
-// ospls
-List ospls(arma::mat X, arma::mat Y, int ncomp, bool scale);
-RcppExport SEXP resemble_ospls(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP) {
+// opls
+List opls(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol, bool regression, String pcSelmethod, double pcSelvalue);
+RcppExport SEXP resemble_opls(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP regressionSEXP, SEXP pcSelmethodSEXP, SEXP pcSelvalueSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -117,13 +100,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
-    __result = Rcpp::wrap(ospls(X, Y, ncomp, scale));
+    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type regression(regressionSEXP);
+    Rcpp::traits::input_parameter< String >::type pcSelmethod(pcSelmethodSEXP);
+    Rcpp::traits::input_parameter< double >::type pcSelvalue(pcSelvalueSEXP);
+    __result = Rcpp::wrap(opls(X, Y, ncomp, scale, maxiter, tol, regression, pcSelmethod, pcSelvalue));
     return __result;
 END_RCPP
 }
-// predospls
-Rcpp::NumericMatrix predospls(arma::mat bo, arma::mat b, int ncomp, arma::mat newdata, bool scale, arma::mat Xscale);
-RcppExport SEXP resemble_predospls(SEXP boSEXP, SEXP bSEXP, SEXP ncompSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XscaleSEXP) {
+// predopls
+Rcpp::NumericMatrix predopls(arma::mat bo, arma::mat b, int ncomp, arma::mat newdata, bool scale, arma::mat Xscale);
+RcppExport SEXP resemble_predopls(SEXP boSEXP, SEXP bSEXP, SEXP ncompSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -133,19 +121,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type newdata(newdataSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
-    __result = Rcpp::wrap(predospls(bo, b, ncomp, newdata, scale, Xscale));
+    __result = Rcpp::wrap(predopls(bo, b, ncomp, newdata, scale, Xscale));
     return __result;
 END_RCPP
 }
 // projectpls
-Rcpp::NumericMatrix projectpls(arma::mat projectionm, int ncomp, Rcpp::NumericMatrix newdata, bool scale, arma::mat Xcenter, arma::mat Xscale);
+Rcpp::NumericMatrix projectpls(arma::mat projectionm, int ncomp, arma::mat newdata, bool scale, arma::mat Xcenter, arma::mat Xscale);
 RcppExport SEXP resemble_projectpls(SEXP projectionmSEXP, SEXP ncompSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< arma::mat >::type projectionm(projectionmSEXP);
     Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type newdata(newdataSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type newdata(newdataSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
@@ -153,9 +141,9 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// waplsoneweights_cpp
-Rcpp::NumericMatrix waplsoneweights_cpp(arma::mat projectionm, arma::mat xloadings, arma::mat coefficients, arma::mat newX, int minF, int maxF, bool scale, arma::mat Xcenter, arma::mat Xscale);
-RcppExport SEXP resemble_waplsoneweights_cpp(SEXP projectionmSEXP, SEXP xloadingsSEXP, SEXP coefficientsSEXP, SEXP newXSEXP, SEXP minFSEXP, SEXP maxFSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
+// waplswCpp
+Rcpp::NumericMatrix waplswCpp(arma::mat projectionm, arma::mat xloadings, arma::mat coefficients, arma::mat newX, int minF, int maxF, bool scale, arma::mat Xcenter, arma::mat Xscale);
+RcppExport SEXP resemble_waplswCpp(SEXP projectionmSEXP, SEXP xloadingsSEXP, SEXP coefficientsSEXP, SEXP newXSEXP, SEXP minFSEXP, SEXP maxFSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -168,23 +156,28 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
-    __result = Rcpp::wrap(waplsoneweights_cpp(projectionm, xloadings, coefficients, newX, minF, maxF, scale, Xcenter, Xscale));
+    __result = Rcpp::wrap(waplswCpp(projectionm, xloadings, coefficients, newX, minF, maxF, scale, Xcenter, Xscale));
     return __result;
 END_RCPP
 }
 // pplscv_cpp
-List pplscv_cpp(arma::mat X, arma::mat Y, arma::mat mindices, arma::mat pindices, int ncomp, bool scale);
-RcppExport SEXP resemble_pplscv_cpp(SEXP XSEXP, SEXP YSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP ncompSEXP, SEXP scaleSEXP) {
+List pplscv_cpp(arma::mat X, arma::mat Y, bool scale, String method, arma::mat mindices, arma::mat pindices, int minF, int ncomp, arma::mat newX, double maxiter, double tol);
+RcppExport SEXP resemble_pplscv_cpp(SEXP XSEXP, SEXP YSEXP, SEXP scaleSEXP, SEXP methodSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP minFSEXP, SEXP ncompSEXP, SEXP newXSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type mindices(mindicesSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type pindices(pindicesSEXP);
+    Rcpp::traits::input_parameter< int >::type minF(minFSEXP);
     Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
-    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
-    __result = Rcpp::wrap(pplscv_cpp(X, Y, mindices, pindices, ncomp, scale));
+    Rcpp::traits::input_parameter< arma::mat >::type newX(newXSEXP);
+    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    __result = Rcpp::wrap(pplscv_cpp(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol));
     return __result;
 END_RCPP
 }

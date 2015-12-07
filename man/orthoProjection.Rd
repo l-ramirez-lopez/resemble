@@ -21,10 +21,19 @@ pcProjection(Xr, X2 = NULL, Yr = NULL,
               
 plsProjection(Xr, X2 = NULL, Yr, 
               pcSelection = list("opc", 40), 
-              center = TRUE, scaled = FALSE, 
+              scaled = FALSE, 
               tol = 1e-6, max.iter = 1000, 
               cores = 1, ...) 
               
+\method{predict}{orthoProjection}(object, newdata, ...)
+
+pcProjection(Xr, X2 = NULL, Yr = NULL, pcSelection = list("cumvar", 0.99),
+  center = TRUE, scaled = FALSE, method = "pca", tol = 1e-06,
+  max.iter = 1000, cores = 1, ...)
+
+plsProjection(Xr, X2 = NULL, Yr, pcSelection = list("opc", 40),
+  scaled = FALSE, tol = 1e-06, max.iter = 1000, cores = 1, ...)
+
 \method{predict}{orthoProjection}(object, newdata, ...)
 }
 \arguments{
@@ -43,7 +52,7 @@ plsProjection(Xr, X2 = NULL, Yr,
 The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.}
 
-\item{center}{a logical indicating if the data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.}
+\item{center}{a logical indicating if the data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is centered on the basis of \eqn{Xr \cup Xu}. This argument only applies to the principal components projection. For pls projections the data is always centered.}
 
 \item{scaled}{a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.}
 
@@ -60,7 +69,7 @@ Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar
 \item{newdata}{an optional data frame or matrix in which to look for variables with which to predict. If omitted, the scores are used. It must contain the same number of columns, to be used in the same order.}
 }
 \value{
-\code{orthoProjection}, \code{pcProjection}, \code{plsProjectiona}, return a \code{list} of class \code{orthoProjection} with the following components:
+\code{orthoProjection}, \code{pcProjection}, \code{plsProjection}, return a \code{list} of class \code{orthoProjection} with the following components:
 \itemize{
  \item{\code{scores}}{ a \code{matrix} of scores corresponding to the samples in \code{Xr} and \code{X2} (if it applies). The number of components that the scores represent is given by the number of components chosen in the function.}
  \item{\code{X.loadings}}{ a \code{matrix} of loadings corresponding to the explanatory variables. The number of components that these loadings represent is given by the number of components chosen in the function.}
@@ -130,7 +139,7 @@ pcProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
 plsProj2 <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu, 
                             method = "pls", 
                             pcSelection = list("cumvar", 0.99))
-}                            
+} 
 }
 \author{
 Leonardo Ramirez-Lopez

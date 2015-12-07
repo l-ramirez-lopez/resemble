@@ -4,12 +4,16 @@
 \alias{pplscv_cpp}
 \title{Internal Cpp function for performing leave-group-out cross validations for pls regression}
 \usage{
-pplscv_cpp(X, Y, mindices, pindices, ncomp, scale)
+pplscv_cpp(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol)
 }
 \arguments{
 \item{X}{a \code{matrix} of predictor variables.}
 
 \item{Y}{a \code{matrix} of a single response variable.}
+
+\item{scale}{a logical indicating whether the matrix of predictors (\code{X}) must be scaled.}
+
+\item{method}{the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'}.}
 
 \item{mindices}{a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
@@ -19,9 +23,15 @@ iteration.}
 resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
 iteration.}
 
+\item{minF}{an integer indicating the number of minimum pls components (if the \code{method = 'pls'}).}
+
 \item{ncomp}{an integer indicating the number of pls components.}
 
-\item{scale}{a logical indicating whether the matrix of predictors must be scaled.}
+\item{newX}{a \code{matrix} of one row corresponding to the sample to be predicted (if the \code{method = 'wapls1'}).}
+
+\item{maxiter}{maximum number of iterations.}
+
+\item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 }
 \value{
 a list containing the following one-row matrices:

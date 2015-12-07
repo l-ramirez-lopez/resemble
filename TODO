@@ -1,13 +1,10 @@
+## 30.11.2015: orthoDiss retuns "Error: not a matrix" when applied to a single matrix (Xr)
+## 30.11.2015: Perform a detailed check of the orthoProjection, plsProjection and pcProjection.
 ## 19.11.2015: Modify the way in wich the error parameters of the cross validation for wapls 1 and 2 are computed.
-## 18.11.2015: Fix this: not possible to use plsProjection nor pcProjection nor predict.orthoProjection.
-##             Tip: they can only be used if resemble:::plsProjection is used
 ## 18.11.2015: Check documentation.
-## 18.11.2015: remove or inhabilitate the osplos2 function in Rcpp. It is not being used by any R function/code.
 ## 18.11.2015: check the gaussian process function since it retrieves poorer results than in the previous resemble version (only in NNv validation, the predictions are actually good). The scale argument now does something
 ##		different to what it was doing before (scale and centering: both x and y). If at the and stays like that 
 ##		check documentation and indicate that both x nd y are centered and scaled
-## 13.10.2015: when pcSelection = list("cumvar", x) and x is larger than the maximum explained variance when the projection method is "pls", then an error message appears due to the fact that x is not reached by the projection. The erros is "Error in solve.default((X.loadings) %*% t(weights)) : 
-  system is computationally singular"
 
 
 ## 31.08.2014: There is a bug in the orthoDiss function, when Yr is a matrix containing different variables
@@ -15,7 +12,7 @@ It seems to be that works in windows but not in linux? is because the version of
 As an example see the internal code in "soil_contest_exploratory_analysis.R"
 pc.dis <- orthoDiss(Xr = data.tr$spec, X2 = data.pred$spec,
                     Yr = data.tr[,soil.attr[-2]],
-                    pcSelection = list("opc", 50),
+                    pcSelection = list("cumvar", 50),
                     method = "pls",
                     local = FALSE,
                     center = TRUE, scaled = TRUE,
@@ -23,4 +20,23 @@ pc.dis <- orthoDiss(Xr = data.tr$spec, X2 = data.pred$spec,
 
 On the other hand when method = "pls" or method = "pca" it would be good to include the results from the simEval or the explained variances
 
-# It seems to be that there is a bug in the  mbl function when method = "wapls2", the accurcies (reported by the cross-validation results) are extremely bad
+set.seed(1)
+pc.proj <- orthoProjection(Xr = matrix(rnorm(length(Yr) * 200), length(Yr), 200), 
+X2 = matrix(rnorm(length(Yr) * 200), length(Yr), 200),
+                    Yr = Yr,
+                    pcSelection = list("cumvar", 1),
+                    method = "pls",
+                    local = FALSE,
+                    center = TRUE, scaled = TRUE)
+
+
+
+pc.dis <- orthoDiss(Xr = matrix(rnorm(length(Yr) * 200), length(Yr), 200), 
+X2 = matrix(rnorm(length(Yr) * 200), length(Yr), 200),
+                    Yr = rnorm(length(Yr)),
+                    pcSelection = list("cumvar", 1),
+                    method = "pls",
+                    local = FALSE,
+                    center = TRUE, scaled = TRUE,
+                    return.all = FALSE, cores = 3)
+

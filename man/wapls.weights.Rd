@@ -4,22 +4,18 @@
 \alias{wapls.weights}
 \title{Internal function for computing the weights of the PLS components necessary for weighted average PLS}
 \usage{
-wapls.weights(plsO, orgX, type = c("w1", "w2"), newX = NULL, pls.c,
-  w2_warning = TRUE)
+wapls.weights(plsO, orgX, type = "w1", newX = NULL, pls.c)
 }
 \arguments{
-\item{plsO}{either an object returned by the \code{plsCv} function or an object as returned by the \code{ospls} function which contains a pls model.}
+\item{plsO}{either an object returned by the \code{plsCv} function or an object as returned by the \code{opls} function which contains a pls model.}
 
 \item{orgX}{the original spectral \code{matrix} which was used for calibrating the pls model.}
 
-\item{type}{type of weight to be computed. Options are \code{"w1"} and \code{"w2"}. See details on the \code{mbl} function where it is explained how \code{"w1"} and \code{"w2"} are computed whitin \code{"wapls1"} and \code{"wapls2"} models respectively}
+\item{type}{type of weight to be computed. The only available option (for the moment) is \code{"w1"}. See details on the \code{mbl} function where it is explained how \code{"w1"} is computed whitin the \code{"wapls1"} regression.}
 
-\item{newX}{a \code{vector} of a new spectral sample. When "w2" is selected, newX must be specified.}
+\item{newX}{a \code{vector} of a new spectral sample. When "w1" is selected, newX must be specified.}
 
 \item{pls.c}{a \code{vector} of length 2 which contains both the minimum and maximum number of PLS components for which the weights must be computed.}
-
-\item{w2_warning}{a logical used only if \code{type = "w2"}. If \code{TRUE} it evaluates if the object specified in the \code{plsO} arguments contains cross-validation results. If not a \code{warning} message is generated.
-If \code{FALSE}, the \code{warning} message is not generated.}
 }
 \value{
 \code{wapls.weights} returns a \code{vector} of weights for each PLS component specified
@@ -29,9 +25,6 @@ internal
 }
 \author{
 Leonardo Ramirez-Lopez and Antoine Stevens
-}
-\references{
-Zhang, M.H., Xu, Q.S., Massart, D.L. 2004. Averaged and weighted average partial least squares. Analytica Chimica Acta 504, 279-289.
 }
 \keyword{internal}
 

@@ -33,7 +33,7 @@ Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar
 
 \item{k0}{if \code{local = TRUE} a numeric integer value which indicates the number of nearest neighbours(\eqn{k0}) to retain in order to recompute the local orthogonal distances.}
 
-\item{center}{a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.}
+\item{center}{a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is centered on the basis of \eqn{Xr \cup Xu}. For dissimilarity computations based on pls, the data is always centered for the projections.}
 
 \item{scaled}{a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.}
 
@@ -47,6 +47,7 @@ Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar
 a \code{list} of class \code{orthoDiss} with the following components:
 \itemize{
  \item{\code{n.components}}{ the number of components (either principal components or partial least squares components) used for computing the global distances.}
+ \item{\code{global.variance.info}}{ the information about the expalined variance(s) of the projection. When \code{local = TRUE}, the information corresponds to the global projection done prior computing the local projections.}
  \item{\code{loc.n.components}}{ if \code{local = TRUE}, a \code{data.frame} which specifies the number of local components (either principal components or partial least squares components) used for computing the dissimilarity between each target sample and its neighbour samples.}
  \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If \code{local = FALSE} a distance \code{matrix}. If \code{local = TRUE} a \code{matrix} of class \code{orthoDiss}. In this case each column represent the dissimilarity between a target sample and its neighbourhood.}
  }

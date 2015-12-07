@@ -24,7 +24,7 @@
 #' @param method the method for projecting the data. Options are: "pca" (principal component analysis using the singular value decomposition algorithm), "pca.nipals" (principal component analysis using the non-linear iterative partial least squares algorithm) and "pls" (partial least squares). See the \code{\link{orthoProjection}} function for further details on the projection methods.
 #' @param local a logical indicating whether or not to compute the distances locally (i.e. projecting locally the data) by using the \eqn{k0} nearest neighbour samples of each sample. Default is \code{FALSE}. See details.
 #' @param k0 if \code{local = TRUE} a numeric integer value which indicates the number of nearest neighbours(\eqn{k0}) to retain in order to recompute the local orthogonal distances.
-#' @param center a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.
+#' @param center a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is centered on the basis of \eqn{Xr \cup Xu}. For dissimilarity computations based on pls, the data is always centered for the projections. 
 #' @param scaled a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.
 #' @param return.all a logical. In case \code{X2} is specified it indicates whether or not the distances between all the elements resulting from \eqn{Xr \cup Xu} must be computed.
 #' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) and \code{local = FALSE} (default = 1). Dee details.
@@ -36,6 +36,7 @@
 #' @return a \code{list} of class \code{orthoDiss} with the following components:
 #' \itemize{
 #'  \item{\code{n.components}}{ the number of components (either principal components or partial least squares components) used for computing the global distances.}
+#'  \item{\code{global.variance.info}}{ the information about the expalined variance(s) of the projection. When \code{local = TRUE}, the information corresponds to the global projection done prior computing the local projections.}
 #'  \item{\code{loc.n.components}}{ if \code{local = TRUE}, a \code{data.frame} which specifies the number of local components (either principal components or partial least squares components) used for computing the dissimilarity between each target sample and its neighbour samples.}
 #'  \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If \code{local = FALSE} a distance \code{matrix}. If \code{local = TRUE} a \code{matrix} of class \code{orthoDiss}. In this case each column represent the dissimilarity between a target sample and its neighbourhood.}
 #'  }
@@ -115,6 +116,9 @@
 ##                    not working for mac
 ## 13.03.2014 Antoine The explanation of the cores argument was modified
 ## 07.09.2014 Antoine A bug handling Yr as a matrix was fixed
+## 02.12.2015 Leo     The function now outputs an the object global.variance.info
+##                    which provides information on the explained variance
+##                    of the projections.
 
 orthoDiss <- function(Xr, X2 = NULL, 
                       Yr = NULL, 
@@ -310,12 +314,12 @@ orthoDiss <- function(Xr, X2 = NULL,
         
       }
     }
-    resultsList <- list(n.components = n.components, loc.n.components = data.frame(sample.nm = colnames(distnc), sample = 1:ncol(distnc), loc.n.components = loc.n.components), dissimilarity = distnc)
+    resultsList <- list(n.components = n.components, global.variance.info = prj$variance, loc.n.components = data.frame(sample.nm = colnames(distnc), sample = 1:ncol(distnc), loc.n.components = loc.n.components), dissimilarity = distnc)
     class(resultsList) <- c("orthoDiss", "list") 
     class(resultsList$dissimilarity) <- c("localOrthoDiss","matrix")
     return(resultsList)    
   }else{
-    resultsList <- list(n.components = n.components, dissimilarity = distnc)
+    resultsList <- list(n.components = n.components, global.variance.info = prj$variance, dissimilarity = distnc)
     class(resultsList) <- c("orthoDiss", "list") 
     class(resultsList$dissimilarity) <- c("orthoDiss","matrix") 
     return(resultsList)

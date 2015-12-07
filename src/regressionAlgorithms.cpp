@@ -1,8 +1,12 @@
 #include <RcppArmadillo.h>
 #include <math.h>
 #include <iostream>
+#ifdef _OPENMP
+#include <omp.h>    // OpenMP
+#endif
 
 // [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::plugins(openmp)]]
 
 using namespace Rcpp;
 
@@ -86,25 +90,44 @@ NumericVector cms(arma::mat X){
 }
 
 
-/// orthogonal scores PLS function
-//' @title orthogonal scores algorithn of partial leat squares 2 (ospls2)
-//' @description Computes a partial least square (PLS) model for multiple reponse variables. For internal use only!
+
+//' @title orthogonal scores algorithn of partial leat squares (opls)
+//' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
+//' For internal use only!
 //' @usage 
-//' ospls2(X, Y, ncomp, center, scale, maxiter, tol) 
-//' @param X a \code{matrix}.
-//' @param Y a \code{matrix}.
-//' @param ncomp the number of PLS components.
-//' @param center logical indicating whether \code{X} must be centered.
+//' opls(X, Y, ncomp, scale, 
+//'      maxiter, tol, 
+//'      regression = TRUE, 
+//'      pcSelmethod = "cumvar", 
+//'      pcSelvalue = 0.99)
+//' @param X a \code{matrix} of predictor variables.
+//' @param Y a \code{matrix} of either a single or multiple response variables.
+//' @param ncomp the number of pls components.
 //' @param scale logical indicating whether \code{X} must be scaled.
 //' @param maxiter maximum number of iterations.
-//' @param tol limit for convergence of the algorithm in the nipals algorithm (default is 1e-06).
+//' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param regression a logical indicating if the function is being used for regression. Otherwise it is used only for projection. Default is \code{TRUE}.
+//' @param pcSelmethod if \code{regression = TRUE}, the method for selecting the number of components. 
+//' Options are: \code{'cumvar'} (for selecting the number of principal components based on a given 
+//' cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
+//' components based on a given amount of explained variance). Default is \code{'cumvar'}
+//' @param pcSelvalue a numerical value that complements the selected method (\code{pcSelmethod}). 
+//' If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum 
+//' amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
+//' it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) 
+//' a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
+//' specifying the desired number of principal components to retain. Default is 0.99.
 //' @return a list containing the following elements:
 //' \itemize{
+//' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+//' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
 //' \item{\code{scores}}{ the \code{matrix} of scores.}
 //' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
 //' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
 //' \item{\code{projectionM}}{ the projection \code{matrix}.}
 //' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+//' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
 //' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
 //' } 
 //' @useDynLib resemble
@@ -112,44 +135,57 @@ NumericVector cms(arma::mat X){
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-List ospls2(Rcpp::NumericMatrix X, 
-            Rcpp::NumericMatrix Y, 
-            int ncomp,
-            bool center,
-            bool scale,
-            double maxiter,
-            double tol
+List opls(arma::mat X, 
+          arma::mat Y, 
+          int ncomp,
+          bool scale,            
+          double maxiter,
+          double tol,
+          bool regression = true,
+          String pcSelmethod = "cumvar",
+          double pcSelvalue = 0.99
 ){
   
-  //int nPf = fmin(X.nrow(), X.ncol());
   int nPf = ncomp;
-  int ny = Y.ncol();
+  int ny = Y.n_cols;
+  int nynf = ncomp * Y.n_cols;
   
-  arma::mat weights = arma::zeros(nPf, X.ncol());
-  arma::mat scores = arma::zeros(X.nrow(), nPf);
-  arma::mat Xloadings = arma::zeros(nPf, X.ncol());
+  arma::mat weights = arma::zeros(nPf, X.n_cols);
+  arma::mat scores = arma::zeros(X.n_rows, nPf);
+  arma::mat Xloadings = arma::zeros(nPf, X.n_cols);
   arma::mat Yloadings = arma::zeros(nPf, ny);
+  arma::mat coefficients = arma::zeros(X.n_cols, nynf);
+  arma::mat bo = arma::zeros(ny, nPf);
   arma::mat exv = arma::zeros(3, nPf);
   arma::mat yex = arma::zeros(ny, nPf);
   
   
   // if false, it reuses memory and avoids extra copy
-  // the problem is that the matrix cannot be overwriten easily
+  // the problem is that the matrix cannot be easily overwriten 
   // retrieves random results
   
-  arma::mat Xz(X.begin(), X.nrow(), X.ncol(), true);     
-  arma::mat Yz(Y.begin(), Y.nrow(), Y.ncol() , true); 
+  //  arma::mat Xz(X.begin(), X.nrow(), X.ncol(), true);     
+  //  arma::mat Yz(Y.begin(), Y.nrow(), Y.ncol() , true); 
   
-  if(center){
-    Xz = Xz - arma::repmat(Rcpp::as<arma::mat>(cms(Xz)), Xz.n_rows, 1);
-  }
+  arma::mat Xscale;
+  arma::mat Xs;
+  arma::mat xfcntr;
+  arma::mat Xz = X;
   
   if(scale){
-    Xz = Xz / arma::repmat(Rcpp::as<arma::mat>(colSds(Xz)), Xz.n_rows, 1);
+    Xscale = arma::repmat(Rcpp::as<arma::mat>(colSds(Xz)), Xz.n_rows, 1);
+    Xz = Xz / Xscale;
+    Xs =  Xscale.row(0);
   }
   
+  xfcntr = Rcpp::as<arma::mat>(cms(Xz));
+  
+  //Xcenter = arma::repmat(Rcpp::as<arma::mat>(cms(Xz)), Xz.n_rows, 1);
+  Xz = Xz - arma::repmat(xfcntr, Xz.n_rows, 1);
+  
+  
   arma::mat Xpls = Xz;
-  arma::mat Ypls = Yz;
+  arma::mat Ypls = Y;
   
   //variance of Xpls
   double xvar = sum(pow(colSds(Xpls), 2));  
@@ -173,6 +209,8 @@ List ospls2(Rcpp::NumericMatrix X,
   arma::mat ev;
   arma::mat prjM;
   
+  int nff = 0;
+  
   for (int i = 0; i < ncomp; i++){
     Yplsb = Ypls;
     Xpls = Xpls;      
@@ -184,6 +222,7 @@ List ospls2(Rcpp::NumericMatrix X,
     
     j = 0;
     keepg = true;
+    
     while(keepg){
       if(j > 0)
       {
@@ -225,159 +264,42 @@ List ospls2(Rcpp::NumericMatrix X,
     exv(0,i) = arma::var(scores.col(i));
     exv(1,i) = sum(exv.row(0)) / xvar;
     exv(2,i) = exv(0,i)/xvar;
-  }
-  
-  // convert this to standard deviation
-  exv.row(0) = sqrt(exv.row(0));
-  
-  prjM = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
-  
-  arma::mat yexi;
-  arma::mat cop;
-  for(int i = 0; i < ny; i++){
-    yexi = scores % arma::repmat(trans(Yloadings.col(i)), scores.n_rows, 1) ; 
-    cop = pow(arma::cor(Yz.col(i), yexi.col(0)), 2);
-    //double(*cop2) = reinterpret_cast <double(*)> (cop); //does not work
-    yex(i,0) = cop(0,0);
-    for(int j = 1; j < nPf; j++){
-      yexi.col(j) = yexi.col(j-1) + yexi.col(j);
-      cop = arma::cor(Yz.col(i), yexi.col(j));
-      yex(i,j) = pow(cop(0,0), 2);
+    
+    nff = nff + 1;
+    
+    if(!regression)
+    {
+      if(pcSelmethod == "var" || pcSelmethod == "cumvar")
+      {
+        bool chk;
+        if(pcSelmethod == "cumvar"){
+          chk = exv(1,i) > pcSelvalue;
+        }
+        else{
+          chk = exv(2,i) < pcSelvalue;
+        }
+        if(chk)
+        {
+          if(i == 0) throw exception("With the current value in the 'pcSelection' argument, no components are selected. Try another value.");
+          break;
+        }
+      } 
     }
   }
   
-  return Rcpp::List::create(
-    Rcpp::Named("scores") = scores,
-    Rcpp::Named("X.loadings") = Xloadings,
-    Rcpp::Named("Y.loadings") = Yloadings,
-    Rcpp::Named("projectionM") = prjM,
-    Rcpp::Named("variance") = Rcpp::List::create(
-      Rcpp::Named("x.var") = exv,
-      Rcpp::Named("y.var") = yex
-    ),
-    _["weights"] = weights
-  );
-}
-
-/// orthogonal scores PLS function
-
-//' @title orthogonal scores algorithn of partial leat squares (ospls)
-//' @description Computes a partial least square (PLS) model for a single response variable. 
-//' For internal use only!
-//' @usage 
-//' ospls(X, Y, ncomp, scale) 
-//' @param X a \code{matrix} of predictor variables.
-//' @param Y a \code{matrix} of a single response variable.
-//' @param ncomp the number of PLS components.
-//' @param center logical indicating whether \code{Xz} must be centered.
-//' @param scale logical indicating whether \code{Xz} must be scaled.
-//' @return a list containing the following elements:
-//' \itemize{
-//' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
-//' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
-//' \item{\code{scores}}{ the \code{matrix} of scores.}
-//' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
-//' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
-//' \item{\code{projectionM}}{ the projection \code{matrix}.}
-//' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
-//' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
-//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
-//' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
-//' } 
-//' @useDynLib resemble
-//' @author Leonardo Ramirez-Lopez
-//' @keywords internal 
-//' @useDynLib resemble
-// [[Rcpp::export]]
-List ospls(arma::mat X, 
-           arma::mat Y, 
-           int ncomp,
-           bool scale){
-  
-  int nPf = ncomp;
-  int ny = Y.n_cols;
-  
-  arma::mat weights = arma::zeros(nPf, X.n_cols);
-  arma::mat scores = arma::zeros(X.n_rows, nPf);
-  arma::mat Xloadings = arma::zeros(nPf, X.n_cols);
-  arma::mat Yloadings = arma::zeros(nPf, ny);
-  arma::mat coefficients = arma::zeros(X.n_cols, nPf);
-  arma::mat bo = arma::zeros(1, nPf);
-  arma::mat exv = arma::zeros(3, nPf);
-  arma::mat yex = arma::zeros(ny, nPf);
-  
-  
-  // if false, it reuses memory and avoids extra copy
-  // the problem is that the matrix cannot be easily overwriten 
-  // retrieves random results
-  
-  //  arma::mat Xz(X.begin(), X.nrow(), X.ncol(), true);     
-  //  arma::mat Yz(Y.begin(), Y.nrow(), Y.ncol() , true); 
-  
-  arma::mat Xscale;
-  arma::mat Xs;
-  arma::mat xfcntr;
-  arma::mat Xz = X;
-
-  if(scale){
-    Xscale = arma::repmat(Rcpp::as<arma::mat>(colSds(Xz)), Xz.n_rows, 1);
-    Xz = Xz / Xscale;
-    Xs =  Xscale.row(0);
+  ncomp = nff;
+  nff = nff - 1;
+  if(!regression){
+    weights = weights.rows(0,nff);
+    coefficients = coefficients.cols(0, nff);
+    bo = bo.cols(0,nff);
+    scores = scores.cols(0,nff);
+    Xloadings = Xloadings.rows(0,nff);
+    Yloadings = Yloadings.rows(0,nff);
+    exv = exv.cols(0,nff);
+    yex = yex.cols(0,nff);
   }
   
-  xfcntr = Rcpp::as<arma::mat>(cms(Xz));
-  
-  //Xcenter = arma::repmat(Rcpp::as<arma::mat>(cms(Xz)), Xz.n_rows, 1);
-  Xz = Xz - arma::repmat(xfcntr, Xz.n_rows, 1);
-    
-  
-  arma::mat Xpls = Xz;
-  arma::mat Ypls = Y;
-  
-  //variance of Xpls
-  double xvar = sum(pow(colSds(Xpls), 2));  
-  
-  // matrices to declare
-  arma::mat cr;
-  arma::mat ts;
-  arma::mat w;
-  arma::mat p;
-  arma::mat q;
-  arma::mat cx;
-  arma::mat cy;
-  arma::mat tsrp;
-  arma::mat ev;
-  arma::mat prjM;
-  
-  for (int i = 0; i < ncomp; i++){
-    //Step 1: Compute a vector of loading weights...
-    // 1.1 Compute the 'scaling factor'
-    cr = sqrt(trans(Ypls) * Xpls * trans(Xpls) * Ypls);
-    // 1.2 The weights are computed as the cross product of
-    // X0 and Y0 divided by the 'scaling factor'...
-    w = (trans(Xpls) * Ypls) / repmat(cr, Xpls.n_cols, 1);
-    // Step 2: Compute the scores...
-    ts = Xpls * w;
-    // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
-    p = (trans(Xpls) * ts) / repmat((trans(ts) * ts), Xpls.n_cols, 1);
-    q = (trans(Ypls) * ts) / repmat((trans(ts) * ts), Ypls.n_cols, 1);
-    // Step 4: The residual matrix
-    // of X is finally computed and...
-    cx = ts * trans(p) ;
-    Xpls = Xpls - cx;
-    // ... the vector of residuals of Y is also computed
-    cy = ts * trans(q);
-    Ypls = Ypls - cy;
-    // save the matrices corresponding to the loadings
-    // and scores..
-    weights.row(i) = trans(w);
-    scores.col(i) = ts;
-    Xloadings.row(i) = trans(p);
-    Yloadings.row(i) = trans(q);
-    exv(0,i) = arma::var(scores.col(i));
-    exv(1,i) = sum(exv.row(0)) / xvar;
-    exv(2,i) = exv(0,i)/xvar;
-  }
   
   // convert this to standard deviation
   exv.row(0) = sqrt(exv.row(0));
@@ -391,18 +313,29 @@ List ospls(arma::mat X,
     cop = pow(arma::cor(Y.col(i), yexi.col(0)), 2);
     //double(*cop2) = reinterpret_cast <double(*)> (cop); //does not work
     yex(i,0) = cop(0,0);
-    for(int j = 1; j < nPf; j++){
+    for(int j = 1; j < ncomp; j++){
       yexi.col(j) = yexi.col(j-1) + yexi.col(j);
       cop = arma::cor(Y.col(i), yexi.col(j));
       yex(i,j) = pow(cop(0,0), 2);
     }
   }
   
+  arma::vec ymeanv;
   arma::mat ymean = arma::mean(Y);
+  ymeanv = arma::vectorise(ymean);
   
-  for(int j = 0; j < nPf; j++){
-    coefficients.col(j) = prjM.cols(0,j) * Yloadings.rows(0,j);
-    bo.col(j) = ymean - xfcntr * coefficients.col(j);
+  
+  int idx = 0;
+  for(int k = 0; k < ny; k++){
+    arma::mat jyload = Yloadings.col(k);
+    for(int j = 0; j < ncomp; j++){
+      coefficients.col(idx) = prjM.cols(0,j) * jyload.rows(0,j);
+      arma:: vec leov;
+      arma::mat leo = xfcntr * coefficients.col(idx);
+      leov = arma::vectorise(leo);
+      bo(k,j) = ymeanv(k) - leov(0);
+      idx = idx + 1;
+    }
   }
   
   return Rcpp::List::create(
@@ -427,16 +360,17 @@ List ospls(arma::mat X,
 }
 
 
-//' @title Prediction function for the \code{ospls} and \code{ospls2} functions
-//' @description Predicts response values based on a model generated by either by \code{ospls} or the \code{ospls2} functions. 
+
+//' @title Prediction function for the \code{opls} and \code{opls2} functions
+//' @description Predicts response values based on a model generated by either by \code{opls} or the \code{opls2} functions. 
 //' For internal use only!. 
-//' @usage predospls(bo, b, ncomp, newdata, scale, Xscale)
+//' @usage predopls(bo, b, ncomp, newdata, scale, Xscale)
 //' @param bo a numeric value indicating the intercept.
 //' @param b the \code{matrix} of regression coefficients.
 //' @param ncomp an integer value indicating how may components must be used in the prediction.
 //' @param newdata a \code{matrix} containing the predictor variables.
 //' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
-//' (either in \code{ospls} or \code{ospls2}) was scaled.
+//' (either in \code{opls} or \code{opls2}) was scaled.
 //' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
 //' @return a \code{matrix} of predicted values
 //' @useDynLib resemble
@@ -444,12 +378,12 @@ List ospls(arma::mat X,
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-Rcpp::NumericMatrix predospls(arma::mat bo, 
-                              arma::mat b, 
-                              int ncomp, 
-                              arma::mat newdata,
-                              bool scale,
-                              arma::mat Xscale
+Rcpp::NumericMatrix predopls(arma::mat bo, 
+                             arma::mat b, 
+                             int ncomp, 
+                             arma::mat newdata,
+                             bool scale,
+                             arma::mat Xscale
 ){
   //arma::mat Xz(newdata.begin(), newdata.nrow(), newdata.ncol(), true);
   //arma::mat predicted = arma::zeros(Xz.n_rows, ncomp);
@@ -475,15 +409,14 @@ Rcpp::NumericMatrix predospls(arma::mat bo,
 
 
 
-//' @title Projection function for the \code{ospls} and \code{ospls2} functions
-//' @description Projects new spectra onto a PLS space based on a model generated by either by \code{ospls} or the \code{ospls2} functions. 
+//' @title Projection function for the \code{opls} function
+//' @description Projects new spectra onto a PLS space based on a model generated by either by \code{opls} or the \code{opls2} functions. 
 //' For internal use only!. 
 //' @usage projectpls(projectionm, ncomp, newdata, scale, Xcenter, Xscale)
-//' @param projectionm the projection \code{matrix} generated either by the \code{ospls} or \code{ospls2}.
+//' @param projectionm the projection \code{matrix} generated by the \code{opls} function.
 //' @param ncomp an integer value indicating how may components must be used in the prediction.
 //' @param newdata a \code{matrix} containing the predictor variables.
-//' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
-//' (either in \code{ospls} or \code{ospls2}) was scaled.
+//' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
 //' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
 //' @param Xcenter a \code{matrix} of one row with the values that must be used for centering \code{newdata}.
 //' @return a \code{matrix} corresponding to the new spectra projected onto the PLS space 
@@ -494,22 +427,20 @@ Rcpp::NumericMatrix predospls(arma::mat bo,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix projectpls(arma::mat projectionm, 
                                int ncomp, 
-                               Rcpp::NumericMatrix newdata,
+                               arma::mat newdata,
                                bool scale,
                                arma::mat Xcenter,
                                arma::mat Xscale
 ){
-  arma::mat Xz(newdata.begin(), newdata.nrow(), newdata.ncol(), true);
-  //arma::mat predicted = arma::zeros(Xz.n_rows, ncomp);
-  
+
   if(scale){
-    Xz = Xz / arma::repmat(Xscale, Xz.n_rows, 1);
+    newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
   }
   
   //Necessary to center
-  Xz = Xz - arma::repmat(Xcenter, Xz.n_rows, 1);
+  newdata = newdata - arma::repmat(Xcenter, newdata.n_rows, 1);
   
-  arma::mat proj = Xz * projectionm.cols(0, ncomp - 1);
+  arma::mat proj = newdata * projectionm.cols(0, ncomp - 1);
   
   return Rcpp::wrap(proj);
 }
@@ -517,23 +448,24 @@ Rcpp::NumericMatrix projectpls(arma::mat projectionm,
 
 //' @title Internal Cpp function for computing the weights of the PLS components necessary for weighted average PLS
 //' @description For internal use only!. 
-//' @usage waplsoneweights_cpp(projectionm, 
-//' xloadings, 
-//' coefficients, 
-//' newX, 
-//' minF, 
-//' maxF, 
-//' scale, 
-//' Xcenter, 
-//' Xscale)
-//' @param projectionm the projection \code{matrix} generated either by the \code{ospls} or \code{ospls2}.
+//' @usage
+//' waplswCpp(projectionm, 
+//'           xloadings, 
+//'           coefficients, 
+//'           newX, 
+//'           minF, 
+//'           maxF, 
+//'           scale, 
+//'           Xcenter, 
+//'           Xscale)
+//' @param projectionm the projection \code{matrix} generated either by the \code{opls} function.
 //' @param xloadings .
 //' @param coefficients the \code{matrix} of regression coefficients.
 //' @param newX a \code{matrix} of one new spectra to be predicted.
 //' @param minF an integer indicating the minimum number of pls components.
 //' @param maxF an integer indicating the maximum number of pls components.
 //' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
-//' (either in \code{ospls} or \code{ospls2}) was scaled.
+//' (either in \code{opls} or \code{opls2}) was scaled.
 //' @param Xcenter a \code{matrix} of one row with the values that must be used for centering \code{newdata}.
 //' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
 //' @return a \code{matrix} of one row with the weights for each component between the max. and min. specified. 
@@ -542,15 +474,15 @@ Rcpp::NumericMatrix projectpls(arma::mat projectionm,
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-Rcpp::NumericMatrix waplsoneweights_cpp(arma::mat projectionm, 
-                                        arma::mat xloadings,
-                                        arma::mat coefficients,
-                                        arma::mat newX,
-                                        int minF, 
-                                        int maxF, 
-                                        bool scale,
-                                        arma::mat Xcenter,
-                                        arma::mat Xscale
+Rcpp::NumericMatrix waplswCpp(arma::mat projectionm, 
+                              arma::mat xloadings,
+                              arma::mat coefficients,
+                              arma::mat newX,
+                              int minF, 
+                              int maxF, 
+                              bool scale,
+                              arma::mat Xcenter,
+                              arma::mat Xscale
 ){
   arma::mat Xz = newX;
   arma::mat whgt;
@@ -584,17 +516,22 @@ Rcpp::NumericMatrix waplsoneweights_cpp(arma::mat projectionm,
 
 //' @title Internal Cpp function for performing leave-group-out cross validations for pls regression 
 //' @description For internal use only!. 
-//' @usage pplscv_cpp(X, Y, mindices, pindices, ncomp, scale)
+//' @usage pplscv_cpp(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol)
 //' @param X a \code{matrix} of predictor variables.
 //' @param Y a \code{matrix} of a single response variable.
+//' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
+//' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'}.
 //' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 //' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
 //' iteration.
 //' @param pindices a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
 //' resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
 //' iteration.
+//' @param minF an integer indicating the number of minimum pls components (if the \code{method = 'pls'}).
 //' @param ncomp an integer indicating the number of pls components.
-//' @param scale a logical indicating whether the matrix of predictors must be scaled.
+//' @param newX a \code{matrix} of one row corresponding to the sample to be predicted (if the \code{method = 'wapls1'}).
+//' @param maxiter maximum number of iterations.
+//' @param tol limit for convergence of the algorithm in the nipals algorithm.
 //' @return a list containing the following one-row matrices:
 //' \itemize{
 //' \item{\code{rmse.seg}}{ the RMSEs.}
@@ -608,74 +545,158 @@ Rcpp::NumericMatrix waplsoneweights_cpp(arma::mat projectionm,
 // [[Rcpp::export]]
 List pplscv_cpp(arma::mat X, 
                 arma::mat Y, 
+                bool scale,
+                String method,
                 arma::mat mindices,
                 arma::mat pindices,
+                int minF,
                 int ncomp,
-                bool scale
+                arma::mat newX,
+                double maxiter, 
+                double tol
 ){
-
-  arma::mat rmseseg = arma::zeros(ncomp, mindices.n_cols);
-  arma::mat strmseseg = arma::zeros(ncomp, mindices.n_cols);
-  arma::mat rsqseg = arma::zeros(ncomp, mindices.n_cols);
+  arma::mat rmseseg;
+  arma::mat strmseseg;
+  arma::mat rsqseg;
   
-  List transf;
+  arma::mat compweights;
+  
+  if(method == "pls"){
+    rmseseg = arma::zeros(ncomp, mindices.n_cols);
+    strmseseg = arma::zeros(ncomp, mindices.n_cols);
+    rsqseg = arma::zeros(ncomp, mindices.n_cols);
     
-  for(int i = 0; (unsigned)i < mindices.n_cols; i++){
+    List transf;
     
-    // The subset for fitting the model
-    arma::vec irows = mindices.col(i);
-    arma::mat xmatslice = arma::zeros(mindices.n_rows, X.n_cols);
-    arma::mat ymatslice = arma::zeros(mindices.n_rows, Y.n_cols);
-    
-    
-    for (int j = 0; (unsigned)j < irows.size(); j++) {
-      xmatslice.row(j) = X.row(irows(j)-1);
-      ymatslice.row(j) = Y.row(irows(j)-1);
+    for(int i = 0; (unsigned)i < mindices.n_cols; i++){
+      
+      // The subset for fitting the model
+      arma::vec irows = mindices.col(i);
+      arma::mat xmatslice = arma::zeros(mindices.n_rows, X.n_cols);
+      arma::mat ymatslice = arma::zeros(mindices.n_rows, Y.n_cols);
+      
+      
+      for (int j = 0; (unsigned)j < irows.size(); j++) {
+        xmatslice.row(j) = X.row(irows(j)-1);
+        ymatslice.row(j) = Y.row(irows(j)-1);
+      }
+      
+      
+      // The subset for predicting with the model
+      arma::vec pirows = pindices.col(i);
+      arma::mat pxmatslice = arma::zeros(pindices.n_rows, X.n_cols);
+      arma::mat pymatslice = arma::zeros(pindices.n_rows, Y.n_cols);
+      
+      for (int j = 0; (unsigned)j < pirows.size(); j++) {
+        pxmatslice.row(j) = X.row(pirows(j)-1);
+        pymatslice.row(j) = Y.row(pirows(j)-1);
+      }
+      
+      arma::mat rpymatslice;
+      rpymatslice = arma::repmat(pymatslice, 1, ncomp);
+      
+      List fit = Rcpp::as<Rcpp::List>(opls(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      
+      transf = fit["transf"];   
+      
+      arma::mat ypred;
+      
+      ypred = Rcpp::as<arma::mat>(predopls(fit["bo"], 
+                                            fit["coefficients"], 
+                                               ncomp, 
+                                               pxmatslice,
+                                               scale,
+                                               transf["Xscale"]));
+      
+      arma::mat rdl = sqrt(cms(pow(rpymatslice - ypred, 2)));
+      rmseseg.col(i) = rdl;
+      arma::mat mimav = arma::zeros(1,1);
+      mimav.col(0) = max(pymatslice) - min(pymatslice);
+      strmseseg.col(i) = rmseseg.col(i) / arma::repmat(mimav, ncomp, 1);
+      rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
     }
-    
-    
-    // The subset for predicting with the model
-    arma::vec pirows = pindices.col(i);
-    arma::mat pxmatslice = arma::zeros(pindices.n_rows, X.n_cols);
-    arma::mat pymatslice = arma::zeros(pindices.n_rows, Y.n_cols);
-    
-    for (int j = 0; (unsigned)j < pirows.size(); j++) {
-      pxmatslice.row(j) = X.row(pirows(j)-1);
-      pymatslice.row(j) = Y.row(pirows(j)-1);
-    }
-    
-    arma::mat rpymatslice;
-    rpymatslice = arma::repmat(pymatslice, 1, ncomp);
-    
-    List fit = Rcpp::as<Rcpp::List>(ospls(xmatslice, ymatslice, ncomp, scale));
-    
-    transf = fit["transf"];   
-        
-    arma::mat ypred;
-    
-    ypred = Rcpp::as<arma::mat>(predospls(fit["bo"], 
-                                          fit["coefficients"], 
-                                             ncomp, 
-                                             pxmatslice,
-                                             scale,
-                                             transf["Xscale"]));
-    
-    arma::mat rdl = sqrt(cms(pow(rpymatslice - ypred, 2)));
-    rmseseg.col(i) = rdl;
-    arma::mat mimav = arma::zeros(1,1);
-    mimav.col(0) = max(pymatslice) - min(pymatslice);
-    strmseseg.col(i) = rmseseg.col(i) / arma::repmat(mimav, ncomp, 1);
-    rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
   }
+  if(method == "wapls1"){
+    
+    rmseseg = arma::zeros(1, mindices.n_cols);
+    strmseseg = arma::zeros(1, mindices.n_cols);
+    rsqseg = arma::zeros(1, mindices.n_cols);
+    
+    // define the wapls1 weights directly here
+    List cfit = Rcpp::as<Rcpp::List>(opls(X, Y, ncomp, scale, maxiter, tol));
+    List ctransf = cfit["transf"];
+    
+    compweights = arma::zeros(1, ncomp);
+    compweights.cols(minF-1, ncomp-1) =  Rcpp::as<arma::mat>(waplswCpp(cfit["projectionM"], 
+                                                             cfit["X.loadings"],
+                                                                 cfit["coefficients"],
+                                                                     newX,
+                                                                     minF, 
+                                                                     ncomp, 
+                                                                     scale,
+                                                                     ctransf["Xcenter"],
+                                                                            ctransf["Xscale"]));
+    
+    arma::mat rcompweights = arma::repmat(compweights, pindices.n_rows, 1);
+
+    List transf;
+    
+    for(int i = 0; (unsigned)i < mindices.n_cols; i++){
+      
+      // The subset for fitting the model
+      arma::vec irows = mindices.col(i);
+      arma::mat xmatslice = arma::zeros(mindices.n_rows, X.n_cols);
+      arma::mat ymatslice = arma::zeros(mindices.n_rows, Y.n_cols);
+      
+      
+      for (int j = 0; (unsigned)j < irows.size(); j++) {
+        xmatslice.row(j) = X.row(irows(j)-1);
+        ymatslice.row(j) = Y.row(irows(j)-1);
+      }
+      
+      
+      // The subset for predicting with the model
+      arma::vec pirows = pindices.col(i);
+      arma::mat pxmatslice = arma::zeros(pindices.n_rows, X.n_cols);
+      arma::mat pymatslice = arma::zeros(pindices.n_rows, Y.n_cols);
+      
+      for (int j = 0; (unsigned)j < pirows.size(); j++) {
+        pxmatslice.row(j) = X.row(pirows(j)-1);
+        pymatslice.row(j) = Y.row(pirows(j)-1);
+      }
+      
+      List fit = Rcpp::as<Rcpp::List>(opls(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      
+      transf = fit["transf"];   
+      
+      arma::mat nypred;
+      arma::mat ypred;
+      
+      nypred = Rcpp::as<arma::mat>(predopls(fit["bo"], 
+                                             fit["coefficients"], 
+                                                ncomp, 
+                                                pxmatslice,
+                                                scale,
+                                                transf["Xscale"]));
+      ypred = arma::sum(rcompweights % nypred, 1);
+      
+      arma::mat rdl = sqrt(cms(pow(pymatslice - ypred, 2)));
+      rmseseg.col(i) = rdl;
+      arma::mat mimav = arma::zeros(1,1);
+      mimav.col(0) = max(pymatslice) - min(pymatslice);
+      strmseseg.col(i) = rmseseg.col(i) / mimav;
+      rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+    }
+  }
+  
   return Rcpp::List::create(
     Rcpp::Named("rmse.seg") = rmseseg,
     Rcpp::Named("st.rmse.seg") = strmseseg,
     Rcpp::Named("rsq.seg") = rsqseg
   );
-  
 }
 
-
+  
 /// Gaussian process regression with linear kernel
 //' @title Gaussian process regression with linear kernel (gprdp)
 //' @description Carries out a gaussian process regression with a linear kernel (dot product). For internal use only!

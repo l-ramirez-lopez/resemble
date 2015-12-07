@@ -6,7 +6,8 @@
 \usage{
 locFit(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = TRUE,
   newdata, pls.c, CV = FALSE, resampling = 10, p = 0.75, group = NULL,
-  w2_warning = TRUE, noise.v = 0.001, range.pred.lim = TRUE)
+  noise.v = 0.001, range.pred.lim = TRUE, pls.max.iter = 1,
+  pls.tol = 1e-06)
 }
 \description{
 internal
