@@ -12,9 +12,7 @@
 #'     dissUsage = "predictors", 
 #'     k, k.diss, k.range,
 #'     method, 
-#'     pls.c,
-#'     pls.max.iter = 1,
-#'     pls.tol = 1e-6,
+#'     pls.c, pls.max.iter = 1, pls.tol = 1e-6,
 #'     noise.v = 0.001,
 #'     ...)
 #' @param Xr input \code{matrix} (or \code{data.frame}) of predictor variables of the reference data (observations in rows and variables in columns). 
