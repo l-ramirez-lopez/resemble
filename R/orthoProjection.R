@@ -529,6 +529,7 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
                    n.components = sel, pcSelection = psel, 
                    center = cvec,
                    scale = sf)
+  colnames(fresults$variance) <- rownames(fresults$X.loadings)
   fresults$method <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
   if(pcSel == "opc") {fresults$opcEval <- results} 
   class(fresults) <- c("orthoProjection","list") 

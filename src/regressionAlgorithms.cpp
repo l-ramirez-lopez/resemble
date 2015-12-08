@@ -280,6 +280,8 @@ List opls(arma::mat X,
         }
         if(chk)
         {
+          ncomp = nff - 1;
+          nff = nff - 2;
           if(i == 0) throw exception("With the current value in the 'pcSelection' argument, no components are selected. Try another value.");
           break;
         }
@@ -287,8 +289,6 @@ List opls(arma::mat X,
     }
   }
   
-  ncomp = nff;
-  nff = nff - 1;
   if(!regression){
     weights = weights.rows(0,nff);
     coefficients = coefficients.cols(0, nff);

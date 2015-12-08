@@ -10,7 +10,7 @@
 #'           method = "pca", 
 #'           local = FALSE, 
 #'           k0, 
-#'           center = TRUE, scaled = TRUE, 
+#'           center = TRUE, scaled = FALSE, 
 #'           return.all = FALSE, cores = 1, ...)
 #' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
 #' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).
@@ -126,7 +126,7 @@ orthoDiss <- function(Xr, X2 = NULL,
                       method = "pca", 
                       local = FALSE, 
                       k0, 
-                      center = TRUE, scaled = TRUE, 
+                      center = TRUE, scaled = FALSE, 
                       return.all = FALSE, cores = 1, ...){
    
   in.call <- match.call()
@@ -162,6 +162,10 @@ orthoDiss <- function(Xr, X2 = NULL,
     if(is.null(dim(Yr)))
       Yr <- matrix(Yr, length(Yr))
     Yr <- as.data.frame(Yr)
+  }else{
+    if(pcSelection[[1]] == "opc" | method == "pls"){
+      stop("Yu must be provided either when the 'opc' is used in pcSelection is used or method = 'pls'", call. = call.)
+    }
   }
   
   prj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = X2, method = method, pcSelection = pcSelection, center = center, scaled = scaled, cores = cores, call. = FALSE)

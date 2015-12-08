@@ -185,7 +185,7 @@
 #'                  mblCtrl = ctrl.mbl,
 #'                  dissUsage = "none",
 #'                  k = seq(40, 150, by = 10), 
-#'                  pls.c = c(7, 20),
+#'                  pls.c = c(5, 15),
 #'                  method = "wapls1")
 #' local.mbl
 #'
@@ -197,7 +197,7 @@
 #'                   mblCtrl = ctrl1,
 #'                   dissUsage = "none",
 #'                   k = seq(40, 150, by = 10), 
-#'                   pls.c = c(7, 20),
+#'                   pls.c = c(5, 15),
 #'                   method = "wapls1")
 #' local.mbl2
 #' 
@@ -234,17 +234,23 @@
 #' 
 #' #Example 4.2
 #' # first derivative spectra
-#' der.sp <- t(diff(t(rbind(Xr, Xu)), lag = 1, differences = 1)) 
+#' Xr.der.sp <- t(diff(t(rbind(Xr, Xu)), lag = 7, differences = 1)) 
+#' Xu.der.sp <- t(diff(t(Xu), lag = 7, differences = 1)) 
 #' 
-#' # The euclidean dissimilarity on the derivative spectra 
-#' # (a.k.a spectral dissimilarity) 
-#' spc.dist <- fDiss(Xr = der.sp, method = "euclid", 
-#'                   center = FALSE, scale = FALSE) 
+#' # The principal components dissimilarity on the derivative spectra 
+#' der.ortho <- orthoDiss(Xr = Xr.der.sp, X2 = Xu.der.sp,
+#'                             Yr = Yr,
+#'                             pcSelection = list("opc", 40),
+#'                             method = "pls",
+#'                             center = FALSE, scale = FALSE) 
 #' 
+#' der.ortho.diss <- der.ortho$dissimilarity
+#' 
+#' # mbl applied to the absorbance spectra
 #' mbl.udd2 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
 #'                 mblCtrl = ctrl.udd, 
-#'                 dissimilarityM = spc.dist,
-#'                 dissUsage = "predictors",
+#'                 dissimilarityM = der.ortho.diss,
+#'                 dissUsage = "none",
 #'                 k = seq(40, 150, by = 10), 
 #'                 method = "gpr")
 #'                                 

@@ -11,9 +11,7 @@ mbl(Yr, Xr, Yu = NULL, Xu,
     dissUsage = "predictors",
     k, k.diss, k.range,
     method,
-    pls.c,
-    pls.max.iter = 1,
-    pls.tol = 1e-6,
+    pls.c, pls.max.iter = 1, pls.tol = 1e-6,
     noise.v = 0.001,
     ...)
 }
