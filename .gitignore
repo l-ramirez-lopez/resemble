@@ -3,8 +3,8 @@
 resemble\.Rproj
 .Rproj.user
 resemble.Rproj
-.RData
 src/*.o
+.RData
 src/*.so
 src/*.dll
 src-i386/
