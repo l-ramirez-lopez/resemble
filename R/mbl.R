@@ -273,7 +273,8 @@
 #' 
 #' # Example 5
 #' # For running the sbl function in parallel
-#' n.cores <- 2   # two cores
+#' n.cores <- detectCores() - 1
+#' if(n.cores == 0) n.cores <- 1
 #' 
 #' # Set the number of cores according to the OS
 #' if (.Platform[["OS.type"]] == "windows") {
