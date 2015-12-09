@@ -38,7 +38,6 @@
 #' getPredictions(ex1)
 #' }
 #' @export
-
 ######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens

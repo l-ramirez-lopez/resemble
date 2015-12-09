@@ -10,7 +10,7 @@ orthoDiss(Xr, X2 = NULL,
           method = "pca",
           local = FALSE,
           k0,
-          center = TRUE, scaled = TRUE,
+          center = TRUE, scaled = FALSE,
           return.all = FALSE, cores = 1, ...)
 }
 \arguments{

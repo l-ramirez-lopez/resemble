@@ -4,7 +4,7 @@
 #' @usage \method{print}{orthoProjection}(x, ...)
 #' @param x an object of class \code{orthoProjection} (as returned by the \code{orthoProjection} function). 
 #' @param ... arguments to be passed to methods (not yet functional).
-#' @author Leonardo Ramirez-Lopez and Antoine Stevens
+#' @author Leonardo Ramirez-Lopez
 #' @export
 
 print.orthoProjection <- function(x, ...){

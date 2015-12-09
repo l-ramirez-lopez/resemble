@@ -25,7 +25,6 @@
 ## History:
 ## 09.03.2014 Leo     The tryMod function was removed
 
-
 print.localOrthoDiss <- function(x,...){
   obj <- x
   if(is.list(obj))

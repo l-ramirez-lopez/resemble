@@ -51,7 +51,6 @@
 #' @import Rcpp RcppArmadillo foreach iterators
 #' @useDynLib resemble
 #' @author Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@@gmail.com} & Antoine Stevens
-#'
 ######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
@@ -66,6 +65,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 ######################################################################
+
 
 ## History:
 ## 09.03.2014 Leo     History comments were added to the function files

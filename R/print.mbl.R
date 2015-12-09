@@ -25,21 +25,21 @@ print.mbl <- function(x, ...){
   cat("Call:", "\n\n")
   print(object$call)
   cat("\n")
-  cat("=========================================================", "\n")
+  cat("---------------------------------------------------------", "\n")
   cat("\n", "Total number of samples predicted:",object$totalSamplesPredicted,  "\n\n")  
-  cat("=========================================================", "\n")
+  cat("---------------------------------------------------------", "\n")
   cat("\n", "Total number of PCs used:",object$pcAnalysis$n.componentsUsed,  "\n\n")  
-  cat("=========================================================", "\n")
+  cat("---------------------------------------------------------", "\n")
   
   if(!is.null(nnValStats)){
     cat("\n", "Nearest neighbor validation statistics", "\n\n")
     print(nnValStats, digits = 3)
-    cat("=========================================================", "\n")}
+    cat("---------------------------------------------------------", "\n")}
   
   if(!is.null(localCrossValStats)){
     cat("\n", "Average statistics of the local leave-group-out","\n", "cross-validation", "\n\n")
     print(localCrossValStats, digits = 3)
-    cat("=========================================================", "\n")}
+    cat("---------------------------------------------------------", "\n")}
   
   if(!is.null(YuPredictionStats)){
     cat("\n", "Statistics of the prediction of Yu", "\n\n")  

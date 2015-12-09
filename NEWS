@@ -2,7 +2,12 @@
 ## Versions 1.0 and 1.1.1
 * 19.03.2013 Hello world! Initial release of the package
 
-## Version 1.1.2
+## Version 1.2
+* 09.12.2015 A method for better estimates of RMSE values computed for 
+             the 'wapls1' method has been implemented.
+* 09.12.2015 The 'wapls2' method of the mbl function is no longer supported
+             because of several drawbacks computing reliable uncertainty estimates
+* 18.11.2015 Several functions are now based on C++ for faster computations.
 * 23.04.2014 Added default variable names when they are missing 
              and an error message when the names of Xr do not match
              the names of Xu.

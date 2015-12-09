@@ -41,7 +41,7 @@
 #' plot(ex1)
 #' }
 #' @export
-
+###########################################################################
 ## History:
 ## 23.04.2014 Leo     Plot function when the data is not centred now 
 ##                    draws the circles around the actual centre

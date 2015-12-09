@@ -79,7 +79,6 @@
 #' #dissimilarity metric with a moving window of 30
 #' mblControl(sm = "movcor", ws = 31)
 #' @export
-
 ######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
