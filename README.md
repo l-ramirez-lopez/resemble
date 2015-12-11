@@ -1,3 +1,7 @@
+[![Travis-CI Build Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https://travis-ci.org/l-ramirez-lopez/resemble/)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](http://cran.r-project.org/web/packages/resemble)
+
+
 # resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 

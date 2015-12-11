@@ -5,7 +5,7 @@ Version: 1.2.0.9000
 Date: 2015-12-09
 Authors@R: c(
     person("Leonardo", "Ramirez-Lopez", email = "ramirez.lopez.leo@gmail.com",
-           role = c("aut", "cre"))
+           role = c("aut", "cre")),
     person("Antoine", "Stevens", role = c("aut"))
     )
 Maintainer: Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
