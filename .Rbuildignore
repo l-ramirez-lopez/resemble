@@ -2,5 +2,6 @@
 ^\.Rproj\.user$
 resemble_logo.png
 code_ex.R
+.travis.yml
 ^packrat/
 ^\.Rprofile$
