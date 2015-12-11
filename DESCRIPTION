@@ -19,11 +19,11 @@ License: GPL (>=3)
 URL: http://l-ramirez-lopez.github.io/resemble/
 Depends:
     R (>= 3.2.2),
-    RcppArmadillo (>= 0.6.300.2.0)
+    RcppArmadillo (>= 0.5.400.2.0)
 Imports:
     foreach,
     iterators,
-    Rcpp (>= 0.12.2)
+    Rcpp (>= 0.12.0)
 Suggests:
     prospectr,
     parallel,

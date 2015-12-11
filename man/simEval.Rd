@@ -20,8 +20,8 @@ simEval(d, sideInf, lower.tri = FALSE, cores = 1, ...)
 \value{
 \code{simEval} returns a \code{list} with the following components:
 \itemize{
- \item{"\code{eval}}{either the RMSD (and the correlation coefficient) or the kappa index}
- \item{\code{firstNN}}{a \code{data.frame} containing the original side informative variable in the first column and the side informative values of the corresponding nearest neighbours in the second column}
+ \item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or the kappa index}
+ \item{\code{firstNN}}{ a \code{data.frame} containing the original side informative variable in the first column and the side informative values of the corresponding nearest neighbours in the second column}
  }
 }
 \description{

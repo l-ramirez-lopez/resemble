@@ -5,10 +5,10 @@
 #' corDiss(Xr, X2 = NULL, ws = NULL, 
 #'         center = TRUE, scaled = TRUE)
 #' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
-#' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).
+#' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations (samples).
 #' @param ws for moving correlation dissimilarity, an odd integer value which specifies the window size. If \code{ws = NULL}, then the window size will be equal to the number of variables (columns), i.e. instead moving correlation, the normal correlation will be used. See details.
-#' @param center a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If X2 is specified the data is scaled on the basis of \eqn{Xr \cup X2}.
-#' @param scaled a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If X2 is specified the data is scaled on the basis of \eqn{Xr \cup X2}.
+#' @param center a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup X2}.
+#' @param scaled a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup X2}.
 #' @details
 #' The correlation dissimilarity \eqn{cd} between two obsvervations \eqn{x_i} and \eqn{x_j} is computed as follows:
 #' \deqn{

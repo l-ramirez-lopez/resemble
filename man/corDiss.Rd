@@ -10,13 +10,13 @@ corDiss(Xr, X2 = NULL, ws = NULL,
 \arguments{
 \item{Xr}{a \code{matrix} (or \code{data.frame}) containing the (reference) data.}
 
-\item{X2}{an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).}
+\item{X2}{an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations (samples).}
 
 \item{ws}{for moving correlation dissimilarity, an odd integer value which specifies the window size. If \code{ws = NULL}, then the window size will be equal to the number of variables (columns), i.e. instead moving correlation, the normal correlation will be used. See details.}
 
-\item{center}{a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If X2 is specified the data is scaled on the basis of \eqn{Xr \cup X2}.}
+\item{center}{a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup X2}.}
 
-\item{scaled}{a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If X2 is specified the data is scaled on the basis of \eqn{Xr \cup X2}.}
+\item{scaled}{a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup X2}.}
 }
 \value{
 a \code{matrix} of the computed dissimilarities.

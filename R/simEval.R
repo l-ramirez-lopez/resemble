@@ -29,8 +29,8 @@
 #' Multi-threading for the computation of dissimilarities (see \code{cores} parameter) is based on OpenMP and hence works only on windows and linux. 
 #' @return \code{simEval} returns a \code{list} with the following components:
 #' \itemize{
-#'  \item{"\code{eval}}{either the RMSD (and the correlation coefficient) or the kappa index}
-#'  \item{\code{firstNN}}{a \code{data.frame} containing the original side informative variable in the first column and the side informative values of the corresponding nearest neighbours in the second column}
+#'  \item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or the kappa index}
+#'  \item{\code{firstNN}}{ a \code{data.frame} containing the original side informative variable in the first column and the side informative values of the corresponding nearest neighbours in the second column}
 #'  }
 #' @author Leonardo Ramirez-Lopez
 #' @references 
