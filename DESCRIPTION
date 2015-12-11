@@ -18,7 +18,7 @@ Description: Implementation of functions for spectral similarity/dissimilarity
 License: GPL (>=3)
 URL: http://l-ramirez-lopez.github.io/resemble/
 Depends:
-    R (>= 3.0),
+    R (>= 3.2.2),
     RcppArmadillo (>= 0.6.300.2.0)
 Imports:
     foreach,
