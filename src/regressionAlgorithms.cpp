@@ -511,6 +511,7 @@ Rcpp::NumericMatrix waplswCpp(arma::mat projectionm,
   // whgt = (1 - (whgt^3))^3
   // whgt[which(whgt == 0)] <- 0.00001
   // whgt = whgt/sum(whgt)
+  // here only the selected weights are output from minF to max F
   return Rcpp::wrap(whgt);
 }
 
@@ -689,10 +690,12 @@ List pplscv_cpp(arma::mat X,
     }
   }
   
+  // here all the weights are output from 1 to ncomp (if method == wapls1)
   return Rcpp::List::create(
     Rcpp::Named("rmse.seg") = rmseseg,
     Rcpp::Named("st.rmse.seg") = strmseseg,
-    Rcpp::Named("rsq.seg") = rsqseg
+    Rcpp::Named("rsq.seg") = rsqseg,
+    Rcpp::Named("compweights") = compweights
   );
 }
 

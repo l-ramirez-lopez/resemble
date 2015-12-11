@@ -1256,6 +1256,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                                     st.rmse.cv = cvVal$cvResults$st.rmse.cv,
                                     rmse.sd.cv = cvVal$cvResults$rmse.sd.cv,     
                                     rsq.cv = cvVal$cvResults$rsq.cv)
+      w <- cvVal$compweights[!cvVal$compweights == 0]
     } else {
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
       y <- y * weights
@@ -1563,6 +1564,7 @@ plsCv <- function(x, y, ncomp,
   }
     
   if(method == "wapls1"){
+    val$compweights <- cvre$compweights
     val$cvResults <- data.frame(minF = minF, maxF = ncomp, rmse.cv = mean(cvre$rmse.seg), st.rmse.cv = mean(cvre$st.rmse.seg), rmse.sd.cv = sd(cvre$rmse.seg), rsq.cv = mean(cvre$rsq.seg))
     #bestpls.c <- val$cvResults$nPLS[which(val$cvResults$rmse.cv == min(val$cvResults$rmse.cv))]
     #val$bestpls.c <- bestpls.c
