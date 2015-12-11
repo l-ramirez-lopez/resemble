@@ -197,7 +197,7 @@ plot.mbl <- function(x,
         crc <- rbind(crc, crc[1,])
         if(!object$cntrlParam$center)
           crc <- sweep(x= crc, FUN = "+", MARGIN = 2, STATS = colMeans(object$pcAnalysis$scores_Xr[,pcs]))
-        lines(crc, col = "dodgerblue", lty = 5, lwd = 0.5)
+        lines(crc, col = "#9ED400", lty = 5, lwd = 0.5)
       }
     }
   }

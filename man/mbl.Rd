@@ -71,8 +71,27 @@ a \code{list} of class \code{mbl} with the following components (sorted by eithe
  \item{\code{nnValStats}}{ a data frame containing the statistics of the nearest neighbour cross-validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'NNv'} or \code{'both'} were selected as validation method}
  \item{\code{localCrossValStats}}{ a data frame containing the statistics of the local leave-group-out cross validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'local_crossval'} or \code{'both'} were selected as validation method}
  \item{\code{YuPredictionStats}}{ a data frame containing the statistics of the cross-validation of the prediction of  \code{Yu} for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{Yu} was provided.}
- \item{\code{results}}{ a list of data frames which contains the results of the predictions for each either \code{k} or \code{k.diss}.}
+ \item{\code{results}}{ a list of data frames which contains the results of the predictions for each either \code{k} or \code{k.diss}. Each \code{data.frame} contains the following columns:}
+ \itemize{
+ \item{\code{o.index}}{ The index of the sample predicted in the input \code{matrix}}
+ \item{\code{k.diss}}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the corresponding dissimilarity threshold for selecting the neighbors used to predict a given sample.}
+ \item{\code{distance}}{ This column is only ouput if the \code{k.diss} argument is used. It is a logical that indicates whether the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument. In that case the number of neighbors used is coerced to on of the boundaries.}
+ \item{\code{k.org}}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the number of neighbors that are retained when the given dissimilarity threshold is used.}
+ \item{\code{k yu.obs}}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}
+ \item{\code{pred}}{ The predicted values}
+ \item{\code{yr.min.obs}}{ The minimum reference value (of the response variable) in the neighborhood.}
+ \item{\code{yr.max.obs}}{ The maximum reference value (of the response variable) in the neighborhood.}
+ \item{\code{index.nearest.in.ref}}{ The index in \code{Xr} of the nearest neighbor.}
+ \item{\code{y.nearest}}{ The reference value (of the response variable) of the nearest neighbor in \code{Xr}.}
+ \item{\code{y.nearest.pred}}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'NNv'}. It represents the predicted value of the nearest neighbor sample in \code{Xr} using the neighborhood of the predicted sample in \code{Xu}.}
+ \item{\code{loc.rmse.cv}}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
+ \item{\code{loc.st.rmse.cv}}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation standardized RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
+ \item{\code{dist.nearest}}{ The distance to the nearest neighbor.}
+ \item{\code{dist.k.farthest}}{ The distance to the farthest neighbor selected.}
  }
+ }
+When the \code{k.diss} argument is used, the printed results show a table with a column named 'p.bounded'. It represents the percentage of samples
+for which the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument.
 }
 \description{
 This function is implemented for memory-based learning (a.k.a. instance-based learning or local regression) which is a non-linear lazy learning approach

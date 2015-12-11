@@ -85,8 +85,27 @@
 #'  \item{\code{nnValStats}}{ a data frame containing the statistics of the nearest neighbour cross-validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'NNv'} or \code{'both'} were selected as validation method}
 #'  \item{\code{localCrossValStats}}{ a data frame containing the statistics of the local leave-group-out cross validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'local_crossval'} or \code{'both'} were selected as validation method}
 #'  \item{\code{YuPredictionStats}}{ a data frame containing the statistics of the cross-validation of the prediction of  \code{Yu} for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{Yu} was provided.}
-#'  \item{\code{results}}{ a list of data frames which contains the results of the predictions for each either \code{k} or \code{k.diss}.}
+#'  \item{\code{results}}{ a list of data frames which contains the results of the predictions for each either \code{k} or \code{k.diss}. Each \code{data.frame} contains the following columns:}
+#'  \itemize{
+#'  \item{\code{o.index}}{ The index of the sample predicted in the input \code{matrix}}
+#'  \item{\code{k.diss}}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the corresponding dissimilarity threshold for selecting the neighbors used to predict a given sample.}
+#'  \item{\code{distance}}{ This column is only ouput if the \code{k.diss} argument is used. It is a logical that indicates whether the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument. In that case the number of neighbors used is coerced to on of the boundaries.}
+#'  \item{\code{k.org}}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the number of neighbors that are retained when the given dissimilarity threshold is used.}
+#'  \item{\code{k yu.obs}}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
+#'  \item{\code{pred}}{ The predicted values}     
+#'  \item{\code{yr.min.obs}}{ The minimum reference value (of the response variable) in the neighborhood.}
+#'  \item{\code{yr.max.obs}}{ The maximum reference value (of the response variable) in the neighborhood.}
+#'  \item{\code{index.nearest.in.ref}}{ The index in \code{Xr} of the nearest neighbor.}
+#'  \item{\code{y.nearest}}{ The reference value (of the response variable) of the nearest neighbor in \code{Xr}.}
+#'  \item{\code{y.nearest.pred}}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'NNv'}. It represents the predicted value of the nearest neighbor sample in \code{Xr} using the neighborhood of the predicted sample in \code{Xu}.}
+#'  \item{\code{loc.rmse.cv}}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
+#'  \item{\code{loc.st.rmse.cv}}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation standardized RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
+#'  \item{\code{dist.nearest}}{ The distance to the nearest neighbor.}
+#'  \item{\code{dist.k.farthest}}{ The distance to the farthest neighbor selected.}
 #'  }
+#'  }
+#' When the \code{k.diss} argument is used, the printed results show a table with a column named 'p.bounded'. It represents the percentage of samples
+#' for which the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument.   
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @references 
 #' Cleveland, W. S., and Devlin, S. J. 1988. Locally weighted regression: an approach to regression analysis by local fitting. Journal of the American Statistical Association, 83, 596-610.
@@ -336,6 +355,17 @@
 ## 18.11.2015 Leo     The mbl examples were corrected (unnecessary arguments 
 ##                    were deleted)
 ## 01.12.2015 Leo     The wapls2 was removed from the options of methods
+## 10.12.2015 Leo     The locFit function has been renamed to locFitnpred
+##                    and now it always performs a prediction.
+## 10.12.2015 Leo     Several redundant/repaeated sanity checks (ocurring 
+##                    when combining functions) were deactivated. This does not
+##                    impact the finaly sanity checks of the overall mbl fucntion.
+## 11.12.2015 Leo     A bug when the k.diss argument was used was corrected. 
+##                    The results about the percentage of samples that were bounded 
+##                    by k.range was not not correct.  
+## 11.12.2015 Leo     The explanation of the output variables in the results element of 
+##                    the mbl objects was extended. The rep variable is not output anymore
+##                    in the results element.
 
 mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
@@ -716,15 +746,31 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   # convert k.dis into k
   if(is.null(k)) {
     dtc <- sort(dtc)    
-    k <- matrix(NA,nrow=nrow(Xu),ncol=length(dtc))
+    k <- matrix(NA, nrow = nrow(Xu), ncol = length(dtc))
     for(j in 1:length(dtc)){
       k[,j] <- apply(d.mat,2,function(x) sum(x <= dtc[j], na.rm = TRUE))
     }      
     k.org <- k
-    k_mat <- pmin(pmax(k.org,k.min),k.max) 
+    k_mat <- pmin(pmax(k.org, k.min), k.max) 
   } else {
-    k.org <- k_mat <- matrix(k,nrow=nrow(Xu),ncol=length(k),byrow=T)    
+    k.org <- k_mat <- matrix(k, nrow = nrow(Xu), ncol = length(k), byrow = TRUE)    
   }  
+    
+  
+  if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method %in% c("pls", "wapls1"))
+  {
+    if(((floor(min(min(k_mat), ncol(Xr)) * mblCtrl$p)) - 1) < min(plsF)){
+      stop(paste("The number of pls components must be lower than ", mblCtrl$p*100, "% (i.e. mblCtrl$p) of the number of neighbours to be used"))
+    }
+  }
+  
+  if(method != "gpr"){
+    if(floor(min(min(k_mat), ncol(Xr)) * mblCtrl$p) < min(plsF)){
+      stop("The number of pls components must be lower than the number of neighbours to be used")
+    }
+  }
+  
+  
     
   it <- i <- kn.org <- NULL
   predobs <- foreach(tmp.val = iter(val, by = "row"), kn.org = iter(k.org, by = "row"), i = icount(),
@@ -733,24 +779,25 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                      .export = c("orthoDiss",  
                                  "orthoProjection", 
                                  "simEval", "corDiss", "fDiss", 
-                                 "locFit", "plsCv", "cSds", "wapls.weights")) %mydo%{            
-  
-   if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method %in% c("pls", "wapls1"))
-   {
-     if(((floor(min(it$k, nrow(it$d)) * mblCtrl$p)) - 1) < min(plsF)){
-       stop(paste("The number of pls components must be lower than ", mblCtrl$p*100, "% (i.e. mblCtrl$p) of the number of neighbours to be used"))
-     }
-   }
-   
-   if(method != "gpr"){
-     if(((floor(min(it$k, nrow(it$d)))) - 1) < min(plsF)){
-       stop("The number of pls components must be lower than the number of neighbours to be used")
-     }
-   }
-   
+                                 "locFitnpred", "plsCv", "cSds", "wapls.weights")) %mydo%{            
+                                   
+                                   #    if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method %in% c("pls", "wapls1"))
+                                   #    {
+                                   #      if(((floor(min(it$k, nrow(it$d)) * mblCtrl$p)) - 1) < min(plsF)){
+#        stop(paste("The number of pls components must be lower than ", mblCtrl$p*100, "% (i.e. mblCtrl$p) of the number of neighbours to be used"))
+#      }
+#    }
+#    
+#    if(method != "gpr"){
+#      if(((floor(min(it$k, nrow(it$d)))) - 1) < min(plsF)){
+#        stop("The number of pls components must be lower than the number of neighbours to be used")
+#      }
+#    }
+#    
    # k nearest neighbours loop. Must be within the sample loop to allow possibly for 'local' tuning
    
-   predobs <- data.frame(o.index = i, k = it$k, k.org = c(kn.org),
+   predobs <- data.frame(o.index = i, 
+                         k.org = c(kn.org), k = it$k,
                          yu.obs = tmp.val$y, pred = NA, 
                          yr.min.obs = NA, yr.max.obs = NA,
                          index.nearest.in.ref = it$index[1],
@@ -835,16 +882,16 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
        scale <- mblCtrl$scaled
        
        # local fit
-       i.pred <- locFit(x = tmp.cal$mat, y = tmp.cal$y, 
-                        predMethod = method, 
-                        scaled = scale, pls.c = plsF,
-                        weights = i.wgts,
-                        pred.new = TRUE, newdata = as.vector(tmp.val.k$mat), 
-                        CV = mblCtrl$valMethod %in% c("loc_crossval", "both"), 
-                        group = tmp.group,
-                        p = mblCtrl$p, resampling = mblCtrl$resampling,
-                        noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim,
-                        pls.max.iter = pls.max.iter, pls.tol = pls.tol)
+       i.pred <- locFitnpred(x = tmp.cal$mat, y = tmp.cal$y, 
+                             predMethod = method, 
+                             scaled = scale, pls.c = plsF,
+                             weights = i.wgts,
+                             newdata = as.vector(tmp.val.k$mat), 
+                             CV = mblCtrl$valMethod %in% c("loc_crossval", "both"), 
+                             group = tmp.group,
+                             p = mblCtrl$p, resampling = mblCtrl$resampling,
+                             noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim,
+                             pls.max.iter = pls.max.iter, pls.tol = pls.tol)
        
        predobs$pred[kk] <- i.pred$prediction
        
@@ -862,15 +909,15 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
          else
            out.g <- 1
          
-         nearest.pred <- locFit(x = tmp.cal$mat[-c(out.g),], y = tmp.cal$y[-c(out.g)], 
-                                predMethod = method, 
-                                scaled = scale, pls.c = plsF, 
-                                noise.v = noise.v,
-                                pred.new = TRUE, newdata = as.vector(tmp.cal$mat[1,]), 
-                                CV = FALSE, range.pred.lim = mblCtrl$range.pred.lim, 
-                                pls.max.iter = pls.max.iter, pls.tol = pls.tol)$prediction
+         nearest.pred <- locFitnpred(x = tmp.cal$mat[-c(out.g),], y = tmp.cal$y[-c(out.g)], 
+                                     predMethod = method, 
+                                     scaled = scale, pls.c = plsF, 
+                                     noise.v = noise.v,
+                                     newdata = as.vector(tmp.cal$mat[1,]), 
+                                     CV = FALSE, range.pred.lim = mblCtrl$range.pred.lim, 
+                                     pls.max.iter = pls.max.iter, pls.tol = pls.tol)$prediction
          
-         predobs$y.nearest.pred[kk] <- nearest.pred/(if(is.null(i.wgts)) 1 else i.wgts[1])
+         predobs$y.nearest.pred[kk] <- nearest.pred/i.wgts[1]
        }
      } else {
        predobs[kk,] <- predobs[(kk-1),]
@@ -883,10 +930,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
    predobs$k <- as.factor(predobs$k)
    predobs
   }
+  
   out <-c(if(missing(Yu)){"yu.obs"},
           if(is.null(dtc)){"k.org"},
           if(!(mblCtrl$valMethod %in% c("NNv", "both"))){"y.nearest.pred"},
-          if(!(mblCtrl$valMethod %in% c("loc_crossval", "both"))){c("loc.rmse.cv", "loc.st.rmse.cv")})
+          if(!(mblCtrl$valMethod %in% c("loc_crossval", "both"))){c("loc.rmse.cv", "loc.st.rmse.cv")},
+          "rep")
   
   predobs <- predobs[,!(colnames(predobs) %in% out)]
   predobs <- predobs[order(predobs$o.index),]
@@ -903,7 +952,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     trh <- data.frame(k = k)
   } else{
     d.dist <- rep(dtc, nrow(Xu))
-    distance <- (predobs$k.org - as.numeric(predobs$k)) == 0
+    distance <- (predobs$k.org - as.numeric(as.vector(predobs$k))) == 0
     nms <- colnames(predobs)
     predobs <- cbind(predobs, k.diss = d.dist, distance = distance)
     nms <- c(nms[1], "k.diss", "distance" ,nms[-1])
@@ -913,7 +962,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     bounded <- function(x, ...){
       return(sum(x$distance == FALSE))
     }
-    trh <- data.frame(k.diss = dtc, p.bounded = paste(100*sapply(predobs, bounded)/nrow(Xu),"%", sep =""))
+    trh <- data.frame(k.diss = dtc, p.bounded = paste(round(100*sapply(predobs, bounded)/nrow(Xu), 3),"%", sep =""))
   }
   
   if(mblCtrl$valMethod %in% c("loc_crossval", "both"))
@@ -1081,48 +1130,51 @@ pred.gpr.dp <- function(object, newdata){
 #' @title Local multivariate regression
 #' @description internal
 #' @keywords internal
-locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = TRUE, newdata, 
-                   pls.c, CV = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
-                   range.pred.lim = TRUE,
-                   pls.max.iter = 1, pls.tol = 1e-6){
+locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata, 
+                        pls.c, CV = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
+                        range.pred.lim = TRUE,
+                        pls.max.iter = 1, pls.tol = 1e-6){
 
+  ## Sanity checks are dactivated here for speeding-up the code. 
+  ## This function is only used within the mbl and the checks here are already done either in that function or
+  ## in the mblControl function. Since the present function goes into a main loop in the mbl funtion,
+  ## this means that the checks will be done during every iteration
+  #   if(nrow(x) != length(y))
+  #     stop("length of the response variable (y) does not match with the number of observations in x")
+  
+  #   if(!is.vector(weights) & !is.null(weights))
+  #     stop("if the argument weights is specified it must be a vector")
+  #   if(!is.null(weights)){
+  #     if(length(weights) != length(y))
+  #       stop("Length of the vector of weights does not match with the number of observations in x and y")
+  #   }
+  
+  #   if(predMethod != "gpr"){
+  #     if(predMethod == "pls" & length(pls.c) != 1)
+  #       stop("When predMethod = 'pls', pls.c must be a vector of length 1")
+  #     if(predMethod %in% c("wapls1"))
+  #       if(length(pls.c) != 2)
+  #         stop("When 'wapls1' is used as regression method, pls.c must be a vector of length 2 indicating a minimum and a maximum number of PLS components")
+  #   }
+  
+  if(is.null(weights))
+    weights <- 1
+  
+  #   if(CV){
+  #     if(!is.numeric(resampling) | length(resampling) != 1)
+  #       stop("resampling must be a single numeric value")
+  #     if(!is.numeric(p) | length(p) != 1 | p >= 1 | p <= 0)
+  #       stop("p must be a single numeric value higher than 0 and lower than 1")
+  #   }
+  
 
-  if(nrow(x) != length(y))
-    stop("length of the response variable (y) does not match with the number of observations in x")
+  #   if(!is.vector(newdata))
+  #     stop("'newdata' must be a vector")
   
-  if(!is.vector(weights) & !is.null(weights))
-    stop("if the argument weights is specified it must be a vector")
-  if(!is.null(weights)){
-    if(length(weights) != length(y))
-      stop("Length of the vector of weights does not match with the number of observations in x and y")
-  }
+  #   if(length(newdata) != ncol(x))
+  #     stop("Length of vector newdata must be equal to the number of columns of x")
   
-  if(predMethod != "gpr"){
-    if(predMethod == "pls" & length(pls.c) != 1)
-      stop("When predMethod = 'pls', pls.c must be a vector of length 1")
-    if(predMethod %in% c("wapls1"))
-      if(length(pls.c) != 2)
-        stop("When 'wapls1' is used as regression method, pls.c must be a vector of length 2 indicating a minimum and a maximum number of PLS components")
-  }
-  
-  if(is.null(weights)) {weights <- 1}
-  
-  if(CV){
-    if(!is.numeric(resampling) | length(resampling) != 1)
-      stop("resampling must be a single numeric value")
-    if(!is.numeric(p) | length(p) != 1 | p >= 1 | p <= 0)
-      stop("p must be a single numeric value higher than 0 and lower than 1")
-  }
-  
-  if(pred.new){
-    if(!is.vector(newdata))
-      stop("'newdata' must be a vector")
-    
-    if(length(newdata) != ncol(x))
-      stop("Length of vector newdata must be equal to the number of columns of x")
-    
-    newdata <- t(newdata)
-  }
+  newdata <- t(newdata)
   
   if(any(cSds(x)==0)){
     warning("One of the variables has zero variance. Data will not be scaled")
@@ -1143,19 +1195,15 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
       fit <- gprdp(X = x, Y = as.matrix(y), noisev = noise.v, scale = scaled)
     }
     
-    
-    if(pred.new)
-    {
-      ##pred <- pred.gpr.dp(fit, newdata = newdata)
-      pred <- predgprdp(Xz = fit$Xz, 
-                        alpha = fit$alpha, 
-                        newdata = newdata,
-                        scale = fit$is.scaled,
-                        Xcenter = fit$Xcenter,
-                        Xscale = fit$Xscale,
-                        Ycenter = fit$Ycenter,
-                        Yscale = fit$Yscale)[[1]]
-    }
+    ##pred <- pred.gpr.dp(fit, newdata = newdata)
+    pred <- predgprdp(Xz = fit$Xz, 
+                      alpha = fit$alpha, 
+                      newdata = newdata,
+                      scale = fit$is.scaled,
+                      Xcenter = fit$Xcenter,
+                      Xscale = fit$Xscale,
+                      Ycenter = fit$Ycenter,
+                      Yscale = fit$Yscale)[[1]]
   } 
   
   if(predMethod == "pls"){
@@ -1179,16 +1227,12 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
       
       ncomp <- pls.c
     }
-    if(pred.new)
-    {
-      #pred <- (predict(fit, newdata = newdata, ncomp = ncomp))
-      pred <- predopls(bo = fit$bo,
-                       b = fit$coefficients, 
-                       ncomp = ncomp, 
-                       newdata = newdata,
-                       scale = ifelse(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
-                       Xscale = fit$transf$Xscale)
-    }  
+    pred <- predopls(bo = fit$bo,
+                     b = fit$coefficients, 
+                     ncomp = ncomp, 
+                     newdata = newdata,
+                     scale = ifelse(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
+                     Xscale = fit$transf$Xscale)
   }
   if(predMethod == "wapls1"){
     if(CV)
@@ -1221,8 +1265,7 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
       w <- wapls.weights(plsO = fit, orgX = x, type = "w1", newX = t(newdata), pls.c = pls.c)       
     }
     
-    if(pred.new)
-    {
+
       # compute the weighted average of the multiple PLS predictions
       #pred <- sum(c(predict(fit, newdata, ncomp = pls.c[[1]]:pls.c[[2]])) * w) # weighted preds
       
@@ -1234,7 +1277,7 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
                           Xscale = fit$transf$Xscale)[,pls.c[[1]]:pls.c[[2]]]
       pred <- sum(c(predctn) * w) # weighted preds
       
-    }
+    
   }
   
   if(range.pred.lim)
@@ -1251,18 +1294,21 @@ locFit <- function(x, y, predMethod, scaled = TRUE, weights = NULL, pred.new = T
   return(results)
 }
 
+#' @title A simple ramdom sampling function
+#' @description internal
+#' @keywords internal
+smpl <- function(x){
+  if(length(x) == 1)
+    x <- c(x, x)
+  return(sample(x, size = 1))
+}
+
+
 #' @title Cross validation for Gaussian process regression
 #' @description internal
 #' @keywords internal
 gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group = NULL, noise.v = 0.001, retrieve = c("final.model", "none")){
 
-  # A simple ramdom sampling function
-  smpl <- function(x){
-    if(length(x) == 1)
-      x <- c(x, x)
-    return(sample(x, size = 1))
-  }
-  
   ## Create the resampling groups
   if(is.null(group)){
     nv <- floor((1-p)*nrow(x))
