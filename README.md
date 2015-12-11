@@ -5,7 +5,7 @@
 # resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
-_Last update: 11.12.2015 :::: 12:21 GMT+1_
+_Last update: 11.12.2015 :::: 13:18 GMT+1_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
@@ -21,12 +21,12 @@ install.packages('iterators')
 Then, install `resemble`
 
 ```
-install.packages('C:/MyFolder/resemble-1.2.zip', repos = NULL)
+install.packages('C:/MyFolder/resemble-1.2.0.9000.zip', repos = NULL)
 ````
 or
 
 ```
-install.packages('C:/MyFolder/resemble-1.2.tar.gz', type = 'source', repos = NULL)
+install.packages('C:/MyFolder/resemble-1.2.0.9000.tar.gz', type = 'source', repos = NULL)
 ```
 
 You can also install the `resemble` package directly from github using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html) (with a proper installed version of [Rtools](http://cran.r-project.org/bin/windows/Rtools/)):
@@ -127,7 +127,7 @@ __`'wapls2'`__:                                Weighted average partial least sq
 * _Soil spectroscopy_
 
 ## News
-* 2015-11: A pre-release of the version 1.2 (alma-de-coco) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon! (we promise).
+* 2015-11: A pre-release of the version 1.2.0 (1.2.0.9000 alma-de-coco) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon! (we promise).
 * 2015-11 Well, the version 1.1.3 was never released on CRAN since we decided to carry out major improvements in terms of computational performance so that we can overcome the "spell" of local regressions ;) (the computational time). 
 * 2014-10: A pre-release of the version 1.1.3 of the package is already available at this website. We hope it will be available at CRAN very soon!
 * 2014-06: Check  [this video](https://www.youtube.com/watch?v=7sCIEeNehgE&feature=youtu.be) where a renowned NIR scientist talks about local calibrations.
