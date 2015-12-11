@@ -1,5 +1,6 @@
-#' This package implements a number of \code{R} functions useful for 
-#' modelling complex visible and infrared spectra(\acronym{vis-IR}). 
+#' This is the version \code{1.2.0} (\code{'alma-de-coco'}) of the package. It 
+#' implements a number of \code{R} functions useful for 
+#' modeling complex visible and infrared spectra(\acronym{vis-IR}). 
 #' The package includes functions for projecting spectral data 
 #' onto orthogonal spaces, computing spectral dissimilarity
 #' matrices, removing irrelevant spectra from a reference set, 
@@ -30,7 +31,7 @@
 #' \itemize{
 #'   \item{\code{\link{neigCleaning}}} 
 #'   }
-#' The functions available for modelling spectral data using 
+#' The functions available for modeling spectral data using 
 #' memory-based learning are:
 #' \itemize{
 #'   \item{\code{\link{mblControl}}}

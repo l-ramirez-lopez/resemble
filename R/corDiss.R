@@ -2,7 +2,8 @@
 #' @description
 #' Computes correlation and moving correlation dissimilarity matrices. 
 #' @usage 
-#' corDiss(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
+#' corDiss(Xr, X2 = NULL, ws = NULL, 
+#'         center = TRUE, scaled = TRUE)
 #' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
 #' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).
 #' @param ws for moving correlation dissimilarity, an odd integer value which specifies the window size. If \code{ws = NULL}, then the window size will be equal to the number of variables (columns), i.e. instead moving correlation, the normal correlation will be used. See details.

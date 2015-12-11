@@ -4,7 +4,8 @@
 \alias{fDiss}
 \title{Euclidean, Mahalanobis and cosine dissimilarity measurements}
 \usage{
-fDiss(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE)
+fDiss(Xr, X2 = NULL, method = "euclid",
+      center = TRUE, scaled = TRUE)
 }
 \arguments{
 \item{Xr}{a \code{matrix} (or \code{data.frame}) containing the (reference) data.}

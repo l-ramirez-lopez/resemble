@@ -2,7 +2,8 @@
 #' @description
 #' This function is used to compute the dissimilarity between observations based on Euclidean or Mahalanobis distance measures or on cosine dissimilarity measures (a.k.a spectral angle mapper). 
 #' @usage 
-#' fDiss(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE)
+#' fDiss(Xr, X2 = NULL, method = "euclid", 
+#'       center = TRUE, scaled = TRUE)
 #' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
 #' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).
 #' @param method the method for computing the dissimilarity matrix. Options are \code{"euclid"} (Euclidean distance), \code{"mahalanobis"} (Mahalanobis distance) and \code{"cosine"} (cosine distance, a.k.a spectral angle mapper).

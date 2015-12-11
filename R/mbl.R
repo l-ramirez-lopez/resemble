@@ -1256,13 +1256,14 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                                     st.rmse.cv = cvVal$cvResults$st.rmse.cv,
                                     rmse.sd.cv = cvVal$cvResults$rmse.sd.cv,     
                                     rsq.cv = cvVal$cvResults$rsq.cv)
+      # here all the waeights are output from 1 to plsMax
       w <- cvVal$compweights[!cvVal$compweights == 0]
     } else {
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
       y <- y * weights
       fit <- opls(X = x, Y = as.matrix(y), scale = scaled, ncomp = pls.c[[2]], maxiter = pls.max.iter, tol = pls.tol)
 
-      # compute weights for PLS components
+      # compute weights for PLS components selected (from plsMin to plsMax)
       w <- wapls.weights(plsO = fit, orgX = x, type = "w1", newX = t(newdata), pls.c = pls.c)       
     }
     

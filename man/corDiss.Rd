@@ -4,7 +4,8 @@
 \alias{corDiss}
 \title{Correlation and moving correlation dissimilarity measurements (corDiss)}
 \usage{
-corDiss(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
+corDiss(Xr, X2 = NULL, ws = NULL,
+        center = TRUE, scaled = TRUE)
 }
 \arguments{
 \item{Xr}{a \code{matrix} (or \code{data.frame}) containing the (reference) data.}
