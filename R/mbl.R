@@ -1211,12 +1211,14 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
     if(CV)
     {
       cvVal <- plsCv(x = x, y = as.matrix(y), ncomp = pls.c, 
-                     scaled = scaled, 
+                     method = "pls",
+                     center = TRUE, scaled = scaled, 
                      weights = weights, 
                      p = p, resampling = resampling, 
                      group = group, 
                      retrieve = "final.model",
                      max.iter = pls.max.iter, tol = pls.tol)
+
       fit <- cvVal$models
       ncomp <- cvVal$bestpls.c
       
@@ -1232,7 +1234,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                      ncomp = ncomp, 
                      newdata = newdata,
                      scale = ifelse(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
-                     Xscale = fit$transf$Xscale)
+                     Xscale = fit$transf$Xscale)[,ncomp]
   }
   if(predMethod == "wapls1"){
     if(CV)
@@ -1246,7 +1248,8 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                      weights = weights, 
                      p = p, resampling = resampling, 
                      group = group, 
-                     retrieve = "all.models")
+                     retrieve = "all.models",
+                     max.iter = pls.max.iter, tol = pls.tol)
       
       fit <- cvVal$models
       #rstls <- w[pls.c[[1]]:pls.c[[2]]] * colMeans(cvVal$cvResults[pls.c[[1]]:pls.c[[2]],])
@@ -1435,11 +1438,12 @@ plsCv <- function(x, y, ncomp,
   
   if(min(ncol(x), nrow(x)) < floor(ncomp * (1 + p))) {ncomp <- (floor(min(ncol(x), nrow(x)) * p))-1} 
   
-  smpl <- function(x){
-    if(length(x) == 1)
-      x <- c(x, x)
-    return(sample(x, size = 1))
-  }
+  #   smpl <- function(x){
+  #     if(length(x) == 1)
+  #       x <- c(x, x)
+  #     return(sample(x, size = 1))
+  #   }
+  
   
   if(is.null(group)){
     nv <- floor((1-p)*nrow(x))
