@@ -2,7 +2,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](http://cran.r-project.org/web/packages/resemble)
 
 
-# resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics
+# resemble: Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
 _Last update: 11.12.2015 :::: 13:18 GMT+1_
