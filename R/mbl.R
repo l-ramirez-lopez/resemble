@@ -291,7 +291,7 @@
 #' mbl.udd3
 #' 
 #' # Example 5
-#' # For running the sbl function in parallel
+#' # For running the mbl function in parallel
 #' n.cores <- detectCores() - 1
 #' if(n.cores == 0) n.cores <- 1
 #' 
