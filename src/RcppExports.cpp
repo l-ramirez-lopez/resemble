@@ -109,6 +109,22 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// fopls
+List fopls(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol);
+RcppExport SEXP resemble_fopls(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    __result = Rcpp::wrap(fopls(X, Y, ncomp, scale, maxiter, tol));
+    return __result;
+END_RCPP
+}
 // predopls
 Rcpp::NumericMatrix predopls(arma::mat bo, arma::mat b, int ncomp, arma::mat newdata, bool scale, arma::mat Xscale);
 RcppExport SEXP resemble_predopls(SEXP boSEXP, SEXP bSEXP, SEXP ncompSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XscaleSEXP) {

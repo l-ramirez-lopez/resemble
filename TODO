@@ -1,6 +1,6 @@
+## 15.12.2015: Add local optimization of pls.c for wapls1 method wehn "loc_crossval" is used. Easy and important!
 ## 30.11.2015: orthoDiss retuns "Error: not a matrix" when applied to a single matrix (Xr)
 ## 30.11.2015: Perform a detailed check of the orthoProjection, plsProjection and pcProjection.
-## 19.11.2015: Modify the way in wich the error parameters of the cross validation for wapls 1 and 2 are computed.
 ## 18.11.2015: Check documentation.
 ## 18.11.2015: check the gaussian process function since it retrieves poorer results than in the previous resemble version (only in NNv validation, the predictions are actually good). The scale argument now does something
 ##		different to what it was doing before (scale and centering: both x and y). If at the and stays like that 

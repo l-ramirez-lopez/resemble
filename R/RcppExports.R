@@ -136,7 +136,6 @@ cms <- function(X) {
 #' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
 #' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
 #' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
-#' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
 #' } 
 #' @useDynLib resemble
 #' @author Leonardo Ramirez-Lopez
@@ -144,6 +143,33 @@ cms <- function(X) {
 #' @useDynLib resemble
 opls <- function(X, Y, ncomp, scale, maxiter, tol, regression = TRUE, pcSelmethod = "cumvar", pcSelvalue = 0.99) {
     .Call('resemble_opls', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, regression, pcSelmethod, pcSelvalue)
+}
+
+#' @title fast orthogonal scores algorithn of partial leat squares (opls)
+#' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
+#' In contrast to code{opls} function, this one does not compute unnecessary data for local regressions.
+#' For internal use only!
+#' @usage 
+#' fopls(X, Y, ncomp, scale, 
+#'       maxiter, tol)
+#' @param X a \code{matrix} of predictor variables.
+#' @param Y a \code{matrix} of either a single or multiple response variables.
+#' @param ncomp the number of pls components.
+#' @param scale logical indicating whether \code{X} must be scaled.
+#' @param maxiter maximum number of iterations.
+#' @param tol limit for convergence of the algorithm in the nipals algorithm.
+#' @return a list containing the following elements:
+#' \itemize{
+#' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+#' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
+#' } 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+fopls <- function(X, Y, ncomp, scale, maxiter, tol) {
+    .Call('resemble_fopls', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol)
 }
 
 #' @title Prediction function for the \code{opls} and \code{opls2} functions

@@ -1225,7 +1225,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
     } else {
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
       y <- y * weights
-      fit <- opls(X = x, Y = as.matrix(y), scale = scaled, ncomp = pls.c, maxiter = pls.max.iter, tol = pls.tol)
+      fit <- fopls(X = x, Y = as.matrix(y), scale = scaled, ncomp = pls.c, maxiter = pls.max.iter, tol = pls.tol)
       
       ncomp <- pls.c
     }
@@ -1264,7 +1264,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
     } else {
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
       y <- y * weights
-      fit <- opls(X = x, Y = as.matrix(y), scale = scaled, ncomp = pls.c[[2]], maxiter = pls.max.iter, tol = pls.tol)
+      fit <- fopls(X = x, Y = as.matrix(y), scale = scaled, ncomp = pls.c[[2]], maxiter = pls.max.iter, tol = pls.tol)
 
       # compute weights for PLS components selected (from plsMin to plsMax)
       w <- wapls.weights(plsO = fit, orgX = x, type = "w1", newX = t(newdata), pls.c = pls.c)       
@@ -1550,19 +1550,19 @@ plsCv <- function(x, y, ncomp,
       }
       if(retrieve == "final.model")
       {
-        val$models <- opls(X = x, 
-                           Y = y, 
-                           scale = scaled, 
-                           ncomp = bestpls.c,
-                           maxiter = max.iter, 
-                           tol = tol)
+        val$models <- fopls(X = x, 
+                            Y = y, 
+                            scale = scaled, 
+                            ncomp = bestpls.c,
+                            maxiter = max.iter, 
+                            tol = tol)
       } else {
-        val$models <- opls(X = x, 
-                           Y = as.matrix(y), 
-                           scale = scaled, 
-                           ncomp = ncomp,
-                           maxiter = max.iter, 
-                           tol = tol)
+        val$models <- fopls(X = x, 
+                            Y = as.matrix(y), 
+                            scale = scaled, 
+                            ncomp = ncomp,
+                            maxiter = max.iter, 
+                            tol = tol)
         
       }
     }
@@ -1582,21 +1582,20 @@ plsCv <- function(x, y, ncomp,
       }
       if(retrieve == "final.model")
       {
-        val$models <- opls(X = x, 
-                           Y = as.matrix(y), 
-                           scale = scaled, 
-                           ncomp = ncomp,
-                           maxiter = max.iter, 
-                           tol = tol
+        val$models <- fopls(X = x, 
+                            Y = as.matrix(y), 
+                            scale = scaled, 
+                            ncomp = ncomp,
+                            maxiter = max.iter, 
+                            tol = tol
         )
       } else {
-        val$models <- opls(X = x, 
-                           Y = as.matrix(y), 
-                           scale = scaled, 
-                           ncomp = ncomp,
-                           maxiter = max.iter, 
-                           tol = tol)
-        
+        val$models <- fopls(X = x, 
+                            Y = as.matrix(y), 
+                            scale = scaled, 
+                            ncomp = ncomp,
+                            maxiter = max.iter, 
+                            tol = tol)
       }
     }
   }

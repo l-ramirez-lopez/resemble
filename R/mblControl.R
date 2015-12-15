@@ -100,6 +100,7 @@
 ## 13.03.2014 Antoine The explanation of the cores argument was modified
 ## 18.11.2015 Leo     A sanity check for avoiding potential sm = NULL was 
 ##                    introduced
+## 15.12.2015 Leo     A bug when checking the valMethod provided was fixed
 
 
 mblControl <- function(sm = "pc",
@@ -214,7 +215,7 @@ mblControl <- function(sm = "pc",
   if(!is.logical(scaled))
     stop("'scaled' argument must be logical")
   
-  if(sum(valMethod %in% c("NNv", "loc_crossval", "none")) == 0)
+  if(sum(valMethod %in% c("NNv", "loc_crossval", "none")) != length(valMethod))
     stop("'valmethod' must be one at least one of 'NNv', 'loc_crossval', 'none'")
   
   if("none" %in% valMethod)
