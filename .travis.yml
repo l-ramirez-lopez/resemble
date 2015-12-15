@@ -6,7 +6,7 @@ sudo: required
 
 env:
   global:
-    - NOT_CRAN = false
+    - NOT_CRAN = true
 before_install: echo "options(repos = c(CRAN='http://cran.rstudio.com'))" > ~/.Rprofile
 
 notifications:
