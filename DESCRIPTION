@@ -9,7 +9,7 @@ Authors@R: c(
            role = c("aut", "cre")),
     person("Antoine", "Stevens", role = c("aut"))
     )
-Author: Leonardo Ramirez-Lopez [aut, cre] & Antoine Stevens [aut]
+Author: Leonardo Ramirez-Lopez [aut, cre], Antoine Stevens [aut]
 Maintainer: Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: https://github.com/l-ramirez-lopez/resemble/issues
 Description: Implementation of functions for spectral similarity/dissimilarity
