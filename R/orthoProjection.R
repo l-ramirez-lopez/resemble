@@ -440,19 +440,37 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       #       }
       
       # this builds-up the distance matrices progressively, saving time
-      for (i in 1:pcSelection$value) {
-        sc <- s.scores[1:nr, i, drop = FALSE]
-        if (i == 1) {
-          d <- fastDistVV(sc, cores)
+      
+      if(.Platform$OS.type == "unix" & cores > 1) {
+        for (i in 1:pcSelection$value) {
+          sc <- s.scores[1:nr, i, drop = FALSE]
+          if (i == 1) {
+            d <- fastDistVV(sc, cores)
+          }
+          else {
+            d <- d + fastDistVV(sc, cores)
+          }
+          tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, 
+                         lower.tri = TRUE, cores = cores)
+          result[i, 1:ny] <- getElement(tmp$eval, "rmsd")
+          result[i, 1 + ny] <- getElement(tmp$global.eval, 
+                                          "mn.sd.rmsd")
         }
-        else {
-          d <- d + fastDistVV(sc, cores)
+      }else{
+        for (i in 1:pcSelection$value) {
+          sc <- s.scores[1:nr, i, drop = FALSE]
+          if (i == 1) {
+            d <- fastDistVV(sc, cores)
+          }
+          else {
+            d <- d + fastDistVVL(sc)
+          }
+          tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, 
+                         lower.tri = TRUE, cores = cores)
+          result[i, 1:ny] <- getElement(tmp$eval, "rmsd")
+          result[i, 1 + ny] <- getElement(tmp$global.eval, 
+                                          "mn.sd.rmsd")
         }
-        tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, 
-                       lower.tri = TRUE, cores = cores)
-        result[i, 1:ny] <- getElement(tmp$eval, "rmsd")
-        result[i, 1 + ny] <- getElement(tmp$global.eval, 
-                                        "mn.sd.rmsd")
       }
       
       results <- data.frame(1:pcSelection$value, result)

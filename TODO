@@ -1,3 +1,5 @@
+## 16.12.2015: Add the GH value to the results, however they are already in ___$pcAnalysis$GH
+## 16.12.2015: Optimize the pcProjection function, it is extremely slow when massive datasets are used
 ## 15.12.2015: Add local optimization of pls.c for wapls1 method wehn "loc_crossval" is used. Easy and important!
 ## 30.11.2015: orthoDiss retuns "Error: not a matrix" when applied to a single matrix (Xr)
 ## 30.11.2015: Perform a detailed check of the orthoProjection, plsProjection and pcProjection.

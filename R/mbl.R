@@ -296,14 +296,14 @@
 #' if(n.cores == 0) n.cores <- 1
 #' 
 #' # Set the number of cores according to the OS
-#' if (.Platform[["OS.type"]] == "windows") {
+#' if (.Platform$OS.type == "windows") {
 #'   require(doParallel)
-#'   cl <- makeCluster(n.cores)   
-#'   registerDoParallel(cl)
+#'   clust <- makeCluster(n.cores)   
+#'   registerDoParallel(clust)
 #' }else{
 #'   require(doSNOW)
-#'   cluster <- makeCluster(n.cores, type = "SOCK")
-#'   registerDoSNOW(cluster)
+#'   clust <- makeCluster(n.cores, type = "SOCK")
+#'   registerDoSNOW(clust)
 #'   ncores <- getDoParWorkers()
 #' }
 #' 
@@ -317,7 +317,7 @@
 #'              k = seq(40, 150, by = 10), 
 #'              method = "gpr")
 #' registerDoSEQ()
-#' try(stopCluster(cl))
+#' try(stopCluster(clust))
 #' mbl.p
 #' }
 #' @export
