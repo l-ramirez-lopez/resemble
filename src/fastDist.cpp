@@ -7,52 +7,38 @@
 
 using namespace Rcpp;
 
-
-//' @title A function to compute indices of minimum values of a distance vector
-//' @description For internal use only
+//' @title A fast distance algorithm for two matrices written in C++ 
+//' @description Computes distances between two data matrices using "euclid", "cor", "cosine" 
 //' @usage 
-//' which_minV(X,cores)
-//' @param X a \code{vector} of distance (as computed in \code{resemble:::fastDistVV} or \code{base::dist})
-//' @param cores number of cores used to run the computation
-//' @return a \code{vector} of the indices of the nearest neighbours
-//' @details 
-//' Used internally to find the nearest neighbours. 
-//' It searches in lower (or upper?) trianguular matrix. Therefore this must be the format of the 
-//' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
-//' since \code{sqrt} cannot be applied to integers.
+//' fastDist(X,Y,method)
+//' @param X a \code{matrix}
+//' @param Y a \code{matrix}
+//' @param method a \code{string} with possible values "euclid", "cor", "cosine"
+//' @return a distance \code{matrix}
 //' @keywords internal
 //' @useDynLib resemble
-//' @author Antoine Stevens 
+//' @author Antoine Stevens and Leonardo Ramirez-Lopez
 // [[Rcpp::export]]   
-NumericVector which_minV(NumericVector X,int cores){  
-#ifdef _OPENMP
-  omp_set_num_threads(cores);
-#endif
-  arma::uword  index;
-  double vct = (sqrt(((double)X.size())*8.0+1.0)+1.0)/2.0;
-  int len = (int)vct;
-  // int len = (sqrt(X.size()*8+1)+1)/2;
-  arma::uvec vindex(len);    
-  int i,j;
-#pragma omp parallel for private(i,j) schedule(dynamic)
-  for(i = 0; i < len; i++){       
-    arma::vec x(len); 
-    for(j = 0; j < i; j++){
-      // triangular sequence
-      int k = j*len - (j*(j+3)/2) + i - 1;
-      x[j] = X(k);        
-    }        
-    for(j = i+1; j < len; j++){
-      // triangular sequence
-      int k2 = i*len - (i*(i+3)/2) + j - 1;
-      x[j] = X(k2);             
-    }
-    x[i] = arma::datum::nan; // remove diag
-    x.min(index); // don't assign result to a value since we are interested only in the index
-    vindex[i] = index;    
+arma::mat fastDist(NumericMatrix X, NumericMatrix Y, String method){  
+  int nX = X.nrow(), kX = X.ncol(), nY = Y.nrow(), kY = Y.ncol();
+  arma::mat XX(X.begin(), nX, kX, false); // reuses memory and avoids extra copy
+  arma::mat YY(Y.begin(), nY, kY, false); // reuses memory and avoids extra copy 
+  if(method=="euclid"){
+    arma::mat output = arma::ones(nY,1) * arma::sum(arma::square(XX),1).t() + arma::sum(arma::square(YY),1)  * arma::ones(1,nX) - 2 * YY * XX.t();
+    return output;
+  }   
+  if(method=="cor"){
+    arma::mat output = (1 - arma::cor(XX.t(), YY.t()))/2;   
+    return output.t();
   }
-  return wrap(vindex +1);
+  else{ // cosine
+    arma::mat numerator = XX * YY.t();
+    arma::mat dvsr = arma::sqrt(arma::sum(arma::square(XX),1)) * arma::sqrt(arma::sum(arma::square(YY),1)).t();
+    arma::mat output = arma::acos(numerator/dvsr);     
+    return output.t();
+  }   
 }
+
 
 
 //' @title A fast (parallel for linux) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
@@ -121,7 +107,7 @@ NumericVector fastDistVVL(NumericVector X){
 //' @title A function to compute indices of minimum values of a distance vector
 //' @description For internal use only
 //' @usage 
-//' which_minV(X,cores)
+//' minDissV(X,cores)
 //' @param X a \code{vector} of distance (as computed in \code{resemble:::fastDistVV} or \code{base::dist})
 //' @param cores number of cores used to run the computation
 //' @return a \code{vector} of the indices of the nearest neighbours

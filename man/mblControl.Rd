@@ -13,6 +13,7 @@ mblControl(sm = "pc",
            center = TRUE,
            scaled = TRUE,
            valMethod = c("NNv", "loc_crossval"),
+           localOptimization = TRUE,
            resampling = 10, 
            p = 0.75,
            range.pred.lim = TRUE,
@@ -60,6 +61,8 @@ Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar
 
 \item{valMethod}{a character vector which indicates the (internal) validation method(s) to be used for assessing the global performance of the local models. Possible
 options are: \code{"NNv"} and \code{"loc_crossval"}. Alternatively \code{"none"} can be used when corss-validation is not required (see details below).}
+
+\item{localOptimization}{a logical. If \code{valMethod = "loc_crossval"}, it optmizes the parameters of the local pls models (i.e. pls factors for \code{pls} and minimum and maximum pls factors for \code{wapls1}).}
 
 \item{resampling}{a value indicating the number of resampling iterations at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 10.}
 

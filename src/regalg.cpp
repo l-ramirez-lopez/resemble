@@ -127,7 +127,7 @@ NumericVector cms(arma::mat X){
 //' \item{\code{projectionM}}{ the projection \code{matrix}.}
 //' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
 //' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
-//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
+//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 //' } 
 //' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
@@ -377,7 +377,7 @@ List opls(arma::mat X,
 //' \itemize{
 //' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
 //' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
-//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
+//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 //' } 
 //' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
@@ -403,7 +403,7 @@ List fopls(arma::mat X,
   arma::mat Yloadings = arma::zeros(nPf, ny);
   arma::mat coefficients = arma::zeros(X.n_cols, nynf);
   arma::mat bo = arma::zeros(ny, nPf);
-
+  
   // if false, it reuses memory and avoids extra copy
   // the problem is that the matrix cannot be easily overwriten 
   // retrieves random results
@@ -448,7 +448,7 @@ List fopls(arma::mat X,
   arma::mat cy;
   arma::mat tsrp;
   arma::mat prjM;
-
+  
   for (int i = 0; i < ncomp; i++){
     Yplsb = Ypls;
     Xpls = Xpls;      
@@ -499,10 +499,10 @@ List fopls(arma::mat X,
     scores.col(i) = ts;
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
-
+    
   }
   
-
+  
   prjM = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
   
   arma::vec ymeanv;
@@ -545,10 +545,9 @@ List fopls(arma::mat X,
 //' @param b the \code{matrix} of regression coefficients.
 //' @param ncomp an integer value indicating how may components must be used in the prediction.
 //' @param newdata a \code{matrix} containing the predictor variables.
-//' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
-//' (either in \code{opls} or \code{opls2}) was scaled.
+//' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
 //' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
-//' @return a \code{matrix} of predicted values
+//' @return a \code{matrix} of predicted values.
 //' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -561,15 +560,7 @@ Rcpp::NumericMatrix predopls(arma::mat bo,
                              bool scale,
                              arma::mat Xscale
 ){
-  //arma::mat Xz(newdata.begin(), newdata.nrow(), newdata.ncol(), true);
-  //arma::mat predicted = arma::zeros(Xz.n_rows, ncomp);
-  
   arma::mat Xz; 
-  
-  //Not necessary to center
-  //   if(center){
-  //     Xz = Xz - arma::repmat(Xcenter, Xz.n_rows, 1);
-  //   }
   
   if(scale){
     Xz = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
@@ -577,9 +568,9 @@ Rcpp::NumericMatrix predopls(arma::mat bo,
   else{
     Xz = newdata;
   }
-    
+  
   arma::mat predicted = (Xz * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), Xz.n_rows, 1);
-    
+  
   return Rcpp::wrap(predicted);
 }
 
@@ -608,7 +599,7 @@ Rcpp::NumericMatrix projectpls(arma::mat projectionm,
                                arma::mat Xcenter,
                                arma::mat Xscale
 ){
-
+  
   if(scale){
     newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
   }
@@ -640,8 +631,7 @@ Rcpp::NumericMatrix projectpls(arma::mat projectionm,
 //' @param newX a \code{matrix} of one new spectra to be predicted.
 //' @param minF an integer indicating the minimum number of pls components.
 //' @param maxF an integer indicating the maximum number of pls components.
-//' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
-//' (either in \code{opls} or \code{opls2}) was scaled.
+//' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
 //' @param Xcenter a \code{matrix} of one row with the values that must be used for centering \code{newdata}.
 //' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
 //' @return a \code{matrix} of one row with the weights for each component between the max. and min. specified. 
@@ -693,11 +683,16 @@ Rcpp::NumericMatrix waplswCpp(arma::mat projectionm,
 
 //' @title Internal Cpp function for performing leave-group-out cross validations for pls regression 
 //' @description For internal use only!. 
-//' @usage pplscv_cpp(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol)
+//' @usage pplscv_cpp(X, Y, scale, method, 
+//'                   mindices, pindices, 
+//'                   minF, ncomp, 
+//'                   newX, 
+//'                   maxiter, tol, 
+//'                   waplsgrid)
 //' @param X a \code{matrix} of predictor variables.
 //' @param Y a \code{matrix} of a single response variable.
 //' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
-//' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'}.
+//' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'} or \code{'wapls1complete'}.
 //' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 //' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
 //' iteration.
@@ -709,6 +704,7 @@ Rcpp::NumericMatrix waplswCpp(arma::mat projectionm,
 //' @param newX a \code{matrix} of one row corresponding to the sample to be predicted (if the \code{method = 'wapls1'}).
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param waplsgrid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls1'} is based on in case \code{method = 'wapls1complete'}.
 //' @return a list containing the following one-row matrices:
 //' \itemize{
 //' \item{\code{rmse.seg}}{ the RMSEs.}
@@ -730,13 +726,15 @@ List pplscv_cpp(arma::mat X,
                 int ncomp,
                 arma::mat newX,
                 double maxiter, 
-                double tol
+                double tol,
+                arma::mat waplsgrid
 ){
   arma::mat rmseseg;
   arma::mat strmseseg;
   arma::mat rsqseg;
   
   arma::mat compweights;
+  arma::mat crcompweights;
   
   if(method == "pls"){
     rmseseg = arma::zeros(ncomp, mindices.n_cols);
@@ -779,11 +777,11 @@ List pplscv_cpp(arma::mat X,
       arma::mat ypred;
       
       ypred = Rcpp::as<arma::mat>(predopls(fit["bo"], 
-                                            fit["coefficients"], 
-                                               ncomp, 
-                                               pxmatslice,
-                                               scale,
-                                               transf["Xscale"]));
+                                           fit["coefficients"], 
+                                              ncomp, 
+                                              pxmatslice,
+                                              scale,
+                                              transf["Xscale"]));
       
       arma::mat rdl = sqrt(cms(pow(rpymatslice - ypred, 2)));
       rmseseg.col(i) = rdl;
@@ -800,7 +798,7 @@ List pplscv_cpp(arma::mat X,
     rsqseg = arma::zeros(1, mindices.n_cols);
     
     // define the wapls1 weights directly here
-    List cfit = Rcpp::as<Rcpp::List>(fopls(X, Y, ncomp, scale, maxiter, tol));
+    List cfit = Rcpp::as<Rcpp::List>(opls(X, Y, ncomp, scale, maxiter, tol));
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
@@ -815,7 +813,7 @@ List pplscv_cpp(arma::mat X,
                                                                             ctransf["Xscale"]));
     
     arma::mat rcompweights = arma::repmat(compweights, pindices.n_rows, 1);
-
+    
     List transf;
     
     for(int i = 0; (unsigned)i < mindices.n_cols; i++){
@@ -842,7 +840,8 @@ List pplscv_cpp(arma::mat X,
         pymatslice.row(j) = Y.row(pirows(j)-1);
       }
       
-      List fit = Rcpp::as<Rcpp::List>(fopls(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      
+      List fit = Rcpp::as<Rcpp::List>(opls(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
       
       transf = fit["transf"];   
       
@@ -850,11 +849,11 @@ List pplscv_cpp(arma::mat X,
       arma::mat ypred;
       
       nypred = Rcpp::as<arma::mat>(predopls(fit["bo"], 
-                                             fit["coefficients"], 
-                                                ncomp, 
-                                                pxmatslice,
-                                                scale,
-                                                transf["Xscale"]));
+                                            fit["coefficients"], 
+                                               ncomp, 
+                                               pxmatslice,
+                                               scale,
+                                               transf["Xscale"]));
       ypred = arma::sum(rcompweights % nypred, 1);
       
       arma::mat rdl = sqrt(cms(pow(pymatslice - ypred, 2)));
@@ -866,16 +865,108 @@ List pplscv_cpp(arma::mat X,
     }
   }
   
+  if(method == "wapls1complete"){
+    rmseseg = arma::zeros(waplsgrid.n_rows, mindices.n_cols);
+    strmseseg = arma::zeros(waplsgrid.n_rows, mindices.n_cols);
+    rsqseg = arma::zeros(waplsgrid.n_rows, mindices.n_cols);
+    
+    // define the wapls1 weights directly here
+    List cfit = Rcpp::as<Rcpp::List>(fopls(X, Y, ncomp, scale, maxiter, tol));
+    List ctransf = cfit["transf"];
+    
+    compweights = arma::zeros(1, ncomp);
+    compweights.cols(minF-1, ncomp-1) =  Rcpp::as<arma::mat>(waplswCpp(cfit["projectionM"], 
+                                                             cfit["X.loadings"],
+                                                                 cfit["coefficients"],
+                                                                     newX,
+                                                                     minF, 
+                                                                     ncomp, 
+                                                                     scale,
+                                                                     ctransf["Xcenter"],
+                                                                            ctransf["Xscale"]));
+    
+    crcompweights = arma::zeros(waplsgrid.n_rows, ncomp); 
+    for(int i = 0; (unsigned)i < crcompweights.n_rows; i++){
+      int minpls = waplsgrid(i,0);
+      int maxpls = waplsgrid(i,1);
+      arma::mat subw = arma::zeros(1, ncomp); 
+      subw.cols(minpls - 1, maxpls - 1) = compweights.cols(minpls - 1, maxpls - 1);
+      arma::mat sumsubw = arma::repmat(sum(subw, 1), 1, ncomp);
+      crcompweights.row(i) = subw/sumsubw;
+    }
+    
+    arma::mat rcompweights = arma::repmat(compweights, pindices.n_rows, 1);
+    
+    List transf;
+    
+    for(int i = 0; (unsigned)i < mindices.n_cols; i++){
+      
+      // The subset for fitting the model
+      arma::vec irows = mindices.col(i);
+      arma::mat xmatslice = arma::zeros(mindices.n_rows, X.n_cols);
+      arma::mat ymatslice = arma::zeros(mindices.n_rows, Y.n_cols);
+      
+      
+      for (int j = 0; (unsigned)j < irows.size(); j++) {
+        xmatslice.row(j) = X.row(irows(j)-1);
+        ymatslice.row(j) = Y.row(irows(j)-1);
+      }
+      
+      
+      // The subset for predicting with the model
+      arma::vec pirows = pindices.col(i);
+      arma::mat pxmatslice = arma::zeros(pindices.n_rows, X.n_cols);
+      arma::mat pymatslice = arma::zeros(pindices.n_rows, Y.n_cols);
+      
+      for (int j = 0; (unsigned)j < pirows.size(); j++) {
+        pxmatslice.row(j) = X.row(pirows(j)-1);
+        pymatslice.row(j) = Y.row(pirows(j)-1);
+      }
+      
+      
+      List fit = Rcpp::as<Rcpp::List>(fopls(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      
+      transf = fit["transf"];   
+      
+      arma::mat nypred;
+      arma::mat ypred;
+      arma::mat rpymatslice;
+      rpymatslice = arma::repmat(pymatslice, 1, waplsgrid.n_rows);
+      
+      
+      nypred = (Rcpp::as<arma::mat>(predopls(fit["bo"], 
+                                             fit["coefficients"], 
+                                                ncomp, 
+                                                pxmatslice,
+                                                scale,
+                                                transf["Xscale"])));
+      
+      ypred = nypred * trans(crcompweights);
+      
+      //ypred = arma::sum(rcompweights % nypred, 1);
+      
+      arma::mat rdl = sqrt(cms(pow(rpymatslice - ypred, 2)));
+      rmseseg.col(i) = rdl;
+      arma::mat mimav = arma::zeros(1,1);
+      mimav.col(0) = max(pymatslice) - min(pymatslice);
+      strmseseg.col(i) = rmseseg.col(i) / arma::repmat(mimav, waplsgrid.n_rows, 1);
+      rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+    }
+  }
+  
+  
   // here all the weights are output from 1 to ncomp (if method == wapls1)
+  // zeroes are assigned to those which are not selected at the begining
   return Rcpp::List::create(
     Rcpp::Named("rmse.seg") = rmseseg,
     Rcpp::Named("st.rmse.seg") = strmseseg,
     Rcpp::Named("rsq.seg") = rsqseg,
-    Rcpp::Named("compweights") = compweights
+    Rcpp::Named("compweights") = compweights,
+    Rcpp::Named("crcompweights") = crcompweights
   );
 }
 
-  
+
 /// Gaussian process regression with linear kernel
 //' @title Gaussian process regression with linear kernel (gprdp)
 //' @description Carries out a gaussian process regression with a linear kernel (dot product). For internal use only!
@@ -905,7 +996,7 @@ List gprdp(arma::mat X,
            float noisev = 0.001,
            bool scale = true
 ){
-
+  
   // matrices to declare
   arma::mat K;
   arma::mat Xz = X;
@@ -997,7 +1088,7 @@ NumericVector predgprdp(arma::mat Xz,
   if(scale){
     predicted = predicted % arma::repmat(Yscale, newdata.n_rows, 1) + arma::repmat(Ycenter, newdata.n_rows, 1);
   }
-
+  
   return Rcpp::wrap(predicted);
 }
 
@@ -1069,14 +1160,14 @@ List pgpcv_cpp(arma::mat X,
       pxmatslice.row(j) = X.row(pirows(j)-1);
       pymatslice.row(j) = Y.row(pirows(j)-1);
     }
-
+    
     List fit = Rcpp::as<Rcpp::List>(gprdp(xmatslice, ymatslice, noisev, scale));
-
+    
     arma::mat ypred;
     
     ypred = Rcpp::as<arma::mat>(predgprdp(fit["Xz"], fit["alpha"], pxmatslice, scale, fit["Xcenter"], fit["Xscale"], fit["Ycenter"], fit["Yscale"]));
-
-
+    
+    
     arma::mat rdl = sqrt(cms(pow(pymatslice - ypred, 2)));
     rmseseg.col(i) = rdl;
     arma::mat mimav = arma::zeros(1,1);

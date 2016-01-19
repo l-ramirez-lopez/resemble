@@ -20,6 +20,14 @@ fopls(X, Y, ncomp, scale,
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 }
+\value{
+a list containing the following elements:
+\itemize{
+\item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+\item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+}
+}
 \description{
 Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
 In contrast to code{opls} function, this one does not compute unnecessary data for local regressions.

@@ -91,6 +91,9 @@
 #'  \item{\code{k.diss}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the corresponding dissimilarity threshold for selecting the neighbors used to predict a given sample.}
 #'  \item{\code{distance}:}{ This column is only ouput if the \code{k.diss} argument is used. It is a logical that indicates whether the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument. In that case the number of neighbors used is coerced to on of the boundaries.}
 #'  \item{\code{k.org}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the number of neighbors that are retained when the given dissimilarity threshold is used.}
+#'  \item{\code{pls.c}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
+#'  \item{\code{min.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of minimum pls components used. If no optimization was set, it retrieves the original minimum pls components specified in the \code{pls.c} argument.}
+#'  \item{\code{max.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of maximum pls components used. If no optimization was set, it retrieves the original maximum pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{k yu.obs}:}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
 #'  \item{\code{pred}:}{ The predicted values}     
 #'  \item{\code{yr.min.obs}:}{ The minimum reference value (of the response variable) in the neighborhood.}
@@ -798,6 +801,9 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
    
    predobs <- data.frame(o.index = i, 
                          k.org = c(kn.org), k = it$k,
+                         pls.c = NA,
+                         min.pls = NA,
+                         max.pls = NA,
                          yu.obs = tmp.val$y, pred = NA, 
                          yr.min.obs = NA, yr.max.obs = NA,
                          index.nearest.in.ref = it$index[1],
@@ -887,7 +893,8 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                              scaled = scale, pls.c = plsF,
                              weights = i.wgts,
                              newdata = as.vector(tmp.val.k$mat), 
-                             CV = mblCtrl$valMethod %in% c("loc_crossval", "both"), 
+                             CV = mblCtrl$valMethod %in% c("loc_crossval", "both"),
+                             .optimize = mblCtrl$localOptimization,
                              group = tmp.group,
                              p = mblCtrl$p, resampling = mblCtrl$resampling,
                              noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim,
@@ -897,10 +904,34 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
        
        
        if(mblCtrl$valMethod %in% c("loc_crossval","both")){
-         o <- ifelse(method == "pls", i.pred$validation$bestpls.c, 1)
-         predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
-         predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
+         if(mblCtrl$localOptimization & method %in% c("pls", "wapls1")){
+           if(method == "pls"){
+             o <- i.pred$validation$bestpls.c
+             predobs$pls.c[kk] <- o
+           }else{
+             bpc <- unlist(i.pred$validation$bestpls.c)
+             predobs$min.pls[kk] <- bpc["minF"]
+             predobs$max.pls[kk] <- bpc["maxF"]
+             bpc <- rowSums(i.pred$validation$cvResults[,c("minF", "maxF")] == bpc) == 2
+             o <- which(bpc)[1]
+           }
+           predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
+           predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
+         }else{
+           o <- ifelse(method == "pls", plsF, 1)
+           predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
+           predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
+           predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
+           predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
+           predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
+         }
+       }else{
+         predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
+         predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
+         predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
        }
+       
+       #AQUI FALTA PONER LOS COMPONENTES FINALES (MIN AND) EN EL OUTPUT Y LISTO!!!
        
        if(mblCtrl$valMethod %in% c("NNv","both"))
        {
@@ -914,7 +945,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                      scaled = scale, pls.c = plsF, 
                                      noise.v = noise.v,
                                      newdata = as.vector(tmp.cal$mat[1,]), 
-                                     CV = FALSE, range.pred.lim = mblCtrl$range.pred.lim, 
+                                     CV = FALSE,  .optimize = FALSE, range.pred.lim = mblCtrl$range.pred.lim, 
                                      pls.max.iter = pls.max.iter, pls.tol = pls.tol)$prediction
          
          predobs$y.nearest.pred[kk] <- nearest.pred/i.wgts[1]
@@ -934,6 +965,8 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   out <-c(if(missing(Yu)){"yu.obs"},
           if(is.null(dtc)){"k.org"},
           if(!(mblCtrl$valMethod %in% c("NNv", "both"))){"y.nearest.pred"},
+          if(method != "wapls1"){c("min.pls","max.pls")},
+          if(method != "pls"){"pls.c"},
           if(!(mblCtrl$valMethod %in% c("loc_crossval", "both"))){c("loc.rmse.cv", "loc.st.rmse.cv")},
           "rep")
   
@@ -1131,7 +1164,7 @@ pred.gpr.dp <- function(object, newdata){
 #' @description internal
 #' @keywords internal
 locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata, 
-                        pls.c, CV = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
+                        pls.c, CV = FALSE, .optimize = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
                         range.pred.lim = TRUE,
                         pls.max.iter = 1, pls.tol = 1e-6){
 
@@ -1216,8 +1249,11 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                      weights = weights, 
                      p = p, resampling = resampling, 
                      group = group, 
-                     retrieve = "final.model",
+                     retrieve = TRUE,
+                     .optimize = .optimize,
                      max.iter = pls.max.iter, tol = pls.tol)
+      
+      
 
       fit <- cvVal$models
       ncomp <- cvVal$bestpls.c
@@ -1248,18 +1284,24 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                      weights = weights, 
                      p = p, resampling = resampling, 
                      group = group, 
-                     retrieve = "all.models",
+                     retrieve = TRUE,
+                     .optimize = .optimize,
                      max.iter = pls.max.iter, tol = pls.tol)
       
       fit <- cvVal$models
       #rstls <- w[pls.c[[1]]:pls.c[[2]]] * colMeans(cvVal$cvResults[pls.c[[1]]:pls.c[[2]],])
-      cvVal$cvResults <- data.frame(plsMin = pls.c[[1]], 
-                                    plsMax = pls.c[[2]], 
-                                    rmse.cv = cvVal$cvResults$rmse.cv,
-                                    st.rmse.cv = cvVal$cvResults$st.rmse.cv,
-                                    rmse.sd.cv = cvVal$cvResults$rmse.sd.cv,     
-                                    rsq.cv = cvVal$cvResults$rsq.cv)
-      # here all the waeights are output from 1 to plsMax
+      if(!.optimize){
+        cvVal$cvResults <- data.frame(minF = pls.c[[1]], 
+                                      maxF = pls.c[[2]], 
+                                      rmse.cv = cvVal$cvResults$rmse.cv,
+                                      st.rmse.cv = cvVal$cvResults$st.rmse.cv,
+                                      rmse.sd.cv = cvVal$cvResults$rmse.sd.cv,     
+                                      rsq.cv = cvVal$cvResults$rsq.cv)
+        
+      }
+      
+      
+      # here all the weights are output from 1 to plsMax
       w <- cvVal$compweights[!cvVal$compweights == 0]
     } else {
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
@@ -1281,8 +1323,6 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                           scale = ifelse(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
                           Xscale = fit$transf$Xscale)[,pls.c[[1]]:pls.c[[2]]]
       pred <- sum(c(predctn) * w) # weighted preds
-      
-    
   }
   
   if(range.pred.lim)
@@ -1432,7 +1472,8 @@ plsCv <- function(x, y, ncomp,
                   p = 0.75, 
                   resampling = 10, 
                   group = NULL,
-                  retrieve = c("final.model", "all.models", "none"),
+                  retrieve = TRUE,
+                  .optimize = TRUE,
                   max.iter = 1, tol = 1e-6)
 {
   
@@ -1523,17 +1564,31 @@ plsCv <- function(x, y, ncomp,
     
   }
   
+  if(method == "wapls1" & retrieve & .optimize)
+  {
+    pls.c <- c(minF, ncomp)
+    seq.pls <- min(pls.c):max(pls.c)
+    sgr <- expand.grid(minF = seq.pls, maxF = seq.pls)
+    sgr <- as.matrix(sgr[sgr$minF < sgr$maxF,])
+    rownames(sgr) <- 1:nrow(sgr)
+    fmethod <- "wapls1complete"
+  }else{
+    sgr <- matrix(0,0,0)
+    fmethod <- method
+  }
+  
   cvre <- pplscv_cpp(X = x, 
                      Y = as.matrix(y),
                      scale = scaled,
-                     method = method,
+                     method = fmethod,
                      mindices = mrspi,
                      pindices = rspi,
                      minF = minF,
                      ncomp = ncomp,
                      newX = newX,
                      maxiter = max.iter, 
-                     tol = tol)
+                     tol = tol,
+                     waplsgrid = sgr)
   
   val <- NULL
   val$resamples <- rspi
@@ -1542,13 +1597,13 @@ plsCv <- function(x, y, ncomp,
     bestpls.c <- val$cvResults$nPLS[which(val$cvResults$rmse.cv == min(val$cvResults$rmse.cv))]
     val$bestpls.c <- bestpls.c
     
-    if(retrieve != "none")
+    if(retrieve)
     {
       if(!is.null(weights)){
         x <- sweep(x, 1, weights, "*")  ### MODIFIED
         y <- y * weights
       }
-      if(retrieve == "final.model")
+      if(.optimize)
       {
         val$models <- fopls(X = x, 
                             Y = y, 
@@ -1568,41 +1623,60 @@ plsCv <- function(x, y, ncomp,
     }
   }
     
-  if(method == "wapls1"){
+  if(method == "wapls1" & retrieve & !.optimize){
     val$compweights <- cvre$compweights
     val$cvResults <- data.frame(minF = minF, maxF = ncomp, rmse.cv = mean(cvre$rmse.seg), st.rmse.cv = mean(cvre$st.rmse.seg), rmse.sd.cv = sd(cvre$rmse.seg), rsq.cv = mean(cvre$rsq.seg))
     #bestpls.c <- val$cvResults$nPLS[which(val$cvResults$rmse.cv == min(val$cvResults$rmse.cv))]
     #val$bestpls.c <- bestpls.c
     
-    if(retrieve != "none")
-    {
-      if(!is.null(weights)){
-        x <- sweep(x, 1, weights, "*")  ### MODIFIED
-        y <- y * weights
-      }
-      if(retrieve == "final.model")
-      {
-        val$models <- fopls(X = x, 
-                            Y = as.matrix(y), 
-                            scale = scaled, 
-                            ncomp = ncomp,
-                            maxiter = max.iter, 
-                            tol = tol
-        )
-      } else {
-        val$models <- fopls(X = x, 
-                            Y = as.matrix(y), 
-                            scale = scaled, 
-                            ncomp = ncomp,
-                            maxiter = max.iter, 
-                            tol = tol)
-      }
+    if(!is.null(weights)){
+      x <- sweep(x, 1, weights, "*")  ### MODIFIED
+      y <- y * weights
+    } else {
+      val$models <- fopls(X = x, 
+                          Y = as.matrix(y), 
+                          scale = scaled, 
+                          ncomp = ncomp,
+                          maxiter = max.iter, 
+                          tol = tol)
     }
+    
+  }
+  
+  if(method == "wapls1" & retrieve & .optimize){
+    
+    val$cvResults <- data.frame(sgr, rmse.cv = rowMeans(cvre$rmse.seg), st.rmse.cv = rowMeans(cvre$st.rmse.seg), rmse.sd.cv = cSds(t(cvre$rmse.seg)), rsq.cv = rowMeans(cvre$rsq.seg))
+    opmls <- which.min(val$cvResults$rmse.cv)
+    val$bestpls.c$minF <- val$cvResults$minF[opmls]
+    val$bestpls.c$maxF <- val$cvResults$maxF[opmls]
+    val$compweights <- cvre$compweights
+    
+    
+    if(!is.null(weights)){
+      x <- sweep(x, 1, weights, "*")  ### MODIFIED
+      y <- y * weights
+    }
+    
+    tmp.compweights <- val$compweights[val$bestpls.c$minF:val$bestpls.c$maxF]
+    val$compweights[] <- 0
+    tmp.compweights <- tmp.compweights/sum(tmp.compweights)
+    val$compweights[val$bestpls.c$minF:val$bestpls.c$maxF] <- tmp.compweights
+    
+    val$models <- fopls(X = x, 
+                        Y = as.matrix(y), 
+                        scale = scaled, 
+                        ncomp = ncomp,
+                        maxiter = max.iter, 
+                        tol = tol)
   }
   return(val)
 }
 
-  
+## AQUI VOY
+## EL CODIGO QUE USA plsCv DEBE ACTUALIZARSE 
+## UN NUEVO ARGUMENTO PREGUNTANFO QUE SI EN CV DEBE SER OPTIMIZADO EL NUEMRO DE MIN Y MAX PLS
+
+
 #' @title Internal function for computing the weights of the PLS components necessary for weighted average PLS 
 #' @description internal
 #' @keywords internal

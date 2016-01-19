@@ -6,8 +6,8 @@
 \usage{
 plsCv(x, y, ncomp, method = c("pls", "wapls1"), center = TRUE, scaled,
   minF = 1, newX = matrix(0, 1, 1), weights = NULL, p = 0.75,
-  resampling = 10, group = NULL, retrieve = c("final.model", "all.models",
-  "none"), max.iter = 1, tol = 1e-06)
+  resampling = 10, group = NULL, retrieve = TRUE, .optimize = TRUE,
+  max.iter = 1, tol = 1e-06)
 }
 \description{
 for internal use only!

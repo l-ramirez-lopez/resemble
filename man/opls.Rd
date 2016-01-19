@@ -37,6 +37,20 @@ it must be a value (higher than 0 and lower than 1) indicating that components t
 a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
 specifying the desired number of principal components to retain. Default is 0.99.}
 }
+\value{
+a list containing the following elements:
+\itemize{
+\item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+\item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+\item{\code{scores}}{ the \code{matrix} of scores.}
+\item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
+\item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
+\item{\code{projectionM}}{ the projection \code{matrix}.}
+\item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+}
+}
 \description{
 Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
 For internal use only!

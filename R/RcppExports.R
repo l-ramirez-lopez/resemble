@@ -16,23 +16,8 @@ fastDist <- function(X, Y, method) {
     .Call('resemble_fastDist', PACKAGE = 'resemble', X, Y, method)
 }
 
-#' @title A fast distance algorithm for a matrix and a vector written in C++
-#' @description A fast distance algorithm for a matrix and a vector written in C++  
-#' @usage 
-#' fastDistV(X,Y,method)
-#' @param X a \code{matrix}
-#' @param Y a \code{vector}
-#' @param method a \code{string} with possible values "euclid", "cor", "cosine"
-#' @return a distance \code{vector}
-#' @author Antoine Stevens and Leonardo Ramirez-Lopez
-#' @keywords internal 
-#' @useDynLib resemble
-fastDistV <- function(X, Y, method) {
-    .Call('resemble_fastDistV', PACKAGE = 'resemble', X, Y, method)
-}
-
-#' @title A fast (parallel) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
-#' @description A fast (parallel) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @title A fast (parallel for linux) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @description A fast (parallel for linux) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
 #' @usage 
 #' fastDistVV(X, cores)
 #' @param X a \code{vector}
@@ -43,6 +28,40 @@ fastDistV <- function(X, Y, method) {
 #' @useDynLib resemble
 fastDistVV <- function(X, cores) {
     .Call('resemble_fastDistVV', PACKAGE = 'resemble', X, cores)
+}
+
+#' @title A fast (serial) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @description A fast (parallel for linux) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @usage 
+#' fastDistVVL(X)
+#' @param X a \code{vector}
+#' @return a \code{vector} of distance (lower triangle of the distance matrix, stored by column)
+#' @details used internally in orthoProjection
+#' @author Leo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+#' 
+fastDistVVL <- function(X) {
+    .Call('resemble_fastDistVVL', PACKAGE = 'resemble', X)
+}
+
+#' @title A function to compute indices of minimum values of a distance vector
+#' @description For internal use only
+#' @usage 
+#' minDissV(X,cores)
+#' @param X a \code{vector} of distance (as computed in \code{resemble:::fastDistVV} or \code{base::dist})
+#' @param cores number of cores used to run the computation
+#' @return a \code{vector} of the indices of the nearest neighbours
+#' @details 
+#' Used internally to find the nearest neighbours. 
+#' It searches in lower (or upper?) trianguular matrix. Therefore this must be the format of the 
+#' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
+#' since \code{sqrt} cannot be applied to integers.
+#' @keywords internal
+#' @useDynLib resemble
+#' @author Antoine Stevens 
+minDissV <- function(X, cores) {
+    .Call('resemble_minDissV', PACKAGE = 'resemble', X, cores)
 }
 
 #' @title Moving/rolling correlation distance of two matrices
@@ -135,7 +154,7 @@ cms <- function(X) {
 #' \item{\code{projectionM}}{ the projection \code{matrix}.}
 #' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
 #' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
-#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
+#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 #' } 
 #' @useDynLib resemble
 #' @author Leonardo Ramirez-Lopez
@@ -162,7 +181,7 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol, regression = TRUE, pcSelmetho
 #' \itemize{
 #' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
 #' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
-#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}. 
+#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 #' } 
 #' @useDynLib resemble
 #' @author Leonardo Ramirez-Lopez
@@ -180,10 +199,9 @@ fopls <- function(X, Y, ncomp, scale, maxiter, tol) {
 #' @param b the \code{matrix} of regression coefficients.
 #' @param ncomp an integer value indicating how may components must be used in the prediction.
 #' @param newdata a \code{matrix} containing the predictor variables.
-#' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
-#' (either in \code{opls} or \code{opls2}) was scaled.
+#' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
 #' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
-#' @return a \code{matrix} of predicted values
+#' @return a \code{matrix} of predicted values.
 #' @useDynLib resemble
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
@@ -229,8 +247,7 @@ projectpls <- function(projectionm, ncomp, newdata, scale, Xcenter, Xscale) {
 #' @param newX a \code{matrix} of one new spectra to be predicted.
 #' @param minF an integer indicating the minimum number of pls components.
 #' @param maxF an integer indicating the maximum number of pls components.
-#' @param scale a logical indicating whether the matrix of predictors used to create the regression model 
-#' (either in \code{opls} or \code{opls2}) was scaled.
+#' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
 #' @param Xcenter a \code{matrix} of one row with the values that must be used for centering \code{newdata}.
 #' @param Xscale if \code{scale = TRUE} a \code{matrix} of one row with the values that must be used for scaling \code{newdata}.
 #' @return a \code{matrix} of one row with the weights for each component between the max. and min. specified. 
@@ -244,11 +261,16 @@ waplswCpp <- function(projectionm, xloadings, coefficients, newX, minF, maxF, sc
 
 #' @title Internal Cpp function for performing leave-group-out cross validations for pls regression 
 #' @description For internal use only!. 
-#' @usage pplscv_cpp(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol)
+#' @usage pplscv_cpp(X, Y, scale, method, 
+#'                   mindices, pindices, 
+#'                   minF, ncomp, 
+#'                   newX, 
+#'                   maxiter, tol, 
+#'                   waplsgrid)
 #' @param X a \code{matrix} of predictor variables.
 #' @param Y a \code{matrix} of a single response variable.
 #' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
-#' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'}.
+#' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'} or \code{'wapls1complete'}.
 #' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 #' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
 #' iteration.
@@ -260,6 +282,7 @@ waplswCpp <- function(projectionm, xloadings, coefficients, newX, minF, maxF, sc
 #' @param newX a \code{matrix} of one row corresponding to the sample to be predicted (if the \code{method = 'wapls1'}).
 #' @param maxiter maximum number of iterations.
 #' @param tol limit for convergence of the algorithm in the nipals algorithm.
+#' @param waplsgrid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls1'} is based on in case \code{method = 'wapls1complete'}.
 #' @return a list containing the following one-row matrices:
 #' \itemize{
 #' \item{\code{rmse.seg}}{ the RMSEs.}
@@ -270,8 +293,8 @@ waplswCpp <- function(projectionm, xloadings, coefficients, newX, minF, maxF, sc
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-pplscv_cpp <- function(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol) {
-    .Call('resemble_pplscv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol)
+pplscv_cpp <- function(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol, waplsgrid) {
+    .Call('resemble_pplscv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol, waplsgrid)
 }
 
 #' @title Gaussian process regression with linear kernel (gprdp)

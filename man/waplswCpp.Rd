@@ -27,8 +27,7 @@ waplswCpp(projectionm,
 
 \item{maxF}{an integer indicating the maximum number of pls components.}
 
-\item{scale}{a logical indicating whether the matrix of predictors used to create the regression model 
-(either in \code{opls} or \code{opls2}) was scaled.}
+\item{scale}{a logical indicating whether the matrix of predictors used to create the regression model was scaled.}
 
 \item{Xcenter}{a \code{matrix} of one row with the values that must be used for centering \code{newdata}.}
 

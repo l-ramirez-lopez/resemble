@@ -4,7 +4,12 @@
 \alias{pplscv_cpp}
 \title{Internal Cpp function for performing leave-group-out cross validations for pls regression}
 \usage{
-pplscv_cpp(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, tol)
+pplscv_cpp(X, Y, scale, method, 
+                  mindices, pindices, 
+                  minF, ncomp, 
+                  newX, 
+                  maxiter, tol, 
+                  waplsgrid)
 }
 \arguments{
 \item{X}{a \code{matrix} of predictor variables.}
@@ -13,7 +18,7 @@ pplscv_cpp(X, Y, scale, method, mindices, pindices, minF, ncomp, newX, maxiter, 
 
 \item{scale}{a logical indicating whether the matrix of predictors (\code{X}) must be scaled.}
 
-\item{method}{the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'}.}
+\item{method}{the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'} or \code{'wapls1complete'}.}
 
 \item{mindices}{a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
@@ -32,6 +37,8 @@ iteration.}
 \item{maxiter}{maximum number of iterations.}
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
+
+\item{waplsgrid}{the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls1'} is based on in case \code{method = 'wapls1complete'}.}
 }
 \value{
 a list containing the following one-row matrices:

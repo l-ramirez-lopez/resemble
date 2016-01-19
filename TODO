@@ -1,3 +1,4 @@
+## 17.01.2016: Clarify in the documentation that the cores argument works curtrently only for linux systems
 ## 16.12.2015: Add the GH value to the results, however they are already in ___$pcAnalysis$GH
 ## 16.12.2015: Optimize the pcProjection function, it is extremely slow when massive datasets are used
 ## 15.12.2015: Add local optimization of pls.c for wapls1 method wehn "loc_crossval" is used. Easy and important!

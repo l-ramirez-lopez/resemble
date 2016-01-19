@@ -11,6 +11,7 @@
 #'            center = TRUE,
 #'            scaled = TRUE,
 #'            valMethod = c("NNv", "loc_crossval"),
+#'            localOptimization = TRUE,
 #'            resampling = 10, 
 #'            p = 0.75,
 #'            range.pred.lim = TRUE,
@@ -49,6 +50,7 @@
 #' @param scaled a logical indicating whether or not the predictor variables must be scaled at each local segment (before regression).
 #' @param valMethod a character vector which indicates the (internal) validation method(s) to be used for assessing the global performance of the local models. Possible
 #'        options are: \code{"NNv"} and \code{"loc_crossval"}. Alternatively \code{"none"} can be used when corss-validation is not required (see details below).
+#' @param localOptimization a logical. If \code{valMethod = "loc_crossval"}, it optmizes the parameters of the local pls models (i.e. pls factors for \code{pls} and minimum and maximum pls factors for \code{wapls1}).
 #' @param resampling a value indicating the number of resampling iterations at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 10.
 #' @param p a value indicating the percentage of samples to be retained in each resampling iteration at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 0.75 (i.e. 75 "\%")
 #' @param range.pred.lim a logical value. It indicates whether the prediction limits at each local regression are determined by the range of the response variable values employed at each local regression. If \code{FALSE}, no prediction limits are imposed. Default is \code{TRUE}.
@@ -112,6 +114,7 @@ mblControl <- function(sm = "pc",
                        center = TRUE,
                        scaled = TRUE,
                        valMethod = c("NNv", "loc_crossval"),
+                       localOptimization = TRUE,
                        resampling = 10, 
                        p = 0.75,
                        range.pred.lim = TRUE,
@@ -249,6 +252,7 @@ mblControl <- function(sm = "pc",
                   center = center,
                   scaled = scaled,
                   valMethod = valMethod,
+                  localOptimization = localOptimization,
                   resampling = resampling, 
                   p = p,
                   range.pred.lim = range.pred.lim,
@@ -265,6 +269,7 @@ mblControl <- function(sm = "pc",
                   center = center,
                   scaled = scaled,
                   valMethod = valMethod,
+                  localOptimization = localOptimization,
                   resampling = resampling, 
                   p = p,
                   range.pred.lim = range.pred.lim,
