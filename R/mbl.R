@@ -420,7 +420,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   
   if(mblCtrl$sm=="none" & missing(dissimilarityM))
     stop("mblCtrl$sm is set to 'none' while 'dissimilarityM' is missing. Either similarity/disimilarity metric must be specified in mblCtrl$sm or a proper similarity/disimilarity matrix must be specified in the dissimilarityM argument")
-   
+  
   if(!missing(dissimilarityM)){
     if(!is.matrix(dissimilarityM))
       stop("'dissimilarityM' must be a matrix")
@@ -450,7 +450,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     if(length(group) != nrow(Xr))
       stop("The length of 'group' must be equal to the number of observations in 'Xr'")
   }
-    
+  
   pcSel <- match.arg(mblCtrl$pcSelection[[1]], c("opc", "var", "cumvar", "manual"))
   
   trsh <- mblCtrl$pcSelection$value
@@ -529,7 +529,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   
   if(mblCtrl$valMethod %in% c("NNv", "both") & nrow(Xu) < 3)
     stop("For nearest neighbour validation (specified in mblCtrl$valMethod with 'NNv') Xu must contain at least 3 observations")
-    
+  
   if(!is.null(Yu)){
     Yu <- as.matrix(Yu)
     if(length(Yu) != nrow(Xu))
@@ -758,7 +758,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   } else {
     k.org <- k_mat <- matrix(k, nrow = nrow(Xu), ncol = length(k), byrow = TRUE)    
   }  
-    
+  
   
   if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method %in% c("pls", "wapls1"))
   {
@@ -774,7 +774,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   }
   
   
-    
+  
   it <- i <- kn.org <- NULL
   predobs <- foreach(tmp.val = iter(val, by = "row"), kn.org = iter(k.org, by = "row"), i = icount(),
                      it = isubset(x=Xr,Dx=d.cal.mat,D=d.mat,k=k_mat),
@@ -787,180 +787,182 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                    #    if(mblCtrl$valMethod %in% c("loc_crossval", "both") & method %in% c("pls", "wapls1"))
                                    #    {
                                    #      if(((floor(min(it$k, nrow(it$d)) * mblCtrl$p)) - 1) < min(plsF)){
-#        stop(paste("The number of pls components must be lower than ", mblCtrl$p*100, "% (i.e. mblCtrl$p) of the number of neighbours to be used"))
-#      }
-#    }
-#    
-#    if(method != "gpr"){
-#      if(((floor(min(it$k, nrow(it$d)))) - 1) < min(plsF)){
-#        stop("The number of pls components must be lower than the number of neighbours to be used")
-#      }
-#    }
-#    
-   # k nearest neighbours loop. Must be within the sample loop to allow possibly for 'local' tuning
-   
-   predobs <- data.frame(o.index = i, 
-                         k.org = c(kn.org), k = it$k,
-                         pls.c = NA,
-                         min.pls = NA,
-                         max.pls = NA,
-                         yu.obs = tmp.val$y, pred = NA, 
-                         yr.min.obs = NA, yr.max.obs = NA,
-                         index.nearest.in.ref = it$index[1],
-                         y.nearest = Yr[it$index[1]],
-                         y.nearest.pred = NA,
-                         loc.rmse.cv = NA,
-                         loc.st.rmse.cv = NA,
-                         dist.nearest = min(it$d),
-                         dist.k.farthest = NA, rep = NA)
-   
-   
-   if(mblCtrl$sm == "loc.pc" & dissUsage == "predictors")
-   {
-     pca.n <- plsProjection(Xr = it$x, Yr = Yr[it$index[1:max(it$k)]], Xu = tmp.val$mat, nPf = loc.npcs[i], scaled = mblCtrl$scaled)
-     pca.i <- list(x = pca.n$scores, sdev = cSds(pca.n$scores))
-     scores.i <- sweep(pca.i$x[,1:loc.npcs[i]], 2, pca.i$sdev[1:loc.npcs[i]], "/")
-     locD.i <-   fDiss(Xr = scores.i, X2 = scores.i, center = FALSE, scaled = FALSE, method = "euclid")     
-   }
-   
-   if(mblCtrl$progress)
-   {
-     cat ((paste("Predicting sample:",i)) ," ") 
-     pb <- txtProgressBar(width = 10, char = "-")
-   }
-   
-   for(kk in 1:length(it$k))
-   {
-     knkk <- it$k[kk]
-     tmp.val.k <- tmp.val
-     
-     if(mblCtrl$progress)
-       setTxtProgressBar(pb, kk/length(it$k))
-     
-     # If the sample has not been predicted before, then create a model and predict it
-     if(knkk != ifelse(kk == 1, 0, it$k[kk-1])){
-       
-       predobs$rep[kk] <- 0
-       
-       ###############################################################################################
-       dk <- it$index[1:knkk]
-       
-       # Select cal
-       tmp.cal <- data.frame(y=Yr[dk])
-       
-       if(!is.null(group))
-         tmp.group <- as.factor(as.character(group[dk]))
-       else
-         tmp.group <- NULL
-       
-       tmp.cal$mat  <- it$x[1:knkk,,drop=F]                           
-       
-       minmax <- range(tmp.cal$y, na.rm=T) 
-       predobs$yr.min.obs[kk] <- minmax[1]
-       predobs$yr.max.obs[kk] <- minmax[2]
-       predobs$dist.k.farthest[kk] <- max(it$d[dk])
-       
-       if(dissUsage == "weights")
-       {
-         # Weights are defined according to a tricubic function 
-         # as in Cleveland and Devlin (1988) and Naes and Isaksson (1990).
-         stdd <- it$d[dk]/max(it$d[dk])
-         i.wgts <- (1 - (stdd^3))^3
-         i.wgts[which(i.wgts == 0)] <- 1e-04
-       } else {i.wgts <- rep(1,knkk)}
-       
-       if(dissUsage == "predictors")
-       {
-         if(kk == 1) {tmp.val.k$mat <- tmp.val$mat}
-         tmp.val$mat <- tmp.val.k$mat
-         nms <- c(paste("k",(1:knkk), sep = ""), colnames(tmp.cal$mat))
-         if(mblCtrl$sm == "loc.pc")
-         {           
-           tmp.cal$mat <- cbind(locD.i[1:knkk, 1:knkk] ,tmp.cal$mat)
-         }else{
-           tmp.cal$mat <- cbind(it$dx[1:knkk, 1:knkk] ,tmp.cal$mat)
-         }
-         tmp.val.k$mat <- cbind(t(it$d[dk]), tmp.val$mat)
-         colnames(tmp.cal$mat) <- nms
-         colnames(tmp.val.k$mat) <- nms
-       }
-       
-       scale <- mblCtrl$scaled
-       
-       # local fit
-       i.pred <- locFitnpred(x = tmp.cal$mat, y = tmp.cal$y, 
-                             predMethod = method, 
-                             scaled = scale, pls.c = plsF,
-                             weights = i.wgts,
-                             newdata = as.vector(tmp.val.k$mat), 
-                             CV = mblCtrl$valMethod %in% c("loc_crossval", "both"),
-                             .optimize = mblCtrl$localOptimization,
-                             group = tmp.group,
-                             p = mblCtrl$p, resampling = mblCtrl$resampling,
-                             noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim,
-                             pls.max.iter = pls.max.iter, pls.tol = pls.tol)
-       
-       predobs$pred[kk] <- i.pred$prediction
-       
-       
-       if(mblCtrl$valMethod %in% c("loc_crossval","both")){
-         if(mblCtrl$localOptimization & method %in% c("pls", "wapls1")){
-           if(method == "pls"){
-             o <- i.pred$validation$bestpls.c
-             predobs$pls.c[kk] <- o
-           }else{
-             bpc <- unlist(i.pred$validation$bestpls.c)
-             predobs$min.pls[kk] <- bpc["minF"]
-             predobs$max.pls[kk] <- bpc["maxF"]
-             bpc <- rowSums(i.pred$validation$cvResults[,c("minF", "maxF")] == bpc) == 2
-             o <- which(bpc)[1]
-           }
-           predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
-           predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
-         }else{
-           o <- ifelse(method == "pls", plsF, 1)
-           predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
-           predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
-           predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
-           predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
-           predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
-         }
-       }else{
-         predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
-         predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
-         predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
-       }
-       
-       #AQUI FALTA PONER LOS COMPONENTES FINALES (MIN AND) EN EL OUTPUT Y LISTO!!!
-       
-       if(mblCtrl$valMethod %in% c("NNv","both"))
-       {
-         if(!is.null(group))
-           out.g <- which(tmp.group == tmp.group[[1]])
-         else
-           out.g <- 1
-         
-         nearest.pred <- locFitnpred(x = tmp.cal$mat[-c(out.g),], y = tmp.cal$y[-c(out.g)], 
-                                     predMethod = method, 
-                                     scaled = scale, pls.c = plsF, 
-                                     noise.v = noise.v,
-                                     newdata = as.vector(tmp.cal$mat[1,]), 
-                                     CV = FALSE,  .optimize = FALSE, range.pred.lim = mblCtrl$range.pred.lim, 
-                                     pls.max.iter = pls.max.iter, pls.tol = pls.tol)$prediction
-         
-         predobs$y.nearest.pred[kk] <- nearest.pred/i.wgts[1]
-       }
-     } else {
-       predobs[kk,] <- predobs[(kk-1),]
-       predobs$rep[[kk]] <- 1
-     }     
-   }
-   if(mblCtrl$progress)
-     close(pb)
-   
-   predobs$k <- as.factor(predobs$k)
-   predobs
-  }
+                                   #        stop(paste("The number of pls components must be lower than ", mblCtrl$p*100, "% (i.e. mblCtrl$p) of the number of neighbours to be used"))
+                                   #      }
+                                   #    }
+                                   #    
+                                   #    if(method != "gpr"){
+                                   #      if(((floor(min(it$k, nrow(it$d)))) - 1) < min(plsF)){
+                                   #        stop("The number of pls components must be lower than the number of neighbours to be used")
+                                   #      }
+                                   #    }
+                                   #    
+                                   # k nearest neighbours loop. Must be within the sample loop to allow possibly for 'local' tuning
+                                   
+                                   predobs <- data.frame(o.index = i, 
+                                                         k.org = c(kn.org), k = it$k,
+                                                         pls.c = NA,
+                                                         min.pls = NA,
+                                                         max.pls = NA,
+                                                         yu.obs = tmp.val$y, pred = NA, 
+                                                         yr.min.obs = NA, yr.max.obs = NA,
+                                                         index.nearest.in.ref = it$index[1],
+                                                         y.nearest = Yr[it$index[1]],
+                                                         y.nearest.pred = NA,
+                                                         loc.rmse.cv = NA,
+                                                         loc.st.rmse.cv = NA,
+                                                         dist.nearest = min(it$d),
+                                                         dist.k.farthest = NA, rep = NA)
+                                   
+                                   
+                                   if(mblCtrl$sm == "loc.pc" & dissUsage == "predictors")
+                                   {
+                                     pca.n <- plsProjection(Xr = it$x, Yr = Yr[it$index[1:max(it$k)]], Xu = tmp.val$mat, nPf = loc.npcs[i], scaled = mblCtrl$scaled)
+                                     pca.i <- list(x = pca.n$scores, sdev = cSds(pca.n$scores))
+                                     scores.i <- sweep(pca.i$x[,1:loc.npcs[i]], 2, pca.i$sdev[1:loc.npcs[i]], "/")
+                                     locD.i <-   fDiss(Xr = scores.i, X2 = scores.i, center = FALSE, scaled = FALSE, method = "euclid")     
+                                   }
+                                   
+                                   if(mblCtrl$progress)
+                                   {
+                                     cat ((paste("Predicting sample:",i)) ," ") 
+                                     pb <- txtProgressBar(width = 10, char = "-")
+                                   }
+                                   
+                                   for(kk in 1:length(it$k))
+                                   {
+                                     knkk <- it$k[kk]
+                                     tmp.val.k <- tmp.val
+                                     
+                                     if(mblCtrl$progress)
+                                       setTxtProgressBar(pb, kk/length(it$k))
+                                     
+                                     # If the sample has not been predicted before, then create a model and predict it
+                                     if(knkk != ifelse(kk == 1, 0, it$k[kk-1])){
+                                       
+                                       predobs$rep[kk] <- 0
+                                       
+                                       ###############################################################################################
+                                       dk <- it$index[1:knkk]
+                                       
+                                       # Select cal
+                                       tmp.cal <- data.frame(y=Yr[dk])
+                                       
+                                       if(!is.null(group))
+                                         tmp.group <- as.factor(as.character(group[dk]))
+                                       else
+                                         tmp.group <- NULL
+                                       
+                                       tmp.cal$mat  <- it$x[1:knkk,,drop=F]                           
+                                       
+                                       minmax <- range(tmp.cal$y, na.rm=T) 
+                                       predobs$yr.min.obs[kk] <- minmax[1]
+                                       predobs$yr.max.obs[kk] <- minmax[2]
+                                       predobs$dist.k.farthest[kk] <- max(it$d[dk])
+                                       
+                                       if(dissUsage == "weights")
+                                       {
+                                         # Weights are defined according to a tricubic function 
+                                         # as in Cleveland and Devlin (1988) and Naes and Isaksson (1990).
+                                         stdd <- it$d[dk]/max(it$d[dk])
+                                         i.wgts <- (1 - (stdd^3))^3
+                                         i.wgts[which(i.wgts == 0)] <- 1e-04
+                                       } else {i.wgts <- rep(1,knkk)}
+                                       
+                                       if(dissUsage == "predictors")
+                                       {
+                                         if(kk == 1) {tmp.val.k$mat <- tmp.val$mat}
+                                         tmp.val$mat <- tmp.val.k$mat
+                                         nms <- c(paste("k",(1:knkk), sep = ""), colnames(tmp.cal$mat))
+                                         if(mblCtrl$sm == "loc.pc")
+                                         {           
+                                           tmp.cal$mat <- cbind(locD.i[1:knkk, 1:knkk] ,tmp.cal$mat)
+                                         }else{
+                                           tmp.cal$mat <- cbind(it$dx[1:knkk, 1:knkk] ,tmp.cal$mat)
+                                         }
+                                         tmp.val.k$mat <- cbind(t(it$d[dk]), tmp.val$mat)
+                                         colnames(tmp.cal$mat) <- nms
+                                         colnames(tmp.val.k$mat) <- nms
+                                       }
+                                       
+                                       scale <- mblCtrl$scaled
+                                       
+                                       # local fit
+                                       i.pred <- locFitnpred(x = tmp.cal$mat, y = tmp.cal$y, 
+                                                             predMethod = method, 
+                                                             scaled = scale, pls.c = plsF,
+                                                             weights = i.wgts,
+                                                             newdata = as.vector(tmp.val.k$mat), 
+                                                             CV = mblCtrl$valMethod %in% c("loc_crossval", "both"),
+                                                             .optimize = mblCtrl$localOptimization,
+                                                             group = tmp.group,
+                                                             p = mblCtrl$p, resampling = mblCtrl$resampling,
+                                                             noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim,
+                                                             pls.max.iter = pls.max.iter, pls.tol = pls.tol)
+                                       
+                                       predobs$pred[kk] <- i.pred$prediction
+                                       
+                                       
+                                       if(mblCtrl$valMethod %in% c("loc_crossval","both")){
+                                           if(mblCtrl$localOptimization & method %in% c("pls", "wapls1")){
+                                           if(method == "pls"){
+                                             o <- i.pred$validation$bestpls.c
+                                             predobs$pls.c[kk] <- o
+                                             oplsfs <- o
+                                           }else{
+                                             o <- which.min(i.pred$validation$cvResults$rmse.cv)
+                                             oplsfs <- i.pred$validation$cvResults[o,c("minF", "maxF")]
+                                             predobs$min.pls[kk] <- oplsfs[[1]]
+                                             predobs$max.pls[kk] <- oplsfs[[2]]
+                                             
+                                           }
+                                             predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
+                                             predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
+                                         }else{
+                                           oplsfs <- plsF
+                                           o <- ifelse(method == "pls", plsF, 1)
+                                           predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
+                                           predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
+                                           predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
+                                           predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
+                                           predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
+                                         }
+                                       }else{
+                                         predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
+                                         predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
+                                         predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
+                                         oplsfs <- plsF
+                                       }
+                                       
+                     
+                                       if(mblCtrl$valMethod %in% c("NNv","both"))
+                                       {
+                                         if(!is.null(group))
+                                           out.g <- which(tmp.group == tmp.group[[1]])
+                                         else
+                                           out.g <- 1
+                                         
+                                         nearest.pred <- locFitnpred(x = tmp.cal$mat[-c(out.g),], y = tmp.cal$y[-c(out.g)], 
+                                                                     predMethod = method, 
+                                                                     scaled = scale, pls.c = oplsfs, 
+                                                                     noise.v = noise.v,
+                                                                     newdata = as.vector(tmp.cal$mat[1,]), 
+                                                                     CV = FALSE,  .optimize = FALSE, range.pred.lim = mblCtrl$range.pred.lim, 
+                                                                     pls.max.iter = pls.max.iter, pls.tol = pls.tol)$prediction
+                                         
+                                         predobs$y.nearest.pred[kk] <- nearest.pred/i.wgts[1]
+                                       }
+                                     } else {
+                                       predobs[kk,] <- predobs[(kk-1),]
+                                       predobs$rep[[kk]] <- 1
+                                     }     
+                                   }
+                                   if(mblCtrl$progress)
+                                     close(pb)
+                                   
+                                   predobs$k <- as.factor(predobs$k)
+                                   predobs
+                                 }
   
   out <-c(if(missing(Yu)){"yu.obs"},
           if(is.null(dtc)){"k.org"},
@@ -978,7 +980,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     rownames(x) <- 1:nrow(x)
     return(x)
   }
-
+  
   if(is.null(dtc)){  
     predobs <- by(predobs, as.numeric(paste(predobs$k, ".",predobs$rep, sep="")), dfrn)
     names(predobs) <- paste("Nearest_neighbours_", k, sep = "")    
@@ -1019,7 +1021,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
       nn.rsq <- (cor(x$y.nearest, x$y.nearest.pred))^2
       return(c(nn.rmse = nn.rmse, nn.st.rmse = nn.st.rmse, nn.rsq = nn.rsq))
     }
-  
+    
     loc.nn.res <- as.data.frame(t(sapply(predobs, nn.stats)))
     loc.nn.res <- cbind(trh, 
                         rmse = loc.nn.res$nn.rmse, 
@@ -1071,6 +1073,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                          center = mblCtrl$center,
                          scaled = mblCtrl$scaled,
                          valMethod = mblCtrl$valMethod,
+                         localOptimization = mblCtrl$localOptimization,
                          resampling = mblCtrl$resampling, 
                          p = mblCtrl$p,
                          range.pred.lim = mblCtrl$range.pred.lim,
@@ -1083,7 +1086,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   if(!sum(unlist(ini.cntrl) == unlist(cntrlParam))){
     cntrlParam <- list(initial = ini.cntrl, finallyUsed = cntrlParam)
   }
-    
+  
   if(ini.cntrl$returnDiss){
     s.meth <- ifelse(mblCtrl$sm == "none", "A matrix provided by the user through the 'dissimilarityM' argument", mblCtrl$sm)
     if(dissUsage == "predictors"){
@@ -1092,7 +1095,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
       dissimilarities <- list(method = s.meth, Xr_Xu = d.mat) 
     }
   }
-
+  
   resultsList <- list(call = call.f,
                       cntrlParam = cntrlParam,
                       dissimilarities = if(ini.cntrl$returnDiss){dissimilarities}else{NULL}, 
@@ -1115,9 +1118,9 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
 #' @description internal
 #' @keywords internal
 gpr.dp <- function(Xn, Yn, noise.v = 0.001, scaled = TRUE, center = FALSE, x.add = NULL){
-#   if(!is.null(x.add)){
-#     Xn <- rbind(x.add, Xn)
-#   }
+  #   if(!is.null(x.add)){
+  #     Xn <- rbind(x.add, Xn)
+  #   }
   if(center)
   {
     center <- colMeans(Xn)
@@ -1136,11 +1139,11 @@ gpr.dp <- function(Xn, Yn, noise.v = 0.001, scaled = TRUE, center = FALSE, x.add
   }else{
     scale <- NULL
   }
-
-#   if(!is.null(x.add)){
-#     Xn <- Xn[-1,]
-#   }
-#   
+  
+  #   if(!is.null(x.add)){
+  #     Xn <- Xn[-1,]
+  #   }
+  #   
   K <- Xn %*% t(Xn)
   vrnc <- diag(rep(noise.v, nrow(Xn)))
   alpha <- solve((K + vrnc), Yn)
@@ -1167,7 +1170,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                         pls.c, CV = FALSE, .optimize = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
                         range.pred.lim = TRUE,
                         pls.max.iter = 1, pls.tol = 1e-6){
-
+  
   ## Sanity checks are dactivated here for speeding-up the code. 
   ## This function is only used within the mbl and the checks here are already done either in that function or
   ## in the mblControl function. Since the present function goes into a main loop in the mbl funtion,
@@ -1200,7 +1203,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
   #       stop("p must be a single numeric value higher than 0 and lower than 1")
   #   }
   
-
+  
   #   if(!is.vector(newdata))
   #     stop("'newdata' must be a vector")
   
@@ -1254,7 +1257,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                      max.iter = pls.max.iter, tol = pls.tol)
       
       
-
+      
       fit <- cvVal$models
       ncomp <- cvVal$bestpls.c
       
@@ -1301,28 +1304,30 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
       }
       
       
-      # here all the weights are output from 1 to plsMax
-      w <- cvVal$compweights[!cvVal$compweights == 0]
+      ## here all the weights are output from 1 to plsMax
+      # w <- cvVal$compweights[!cvVal$compweights == 0]
+      w <- cvVal$compweights
     } else {
       x <- sweep(x, 1, weights, "*")   ###MODIFIED
       y <- y * weights
       fit <- fopls(X = x, Y = as.matrix(y), scale = scaled, ncomp = pls.c[[2]], maxiter = pls.max.iter, tol = pls.tol)
-
+      
       # compute weights for PLS components selected (from plsMin to plsMax)
-      w <- wapls.weights(plsO = fit, orgX = x, type = "w1", newX = t(newdata), pls.c = pls.c)       
+      w <- rep(0, pls.c[[2]])
+      w[pls.c[[1]]:pls.c[[2]]] <- wapls.weights(plsO = fit, orgX = x, type = "w1", newX = t(newdata), pls.c = pls.c)       
     }
     
-
-      # compute the weighted average of the multiple PLS predictions
-      #pred <- sum(c(predict(fit, newdata, ncomp = pls.c[[1]]:pls.c[[2]])) * w) # weighted preds
-      
-      predctn <- predopls(bo = fit$bo,
-                          b = fit$coefficients, 
-                          ncomp = pls.c[[2]], 
-                          newdata = newdata,
-                          scale = ifelse(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
-                          Xscale = fit$transf$Xscale)[,pls.c[[1]]:pls.c[[2]]]
-      pred <- sum(c(predctn) * w) # weighted preds
+    
+    # compute the weighted average of the multiple PLS predictions
+    #pred <- sum(c(predict(fit, newdata, ncomp = pls.c[[1]]:pls.c[[2]])) * w) # weighted preds
+    
+    predctn <- predopls(bo = fit$bo,
+                        b = fit$coefficients, 
+                        ncomp = pls.c[[2]], 
+                        newdata = newdata,
+                        scale = ifelse(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
+                        Xscale = fit$transf$Xscale)
+    pred <- sum(c(predctn) * w) # weighted preds
   }
   
   if(range.pred.lim)
@@ -1353,7 +1358,7 @@ smpl <- function(x){
 #' @description internal
 #' @keywords internal
 gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group = NULL, noise.v = 0.001, retrieve = c("final.model", "none")){
-
+  
   ## Create the resampling groups
   if(is.null(group)){
     nv <- floor((1-p)*nrow(x))
@@ -1571,7 +1576,7 @@ plsCv <- function(x, y, ncomp,
     sgr <- expand.grid(minF = seq.pls, maxF = seq.pls)
     sgr <- as.matrix(sgr[sgr$minF < sgr$maxF,])
     rownames(sgr) <- 1:nrow(sgr)
-    fmethod <- "wapls1complete"
+    fmethod <- "completewapls1"
   }else{
     sgr <- matrix(0,0,0)
     fmethod <- method
@@ -1622,7 +1627,7 @@ plsCv <- function(x, y, ncomp,
       }
     }
   }
-    
+  
   if(method == "wapls1" & retrieve & !.optimize){
     val$compweights <- cvre$compweights
     val$cvResults <- data.frame(minF = minF, maxF = ncomp, rmse.cv = mean(cvre$rmse.seg), st.rmse.cv = mean(cvre$st.rmse.seg), rmse.sd.cv = sd(cvre$rmse.seg), rsq.cv = mean(cvre$rsq.seg))
@@ -1632,15 +1637,13 @@ plsCv <- function(x, y, ncomp,
     if(!is.null(weights)){
       x <- sweep(x, 1, weights, "*")  ### MODIFIED
       y <- y * weights
-    } else {
-      val$models <- fopls(X = x, 
-                          Y = as.matrix(y), 
-                          scale = scaled, 
-                          ncomp = ncomp,
-                          maxiter = max.iter, 
-                          tol = tol)
-    }
-    
+    } 
+    val$models <- fopls(X = x, 
+                        Y = as.matrix(y), 
+                        scale = scaled, 
+                        ncomp = ncomp,
+                        maxiter = max.iter, 
+                        tol = tol)
   }
   
   if(method == "wapls1" & retrieve & .optimize){
@@ -1671,10 +1674,6 @@ plsCv <- function(x, y, ncomp,
   }
   return(val)
 }
-
-## AQUI VOY
-## EL CODIGO QUE USA plsCv DEBE ACTUALIZARSE 
-## UN NUEVO ARGUMENTO PREGUNTANFO QUE SI EN CV DEBE SER OPTIMIZADO EL NUEMRO DE MIN Y MAX PLS
 
 
 #' @title Internal function for computing the weights of the PLS components necessary for weighted average PLS 
@@ -1722,7 +1721,7 @@ wapls.weights <- function(plsO, orgX, type = "w1", newX = NULL, pls.c){
                     scale = ifelse(nrow(plsO$transf$Xscale) == 1, TRUE, FALSE),
                     Xcenter = plsO$transf$Xcenter,
                     Xscale = plsO$transf$Xscale)[1,]
-
+  
   return(whgt)
 }
 

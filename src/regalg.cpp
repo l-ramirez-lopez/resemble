@@ -692,7 +692,7 @@ Rcpp::NumericMatrix waplswCpp(arma::mat projectionm,
 //' @param X a \code{matrix} of predictor variables.
 //' @param Y a \code{matrix} of a single response variable.
 //' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
-//' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'} or \code{'wapls1complete'}.
+//' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'} or \code{'completewapls1p'}.
 //' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 //' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
 //' iteration.
@@ -704,7 +704,7 @@ Rcpp::NumericMatrix waplswCpp(arma::mat projectionm,
 //' @param newX a \code{matrix} of one row corresponding to the sample to be predicted (if the \code{method = 'wapls1'}).
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
-//' @param waplsgrid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls1'} is based on in case \code{method = 'wapls1complete'}.
+//' @param waplsgrid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls1'} is based on in case \code{method = 'completewapls1p'}.
 //' @return a list containing the following one-row matrices:
 //' \itemize{
 //' \item{\code{rmse.seg}}{ the RMSEs.}
@@ -791,6 +791,7 @@ List pplscv_cpp(arma::mat X,
       rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
     }
   }
+  
   if(method == "wapls1"){
     
     rmseseg = arma::zeros(1, mindices.n_cols);
@@ -865,7 +866,7 @@ List pplscv_cpp(arma::mat X,
     }
   }
   
-  if(method == "wapls1complete"){
+  if(method == "completewapls1"){
     rmseseg = arma::zeros(waplsgrid.n_rows, mindices.n_cols);
     strmseseg = arma::zeros(waplsgrid.n_rows, mindices.n_cols);
     rsqseg = arma::zeros(waplsgrid.n_rows, mindices.n_cols);

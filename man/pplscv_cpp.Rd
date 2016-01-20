@@ -18,7 +18,7 @@ pplscv_cpp(X, Y, scale, method,
 
 \item{scale}{a logical indicating whether the matrix of predictors (\code{X}) must be scaled.}
 
-\item{method}{the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'} or \code{'wapls1complete'}.}
+\item{method}{the method used for regression. One of the following options: \code{'pls'} or \code{'wapls1'} or \code{'completewapls1p'}.}
 
 \item{mindices}{a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
@@ -38,7 +38,7 @@ iteration.}
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 
-\item{waplsgrid}{the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls1'} is based on in case \code{method = 'wapls1complete'}.}
+\item{waplsgrid}{the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls1'} is based on in case \code{method = 'completewapls1p'}.}
 }
 \value{
 a list containing the following one-row matrices:
