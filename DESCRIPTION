@@ -2,13 +2,8 @@ Package: resemble
 Type: Package
 Title: Regression and Similarity Evaluation for Memory-Based Learning in
     Spectral Chemometrics
-Version: 1.2.0.9000
-Date: 2015-12-09
-Authors@R: c(
-    person("Leonardo", "Ramirez-Lopez", email = "ramirez.lopez.leo@gmail.com",
-           role = c("aut", "cre")),
-    person("Antoine", "Stevens", role = c("aut"))
-    )
+Version: 1.2.0
+Date: 2016-01-20
 Author: Leonardo Ramirez-Lopez [aut, cre], Antoine Stevens [aut]
 Maintainer: Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: https://github.com/l-ramirez-lopez/resemble/issues

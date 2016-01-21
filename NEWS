@@ -3,6 +3,8 @@
 * 19.03.2013 Hello world! Initial release of the package
 
 ## Version 1.2 (alma de coco)
+* 19.01.2016 Now it is possible to locally optimize the maximum and minimum 
+             pls factors in wapls1 local regressions.
 * 09.12.2015 Many thanks to Eva Ampe and Lorenzo Menichetti for their 
              suggestions.
 * 08.12.2015 A method for better estimates of RMSE values computed for 
