@@ -3,7 +3,7 @@
 .onAttach <- function(lib, pkg) {
     #assign("gpclib", FALSE, envir=.RESEMBLE_CACHE)
     resemble.v <- read.dcf(file = system.file("DESCRIPTION", package=pkg), fields="Version")
-    packageStartupMessage(paste(pkg, "version", resemble.v, "(09.12.2015) -- 'alma-de-coco'"))
+    packageStartupMessage(paste(pkg, "version", resemble.v, "-- 'alma-de-coco'"))
     packageStartupMessage("check the package website at http://l-ramirez-lopez.github.io/resemble/")
 }
 
