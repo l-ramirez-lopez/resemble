@@ -23,7 +23,7 @@
 #' The function does not accept input data containing missing values.
 #' @return 
 #' a \code{matrix} of the computed dissimilarities. 
-#' @author Antine Stevens and Leonardo Ramirez-Lopez
+#' @author Antoine Stevens and Leonardo Ramirez-Lopez
 #' @examples
 #' \dontrun{
 #' require(prospectr)

@@ -94,7 +94,7 @@
 #'  \item{\code{pls.c}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{min.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of minimum pls components used. If no optimization was set, it retrieves the original minimum pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{max.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of maximum pls components used. If no optimization was set, it retrieves the original maximum pls components specified in the \code{pls.c} argument.}
-#'  \item{\code{k yu.obs}:}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
+#'  \item{\code{yu.obs}:}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
 #'  \item{\code{pred}:}{ The predicted values}     
 #'  \item{\code{yr.min.obs}:}{ The minimum reference value (of the response variable) in the neighborhood.}
 #'  \item{\code{yr.max.obs}:}{ The maximum reference value (of the response variable) in the neighborhood.}
