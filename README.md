@@ -14,6 +14,12 @@ _Last update: 03.02.2016 :::: 18:42 GMT+1_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
+Installing the package is very simple:
+```
+install.packages('resemble')
+```
+
+
 If you do not have the following packages installed, we recommend to install them first
 ```
 install.packages('Rcpp')
