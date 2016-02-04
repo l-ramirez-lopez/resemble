@@ -103,6 +103,7 @@
 ## 18.11.2015 Leo     A sanity check for avoiding potential sm = NULL was 
 ##                    introduced
 ## 15.12.2015 Leo     A bug when checking the valMethod provided was fixed
+## 03.01.2016 Leo     the localOptimization argument was added
 
 
 mblControl <- function(sm = "pc",

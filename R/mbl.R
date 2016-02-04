@@ -91,7 +91,7 @@
 #'  \item{\code{k.diss}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the corresponding dissimilarity threshold for selecting the neighbors used to predict a given sample.}
 #'  \item{\code{distance}:}{ This column is only ouput if the \code{k.diss} argument is used. It is a logical that indicates whether the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument. In that case the number of neighbors used is coerced to on of the boundaries.}
 #'  \item{\code{k.org}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the number of neighbors that are retained when the given dissimilarity threshold is used.}
-#'  \item{\code{pls.c}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
+#'  \item{\code{pls.comp}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{min.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of minimum pls components used. If no optimization was set, it retrieves the original minimum pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{max.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of maximum pls components used. If no optimization was set, it retrieves the original maximum pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{yu.obs}:}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
@@ -369,6 +369,12 @@
 ## 11.12.2015 Leo     The explanation of the output variables in the results element of 
 ##                    the mbl objects was extended. The rep variable is not output anymore
 ##                    in the results element.
+## 03.01.2016 Leo     Now it is possible to optimize the max and min pls components of wapls1 
+## 04.02.2016 Leo     An exbug was fixed. The object predobs (in the parallel loop) had a
+##                    variable named pls.c (predobs$pls.c). When when method = "gpr" was used, 
+##                    and mbl was runing in parallel it retrieved and error saying that pls.c was missing!!!
+##                    This was perhaps due to the fact that the pls.c  was variable (in predobs) and an argument.
+
 
 mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
@@ -801,7 +807,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                    
                                    predobs <- data.frame(o.index = i, 
                                                          k.org = c(kn.org), k = it$k,
-                                                         pls.c = NA,
+                                                         pls.comp = NA,
                                                          min.pls = NA,
                                                          max.pls = NA,
                                                          yu.obs = tmp.val$y, pred = NA, 
@@ -846,7 +852,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                        dk <- it$index[1:knkk]
                                        
                                        # Select cal
-                                       tmp.cal <- data.frame(y=Yr[dk])
+                                       tmp.cal <- data.frame(y = Yr[dk])
                                        
                                        if(!is.null(group))
                                          tmp.group <- as.factor(as.character(group[dk]))
@@ -899,42 +905,42 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                                              p = mblCtrl$p, resampling = mblCtrl$resampling,
                                                              noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim,
                                                              pls.max.iter = pls.max.iter, pls.tol = pls.tol)
+                                        
+                                        predobs$pred[kk] <- i.pred$prediction
                                        
-                                       predobs$pred[kk] <- i.pred$prediction
+                                        
+                                        if(mblCtrl$valMethod %in% c("loc_crossval","both")){
+                                          if(mblCtrl$localOptimization & method %in% c("pls", "wapls1")){
+                                            if(method == "pls"){
+                                              o <- i.pred$validation$bestpls.c
+                                              predobs$pls.comp[kk] <- o
+                                              oplsfs <- o
+                                            }else{
+                                              o <- which.min(i.pred$validation$cvResults$rmse.cv)
+                                              oplsfs <- i.pred$validation$cvResults[o,c("minF", "maxF")]
+                                              predobs$min.pls[kk] <- oplsfs[[1]]
+                                              predobs$max.pls[kk] <- oplsfs[[2]]
+                                              
+                                            }
+                                            predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
+                                            predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
+                                          }else{
+                                            oplsfs <- plsF
+                                            o <- ifelse(method == "pls", plsF, 1)
+                                            predobs$pls.comp[kk] <- ifelse(method == "pls", plsF, NA)
+                                            predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
+                                            predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
+                                            predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
+                                            predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
+                                          }
+                                        }else{
+                                          predobs$pls.comp[kk] <- ifelse(method == "pls", plsF, NA)
+                                          predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
+                                          predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
+                                          oplsfs <- plsF
+                                        }
                                        
                                        
-                                       if(mblCtrl$valMethod %in% c("loc_crossval","both")){
-                                           if(mblCtrl$localOptimization & method %in% c("pls", "wapls1")){
-                                           if(method == "pls"){
-                                             o <- i.pred$validation$bestpls.c
-                                             predobs$pls.c[kk] <- o
-                                             oplsfs <- o
-                                           }else{
-                                             o <- which.min(i.pred$validation$cvResults$rmse.cv)
-                                             oplsfs <- i.pred$validation$cvResults[o,c("minF", "maxF")]
-                                             predobs$min.pls[kk] <- oplsfs[[1]]
-                                             predobs$max.pls[kk] <- oplsfs[[2]]
-                                             
-                                           }
-                                             predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
-                                             predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
-                                         }else{
-                                           oplsfs <- plsF
-                                           o <- ifelse(method == "pls", plsF, 1)
-                                           predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
-                                           predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
-                                           predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
-                                           predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
-                                           predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
-                                         }
-                                       }else{
-                                         predobs$pls.c[kk] <- ifelse(method == "pls", plsF, NA)
-                                         predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
-                                         predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
-                                         oplsfs <- plsF
-                                       }
-                                       
-                     
                                        if(mblCtrl$valMethod %in% c("NNv","both"))
                                        {
                                          if(!is.null(group))
@@ -968,7 +974,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
           if(is.null(dtc)){"k.org"},
           if(!(mblCtrl$valMethod %in% c("NNv", "both"))){"y.nearest.pred"},
           if(method != "wapls1"){c("min.pls","max.pls")},
-          if(method != "pls"){"pls.c"},
+          if(method != "pls"){"pls.comp"},
           if(!(mblCtrl$valMethod %in% c("loc_crossval", "both"))){c("loc.rmse.cv", "loc.st.rmse.cv")},
           "rep")
   
@@ -1167,7 +1173,7 @@ pred.gpr.dp <- function(object, newdata){
 #' @description internal
 #' @keywords internal
 locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata, 
-                        pls.c, CV = FALSE, .optimize = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
+                        pls.c = NULL, CV = FALSE, .optimize = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
                         range.pred.lim = TRUE,
                         pls.max.iter = 1, pls.tol = 1e-6){
   

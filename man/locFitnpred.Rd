@@ -4,9 +4,9 @@
 \alias{locFitnpred}
 \title{Local multivariate regression}
 \usage{
-locFitnpred(x, y, predMethod, scaled = TRUE, weights = NULL, newdata, pls.c,
-  CV = FALSE, .optimize = FALSE, resampling = 10, p = 0.75,
-  group = NULL, noise.v = 0.001, range.pred.lim = TRUE,
+locFitnpred(x, y, predMethod, scaled = TRUE, weights = NULL, newdata,
+  pls.c = NULL, CV = FALSE, .optimize = FALSE, resampling = 10,
+  p = 0.75, group = NULL, noise.v = 0.001, range.pred.lim = TRUE,
   pls.max.iter = 1, pls.tol = 1e-06)
 }
 \description{
