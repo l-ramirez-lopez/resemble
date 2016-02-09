@@ -5,7 +5,7 @@
 # resemble: Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
-_Last update: 03.02.2016 :::: 18:42 GMT+1_
+_Last update: 09.02.2016 :::: 12:53 GMT+1_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
@@ -112,7 +112,7 @@ In order to predict each value in Yu, the `mbl` function takes each sample in Xu
 __`'gpr'`__:                                   Gaussian process with linear kernel        
 __`'pls'`__:                                   Partial least squares                      
 __`'wapls1'`__:                                Weighted average partial least squares 1   
-__`'wapls2'`__:                                Weighted average partial least squares 2   
+__`'wapls2'`__:                                Weighted average partial least squares 2 (not longer supported)
 
 ## Keywords
 * _Infrared spectroscopy_

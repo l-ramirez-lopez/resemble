@@ -3,6 +3,8 @@
 * 19.03.2013 Hello world! Initial release of the package
 
 ## Version 1.2 (alma de coco)
+* 04.02.2016 A patch was released for and extrange bug that prevented to run mbl in parallel 
+             when the gpr method was used.
 * 19.01.2016 Now it is possible to locally optimize the maximum and minimum 
              pls factors in wapls1 local regressions.
 * 09.12.2015 Many thanks to Eva Ampe and Lorenzo Menichetti for their 
