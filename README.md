@@ -112,7 +112,7 @@ In order to predict each value in Yu, the `mbl` function takes each sample in Xu
 __`'gpr'`__:                                   Gaussian process with linear kernel        
 __`'pls'`__:                                   Partial least squares                      
 __`'wapls1'`__:                                Weighted average partial least squares 1   
-__`'wapls2'`__:                                Weighted average partial least squares 2 (not longer supported)
+__`'wapls2'`__:                                Weighted average partial least squares 2 (no longer supported)
 
 ## Keywords
 * _Infrared spectroscopy_

@@ -504,7 +504,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   
   ## Remove this line for the package version following 1.2
   if(method == "wapls2")
-    stop("The method 'wapls2' is deprecated. Since it is not longer supported, choose instead one of the following options: 'pls', 'wapls1', 'gpr'")
+    stop("The method 'wapls2' is deprecated. Since it is no longer supported, choose instead one of the following options: 'pls', 'wapls1', 'gpr'")
   
   match.arg(method, c("pls", "wapls1", "gpr"))
   
