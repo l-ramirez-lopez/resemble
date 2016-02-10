@@ -1523,8 +1523,7 @@ plsCv <- function(x, y, ncomp,
       mrspi[,jj]<- idxs[!idxs %in% strs]
       
     }
-  }else
-  {
+  }else{
     ygr <- data.frame(y, grp = as.factor(as.character(group)), order.orig = 1:length(y))
     lvls <- levels(ygr$grp)
     nlv <- nlevels(ygr$grp)
