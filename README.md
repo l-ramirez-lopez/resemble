@@ -14,13 +14,28 @@ Installing the package is very simple:
 install.packages('resemble')
 ```
 
+For the development version, download the [binary (.zip) file from here](https://github.com/l-ramirez-lopez/resemble/archive/1.2.2.zip) or the [source file (.tar.gz) from here](https://github.com/l-ramirez-lopez/resemble/archive/1.2.2.tar.gz). Remember you should have [R>=3.2.2](http://cran.r-project.org/). Suppose you downloaded the binary file to 'C:/MyFolder/', then you should be able to install the package as follows:
 
-If you do not have the following packages installed, we recommend to install them first
+If you do not have the following packages installed, you should install them first
 ```
 install.packages('Rcpp')
 install.packages('RcppArmadillo')
 install.packages('foreach')
 install.packages('iterators')
+```
+__Note__: Apart from these packages we stronly recommend to download and install Rtools ([directly from here](http://cran.r-project.org/web/packages/devtools/index.html) or from CRAN [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)). 
+This is important for obtaining the proper C++ toolchain that you might need for using `resemble`.
+
+Then, install `resemble`
+
+```
+install.packages('C:/MyFolder/resemble-1.2.2.zip', repos = NULL)
+````
+or
+
+```
+install.packages('C:/MyFolder/resemble-1.2.2.tar.gz', type = 'source', repos = NULL)
+```
 ```
 __Note__: Apart from these packages we stronly recommend to download and install Rtools ([directly from here](http://cran.r-project.org/web/packages/devtools/index.html) or from CRAN [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)). 
 This is important for obtaining the proper C++ toolchain that you might need for using `resemble`.
