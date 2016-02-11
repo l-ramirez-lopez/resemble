@@ -36,7 +36,7 @@ or
 ```
 install.packages('C:/MyFolder/resemble-1.2.2.tar.gz', type = 'source', repos = NULL)
 ```
-```
+
 __Note__: Apart from these packages we stronly recommend to download and install Rtools ([directly from here](http://cran.r-project.org/web/packages/devtools/index.html) or from CRAN [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)). 
 This is important for obtaining the proper C++ toolchain that you might need for using `resemble`.
 
