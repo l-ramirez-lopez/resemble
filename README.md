@@ -13,7 +13,7 @@ Installing the package is very simple:
 ```
 install.packages('resemble')
 ```
-If you do not have the following packages installed, you should install them first
+If you do not have the following packages installed, soemtimes is better to install them first
 ```
 install.packages('Rcpp')
 install.packages('RcppArmadillo')
