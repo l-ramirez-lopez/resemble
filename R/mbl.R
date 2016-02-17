@@ -261,10 +261,10 @@
 #' 
 #' # The principal components dissimilarity on the derivative spectra 
 #' der.ortho <- orthoDiss(Xr = Xr.der.sp, X2 = Xu.der.sp,
-#'                             Yr = Yr,
-#'                             pcSelection = list("opc", 40),
-#'                             method = "pls",
-#'                             center = FALSE, scale = FALSE) 
+#'                        Yr = Yr,
+#'                        pcSelection = list("opc", 40),
+#'                        method = "pls",
+#'                        center = FALSE, scale = FALSE) 
 #' 
 #' der.ortho.diss <- der.ortho$dissimilarity
 #' 
@@ -370,12 +370,13 @@
 ##                    the mbl objects was extended. The rep variable is not output anymore
 ##                    in the results element.
 ## 03.01.2016 Leo     Now it is possible to optimize the max and min pls components of wapls1 
-## 04.02.2016 Leo     An exbug was fixed. The object predobs (in the parallel loop) had a
+## 04.02.2016 Leo     An extrange bug was fixed. The object predobs (in the parallel loop) had a
 ##                    variable named pls.c (predobs$pls.c). When when method = "gpr" was used, 
 ##                    and mbl was runing in parallel it retrieved and error saying that pls.c was missing!!!
 ##                    This was perhaps due to the fact that the pls.c  was variable (in predobs) and an argument.
-
-
+## 16.02.2016 Leo     Bug fixed. It caused the mbl functio to return an error (sometimes) when the group argument was used together 
+##                    with local cross validation. The errors ocurred when groups containing very few samples (e.g. 1 or 2) were used.
+                   
 mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
                 dissimilarityM,
@@ -1403,7 +1404,7 @@ gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group
     y.str <- quantile(yg, probs = seq(0, 1, length = (nv+1)))
     y.cut <- cut(yg, unique(y.str), include.lowest = TRUE)
     levels(y.cut) <- paste("l_", 1:nlevels(y.cut), sep = "")
-    prob.g <- data.frame(orig.order = 1:length(yg), prob.group = y.cut)
+    prob.g <- data.frame(orig.order = 1:length(yg), prob.group = factor(y.cut))
     
     rspi <- matrix(0, nv, resampling)
     colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
@@ -1535,7 +1536,7 @@ plsCv <- function(x, y, ncomp,
     y.str <- quantile(yg, probs = seq(0, 1, length = (nv+1)))
     y.cut <- cut(yg, unique(y.str), include.lowest = TRUE)
     levels(y.cut) <- paste("l_", 1:nlevels(y.cut), sep = "")
-    prob.g <- data.frame(orig.order = 1:length(yg), prob.group = y.cut)
+    prob.g <- data.frame(orig.order = 1:length(yg), prob.group = factor(y.cut))
     
     rspi <- matrix(0, nv, resampling)
     colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")

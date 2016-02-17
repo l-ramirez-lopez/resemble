@@ -64,6 +64,9 @@
 
 corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
 {
+  
+  if(!ncol(Xr) >= 2)
+    stop("For correlation dissimilarity the number of variables must be larger than 1")
   if(!is.null(X2)){
     if(ncol(X2) != ncol(Xr))
       stop("The number of columns (variables) in Xr must be equal to the number of columns (variables) in X2")
