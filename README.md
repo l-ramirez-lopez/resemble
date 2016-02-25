@@ -1,12 +1,13 @@
 [![Travis-CI Build Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https://travis-ci.org/l-ramirez-lopez/resemble/)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](http://cran.r-project.org/web/packages/resemble)
 [![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](http://cran.r-project.org/web/packages/resemble)
+![alt text](https://raw.githubusercontent.com/l-ramirez-lopez/resemble/master/resemble_logo.png)
 
 
-# resemble: Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
+# Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
-_Last update: 11.02.2016 :::: 11:54 GMT+1_
+_Last update: 25.02.2016 :::: 12:30 GMT+1_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
@@ -138,12 +139,15 @@ __`'wapls2'`__:                                Weighted average partial least sq
 * _Soil spectroscopy_
 
 ## News
+* 2016-02: [Check this simple but inresting video](https://www.youtube.com/watch?v=zyY2N_bYdf4) about memory-based learning
+<iframe width="640" height="360" src="https://www.youtube.com/embed/zyY2N_bYdf4" frameborder="0" allowfullscreen></iframe>
 * 2016-02: As, promised, `resemble 1.2 (alma-de-coco)` is now available from CRAN.
 * 2016-01: The version 1.2 (alma-de-coco) has been submitted to CRAN and is available from the github repository!
 * 2015-11: A pre-release of the version 1.2.0 (1.2.0.9000 alma-de-coco) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon! (we promise).
 * 2015-11 Well, the version 1.1.3 was never released on CRAN since we decided to carry out major improvements in terms of computational performance so that we can overcome the "spell" of local regressions ;) (the computational time). 
 * 2014-10: A pre-release of the version 1.1.3 of the package is already available at this website. We hope it will be available at CRAN very soon!
 * 2014-06: Check  [this video](https://www.youtube.com/watch?v=7sCIEeNehgE&feature=youtu.be) where a renowned NIR scientist talks about local calibrations.
+<iframe width="640" height="360" src="https://www.youtube.com/embed/7sCIEeNehgE" frameborder="0" allowfullscreen></iframe>
 * 2014-04: A short note on the resemble and prospectr packages was published in [this newsletter](www.pedometrics.org/Pedometron/Pedometron34.pdf). There we provide some examples on representative subset selection and on how to reproduce the LOCAL and spectrum-based learner algorithms. In those examples the dataset of the Chemometric challenge of 'Chimiométrie 2006' (included in the prospectr package) is used.
 * 2014-03: The package was released on CRAN!
 
