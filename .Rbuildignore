@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-resemble_logo.png
+^\.resemble_logo.png
 code_ex.R
-.travis.yml
+^\.travis.yml
 ^packrat/
 ^\.Rprofile$
