@@ -3,6 +3,7 @@
 [![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](http://cran.r-project.org/web/packages/resemble)
 ![alt text](https://raw.githubusercontent.com/l-ramirez-lopez/resemble/master/resemble_logo.png)
 
+<iframe width="640" height="360" src="https://www.youtube.com/embed/zyY2N_bYdf4" frameborder="0" allowfullscreen></iframe>
 
 # Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
@@ -139,7 +140,7 @@ __`'wapls2'`__:                                Weighted average partial least sq
 * _Soil spectroscopy_
 
 ## News
-* 2016-02: [Check this simple but inresting video](https://www.youtube.com/watch?v=zyY2N_bYdf4) about memory-based learning
+* 2016-02: [Check this simple but inresting video](https://www.youtube.com/watch?v=zyY2N_bYdf4) about memory-based learning.
 <iframe width="640" height="360" src="https://www.youtube.com/embed/zyY2N_bYdf4" frameborder="0" allowfullscreen></iframe>
 * 2016-02: As, promised, `resemble 1.2 (alma-de-coco)` is now available from CRAN.
 * 2016-01: The version 1.2 (alma-de-coco) has been submitted to CRAN and is available from the github repository!
