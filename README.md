@@ -3,8 +3,6 @@
 [![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](http://cran.r-project.org/web/packages/resemble)
 ![alt text](https://raw.githubusercontent.com/l-ramirez-lopez/resemble/master/resemble_logo.png)
 
-<iframe width="640" height="360" src="https://www.youtube.com/embed/zyY2N_bYdf4" frameborder="0" allowfullscreen></iframe>
-
 # Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
