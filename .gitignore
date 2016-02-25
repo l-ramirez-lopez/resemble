@@ -5,9 +5,9 @@ resemble\.Rproj
 resemble.Rproj
 src/*.o
 .RData
-resemble_logo.png
+resemble\resemble_logo.png
 code_ex.R
-.travis.yml
+resemble\.travis.yml
 src/*.so
 src/*.dll
 src-i386/
