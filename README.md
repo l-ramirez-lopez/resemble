@@ -140,9 +140,9 @@ __`'wapls2'`__:                                Weighted average partial least sq
 ## News
 * 2016-02: [Check this simple but inresting video](https://www.youtube.com/watch?v=zyY2N_bYdf4) about memory-based learning.
 <iframe width="640" height="360" src="https://www.youtube.com/embed/zyY2N_bYdf4" frameborder="0" allowfullscreen></iframe>
-* 2016-02: As, promised, `resemble 1.2 (alma-de-coco)` is now available from CRAN.
+* 2016-02: As promised, `resemble 1.2 (alma-de-coco)` is now available from CRAN.
 * 2016-01: The version 1.2 (alma-de-coco) has been submitted to CRAN and is available from the github repository!
-* 2015-11: A pre-release of the version 1.2.0 (1.2.0.9000 alma-de-coco) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon! (we promise).
+* 2015-11: A pre-release of the version 1.2.0 (1.2.0.9000 alma-de-coco) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon!.
 * 2015-11 Well, the version 1.1.3 was never released on CRAN since we decided to carry out major improvements in terms of computational performance. 
 * 2014-10: A pre-release of the version 1.1.3 of the package is already available at this website. We hope it will be available at CRAN very soon!
 * 2014-06: Check  [this video](https://www.youtube.com/watch?v=7sCIEeNehgE&feature=youtu.be) where a renowned NIR scientist talks about local calibrations.
