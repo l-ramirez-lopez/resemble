@@ -9,8 +9,7 @@ Maintainer: Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: https://github.com/l-ramirez-lopez/resemble/issues
 Description: Implementation of functions for spectral similarity/dissimilarity
     analysis and memory-based learning (MBL) for non-linear modeling
-    in complex spectral datasets. MBL is also known as local modeling
-    in the chemometrics literature.
+    in complex spectral datasets. In chemometrics MBL is also known as local modeling.
 License: GPL (>=3)
 URL: http://l-ramirez-lopez.github.io/resemble/
 Depends:

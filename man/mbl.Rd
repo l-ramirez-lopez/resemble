@@ -135,7 +135,7 @@ The possible options for performing regressions at each local segment implemente
     }
  }
 The loop used to iterate over the \code{Xu} samples in \code{mbl} uses the \code{\%dopar\%} operator of the \code{\link{foreach}} package, which can be used to parallelize this internal loop. The last example given in the \code{\link{mbl}} function ilustrates how to parallelize the \code{\link{mbl}} function.
-Note that the computational cost depends largely on the way on which the arguments are set. For big datasets, it is recommended to carefully select the values of the parameters to test (e.g. validation method, regression method, dissimilarity information usage, dissimilarity method).
+Note that the computational cost depends largely on the way on which the arguments of the function are set. For big datasets, it is recommended to carefully select the values of the parameters to test (e.g. validation method, regression method, dissimilarity information usage, dissimilarity method).
 }
 \examples{
 \dontrun{

@@ -72,7 +72,7 @@
 #'     }
 #'  }
 #' The loop used to iterate over the \code{Xu} samples in \code{mbl} uses the \code{\%dopar\%} operator of the \code{\link{foreach}} package, which can be used to parallelize this internal loop. The last example given in the \code{\link{mbl}} function ilustrates how to parallelize the \code{\link{mbl}} function.
-#' Note that the computational cost depends largely on the way on which the arguments are set. For big datasets, it is recommended to carefully select the values of the parameters to test (e.g. validation method, regression method, dissimilarity information usage, dissimilarity method).
+#' Note that the computational cost depends largely on the way on which the arguments of the function are set. For big datasets, it is recommended to carefully select the values of the parameters to test (e.g. validation method, regression method, dissimilarity information usage, dissimilarity method).
 #' @return a \code{list} of class \code{mbl} with the following components (sorted by either \code{k} or \code{k.diss} according to the case):
 #' \itemize{
 #'  \item{\code{call}:}{ the call used.}
