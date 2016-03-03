@@ -135,6 +135,7 @@ The possible options for performing regressions at each local segment implemente
     }
  }
 The loop used to iterate over the \code{Xu} samples in \code{mbl} uses the \code{\%dopar\%} operator of the \code{\link{foreach}} package, which can be used to parallelize this internal loop. The last example given in the \code{\link{mbl}} function ilustrates how to parallelize the \code{\link{mbl}} function.
+Note that the computational cost depends largely on the way on which the arguments are set. For big datasets, it is recommended to carefully select the values of the parameters to test (e.g. validation method, regression method, dissimilarity information usage, dissimilarity method).
 }
 \examples{
 \dontrun{
@@ -178,6 +179,8 @@ sbl.u <- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
              k = seq(40, 150, by = 10), 
              method = "gpr")
 sbl.u
+plot(sbl.u)
+
 
  
 # Example 1.2
@@ -271,10 +274,10 @@ Xu.der.sp <- t(diff(t(Xu), lag = 7, differences = 1))
 
 # The principal components dissimilarity on the derivative spectra 
 der.ortho <- orthoDiss(Xr = Xr.der.sp, X2 = Xu.der.sp,
-                            Yr = Yr,
-                            pcSelection = list("opc", 40),
-                            method = "pls",
-                            center = FALSE, scale = FALSE) 
+                       Yr = Yr,
+                       pcSelection = list("opc", 40),
+                       method = "pls",
+                       center = FALSE, scale = FALSE) 
 
 der.ortho.diss <- der.ortho$dissimilarity
 
