@@ -6,7 +6,7 @@
 # Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
-_Last update: 16.05.2016 :::: 16:28 GMT+1_
+_Last update: 16.05.2016 :::: 18:42 GMT+2_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
@@ -136,9 +136,7 @@ __`'wapls2'`__:                                Weighted average partial least sq
 
 ## News
 * 2016-05: In [this recent scientific paper] (http://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at national scale. 
-* 2016-04: In some recent entries of [this blog] (http://nir-quimiometria.blogspot.com/), the author talks about some of the functionality of `resemble`
-* 2016-02: [Check this simple but inresting video](https://www.youtube.com/watch?v=zyY2N_bYdf4) about memory-based learning.
-<iframe width="640" height="360" src="https://www.youtube.com/embed/zyY2N_bYdf4" frameborder="0" allowfullscreen></iframe>
+* 2016-04: In some recent entries of [this blog] (http://nir-quimiometria.blogspot.com/), the author shows some exmaples on the use `resemble`
 * 2016-02: As promised, `resemble 1.2 (alma-de-coco)` is now available from CRAN.
 * 2016-01: The version 1.2 (alma-de-coco) has been submitted to CRAN and is available from the github repository!
 * 2015-11: A pre-release of the version 1.2.0 (1.2.0.9000 alma-de-coco) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon!.
