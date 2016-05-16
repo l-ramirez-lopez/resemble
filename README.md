@@ -6,7 +6,7 @@
 # Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
-_Last update: 25.02.2016 :::: 12:30 GMT+1_
+_Last update: 16.05.2016 :::: 16:28 GMT+1_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
