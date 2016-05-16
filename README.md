@@ -137,7 +137,7 @@ __`'wapls2'`__:                                Weighted average partial least sq
 ## News
 * 2016-05: In [this recent scientific paper] (http://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at national scale. 
 * 2016-04: In some recent entries of [this blog] (http://nir-quimiometria.blogspot.com/), the author shows some exmaples on the use `resemble`
-* 2016-02: As promised, `resemble 1.2 (alma-de-coco)` is now available from CRAN.
+* 2016-02: As promised, `resemble 1.2 (alma-de-coco)` is now available on [CRAN](https://cran.r-project.org/web/packages/devtools/index.html).
 * 2016-01: The version 1.2 (alma-de-coco) has been submitted to CRAN and is available from the github repository!
 * 2015-11: A pre-release of the version 1.2.0 (1.2.0.9000 alma-de-coco) is now available! `resemble` is now faster! Some critical functions (e.g. pls and gaussian process regressions were re-written in C++ using `Rcpp`. This time the new version will be available at CRAN very soon!.
 * 2015-11 Well, the version 1.1.3 was never released on CRAN since we decided to carry out major improvements in terms of computational performance. 
