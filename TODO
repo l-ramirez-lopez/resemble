@@ -1,0 +1,6 @@
+#02.08.2016
+fix bug: when gorup is used within the mbl function and the "loc_crossval" option (of the validation argument in mblControl) is used
+the following error is thrown: 
+Error in { : 
+  task 1 failed - "length of 'dimnames' [1] not equal to array extent"
+
