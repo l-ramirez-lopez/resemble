@@ -6,7 +6,7 @@
 # Regression and Similarity Evaluation for Memory-Based Learning in Spectral Chemometrics
 _Leo Ramirez-Lopez & Antoine Stevens_
 
-_Last update: 17.05.2016 :::: 11:30 GMT+2_
+_Last update: 17.05.2019 :::: 10:09 GMT+2_
 
 Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
 
@@ -135,8 +135,10 @@ __`'wapls2'`__:                                Weighted average partial least sq
 * _Soil spectroscopy_
 
 ## News
-* 2016-05: In [this recent scientific paper] (http://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at national scale in France. 
-* 2016-04: [This paper] (http://www.mdpi.com/2072-4292/8/4/341) shows some interesting results on appliying memory-based learning to predict soil properties.
+* 2019-03: Another paper using `resemble`... I just published a [scientific paper] (https://onlinelibrary.wiley.com/doi/10.1111/ejss.12752) were we used memory-based learning (MBL) for digital soil mapping. Here we use MBL to remove local calibration outliers rather than using this approach to overcome the typical complexity of large spectral datasets. (Ramirez‐Lopez, L., Wadoux, A. C., Franceschini, M. H. D., Terra, F. S., Marques, K. P. P., Sayão, V. M., & Demattê, J. A. M. (2019). Robust soil mapping at the farm scale with vis–NIR spectroscopy. European Journal of Soil Science. 70, 378–393).
+* 2018-11: In [this recent scientific paper] (https://www.frontiersin.org/articles/10.3389/fpls.2018.01642/full) the authors used `resemble` to predict the chemoical composition of Common Beans in Spain. (Rivera, A., Plans, M., Sabaté, J., Casañas, F., Casals, J., Rull, A., & Simó, J. (2018). The Spanish core collection of common beans (Phaseolus vulgaris L.): an important source of variability for breeding chemical composition. Frontiers in Plant Science, 9)
+* 2016-05: In [this recent scientific paper] (http://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at national scale in France. (Clairotte, M., Grinand, C., Kouakoua, E., Thébault, A., Saby, N. P., Bernoux, M., & Barthès, B. G. (2016). National calibration of soil organic carbon concentration using diffuse infrared reflectance spectroscopy. Geoderma, 276, 41-52)
+* 2016-04: [This paper] (http://www.mdpi.com/2072-4292/8/4/341) shows some interesting results on applying memory-based learning to predict soil properties.
 * 2016-04: In some recent entries of [this blog] (http://nir-quimiometria.blogspot.com/), the author shows some exmaples on the use `resemble`
 * 2016-02: As promised, `resemble 1.2 (alma-de-coco)` is now available on [CRAN](https://cran.r-project.org/web/packages/resemble/index.html).
 * 2016-01: The version 1.2 (alma-de-coco) has been submitted to CRAN and is available from the github repository!
