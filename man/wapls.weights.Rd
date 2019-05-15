@@ -27,4 +27,3 @@ internal
 Leonardo Ramirez-Lopez and Antoine Stevens
 }
 \keyword{internal}
-

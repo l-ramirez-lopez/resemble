@@ -22,4 +22,3 @@ used internally in orthoProjection
 Leo Ramirez-Lopez
 }
 \keyword{internal}
-

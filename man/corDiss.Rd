@@ -57,4 +57,3 @@ corDiss(Xr = Xr, X2 = Xu, ws = 41)
 \author{
 Antoine Stevens and Leonardo Ramirez-Lopez
 }
-

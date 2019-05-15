@@ -2,11 +2,11 @@
 % Please edit documentation in R/resemble.R
 \docType{package}
 \name{resemble-package}
-\alias{resemble}
 \alias{resemble-package}
+\alias{resemble}
 \title{Overview of the functions in the resemble package}
 \description{
-This is the version \code{1.2} (\code{'alma-de-coco'}) of the package. It 
+This is the version \code{1.3} (\code{'milagros'}) of the package. It 
 implements a number of \code{R} functions useful for 
 modeling complex visible and infrared spectra (\acronym{vis-IR}). 
 The package includes functions for projecting spectral data 
@@ -58,4 +58,3 @@ Other supplementary functions are:
 \author{
 Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@gmail.com} & Antoine Stevens
 }
-

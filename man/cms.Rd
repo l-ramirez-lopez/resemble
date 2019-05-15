@@ -19,4 +19,3 @@ Computes the mean of each column in a \code{matrix}. For internal use only!
 Leonardo Ramirez-Lopez
 }
 \keyword{internal}
-

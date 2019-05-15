@@ -10,4 +10,3 @@ sqrtSm(X, method = c("svd", "eigen"))
 For internal use only
 }
 \keyword{internal}
-

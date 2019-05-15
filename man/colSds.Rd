@@ -19,4 +19,3 @@ Computes the standard deviation of each column in a \code{matrix}. For internal 
 Leonardo Ramirez-Lopez
 }
 \keyword{internal}
-

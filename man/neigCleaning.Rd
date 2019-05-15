@@ -139,9 +139,6 @@ ex5 <- neigCleaning(Xr = Xr, Xu = Xu,
                             k.thr = 150)
 }                          
 }
-\author{
-Leonardo Ramirez-Lopez
-}
 \references{
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., Scholten, T. 2013a. The spectrum-based learner: A new local approach for modeling soil vis-NIR spectra of complex datasets. Geoderma 195-196, 268-279.
 
@@ -150,4 +147,6 @@ Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte, J. A.
 \seealso{
 \code{\link{fDiss}}, \code{\link{corDiss}}, \code{\link{sid}}, \code{\link{orthoDiss}}, \code{\link{mbl}}
 }
-
+\author{
+Leonardo Ramirez-Lopez
+}

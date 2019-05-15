@@ -31,4 +31,3 @@ isubset will look at the order of knn in each col of D and re-organize the rows 
 Antoine Stevens
 }
 \keyword{internal}
-

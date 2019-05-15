@@ -11,4 +11,3 @@ gpr.dp(Xn, Yn, noise.v = 0.001, scaled = TRUE, center = FALSE,
 internal
 }
 \keyword{internal}
-

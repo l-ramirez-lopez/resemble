@@ -1,0 +1,168 @@
+Correct a Bug in orthoDiss 
+error: Yu must be provided either when the 'opc' is used in pcSelection is used or method = 'pls'
+
+the  corDiss returns values that are not zero (but close) when the samples are identical
+it needs to use the machine precision to round such values so that they are zeo at the end
+
+add the simEval results to the orthoDiss object created with the "opc" method
+
+
+
+when orthoDiss is used it returns different results than when the spectra is projected and then the fDiss function is used
+example:
+#------------------------------- Info ------------------------------------------
+# Description: Measuring the similarity/dissimilarity between spectra 
+# 
+# Inputs:      world_data_3644_samples.txt
+#
+# Authors:     Leo Ramirez-Lopez & Alexandre Wadoux
+#              ramirez-lopez.l@buchi.com; alexandre.wadoux@wur.nl 
+#
+# Date:        Jun 2017
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Set the language of R to English
+Sys.setenv(language = "EN")
+
+# Call the required packages 
+# prospectr
+require(prospectr)
+# resemble
+require(resemble)
+
+
+# USER: specifiy working directy
+wd <- "C:/Users/raml/Documents/pedometrics2017"
+
+# R: Set the working directory
+setwd(wd)
+
+# USER: specifiy the input files (including the subdirectory 
+# that is not specified in the working directy)
+inputfile1 <- "data/world_data_3644_samples.txt"
+
+# R: read the data
+sdata <- read.table(inputfile1, 
+                    header = TRUE, 
+                    check.names = FALSE, 
+                    sep ="\t")
+
+# USER: indicate here the name of the first wavelength/wavenumber 
+# of the spectra  as it appears in the data table
+firstw <- 350
+
+# R: extract in one object only the spectra from the "data" table...
+spc <- as.matrix(sdata[,which(colnames(sdata) == firstw):ncol(sdata)])
+
+# R: remove from "data" spectra...
+sdata <- sdata[,-c(which(colnames(sdata) == firstw):ncol(sdata)), drop = FALSE]
+
+# R: put back the spectra in the "data" object but as a 
+# sub-element of "data"
+sdata$spc <-spc
+
+# R: remove the spc object since it is already a sub-element of "data"
+rm(spc)
+
+# R: extract from the column names of the spectra sub-element 
+# the vector of wavelengths/wavenumbers
+wavs <- colnames(sdata$spc)
+
+# R: Since the "wavs" vector is a character string vector
+# we will need to transform it to a numeric vector
+# NOTE that the names of the columns of the spectra 
+# must be writen only with numbers (otherwise they will not be
+# correctly converted from characters to numbers)
+wavs <- as.numeric(wavs)
+
+
+# R: apply the Standard Normal Variate on the absorbance spectra
+# in order to account for scattering effects
+sdata$spc_snv <- standardNormalVariate(X = -log(sdata$spc))
+
+
+# R: plot the spectra...
+# USER: before plotting provide names of the axes 
+# of the plot
+xax <- "Wavelength, nm"
+yax <- "snv(Absrobance)"
+
+matplot(x = wavs, y = t(sdata$spc_snv),
+        xlab = xax,
+        ylab = yax,
+        type = "l",
+        lty = 1,
+        col = rgb(red = 0, green = 0.4, blue = 0.8, alpha = 0.5),
+        main = "Soil spectra")
+grid()
+
+#---- 1. Mahalanobis distance computed on the principal components (PC) space ----
+## First of all we need to compute the PCs of the spectra
+# for doing so we can use the pcProjection function of the resemble package
+
+# R: compute the PCs of the spectra
+# USER: indicate the maximum amount of cummalative variance explained
+# that needs to be retained in the PCs
+maxexplvar <- 0.99
+
+pcspectra <- pcProjection(Xr = sdata$spc_snv, 
+                          pcSelection = list("cumvar", maxexplvar), 
+                          center = TRUE, scaled = FALSE)
+
+# R: get a summary of the PC object created (Compactly Display the Structure of the object)
+str(pcspectra)
+
+# R: get just the names of the sub-objects in the PC object created 
+names(pcspectra)
+
+# R: plot the first two scores of the PCs 
+plot(x = pcspectra$scores[,1],
+     y = pcspectra$scores[,2],
+     xlab = "PC 1",
+     ylab = "PC 2",
+     type = "p",
+     pch = 16,
+     col = rgb(red = 0, green = 0.4, blue = 0.8, alpha = 0.2),
+     main = "Score plot")
+grid()
+
+# To obtain the pairwise Mahalanobis distances we can use the 
+# fDiss of the resemble package
+
+# R: compute the pairwise Mahalanobis distances
+md1 <- fDiss(Xr = pcspectra$scores, 
+             X2 = pcspectra$scores, 
+             method = "mahalanobis", 
+             center = FALSE, scaled = FALSE)
+
+
+# Let's say you just need to compare the dissimilarity matrix between 
+# all the samples in your spectral data set and the first three
+# spectra in the same dataset
+
+#R: compute the dissimilarity matrix
+md_first_three <- fDiss(Xr = pcspectra$scores, 
+                        X2 = pcspectra$scores[1:3,], 
+                        method = "euclid", 
+                        center = TRUE, scaled = TRUE)
+
+# There is another function in the resemble package that
+# allows you to compute the dissimilarity matrix by using a single
+# function (it automatically computes the PCs and then the distances)
+
+# R: compute the pairwise dissimilarity matrix 
+mdortho <- orthoDiss(Xr = pcspectra$scores, 
+                     pcSelection = list("cumvar", maxexplvar), 
+                     method = "pca", 
+                     center = TRUE, scaled = FALSE)
+
+# R: get a summary of the object created (Compactly Display the Structure of the object)
+str(mdortho)
+
+# R: get just the names of the sub-objects in the orthoDiss object created 
+names(mdortho)
+
+# Compare the first three pairwise distances for md1 and mdortho
+md1[1:3,1:3]
+mdortho$dissimilarity[1:3,1:3]
+
+

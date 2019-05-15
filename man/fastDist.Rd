@@ -23,4 +23,3 @@ Computes distances between two data matrices using "euclid", "cor", "cosine"
 Antoine Stevens and Leonardo Ramirez-Lopez
 }
 \keyword{internal}
-

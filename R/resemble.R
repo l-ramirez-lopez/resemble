@@ -1,4 +1,4 @@
-#' This is the version \code{1.2} (\code{'alma-de-coco'}) of the package. It 
+#' This is the version \code{1.3} (\code{'milagros'}) of the package. It 
 #' implements a number of \code{R} functions useful for 
 #' modeling complex visible and infrared spectra (\acronym{vis-IR}). 
 #' The package includes functions for projecting spectral data 

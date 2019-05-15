@@ -19,12 +19,7 @@ export(plsProjection)
 export(sid)
 export(simEval)
 import(Rcpp)
+import(RcppArmadillo)
 import(foreach)
 import(iterators)
-importFrom("grDevices", "grey", "heat.colors", "rainbow")
-importFrom("graphics", "barplot", "grid", "legend", "lines", "matplot",
-           "mtext", "par", "plot", "points")
-importFrom("stats", "bw.nrd0", "complete.cases", "cor", "cov",
-           "density", "diffinv", "prcomp", "quantile", "reshape", "sd")
-importFrom("utils", "setTxtProgressBar", "txtProgressBar")
 useDynLib(resemble)

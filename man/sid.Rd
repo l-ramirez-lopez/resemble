@@ -112,13 +112,12 @@ xru.sid.hist <- sid(Xr = Xr, X2 = Xu, mode = "feature")
 xru.sid.hist
 }
 }
-\author{
-Leonardo Ramirez-Lopez
-}
 \references{
 Chang, C.I. 2000. An information theoretic-based approach to spectral variability, similarity and discriminability for hyperspectral image analysis. IEEE Transactions on Information Theory 46, 1927-1932.
 }
 \seealso{
 \code{\link[stats]{density}}
 }
-
+\author{
+Leonardo Ramirez-Lopez
+}

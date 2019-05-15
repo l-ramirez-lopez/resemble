@@ -52,10 +52,9 @@ ex1 <- mbl(Yr = Yr, Xr = Xr, Yu = NULL, Xu = Xu,
 plot(ex1)
 }
 }
-\author{
-Leonardo Ramirez-Lopez and Antoine Stevens
-}
 \seealso{
 \code{\link{mbl}}
 }
-
+\author{
+Leonardo Ramirez-Lopez and Antoine Stevens
+}

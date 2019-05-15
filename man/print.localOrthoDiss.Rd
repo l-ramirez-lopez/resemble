@@ -17,4 +17,3 @@ Prints the content of an object of class \code{orthoDiss}
 \author{
 Leonardo Ramirez-Lopez and Antoine Stevens
 }
-

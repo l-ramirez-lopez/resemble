@@ -11,4 +11,3 @@ gprCv(x, y, scaled, weights = NULL, p = 0.75, resampling = 10,
 internal
 }
 \keyword{internal}
-

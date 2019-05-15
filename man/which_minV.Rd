@@ -27,4 +27,3 @@ since \code{sqrt} cannot be applied to integers.
 Antoine Stevens
 }
 \keyword{internal}
-

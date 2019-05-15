@@ -24,4 +24,3 @@ Used internally to find the nearest neighbours
 Antoine Stevens
 }
 \keyword{internal}
-

@@ -29,7 +29,7 @@ In the case of both the Euclidean and Mahalanobis distances, the dissimilarity m
 \deqn{
      D(x_i, x_j) = \sqrt{(x_i - x_j)M^{-1}(x_i - x_j)^{\mathrm{T}}}
      }
-where \eqn{M} is the identity matrix in the case of the Euclidean distance and the variance-covariance matrix of \eqn{M} in the case of the Mahalanobis distance.
+where \eqn{M} is the identity matrix in the case of the Euclidean distance and the variance-covariance matrix of \eqn{X} in the case of the Mahalanobis distance.
 The Mahalanobis distance can also be viewed as the Euclidean distance after applying a linear transformation of the original variables. 
 Such a linear transformation is carried by using a factorization of the inverse covariance matrix as \eqn{M^{-1} = W^{\mathrm{T}}W}, where \eqn{M} is merely the square root of \eqn{M^{-1}} which can be found by using a singular value decomposition. 
 Note that when attempting to compute the Mahalanobis distance on a dataset with highly correlated variables (i.e. spectral variables) the variance-covariance matrix may result in a singular matrix which cannot be inverted and therefore the distance cannot be computed. 
@@ -41,6 +41,7 @@ S(x_i, x_j) = cos^{-1}{\frac{\sum_{k=1}^{p}x_{i,k} x_{j,k}}{\sqrt{\sum_{k=1}^{p}
      }
 where \eqn{p} is the number of variables of the observations.
 The function does not accept input data containing missing values.
+NOTE: The computed distances are divided by the number of variables/columns in \code{Xr}.
 }
 \examples{
 require(prospectr)
@@ -71,4 +72,3 @@ cdiss.xr.xu <- fDiss(Xr = Xr, X2 = Xu,
 \author{
 Leonardo Ramirez-Lopez and Antoine Stevens
 }
-

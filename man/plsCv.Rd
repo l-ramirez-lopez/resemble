@@ -13,4 +13,3 @@ plsCv(x, y, ncomp, method = c("pls", "wapls1"), center = TRUE, scaled,
 for internal use only!
 }
 \keyword{internal}
-
