@@ -10,4 +10,3 @@ smpl(x)
 internal
 }
 \keyword{internal}
-

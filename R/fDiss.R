@@ -14,7 +14,7 @@
 #' \deqn{
 #'      D(x_i, x_j) = \sqrt{(x_i - x_j)M^{-1}(x_i - x_j)^{\mathrm{T}}}
 #'      }
-#' where \eqn{M} is the identity matrix in the case of the Euclidean distance and the variance-covariance matrix of \eqn{M} in the case of the Mahalanobis distance.
+#' where \eqn{M} is the identity matrix in the case of the Euclidean distance and the variance-covariance matrix of \eqn{X} in the case of the Mahalanobis distance.
 #' The Mahalanobis distance can also be viewed as the Euclidean distance after applying a linear transformation of the original variables. 
 #' Such a linear transformation is carried by using a factorization of the inverse covariance matrix as \eqn{M^{-1} = W^{\mathrm{T}}W}, where \eqn{M} is merely the square root of \eqn{M^{-1}} which can be found by using a singular value decomposition. 
 #' Note that when attempting to compute the Mahalanobis distance on a dataset with highly correlated variables (i.e. spectral variables) the variance-covariance matrix may result in a singular matrix which cannot be inverted and therefore the distance cannot be computed. 
@@ -26,6 +26,7 @@
 #'      }
 #' where \eqn{p} is the number of variables of the observations.
 #' The function does not accept input data containing missing values.
+#' NOTE: The computed distances are divided by the number of variables/columns in \code{Xr}.
 #' @return 
 #' a \code{matrix} of the computed dissimilarities. 
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
@@ -88,9 +89,16 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
   if(sum(is.na(Xr)) > 0)
     stop("Matrices with missing values are not accepted")
   
-  mtd <- match.arg(method, c("euclid", "mahalanobis","cosine"))
-  if(length(mtd) > 1)
-    message(paste("More than one method was specified, only", mtd, "was used."))
+  n.method <- method
+  if(!n.method %in% c("euclid", "mahalanobis","cosine")){
+    stop("method must be one of: 'euclid', 'mahalanobis' or'cosine'")
+    
+  if(length(n.method) > 1){
+    }else{
+      n.method <- method[[1]]
+      message(paste("More than one method was specified, only", n.method, "was used."))
+    }
+  }
   
   if(!is.logical(center))
     stop("'center' argument must be logical")
@@ -98,8 +106,7 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
   if(!is.logical(scaled))
     stop("'scaled' argument must be logical")
   
-  if(center | scaled | method == "mahalanobis")
-  {
+  if(center | scaled | n.method %in% c("mahalanobis", "euclid")){
     X <- rbind(Xr, X2)
     
     if(center){
@@ -110,14 +117,14 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
       X <- sweep(x = X, MARGIN = 2, FUN = "/", STATS = cSds(X))
     }
     
-    if(method == "mahalanobis")
+    if(n.method == "mahalanobis")
     {
       if(nrow(X) < ncol(X))
         stop("For computing the Mahalanobis distance, the total number of samples (rows) \n must be larger than the number of variables (columns).")
       X <- try(e2m(X, sm.method = "svd"), TRUE)
       if(!is.matrix(X))
         stop("The covariance matrix (for the computation of the Mahalanobis distance) is exactly singular. \n Try another method.")
-      method <- "euclid"
+      n.method <- "euclid"
     }
     
     if(!is.null(X2))
@@ -132,14 +139,14 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
   
   if(!is.null(X2))
   {
-    rslt <- fastDist(X2, Xr, method)
-    if(method=="euclid")      
+    rslt <- fastDist(X2, Xr, n.method)
+    if(n.method == "euclid" )      
       rslt <- (rslt^.5)/ncol(Xr)
     colnames(rslt) <- paste("X2", 1:nrow(X2), sep = ".")
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
   }else{
-    rslt <- fastDist(Xr, Xr, method)
-    if(method=="euclid")      
+    rslt <- fastDist(Xr, Xr, n.method)
+    if(n.method == "euclid")      
       rslt <- (rslt^.5)/ncol(Xr)
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
     colnames(rslt) <- rownames(rslt)

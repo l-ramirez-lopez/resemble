@@ -13,6 +13,7 @@ mbl(Yr, Xr, Yu = NULL, Xu,
     method, 
     pls.c, pls.max.iter = 1, pls.tol = 1e-6,
     noise.v = 0.001,
+    documentation = character(),
     ...)
 }
 \arguments{
@@ -55,46 +56,9 @@ used for the regressions (see details below).}
 
 \item{noise.v}{a value indicating the variance of the noise for Gaussian process regression. Default is 0.001.}
 
+\item{documentation}{an optional character string that can be used to describe anything related to a given computation with \code{mbl} (e.g. description of the input data). Default: \code{character()}.}
+
 \item{...}{additional arguments to be passed to other functions.}
-}
-\value{
-a \code{list} of class \code{mbl} with the following components (sorted by either \code{k} or \code{k.diss} according to the case):
-\itemize{
- \item{\code{call}:}{ the call used.}
- \item{\code{cntrlParam}:}{ the list with the control parameters used. If one or more control parameters were reset automatically, then a list containing a list with the initial control parameters specified and a list with the parameters which were finally used.}
- \item{\code{dissimilarities}:}{ a list with the method used to obtain the dissimilarity matrices and the dissimilarity matrices corresponding to \eqn{D(Xr, Xu)} and \eqn{D(Xr,Xr)} if \code{dissUsage = "predictors"}. This object is returned only if the \code{returnDiss} argument in the \code{mblCtrl} list was set to \code{TRUE} in the the call used.}
- \item{\code{totalSamplesPredicted}}{ the total number of samples predicted.}
- \item{\code{pcAnalysis}:}{ a list containing the results of the principal component analysis. The first two objects (\code{scores_Xr} and \code{scores_Xu}) are the scores of the \code{Xr} and \code{Xu} matrices. It also contains the number of principal components used (\code{n.componentsUsed}) and another object which is  a \code{vector} containing the standardized Mahalanobis dissimilarities (also called GH, Global H distance) between each sample in \code{Xu} and the centre of \code{Xr}.}
- \item{\code{components}:}{ a list containing either the number of  principal components  or partial least squares components used for the computation of the orthogonal dissimilarities. This object is only returned if the dissimilarity meausre specified in \code{mblCtrl} is any of the following options: \code{'pc'}, \code{'loc.pc'}, \code{"pls"}, \code{'loc.pls'}. If any of the local orthogonal dissimilarities was used (\code{'loc.pc'} or \code{"pls"})
-                           a \code{data.frame} is also returned in his list. This object is equivalent to the \code{loc.n.components} object returned by the \code{\link{orthoDiss}} function. It specifies the number of local components (either principal components or partial least squares components) used for computing the dissimilarity between each query sample and its neighbour samples, as returned by the \code{\link{orthoDiss}} function.
-                           }
- \item{\code{nnValStats}:}{ a data frame containing the statistics of the nearest neighbour cross-validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'NNv'} or \code{'both'} were selected as validation method}
- \item{\code{localCrossValStats}:}{ a data frame containing the statistics of the local leave-group-out cross validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'local_crossval'} or \code{'both'} were selected as validation method}
- \item{\code{YuPredictionStats}:}{ a data frame containing the statistics of the cross-validation of the prediction of  \code{Yu} for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{Yu} was provided.}
- \item{\code{results}:}{ a list of data frames which contains the results of the predictions for each either \code{k} or \code{k.diss}. Each \code{data.frame} contains the following columns:}
- \itemize{
- \item{\code{o.index}:}{ The index of the sample predicted in the input \code{matrix}}
- \item{\code{k.diss}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the corresponding dissimilarity threshold for selecting the neighbors used to predict a given sample.}
- \item{\code{distance}:}{ This column is only ouput if the \code{k.diss} argument is used. It is a logical that indicates whether the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument. In that case the number of neighbors used is coerced to on of the boundaries.}
- \item{\code{k.org}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the number of neighbors that are retained when the given dissimilarity threshold is used.}
- \item{\code{pls.comp}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
- \item{\code{min.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of minimum pls components used. If no optimization was set, it retrieves the original minimum pls components specified in the \code{pls.c} argument.}
- \item{\code{max.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of maximum pls components used. If no optimization was set, it retrieves the original maximum pls components specified in the \code{pls.c} argument.}
- \item{\code{yu.obs}:}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
- \item{\code{pred}:}{ The predicted values}     
- \item{\code{yr.min.obs}:}{ The minimum reference value (of the response variable) in the neighborhood.}
- \item{\code{yr.max.obs}:}{ The maximum reference value (of the response variable) in the neighborhood.}
- \item{\code{index.nearest.in.ref}}{ The index in \code{Xr} of the nearest neighbor.}
- \item{\code{y.nearest}:}{ The reference value (of the response variable) of the nearest neighbor in \code{Xr}.}
- \item{\code{y.nearest.pred}:}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'NNv'}. It represents the predicted value of the nearest neighbor sample in \code{Xr} using the neighborhood of the predicted sample in \code{Xu}.}
- \item{\code{loc.rmse.cv}:}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
- \item{\code{loc.st.rmse.cv}:}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation standardized RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
- \item{\code{dist.nearest}:}{ The distance to the nearest neighbor.}
- \item{\code{dist.k.farthest}:}{ The distance to the farthest neighbor selected.}
- }
- }
-When the \code{k.diss} argument is used, the printed results show a table with a column named 'p.bounded'. It represents the percentage of samples
-for which the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument.
 }
 \description{
 This function is implemented for memory-based learning (a.k.a. instance-based learning or local regression) which is a non-linear lazy learning approach 
@@ -122,7 +86,7 @@ The possible options for performing regressions at each local segment implemente
  \deqn{
        w_{j}  =  \frac{1}{s_{1:j}\times g_{j}}
        }
- where \eqn{s_{1:j}} is the root mean square of the spectral residuals of the unknown (or target) sample when a total of \eqn{j} pls components are used and \eqn{g_{j}} is the root mean square of the regression coefficients corresponding to the \eqn{j}th pls component (see Shenk et al., 1997 for more details). \code{"wapls1"} is not compatible with \code{valMethod = "loc_crossval"} since the weights are computed based on the sample to be predicted at each local iteration.}
+ where \eqn{s_{1:j}} is the root mean square of the spectral residuals of the unknown (or target) sample when a total of \eqn{j} pls components are used and \eqn{g_{j}} is the root mean square of the regression coefficients corresponding to the \eqn{j}th pls component (see Shenk et al., 1997 for more details).}
  \item{Gaussian process with dot product covariance (\code{"gpr"}):}{ Gaussian process regression is a probabilistic and non-parametric Bayesian approach. It is commonly described as a collection of random variables which have a joint Gaussian distribution and it is characterized by both a mean and a covariance function (Williams and Rasmussen, 1996). The covariance function used in the implemented method is the dot product, which inplies that there are no parameters to be optimized for the computation of the covariance.
  Here, the process for predicting the response variable of a new sample (\eqn{y_{new}}) from its predictor variables (\eqn{x_{new}}) is carried out first by computing a prediction vector (\eqn{A}). It is derived from a set of reference spectra (\eqn{X}) and their respective response vector (\eqn{Y}) as follows: 
   \deqn{
@@ -337,9 +301,6 @@ try(stopCluster(clust))
 mbl.p
 }
 }
-\author{
-Leonardo Ramirez-Lopez and Antoine Stevens
-}
 \references{
 Cleveland, W. S., and Devlin, S. J. 1988. Locally weighted regression: an approach to regression analysis by local fitting. Journal of the American Statistical Association, 83, 596-610.
 
@@ -358,4 +319,6 @@ Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL calib
 \seealso{
 \code{\link{mblControl}}, \code{\link{fDiss}}, \code{\link{corDiss}}, \code{\link{sid}}, \code{\link{orthoDiss}}, \code{\link{neigCleaning}}
 }
-
+\author{
+Leonardo Ramirez-Lopez and Antoine Stevens
+}

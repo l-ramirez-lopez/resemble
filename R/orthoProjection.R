@@ -28,9 +28,9 @@
 #'                            
 #' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
 #' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).
-#' @param Yr if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{sm} argument is either \code{"pls"} or \code{"loc.pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. It can be a numeric \code{vector} or \code{matrix} (regarding one or more continuous variables). The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.
-#' @param pcSelection a list which specifies the method to be used for identifying the number of principal components to be retained for computing the Mahalanobis distance of each sample in \code{sm = "Xu"} to the centre of \code{sm = "Xr"}. It also specifies the number of components in any of the following cases: \code{sm = "pc"}, \code{sm = "loc.pc"}, \code{sm = "pls"} and \code{sm = "loc.pls"}. This list must contain two objects in the following order: \itemize{
-#'        \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b) in which the side information concept is used, see details), \code{"cumvar"} (for selecting the number of principal components based on a given cumulative amount of explained variance); \code{"var"} (for selecting the number of principal components based on a given amount of explained variance); and  \code{"manual"} (for specifying manually the desired number of principal components)}
+#' @param Yr if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{method} argument is \code{"pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. In case \code{method = "pca"} a \code{matrix} (regarding one or more continuous variables) can also be used as input. The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.
+#' @param pcSelection a list which specifies the method to be used for identifying the number of principal components to be retained. This list must contain two objects in the following order: \itemize{
+#'        \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b) in which the side information concept is used, see details), \code{"cumvar"} (for selecting the number of principal components based on a maximum amount of cumulative variance that need to be explained by the group of retained components); \code{"var"} (for selecting the number of principal components based on a minimum amount of variance that need to be explained by each individual component); and  \code{"manual"} (for specifying manually the desired number of principal components)}
 #'        \item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
 #'        }}
 #'        The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
@@ -41,7 +41,7 @@
 #' @param tol tolerance limit for convergence of the algorithm in the nipals algorithm (default is 1e-06). In the case of PLS this applies only to Yr with more than two variables.
 #' @param max.iter maximum number of iterations (default is 1000). In the case of \code{method = "pls"} this applies only to \code{Yr} matrices with more than one variable.
 #' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1). Dee details.
-#' @param ... additional arguments to be passed to \code{pcProjection} or \code{plsProjection}.
+#' @param ... additional arguments to be passed to \code{pcProjection} or \code{plsProjection}. In the case of \code{predict.orthoProjection} no arguments are passed. 
 #' @param object  object of class "orthoProjection" (as returned by \code{orthoProjection}, \code{pcProjection} or \code{plsProjection}).
 #' @param newdata an optional data frame or matrix in which to look for variables with which to predict. If omitted, the scores are used. It must contain the same number of columns, to be used in the same order.
 #' @details
@@ -150,6 +150,18 @@
 ##                    for testing for a while but it was not finally released.
 ## 07.12.2015 Leo     The pcProjection, plsProjection and the predict.othoProjection are now
 ##                    visible.
+## 08.09.2016 Leo     A bug in the predict.orthoProjection function was fixed. A an error was
+##                    thrown when PCA preditions were requested. Furthermore, the PLS score 
+##                    predictions were hadnled wrognly as PCA preditions.
+## 13.09.2016 Leo     Documentation generated by roxygen retuns duplicated pcProjection
+##                    plsProjection docs. For the moment the workaround is to fix them in the Rd file
+##                    of orthoProjection
+## 24.07.2017 Leo     error in the predict function of orthoProjection the code was written as:
+##                    if(length(grep("pca", object) == 0)) do PC projection... i.e. if the method is
+##                    "pca" do not execute the PC projection. This was fixed by 
+##                    if(length(grep("pca", object) != 0)) do PC projection
+## 23.09.2018 Leo     add a newdata names check in predict.orthoProjection.. they need to correspond 
+#                     to variable names in orthoProjection object
 
 orthoProjection <- function(Xr, X2 = NULL, 
                             Yr = NULL, 
@@ -486,22 +498,22 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       s.scores <- sweep(pcScores, MARGIN = 2, STATS = cSds(pcScores), FUN = "/")
       
       
-#       for(i in 1:pcSelection$value){           
-#         sc <- s.scores[1:nr,i, drop=FALSE]
-#         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
-#           if(cores>1)
-#             d <- fastDistVV(sc, cores)
-#           else
-#             d <- dist(sc)
-#         } else {
-#           if(cores>1)
-#             d <- d + fastDistVV(sc, cores)
-#           else
-#             d <- d + dist(sc)
-#         }
-#         tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, lower.tri = TRUE, cores = cores)
-#         result[i] <- getElement(tmp$eval, ext)
-#       }
+      #       for(i in 1:pcSelection$value){           
+      #         sc <- s.scores[1:nr,i, drop=FALSE]
+      #         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
+      #           if(cores>1)
+      #             d <- fastDistVV(sc, cores)
+      #           else
+      #             d <- dist(sc)
+      #         } else {
+      #           if(cores>1)
+      #             d <- d + fastDistVV(sc, cores)
+      #           else
+      #             d <- d + dist(sc)
+      #         }
+      #         tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, lower.tri = TRUE, cores = cores)
+      #         result[i] <- getElement(tmp$eval, ext)
+      #       }
       
       for (i in 1:pcSelection$value) {
         sc <- s.scores[1:nr, i, drop = FALSE]
@@ -718,23 +730,23 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       s.scores <- sweep(plsp$scores, MARGIN =2, STATS = cSds(plsp$scores), FUN = "/")
       
       
-#       for(i in 1:pcSelection$value){
-#         sc <- s.scores[,i, drop=FALSE]
-#         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
-#           if(cores>1)
-#             d <- fastDistVV(sc, cores)
-#           else
-#             d <- dist(sc)^2 # The square is necessary here to get the results compatible with fastDistVV
-#         } else {
-#           if(cores>1)
-#             d <- d + fastDistVV(sc, cores)
-#           else
-#             d <- d + (dist(sc)^2) # The square is necessary here to get the results compatible with fastDistVV
-#         }
-#         tmp <- simEval(d = d, sideInf = Yr[inx.in,,drop=FALSE], lower.tri = TRUE, cores = cores)
-#         result[i,1:ny] <- getElement(tmp$eval, "rmsd")
-#         result[i,1+ny] <- getElement(tmp$global.eval, "mn.sd.rmsd")
-#       }
+      #       for(i in 1:pcSelection$value){
+      #         sc <- s.scores[,i, drop=FALSE]
+      #         if(i==1){ # this allows to build-up the distance matrix progressively, saving time
+      #           if(cores>1)
+      #             d <- fastDistVV(sc, cores)
+      #           else
+      #             d <- dist(sc)^2 # The square is necessary here to get the results compatible with fastDistVV
+      #         } else {
+      #           if(cores>1)
+      #             d <- d + fastDistVV(sc, cores)
+      #           else
+      #             d <- d + (dist(sc)^2) # The square is necessary here to get the results compatible with fastDistVV
+      #         }
+      #         tmp <- simEval(d = d, sideInf = Yr[inx.in,,drop=FALSE], lower.tri = TRUE, cores = cores)
+      #         result[i,1:ny] <- getElement(tmp$eval, "rmsd")
+      #         result[i,1+ny] <- getElement(tmp$global.eval, "mn.sd.rmsd")
+      #       }
       
       for (i in 1:pcSelection$value) {
         sc <- s.scores[, i, drop = FALSE]
@@ -758,23 +770,23 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       s.scores <- sweep(plsp$scores, MARGIN = 2, STATS = cSds(plsp$scores), FUN = "/")
       
       
-#       for(i in 1:pcSelection$value){
-#         sc <- s.scores[,i, drop = FALSE]
-#         if(i == 1){ # this allows to build-up the distance matrix progressively, saving time
-#           if(cores>1){
-#             d <- fastDistVV(sc, cores)
-#           }else
-#             d <- dist(sc)^0.5
-#         } else {
-#           if(cores>1)
-#             d <- d + fastDistVV(sc, cores)
-#           else
-#             d <- d + (dist(sc)^0.5)
-#         }
-#         tmp <- simEval(d = d, sideInf = Yr[inx.in,,drop=FALSE], lower.tri = TRUE, cores = cores)
-#         result[i] <- getElement(tmp$eval, "rmsd")
-#       }
-#       
+      #       for(i in 1:pcSelection$value){
+      #         sc <- s.scores[,i, drop = FALSE]
+      #         if(i == 1){ # this allows to build-up the distance matrix progressively, saving time
+      #           if(cores>1){
+      #             d <- fastDistVV(sc, cores)
+      #           }else
+      #             d <- dist(sc)^0.5
+      #         } else {
+      #           if(cores>1)
+      #             d <- d + fastDistVV(sc, cores)
+      #           else
+      #             d <- d + (dist(sc)^0.5)
+      #         }
+      #         tmp <- simEval(d = d, sideInf = Yr[inx.in,,drop=FALSE], lower.tri = TRUE, cores = cores)
+      #         result[i] <- getElement(tmp$eval, "rmsd")
+      #       }
+      #       
       
       
       for (i in 1:pcSelection$value) {
@@ -805,10 +817,11 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
   scores <- plsp$scores[,1:nPf, drop=FALSE]
   X.loadings <- plsp$X.loadings[1:nPf, , drop=FALSE]
   Y.loadings <- plsp$Y.loadings[1:nPf, , drop=FALSE]
+  plsp$projectionM <- plsp$projectionM[,1:nPf, drop=FALSE]
   
   # Give some names...
   colnames(X.loadings) <- colnames(X0)
-  rownames(X.loadings) <- paste("pls", 1:nPf, sep="")
+  rownames(X.loadings) <- colnames(plsp$projectionM) <- paste("pls", 1:nPf, sep="")
   rownames(Y.loadings) <- rownames(X.loadings)
   colnames(Y.loadings) <- paste("Y.pls", 1:ny, sep ="")
   rownames(weights) <- rownames(X.loadings)
@@ -862,7 +875,7 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
                    X.loadings = X.loadings, 
                    Y.loadings = Y.loadings, 
                    weights = weights, 
-                   projectionM = plsp$projectionM, 
+                   projectionM = plsp$projectionM[,1:ncol(scores)], 
                    variance = list(x.var = exv, y.var = yex), 
                    sc.sdv =cSds(scores), 
                    n.components = nPf, pcSelection = psel,
@@ -881,11 +894,19 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
 #' @aliases pcProjection 
 #' @aliases predict.orthoProjection
 #' @export
-predict.orthoProjection <- function(object, newdata,...){
+predict.orthoProjection <- function(object, newdata, ...){
   if(missing(newdata))
     return(object$scores)
+  
+  nms.org <- colnames(object$X.loadings)
+  nms.nd <- colnames(newdata)
+  
+  if(sum(!nms.org %in% nms.nd) != 0){
+    stop("There are missing variables in new data that are required for the projection")
+  }
+  
   else{
-    if(length(grep("pca", object$method)) == 0){
+    if(length(grep("pca", object$method)) != 0){
       newdata <- sweep(newdata, MARGIN = 2, FUN = "-", STATS = object$center)
       newdata <- sweep(newdata, MARGIN = 2, FUN = "/", STATS = object$scale)
       return(newdata %*% t(object$X.loadings))

@@ -13,4 +13,3 @@ locFitnpred(x, y, predMethod, scaled = TRUE, weights = NULL, newdata,
 internal
 }
 \keyword{internal}
-

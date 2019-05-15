@@ -14,6 +14,7 @@
 #'     method, 
 #'     pls.c, pls.max.iter = 1, pls.tol = 1e-6,
 #'     noise.v = 0.001,
+#'     documentation = character(),
 #'     ...)
 #' @param Xr input \code{matrix} (or \code{data.frame}) of predictor variables of the reference data (observations in rows and variables in columns). 
 #' @param Yr a numeric \code{vector} containing the values of the response variable corresponding to the reference data
@@ -38,6 +39,7 @@
 #' @param pls.max.iter maximum number of iterations for the partial least squares methods.
 #' @param pls.tol limit for convergence in the partial orthogonal scores partial least squares regressions using the nipals algorithm. Default is 1e-6.
 #' @param noise.v a value indicating the variance of the noise for Gaussian process regression. Default is 0.001. 
+#' @param documentation an optional character string that can be used to describe anything related to a given computation with \code{mbl} (e.g. description of the input data). Default: \code{character()}.
 #' @param ... additional arguments to be passed to other functions. 
 #' @details
 #' By using the \code{group} argument one can specify observations (spectra) groups of samples that have something in common e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc) which could produce biased cross-validation results due to pseudo-replication. This argument allows to select calibration points that are independent from the validation ones in cross-validation. In this regard, when  \code{valMethod = "loc_crossval"} (used in \code{\link{mblControl}} function), then the \code{p} argument refer to the percentage of groups of samples (rather than single samples) to be retained in each resampling iteration at each local segment. 
@@ -59,7 +61,7 @@
 #'  \deqn{
 #'        w_{j}  =  \frac{1}{s_{1:j}\times g_{j}}
 #'        }
-#'  where \eqn{s_{1:j}} is the root mean square of the spectral residuals of the unknown (or target) sample when a total of \eqn{j} pls components are used and \eqn{g_{j}} is the root mean square of the regression coefficients corresponding to the \eqn{j}th pls component (see Shenk et al., 1997 for more details). \code{"wapls1"} is not compatible with \code{valMethod = "loc_crossval"} since the weights are computed based on the sample to be predicted at each local iteration.}
+#'  where \eqn{s_{1:j}} is the root mean square of the spectral residuals of the unknown (or target) sample when a total of \eqn{j} pls components are used and \eqn{g_{j}} is the root mean square of the regression coefficients corresponding to the \eqn{j}th pls component (see Shenk et al., 1997 for more details).}
 #'  \item{Gaussian process with dot product covariance (\code{"gpr"}):}{ Gaussian process regression is a probabilistic and non-parametric Bayesian approach. It is commonly described as a collection of random variables which have a joint Gaussian distribution and it is characterized by both a mean and a covariance function (Williams and Rasmussen, 1996). The covariance function used in the implemented method is the dot product, which inplies that there are no parameters to be optimized for the computation of the covariance.
 #'  Here, the process for predicting the response variable of a new sample (\eqn{y_{new}}) from its predictor variables (\eqn{x_{new}}) is carried out first by computing a prediction vector (\eqn{A}). It is derived from a set of reference spectra (\eqn{X}) and their respective response vector (\eqn{Y}) as follows: 
 #'   \deqn{
@@ -77,7 +79,8 @@
 #' \itemize{
 #'  \item{\code{call}:}{ the call used.}
 #'  \item{\code{cntrlParam}:}{ the list with the control parameters used. If one or more control parameters were reset automatically, then a list containing a list with the initial control parameters specified and a list with the parameters which were finally used.}
-#'  \item{\code{dissimilarities}:}{ a list with the method used to obtain the dissimilarity matrices and the dissimilarity matrices corresponding to \eqn{D(Xr, Xu)} and \eqn{D(Xr,Xr)} if \code{dissUsage = "predictors"}. This object is returned only if the \code{returnDiss} argument in the \code{mblCtrl} list was set to \code{TRUE} in the the call used.}
+#'  \item{\code{XuNeighbourList}:}{ a list containing a matrix of neighbor indices and a matrix of neighbor dissimilarity scores. The rows of these matrices represent the predicted samples while each column represent a nearest neighbor found in the reference set (\code{Xr}). This list is only ouput if it is specified in the \code{\link{mblControl} object provided in the \code{mblCtrl} argument.}
+#'  \item{\code{dissimilarities}:}{ a list with the method used to obtain the dissimilarity matrices and the dissimilarity matrices corresponding to \eqn{D(Xr, Xu)} and \eqn{D(Xr,Xr)} if \code{dissUsage = 'predictors'}. This object is returned only if the \code{returnDiss} argument in the \code{mblCtrl} list was set to \code{TRUE} in the the call used.}
 #'  \item{\code{totalSamplesPredicted}}{ the total number of samples predicted.}
 #'  \item{\code{pcAnalysis}:}{ a list containing the results of the principal component analysis. The first two objects (\code{scores_Xr} and \code{scores_Xu}) are the scores of the \code{Xr} and \code{Xu} matrices. It also contains the number of principal components used (\code{n.componentsUsed}) and another object which is  a \code{vector} containing the standardized Mahalanobis dissimilarities (also called GH, Global H distance) between each sample in \code{Xu} and the centre of \code{Xr}.}
 #'  \item{\code{components}:}{ a list containing either the number of  principal components  or partial least squares components used for the computation of the orthogonal dissimilarities. This object is only returned if the dissimilarity meausre specified in \code{mblCtrl} is any of the following options: \code{'pc'}, \code{'loc.pc'}, \code{"pls"}, \code{'loc.pls'}. If any of the local orthogonal dissimilarities was used (\code{'loc.pc'} or \code{"pls"})
@@ -107,6 +110,7 @@
 #'  \item{\code{dist.nearest}:}{ The distance to the nearest neighbor.}
 #'  \item{\code{dist.k.farthest}:}{ The distance to the farthest neighbor selected.}
 #'  }
+#'  \item{\code{documentation}}{ A character string with the documentation added.}
 #'  }
 #' When the \code{k.diss} argument is used, the printed results show a table with a column named 'p.bounded'. It represents the percentage of samples
 #' for which the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument.   
@@ -379,7 +383,28 @@
 ##                    This was perhaps due to the fact that the pls.c  was variable (in predobs) and an argument.
 ## 16.02.2016 Leo     Bug fixed. It caused the mbl functio to return an error (sometimes) when the group argument was used together 
 ##                    with local cross validation. The errors ocurred when groups containing very few samples (e.g. 1 or 2) were used.
-                   
+## 09.03.2018 Leo     A new output (XuNeighbourList) has been added. It was requested by Eva Ampe and Miriam de Winter.
+## 16.05.2018 Leo     A parameter called documentation has been added.
+
+## TODO:
+##  A bug was detected in  orthoDiss. 
+## Use the following code to reproduce it 
+# mfr <- read.nircal("C:/raml/polco/FranceMIlk.nir")
+# 
+# mfr <- mfr[mfr$Protein < 17,]
+# mfr <- mfr[mfr$Protein >7,]
+# cdist <- orthoDiss(Xr = savitzkyGolay(standardNormalVariate(mfr$spc[,as.character(wavs[wavs<9000])]), m = 1, p = 1, w = 5), 
+#                    X2 = savitzkyGolay(standardNormalVariate(colanta$spc[,as.character(wavs[wavs<9000])]), m = 1, p = 1, w = 5),
+#                    Yr = mfr$Moisture, 
+#                    pcSelection = list("opc", 10), 
+#                    method = "pca", 
+#                    local = FALSE, 
+#                    center = TRUE, scaled = FALSE, 
+#                    return.all = FALSE, cores = 1)
+## The error thrown is: 
+## Error in svd(x = X0) : infinite or missing values in 'x'
+
+
 mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 mblCtrl = mblControl(),
                 dissimilarityM,
@@ -392,7 +417,8 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                 pls.c,
                 pls.max.iter = 1,
                 pls.tol = 1e-6,
-                noise.v = 0.001,                
+                noise.v = 0.001, 
+                documentation = character(),
                 ...){
   
   '%mydo%' <- if (mblCtrl$allowParallel) get('%dopar%') else get('%do%')    
@@ -511,6 +537,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     stop("The method 'wapls2' is deprecated. Since it is no longer supported, choose instead one of the following options: 'pls', 'wapls1', 'gpr'")
   
   match.arg(method, c("pls", "wapls1", "gpr"))
+  #match.arg(method, c("pls", "wapls1", "gpr", "rvm"))
   
   if(method %in% c("pls", "wapls1")){
     if(method %in% c("wapls1", "wapls2")){
@@ -745,16 +772,30 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     d.cal.mat <- NULL
   
   # Global H
-  mtd <- ifelse(mblCtrl$pcMethod == "svd", "pca", "pca.nipals")  
-  pca <- pcProjection(Xr = rbind(Xr, Xu), X2 = NULL, pcSelection = mblCtrl$pcSelection, method = mtd, Yr = c(Yr, rep(NA, nrow(Xu))), center = mblCtrl$center, scaled = mblCtrl$scaled, call.=FALSE, cores = mblCtrl$cores)
-  npcs <- pca$n.components 
+  if(mblCtrl$ghMethod != "pls"){
+    mtd <- ifelse(mblCtrl$pcMethod == "svd", "pca", "pca.nipals")  
+    
+    pca <- pcProjection(Xr = rbind(Xr, Xu), X2 = NULL, pcSelection = mblCtrl$pcSelection, method = mtd, Yr = c(Yr, rep(NA, nrow(Xu))), center = mblCtrl$center, scaled = mblCtrl$scaled, call.=FALSE, cores = mblCtrl$cores)
+    npcs <- pca$n.components 
+    
+    scores <- sweep(pca$scores, 2, pca$sc.sdv, "/")
+    scores.cal <- scores[1:nrow(Xr), , drop=F]
+    scores.val <- scores[(1+nrow(Xr)):nrow(scores), , drop=F]
+    
+    GH <- as.vector((fDiss(Xr = scores.val, X2 = t(colMeans(scores.cal)), center = FALSE, scaled = FALSE, method = "euclid")))
+    rm(scores)
+  }else{
+    pca <- plsProjection(Xr = rbind(Xr, Xu), X2 = NULL, Yu = c(Yr, rep(NA,nrow(Xu))), pcSelection = mblCtrl$pcSelection, method = "pls", Yr = c(Yr, rep(NA, nrow(Xu))), center = mblCtrl$center, scaled = mblCtrl$scaled, call.=FALSE, cores = mblCtrl$cores)
+    npcs <- pca$n.components 
+    
+    scores <- pca$scores
+    scores.cal <- scores[1:nrow(Xr), , drop=F]
+    scores.val <- scores[(1+nrow(Xr)):nrow(scores), , drop=F]
+    
+    GH <- as.vector((fDiss(Xr = scores.val, X2 = t(colMeans(scores.cal)), center = FALSE, scaled = FALSE, method = "mahalanobis")))
+    rm(scores)
+  }
   
-  scores <- sweep(pca$scores, 2, pca$sc.sdv, "/")
-  scores.cal <- scores[1:nrow(Xr), , drop=F]
-  scores.val <- scores[(1+nrow(Xr)):nrow(scores), , drop=F]
-  
-  GH <- as.vector((fDiss(Xr = scores.val, X2 = t(colMeans(scores.cal)), center = FALSE, scaled = FALSE, method = "euclid")))
-  rm(scores)
   
   # convert k.dis into k
   if(is.null(k)) {
@@ -777,7 +818,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     }
   }
   
-  if(method != "gpr"){
+  if(method %in% c("pls", "wapls1")){
     if(floor(min(min(k_mat), ncol(Xr)) * mblCtrl$p) < min(plsF)){
       stop("The number of pls components must be lower than the number of neighbours to be used")
     }
@@ -787,7 +828,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   
   it <- i <- kn.org <- NULL
   predobs <- foreach(tmp.val = iter(val, by = "row"), kn.org = iter(k.org, by = "row"), i = icount(),
-                     it = isubset(x=Xr,Dx=d.cal.mat,D=d.mat,k=k_mat),
+                     it = isubset(x = Xr, Dx = d.cal.mat, D = d.mat, k = k_mat),
                      .combine = rbind, .inorder = FALSE,
                      .export = c("orthoDiss",  
                                  "orthoProjection", 
@@ -830,7 +871,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                      pca.n <- plsProjection(Xr = it$x, Yr = Yr[it$index[1:max(it$k)]], Xu = tmp.val$mat, nPf = loc.npcs[i], scaled = mblCtrl$scaled)
                                      pca.i <- list(x = pca.n$scores, sdev = cSds(pca.n$scores))
                                      scores.i <- sweep(pca.i$x[,1:loc.npcs[i]], 2, pca.i$sdev[1:loc.npcs[i]], "/")
-                                     locD.i <-   fDiss(Xr = scores.i, X2 = scores.i, center = FALSE, scaled = FALSE, method = "euclid")     
+                                     locD.i <-   fDiss(Xr = scores.i, X2 = scores.i, center = FALSE, scaled = FALSE, method = "mahalanobis")     
                                    }
                                    
                                    if(mblCtrl$progress)
@@ -974,6 +1015,22 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                    predobs
                                  }
   
+  if(sum(is.na(d.mat)) > 0){
+    orderr <- function(x){
+      or <- order(x, na.last = TRUE)
+      notna <- sum(!is.na(x))
+      or[-c(1:notna)] <- NA
+    }
+    ks.indices <- t(apply(X = d.mat, MARGIN = 2, FUN = orderr))
+  }else{
+    ks.indices <- t(apply(X = d.mat, MARGIN = 2, FUN = order))
+  }
+  ks.diss <- t(apply(X = d.mat, MARGIN = 2, FUN = function(x) sort(x, na.last = TRUE)))
+  colnames(ks.indices) <- colnames(ks.diss) <- paste("Nearest_neighbour_", 1:ncol(ks.diss), sep = "")
+  rownames(ks.indices) <- rownames(ks.diss) <- rownames(Xu)
+  xuneighbors <- list(indices = ks.indices, dissimilarities = ks.diss)
+  
+  
   out <-c(if(missing(Yu)){"yu.obs"},
           if(is.null(dtc)){"k.org"},
           if(!(mblCtrl$valMethod %in% c("NNv", "both"))){"y.nearest.pred"},
@@ -1063,8 +1120,10 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
       cntrlParam <- list(sm = mblCtrl$sm,
                          smParam = ifelse(mblCtrl$sm == "movcor", mblCtrl$ws, mblCtrl$k0),
                          returnDiss = mblCtrl$returnDiss,
+                         returnXuNeighbors = mblCtrl$returnXuNeighbors,
                          pcSelection = list(method = pcSel, value = trsh),
                          pcMethod = mblCtrl$pcMethod,
+                         ghMethod = mblCtrl$ghMethod,
                          center = mblCtrl$center,
                          scaled = mblCtrl$scaled,
                          valMethod = mblCtrl$valMethod,
@@ -1078,8 +1137,10 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     } else{
       cntrlParam <- list(sm = mblCtrl$sm,
                          returnDiss = mblCtrl$returnDiss,
+                         returnXuNeighbors = mblCtrl$returnXuNeighbors,
                          pcSelection = list(method = pcSel, value = trsh),
                          pcMethod = mblCtrl$pcMethod,
+                         ghMethod = mblCtrl$ghMethod,
                          center = mblCtrl$center,
                          scaled = mblCtrl$scaled,
                          valMethod = mblCtrl$valMethod,
@@ -1108,14 +1169,16 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   
   resultsList <- list(call = call.f,
                       cntrlParam = cntrlParam,
-                      dissimilarities = if(ini.cntrl$returnDiss){dissimilarities}else{NULL}, 
+                      dissimilarities = if(ini.cntrl$returnDiss){dissimilarities}else{NULL},
+                      XuNeighbourList = xuneighbors,
                       totalSamplesPredicted = nrow(Xu),
                       pcAnalysis = list(scores_Xr = scores.cal, scores_Xu = scores.val, n.componentsUsed = npcs, GH = GH),
                       components = components,
                       localCrossValStats = loc.res, 
                       nnValStats = loc.nn.res, 
                       YuPredictionStats = pred.res, 
-                      results = predobs)
+                      results = predobs,
+                      documentation = documentation)
   
   resultsList <- resultsList[!sapply(resultsList,is.null)]
   
@@ -1228,6 +1291,32 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
   }
   
   results <- cvVal <- pred <- NULL
+  
+  # ###########################################################################################
+  # if(predMethod=="rvm") {    
+  #   if(CV)
+  #   {
+  #     stop("Corss-validation is not yet supported for rvm")
+  #   } else { 
+  #     x <- sweep(x, 1, weights, "*")   ###MODIFIED
+  #     y <- y * weights
+  #     ##fit <- gpr.dp(Xn = x, Yn = y, noise.v = noise.v, scaled = scaled, x.add = newdata)
+  #     fit <- ksvm(x = x, 
+  #                 y = y, 
+  #                 type="eps-svr",
+  #                 kernel = "vanilladot",
+  #                 scaled = scaled,
+  #                 epsilon = noise.v,
+  #                 C = pls.tol,
+  #                 kpar = list())
+  #   }
+  #   
+  #   ##pred <- pred.gpr.dp(fit, newdata = newdata)
+  #   pred <- predict(fit, newdata)
+  # } 
+  # ###########################################################################################
+  
+  
   if(predMethod=="gpr") {    
     if(CV)
     {
@@ -1757,12 +1846,12 @@ isubset <- function(x, Dx = NULL, D, k, by = "column") {
     n <- order(d)
     n1 <- n[1:max(kk)]
     if(is.null(Dx))
-      list(x=x[n1,],d=d,index=n,k=c(kk)) # resulting iterator
+      list(x = x[n1,], d = d, index = n, k = c(kk)) # resulting iterator
     else
-      list(x=x[n1,],dx=Dx[n1,n1],d=d,index=n,k=c(kk))
+      list(x = x[n1,], dx = Dx[n1,n1], d = d, index = n, k = c(kk))
   }
   
-  obj <- list(nextElem=nextEl)
+  obj <- list(nextElem = nextEl)
   class(obj) <- c("isubset", "abstractiter", "iter")
   obj
 }

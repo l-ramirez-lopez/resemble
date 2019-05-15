@@ -35,4 +35,3 @@ Carries out a gaussian process regression with a linear kernel (dot product). Fo
 Leonardo Ramirez-Lopez
 }
 \keyword{internal}
-

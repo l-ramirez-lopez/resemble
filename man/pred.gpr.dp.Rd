@@ -10,4 +10,3 @@ pred.gpr.dp(object, newdata)
 internal
 }
 \keyword{internal}
-

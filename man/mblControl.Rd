@@ -7,9 +7,11 @@
 mblControl(sm = "pc",
            pcSelection = list("opc", 40),
            pcMethod = "svd",
+           ghMethod = "svd",
            ws = if(sm == "movcor") 41,
            k0,
            returnDiss = FALSE,
+           returnXuNeighbors = FALSE,
            center = TRUE,
            scaled = TRUE,
            valMethod = c("NNv", "loc_crossval"),
@@ -47,13 +49,17 @@ This argument can also be set to \code{"none"}, in such a case, a dissimilarity 
 The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.}
 
-\item{pcMethod}{a character string indicating the principal component analysis algorithm to be used. Options are: \code{"svd"} (default) and \code{"nipals"}. See \code{\link{orthoDiss}}.}
+\item{pcMethod}{a character string indicating the principal component algorithm to be used. Options are: \code{"svd"} (default) and \code{"nipals"}. See \code{\link{orthoDiss}}.}
+
+\item{ghMethod}{a character string indicating the projection algorithm to be used to compute the global Mahalanobis distance (a.k.a GH) of the samples to be predicted. Options are: \code{"svd"} (default), \code{"nipals"} and \code{"pls"}. See \code{\link{orthoDiss}}.}
 
 \item{ws}{an odd integer value which specifies the window size when the moving window correlation dissimilarity is used (i.e \code{sm = "movcor"}). The default is 41.}
 
 \item{k0}{if any of the local dissimilarity methods is used (i.e. either \code{sm = "loc.pc"} or \code{sm = "loc.pls"}) a numeric integer value. This argument controls the number of initial neighbours(\eqn{k0}) to retain in order to compute the local principal components (at each neighbourhood).}
 
 \item{returnDiss}{a logical indicating if the dissimilarity matrices must be returned.}
+
+\item{returnXuNeighbors}{a logical indicating if a list containing a matrix of neighbor indices and a matrix of neighbor dissimilarity scores must be returned.}
 
 \item{center}{a logical indicating whether or not the predictor variables must be centered at each local segment (before regression).}
 
@@ -100,9 +106,6 @@ mblControl()
 #dissimilarity metric with a moving window of 30
 mblControl(sm = "movcor", ws = 31)
 }
-\author{
-Leonardo Ramirez-Lopez and Antoine Stevens
-}
 \references{
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., Scholten, T. 2013a. The spectrum-based learner: A new local approach for modeling soil vis-NIR spectra of complex datasets. Geoderma 195-196, 268-279.
 
@@ -111,4 +114,6 @@ Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte, J. A.
 \seealso{
 \code{\link{fDiss}}, \code{\link{corDiss}}, \code{\link{sid}}, \code{\link{orthoDiss}}, \code{\link{mbl}}
 }
-
+\author{
+Leonardo Ramirez-Lopez and Antoine Stevens
+}

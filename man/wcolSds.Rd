@@ -19,4 +19,3 @@ Identifies the column with the largest standard deviation. For internal use only
 Leonardo Ramirez-Lopez
 }
 \keyword{internal}
-

@@ -5,9 +5,11 @@
 #' mblControl(sm = "pc",
 #'            pcSelection = list("opc", 40),
 #'            pcMethod = "svd",
+#'            ghMethod = "svd",
 #'            ws = if(sm == "movcor") 41,
 #'            k0,
 #'            returnDiss = FALSE,
+#'            returnXuNeighbors = FALSE,
 #'            center = TRUE,
 #'            scaled = TRUE,
 #'            valMethod = c("NNv", "loc_crossval"),
@@ -42,10 +44,12 @@
 #'        }}
 #'        The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 #'        Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.
-#' @param pcMethod a character string indicating the principal component analysis algorithm to be used. Options are: \code{"svd"} (default) and \code{"nipals"}. See \code{\link{orthoDiss}}.
+#' @param pcMethod a character string indicating the principal component algorithm to be used. Options are: \code{"svd"} (default) and \code{"nipals"}. See \code{\link{orthoDiss}}.
+#' @param ghMethod a character string indicating the projection algorithm to be used to compute the global Mahalanobis distance (a.k.a GH) of the samples to be predicted. Options are: \code{"svd"} (default), \code{"nipals"} and \code{"pls"}. See \code{\link{orthoDiss}}.
 #' @param ws an odd integer value which specifies the window size when the moving window correlation dissimilarity is used (i.e \code{sm = "movcor"}). The default is 41.
 #' @param k0 if any of the local dissimilarity methods is used (i.e. either \code{sm = "loc.pc"} or \code{sm = "loc.pls"}) a numeric integer value. This argument controls the number of initial neighbours(\eqn{k0}) to retain in order to compute the local principal components (at each neighbourhood).
 #' @param returnDiss a logical indicating if the dissimilarity matrices must be returned.
+#' @param returnXuNeighbors a logical indicating if a list containing a matrix of neighbor indices and a matrix of neighbor dissimilarity scores must be returned. 
 #' @param center a logical indicating whether or not the predictor variables must be centered at each local segment (before regression).
 #' @param scaled a logical indicating whether or not the predictor variables must be scaled at each local segment (before regression).
 #' @param valMethod a character vector which indicates the (internal) validation method(s) to be used for assessing the global performance of the local models. Possible
@@ -104,14 +108,18 @@
 ##                    introduced
 ## 15.12.2015 Leo     A bug when checking the valMethod provided was fixed
 ## 03.01.2016 Leo     the localOptimization argument was added
+## 12.09.2016 Leo     The "pls" algorithm can be used as pcMethod for 
+##                    computing the GH distances
 
 
 mblControl <- function(sm = "pc",
                        pcSelection = list("opc", 40),
                        pcMethod = "svd",
+                       ghMethod = "svd",
                        ws = if(sm == "movcor") 41,
                        k0,
                        returnDiss = FALSE,
+                       returnXuNeighbors = FALSE,
                        center = TRUE,
                        scaled = TRUE,
                        valMethod = c("NNv", "loc_crossval"),
@@ -134,9 +142,12 @@ mblControl <- function(sm = "pc",
   }
   
   
-  if(sm == "pc")
+  if(sm %in% c("pc"))
     match.arg(pcMethod, c("svd", "nipals"))
+
+  match.arg(ghMethod, c("svd", "nipals", "pls"))
   
+    
   if(sm == "movcor"){
     if(ws < 3 | length(ws) != 1) 
       stop(paste("'ws' must be an unique odd value greater than 2")) 
@@ -155,6 +166,9 @@ mblControl <- function(sm = "pc",
   
   if(!is.logical(returnDiss))
     stop("'returnDiss' must be logical")
+  
+  if(!is.logical(returnXuNeighbors))
+    stop("'returnXuNeighbors' must be logical")
   
   pcSel <- match.arg(pcSelection[[1]], c("opc", "var", "cumvar", "manual"))
   
@@ -248,8 +262,10 @@ mblControl <- function(sm = "pc",
     cntrl <- list(sm = sm,
                   smParam = smParam,
                   returnDiss = returnDiss,
+                  returnXuNeighbors = returnXuNeighbors,
                   pcSelection = pcSelection,
                   pcMethod = pcMethod,
+                  ghMethod = ghMethod,
                   center = center,
                   scaled = scaled,
                   valMethod = valMethod,
@@ -265,8 +281,10 @@ mblControl <- function(sm = "pc",
   } else{
     cntrl <- list(sm = sm,
                   returnDiss = returnDiss,
+                  returnXuNeighbors = returnXuNeighbors,
                   pcSelection = pcSelection,
                   pcMethod = pcMethod,
+                  ghMethod = ghMethod,
                   center = center,
                   scaled = scaled,
                   valMethod = valMethod,

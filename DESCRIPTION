@@ -2,8 +2,8 @@ Package: resemble
 Type: Package
 Title: Regression and Similarity Evaluation for Memory-Based Learning in
     Spectral Chemometrics
-Version: 1.2.2
-Date: 2016-03-04
+Version: 1.3.1
+Date: 2018-03-07
 Author: Leonardo Ramirez-Lopez [aut, cre], Antoine Stevens [aut]
 Maintainer: Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: https://github.com/l-ramirez-lopez/resemble/issues
@@ -13,11 +13,12 @@ Description: Implementation of functions for spectral similarity/dissimilarity
 License: GPL (>=3)
 URL: http://l-ramirez-lopez.github.io/resemble/
 Depends:
-    R (>= 3.2.2)
+    R (>= 3.4.0)
 Imports:
     foreach,
+    kernlab,
     iterators,
-    Rcpp (>= 0.12.0)
+    Rcpp (>= 0.12.15)
 Suggests:
     prospectr,
     parallel,
@@ -25,4 +26,4 @@ Suggests:
 LinkingTo: Rcpp, RcppArmadillo
 NeedsCompilation: yes
 Repository: CRAN
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1

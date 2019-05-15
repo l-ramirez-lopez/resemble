@@ -17,4 +17,3 @@ Prints the contents of an object of class \code{orthoProjection}
 \author{
 Leonardo Ramirez-Lopez
 }
-

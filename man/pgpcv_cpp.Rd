@@ -47,4 +47,3 @@ For internal use only!.
 Leonardo Ramirez-Lopez
 }
 \keyword{internal}
-

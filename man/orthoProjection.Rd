@@ -27,9 +27,9 @@ plsProjection(Xr, X2 = NULL, Yr,
               
 \method{predict}{orthoProjection}(object, newdata, ...)
 
-pcProjection(Xr, X2 = NULL, Yr = NULL, pcSelection = list("cumvar", 0.99),
-  center = TRUE, scaled = FALSE, method = "pca", tol = 1e-06,
-  max.iter = 1000, cores = 1, ...)
+pcProjection(Xr, X2 = NULL, Yr = NULL, pcSelection = list("cumvar",
+  0.99), center = TRUE, scaled = FALSE, method = "pca",
+  tol = 1e-06, max.iter = 1000, cores = 1, ...)
 
 plsProjection(Xr, X2 = NULL, Yr, pcSelection = list("opc", 40),
   scaled = FALSE, tol = 1e-06, max.iter = 1000, cores = 1, ...)
@@ -41,12 +41,12 @@ plsProjection(Xr, X2 = NULL, Yr, pcSelection = list("opc", 40),
 
 \item{X2}{an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).}
 
-\item{Yr}{if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{sm} argument is either \code{"pls"} or \code{"loc.pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. It can be a numeric \code{vector} or \code{matrix} (regarding one or more continuous variables). The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.}
+\item{Yr}{if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{method} argument is \code{"pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. In case \code{method = "pca"} a \code{matrix} (regarding one or more continuous variables) can also be used as input. The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.}
 
 \item{method}{the method for projecting the data. Options are: "pca" (principal component analysis using the singular value decomposition algorithm), "pca.nipals" (principal component analysis using the non-linear iterative partial least squares algorithm) and "pls" (partial least squares).}
 
-\item{pcSelection}{a list which specifies the method to be used for identifying the number of principal components to be retained for computing the Mahalanobis distance of each sample in \code{sm = "Xu"} to the centre of \code{sm = "Xr"}. It also specifies the number of components in any of the following cases: \code{sm = "pc"}, \code{sm = "loc.pc"}, \code{sm = "pls"} and \code{sm = "loc.pls"}. This list must contain two objects in the following order: \itemize{
-\item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b) in which the side information concept is used, see details), \code{"cumvar"} (for selecting the number of principal components based on a given cumulative amount of explained variance); \code{"var"} (for selecting the number of principal components based on a given amount of explained variance); and  \code{"manual"} (for specifying manually the desired number of principal components)}
+\item{pcSelection}{a list which specifies the method to be used for identifying the number of principal components to be retained. This list must contain two objects in the following order: \itemize{
+\item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b) in which the side information concept is used, see details), \code{"cumvar"} (for selecting the number of principal components based on a maximum amount of cumulative variance that need to be explained by the group of retained components); \code{"var"} (for selecting the number of principal components based on a minimum amount of variance that need to be explained by each individual component); and  \code{"manual"} (for specifying manually the desired number of principal components)}
 \item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
 }}
 The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
@@ -58,7 +58,7 @@ Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar
 
 \item{cores}{number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) (default = 1). Dee details.}
 
-\item{...}{additional arguments to be passed to \code{pcProjection} or \code{plsProjection}.}
+\item{...}{additional arguments to be passed to \code{pcProjection} or \code{plsProjection}. In the case of \code{predict.orthoProjection} no arguments are passed.}
 
 \item{tol}{tolerance limit for convergence of the algorithm in the nipals algorithm (default is 1e-06). In the case of PLS this applies only to Yr with more than two variables.}
 
@@ -141,9 +141,6 @@ plsProj2 <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
                             pcSelection = list("cumvar", 0.99))
 } 
 }
-\author{
-Leonardo Ramirez-Lopez
-}
 \references{
 Martens, H. (1991). Multivariate calibration. John Wiley & Sons.
 
@@ -154,4 +151,6 @@ Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte, J. A.
 \seealso{
 \code{\link{orthoDiss}}, \code{\link{simEval}}, \code{\link{mbl}}
 }
-
+\author{
+Leonardo Ramirez-Lopez
+}

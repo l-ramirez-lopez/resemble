@@ -2,6 +2,20 @@
 ## Versions 1.0 and 1.1.1
 * 19.03.2013 Hello world! Initial release of the package
 
+
+## Version 1.2.0001 (alma de coco)
+* 13.09.2016 TA bug in the computation of the Mahalanobis distance in the PLS space was fixed. 
+             
+* 06.09.2016 Thanks to Matthieu Lesnoff who found a bug in the predict.orthoProjection function (an error was thrown
+             when PCA preditions were requested). This bug has been fixed. 
+             
+* 10.08.2016 A bug in plot.mbl was fixed. It was not possible to plot mbl results when the k.diss argument                       (threshold distances) was used in the mbl function.   
+
+* 10.08.2016 Since the previous release, the "wapls1" regression (in the mbl function) is actually compatible with               valMethod = "loc_crossval" (in the mblControl). In the previous documentation was wrongly stated                    otherwise. Now this has been corrected in the documentation.
+
+* 09.08.2016 the projection matrix (projectionM) returned by plsProjection now only
+             contains the columns corresponding only to the number components retrieved
+             
 ## Version 1.2 (alma de coco)
 * 04.03.2016 A patch was released for and extrange bug that prevented to run mbl in parallel 
              when the gpr method was used.

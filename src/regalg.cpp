@@ -289,6 +289,10 @@ List opls(arma::mat X,
   }
   
   if(!regression){
+    int nr = weights.n_rows;
+    if(nff >= nr){
+      nff = weights.n_rows - 1;
+    }
     weights = weights.rows(0,nff);
     coefficients = coefficients.cols(0, nff);
     bo = bo.cols(0,nff);
@@ -299,16 +303,15 @@ List opls(arma::mat X,
     yex = yex.cols(0,nff);
   }
   
-  
   // convert this to standard deviation
   exv.row(0) = sqrt(exv.row(0));
-  
+
   prjM = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
-  
+
   arma::mat yexi;
   arma::mat cop;
   for(int i = 0; i < ny; i++){
-    yexi = scores % arma::repmat(trans(Yloadings.col(i)), scores.n_rows, 1) ; 
+    yexi = scores % arma::repmat(trans(Yloadings.col(i)), scores.n_rows, 1) ;
     cop = pow(arma::cor(Y.col(i), yexi.col(0)), 2);
     //double(*cop2) = reinterpret_cast <double(*)> (cop); //does not work
     yex(i,0) = cop(0,0);
@@ -318,12 +321,13 @@ List opls(arma::mat X,
       yex(i,j) = pow(cop(0,0), 2);
     }
   }
-  
+
+
   arma::vec ymeanv;
   arma::mat ymean = arma::mean(Y);
   ymeanv = arma::vectorise(ymean);
-  
-  
+
+
   int idx = 0;
   for(int k = 0; k < ny; k++){
     arma::mat jyload = Yloadings.col(k);
@@ -336,7 +340,7 @@ List opls(arma::mat X,
       idx = idx + 1;
     }
   }
-  
+
   return Rcpp::List::create(
     Rcpp::Named("ncomp") = ncomp,
     Rcpp::Named("coefficients") = coefficients,
@@ -532,7 +536,8 @@ List fopls(arma::mat X,
     Rcpp::Named("transf") = Rcpp::List::create(
       Rcpp::Named("Xcenter") = xfcntr,
       Rcpp::Named("Xscale") = Xs
-    )
+    ),
+    _["weights"] = weights
   );
 }
 

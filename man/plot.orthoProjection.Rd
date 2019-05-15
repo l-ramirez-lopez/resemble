@@ -40,10 +40,9 @@ plsProj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = Xu,
 plot(plsProj)
 }
 }
-\author{
-Leonardo Ramirez-Lopez and Antoine Stevens
-}
 \seealso{
 \code{\link{orthoProjection}}
 }
-
+\author{
+Leonardo Ramirez-Lopez and Antoine Stevens
+}

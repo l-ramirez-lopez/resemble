@@ -142,12 +142,11 @@ se.nc <- simEval(d = cd, sideInf = Yr)
 se.nc$eval
 }
 }
-\author{
-Leonardo Ramirez-Lopez
-}
 \references{
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., Scholten, T. 2013a. The spectrum-based learner: A new local approach for modeling soil vis-NIR spectra of complex datasets. Geoderma 195-196, 268-279.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte, J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 }
-
+\author{
+Leonardo Ramirez-Lopez
+}

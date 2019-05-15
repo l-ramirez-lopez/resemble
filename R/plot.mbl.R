@@ -48,6 +48,10 @@
 ## 12.04.2015         When the circle was plotted there was an small
 ##                    gap in it. This was fixed by modifiying the pntCirc 
 ##                    function
+## 19.08.2016         10.08.2016 A bug in plot.mbl was corrected. 
+##                    It was not possible to plot mbl results when the 
+##                    k.diss argument (threshold distances) was used in 
+##                    the mbl function.   
 
 
 
@@ -106,7 +110,9 @@ plot.mbl <- function(x,
       dtn <- colnames(tpl) 
       opt <- c("rmse", "st.rmse", "r2")
       dt <- !is.element(dtn, opt[!is.element(opt, param)])
-      toPlot <- reshape(tpl[,dt], timevar = "val", idvar = "k", direction = "wide")
+      idv <- ifelse("k" %in% colnames(tpl), "k", "k.diss")
+      dt <- as.logical(dt * (!dtn %in% "p.bounded"))
+      toPlot <- reshape(tpl[,dt], timevar = "val", idvar = idv, direction = "wide")
       
       if(param == "r2"){
         toPlot <- toPlot[,!colnames(toPlot) == "r2.loc_crossval"]

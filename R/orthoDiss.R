@@ -119,6 +119,9 @@
 ## 02.12.2015 Leo     The function now outputs an the object global.variance.info
 ##                    which provides information on the explained variance
 ##                    of the projections.
+## 10.08.2018 Leo     A wrong message error was found and corrceted. previously was:
+##                    "Yu must be provided either when the 'opc' is used in pcSelection is used or method = 'pls'"
+##                    In fact it is not Yu but Yr ( the correct argument)
 
 orthoDiss <- function(Xr, X2 = NULL, 
                       Yr = NULL, 
@@ -128,7 +131,7 @@ orthoDiss <- function(Xr, X2 = NULL,
                       k0, 
                       center = TRUE, scaled = FALSE, 
                       return.all = FALSE, cores = 1, ...){
-   
+  
   in.call <- match.call()
   if(!is.null(in.call$call.))
     call. <- in.call$call.
@@ -164,24 +167,29 @@ orthoDiss <- function(Xr, X2 = NULL,
     Yr <- as.data.frame(Yr)
   }else{
     if(pcSelection[[1]] == "opc" | method == "pls"){
-      stop("Yu must be provided either when the 'opc' is used in pcSelection is used or method = 'pls'", call. = call.)
+      stop("Yr must be provided either when the 'opc' is used in pcSelection is used or method = 'pls'", call. = call.)
     }
   }
   
   prj <- orthoProjection(Xr = Xr, Yr = Yr, X2 = X2, method = method, pcSelection = pcSelection, center = center, scaled = scaled, cores = cores, call. = FALSE)
   scores <- prj$scores
-  scores <- sweep(prj$scores, 2, prj$sc.sdv, "/")
+  if(method == "pca"){
+    scores <- sweep(prj$scores, 2, prj$sc.sdv, "/")
+    distmthd <- "euclid" 
+  }else{
+    distmthd <- "mahalanobis"
+  }
   n.components <- prj$n.components
   if(is.null(X2)){
-    distnc <- fDiss(Xr = scores, X2 = NULL, method = "euclid", center = FALSE, scaled = FALSE)
+    distnc <- fDiss(Xr = scores, X2 = NULL, method = distmthd, center = FALSE, scaled = FALSE)
     dimnames(distnc) <- list(rownames(scores), rownames(scores))
   }else{
     if(!return.all)
     {
-      distnc <- fDiss(Xr = scores[1:nrow(Xr), ,drop = FALSE], X2 = scores[(1+nrow(Xr)):nrow(scores), ,drop = FALSE], method = "euclid", center = FALSE, scaled = FALSE)
+      distnc <- fDiss(Xr = scores[1:nrow(Xr), ,drop = FALSE], X2 = scores[(1+nrow(Xr)):nrow(scores), ,drop = FALSE], method = distmthd, center = FALSE, scaled = FALSE)
       dimnames(distnc) <- list(rownames(scores[1:nrow(Xr),]), rownames(scores[(1+nrow(Xr)):nrow(scores),]))
     }else{
-      distnc <- fDiss(Xr = scores, X2 = NULL, method = "euclid", center = FALSE, scaled = FALSE)
+      distnc <- fDiss(Xr = scores, X2 = NULL, method = distmthd, center = FALSE, scaled = FALSE)
       dimnames(distnc) <- list(rownames(scores), rownames(scores))
     }
   }
@@ -200,9 +208,14 @@ orthoDiss <- function(Xr, X2 = NULL,
                         sel <- order(d.val)[1:k0]
                         
                         pca.i <- orthoProjection(Xr = Xr[sel,], Yr = Yr[sel,], X2 = NULL, method = method, pcSelection = pcSelection, center = center, scaled = scaled, call. = FALSE)
-                        scores <- sweep(pca.i$scores, 2, pca.i$sc.sdv, "/")
                         
-                        dst.i <- data.frame(c(NaN, sel), c(pca.i$n.components, 0, fDiss(Xr = scores[1,,drop = FALSE], X2 = scores[-1,,drop = FALSE], method = "euclid", center = FALSE, scaled = FALSE)))
+                        if(method == "pca"){
+                          scores <- sweep(pca.i$scores, 2, pca.i$sc.sdv, "/")
+                        }else{
+                          scores <- pca.i$scores
+                        }
+                        
+                        dst.i <- data.frame(c(NaN, sel), c(pca.i$n.components, 0, fDiss(Xr = scores[1,,drop = FALSE], X2 = scores[-1,,drop = FALSE], method = distmthd, center = FALSE, scaled = FALSE)))
                         names(dst.i) <-  c("sel", i)
                         dst.i
                       }
@@ -235,8 +248,14 @@ orthoDiss <- function(Xr, X2 = NULL,
                           sel <- order(d.val)[1:k0]
                           
                           pca.i <- orthoProjection(Xr = Xr[sel,], Yr = Yr[sel,,drop = FALSE], X2 = X2[i, ,drop = FALSE], method = method, pcSelection = pcSelection, center = center, scaled = scaled, call. = FALSE)
-                          scores <- sweep(pca.i$scores, 2, pca.i$sc.sdv, "/")
-                          dst.i <- data.frame(c(NaN, i, sel), c(pca.i$n.components, 0, fDiss(Xr = scores[nrow(scores), ,drop=FALSE], X2 = scores[-nrow(scores),,drop=FALSE], method = "euclid", center = FALSE, scaled = FALSE)))
+                          
+                          if(method == "pca"){
+                            scores <- sweep(pca.i$scores, 2, pca.i$sc.sdv, "/")
+                          }else{
+                            scores <- pca.i$scores
+                          }
+                          
+                          dst.i <- data.frame(c(NaN, i, sel), c(pca.i$n.components, 0, fDiss(Xr = scores[nrow(scores), ,drop=FALSE], X2 = scores[-nrow(scores),,drop=FALSE], method = distmthd, center = FALSE, scaled = FALSE)))
                           names(dst.i) <-  c("sel", i)
                           dst.i
                         }
@@ -288,11 +307,18 @@ orthoDiss <- function(Xr, X2 = NULL,
                         .export = c("simEval"), .packages = c("resemble")) %dopar% { # Parallel computations
                           
                           sel <- order(d.val)[1:k0]
-                          pca.i <- prcomp(X[sel,], center = center, scale = scaled)
+                          #pca.i <- prcomp(X[sel,], center = center, scale = scaled)
                           
                           pca.i <- orthoProjection(Xr = X[sel,], Yr = Y[sel,,drop = FALSE], X2 = NULL, method = method, pcSelection = pcSelection, center = center, scaled = scaled, call. = FALSE)
                           scores <- sweep(pca.i$scores, 2, pca.i$sc.sdv, "/")
-                          dst.i <- data.frame(c(NaN, sel), c(pca.i$n.components, 0, fDiss(Xr = scores[1, ,drop=FALSE], X2 = scores[-1,,drop=FALSE], method = "euclid", center = FALSE, scaled = FALSE)))
+                          
+                          if(method == "pca"){
+                            scores <- sweep(prj$scores, 2, prj$sc.sdv, "/")
+                          }else{
+                            scores <- prj$scores
+                          }
+                          
+                          dst.i <- data.frame(c(NaN, sel), c(pca.i$n.components, 0, fDiss(Xr = scores[1, ,drop=FALSE], X2 = scores[-1,,drop=FALSE], method = distmthd, center = FALSE, scaled = FALSE)))
                           names(dst.i) <-  c("sel", i)
                           dst.i
                         }

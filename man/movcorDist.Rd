@@ -23,4 +23,3 @@ Computes a moving window correlation distance between two data matrices
 Leonardo Ramirez-Lopez and Antoine Stevens
 }
 \keyword{internal}
-

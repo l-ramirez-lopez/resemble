@@ -22,4 +22,3 @@ used internally in orthoProjection
 Antoine Stevens
 }
 \keyword{internal}
-

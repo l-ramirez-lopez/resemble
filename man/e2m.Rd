@@ -10,4 +10,3 @@ e2m(X, sm.method = c("svd", "eigen"))
 For internal use only
 }
 \keyword{internal}
-
