@@ -27,6 +27,7 @@
 #' @param center a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is centered on the basis of \eqn{Xr \cup Xu}. For dissimilarity computations based on pls, the data is always centered for the projections. 
 #' @param scaled a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.
 #' @param return.all a logical. In case \code{X2} is specified it indicates whether or not the distances between all the elements resulting from \eqn{Xr \cup Xu} must be computed.
+#' @param return.projection a logical. If `TRUE` the `orthoProjection` object used to compute the distances will be returned. Default is `FALSE`.
 #' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) and \code{local = FALSE} (default = 1). Dee details.
 #' @param ... additional arguments to be passed to the \code{\link{orthoProjection}} function.
 #' @details
@@ -130,7 +131,9 @@ orthoDiss <- function(Xr, X2 = NULL,
                       local = FALSE, 
                       k0, 
                       center = TRUE, scaled = FALSE, 
-                      return.all = FALSE, cores = 1, ...){
+                      return.all = FALSE, 
+                      return.projection = FALSE,
+                      cores = 1, ...){
   
   in.call <- match.call()
   if(!is.null(in.call$call.))
@@ -345,11 +348,20 @@ orthoDiss <- function(Xr, X2 = NULL,
       }
     }
     resultsList <- list(n.components = n.components, global.variance.info = prj$variance, loc.n.components = data.frame(sample.nm = colnames(distnc), sample = 1:ncol(distnc), loc.n.components = loc.n.components), dissimilarity = distnc)
+    if(return.projection){
+      resultsList$projection <- prj
+    }
+    
     class(resultsList) <- c("orthoDiss", "list") 
     class(resultsList$dissimilarity) <- c("localOrthoDiss","matrix")
     return(resultsList)    
   }else{
+    
     resultsList <- list(n.components = n.components, global.variance.info = prj$variance, dissimilarity = distnc)
+    if(return.projection){
+      resultsList$projection <- prj
+    }
+    
     class(resultsList) <- c("orthoDiss", "list") 
     class(resultsList$dissimilarity) <- c("orthoDiss","matrix") 
     return(resultsList)
