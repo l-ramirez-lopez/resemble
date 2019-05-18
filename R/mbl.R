@@ -785,14 +785,22 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
     GH <- as.vector((fDiss(Xr = scores.val, X2 = t(colMeans(scores.cal)), center = FALSE, scaled = FALSE, method = "euclid")))
     rm(scores)
   }else{
-    pca <- plsProjection(Xr = rbind(Xr, Xu), X2 = NULL, Yu = c(Yr, rep(NA,nrow(Xu))), pcSelection = mblCtrl$pcSelection, method = "pls", Yr = c(Yr, rep(NA, nrow(Xu))), center = mblCtrl$center, scaled = mblCtrl$scaled, call.=FALSE, cores = mblCtrl$cores)
+    pca <- plsProjection(Xr = rbind(Xr, Xu), 
+                         X2 = NULL, 
+                         pcSelection = mblCtrl$pcSelection, 
+                         method = "pls",
+                         Yr = c(Yr, rep(NA, nrow(Xu))), 
+                         center = mblCtrl$center, 
+                         scaled = mblCtrl$scaled, 
+                         call.=FALSE, 
+                         cores = mblCtrl$cores)
     npcs <- pca$n.components 
     
     scores <- pca$scores
     scores.cal <- scores[1:nrow(Xr), , drop=F]
     scores.val <- scores[(1+nrow(Xr)):nrow(scores), , drop=F]
     
-    GH <- as.vector((fDiss(Xr = scores.val, X2 = t(colMeans(scores.cal)), center = FALSE, scaled = FALSE, method = "mahalanobis")))
+    GH <- as.vector(fDiss(Xr = scores.val, X2 = t(colMeans(scores.cal)), center = FALSE, scaled = FALSE, method = "mahalanobis"))
     rm(scores)
   }
   
