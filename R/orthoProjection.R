@@ -182,7 +182,7 @@ orthoProjection <- function(Xr, X2 = NULL,
     if(!is.numeric(as.matrix(Yr)))
       stop("When pls projection is used, 'Yr' must be numeric", call. = call.)
     proj <- plsProjection(Xr = Xr, Yr = Yr, X2 = X2, pcSelection = pcSelection, scaled = scaled, cores = cores, call. = FALSE, ...)    
-    mthd <- "pls (nipals)"
+    mthd <- "pls"
   }else{
     mthd <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
     proj <- pcProjection(Xr = Xr, Yr = Yr, X2 = X2, method , pcSelection = pcSelection, 
