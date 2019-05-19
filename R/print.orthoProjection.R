@@ -19,7 +19,8 @@ print.orthoProjection <- function(x, ...){
     print(x$variance$x.var, digits = 3)
     cat("\n", "Explained variance in Yr: \n")
     print(x$variance$y.var, digits = 3)
-  }
-  else
+  }else{
+    cat("\n", "Explained variance in X {Xr; X2}: \n")
     print(x$variance, digits = 3)
+  }
 }
