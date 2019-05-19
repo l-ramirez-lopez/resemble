@@ -15,10 +15,10 @@ print.orthoProjection <- function(x, ...){
   
   cat( "\n", "Standard deviations, cumulative variance explained, individual variance explained:", "\n")
   if(x$method == "pls")
-    cat("\n", "Explained variance in Xr: \n")
+    cat("\n", "Explained variance in X: \n")
     print(x$variance$x.var, digits = 3)
     
-    cat("\n", "Explained variance in Yr: \n")
+    cat("\n", "Explained variance in Y: \n")
     print(x$variance$y.var, digits = 3)
   else
     print(x$variance, digits = 3)
