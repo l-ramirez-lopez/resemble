@@ -10,8 +10,11 @@
 #'           method = "pca", 
 #'           local = FALSE, 
 #'           k0, 
-#'           center = TRUE, scaled = FALSE, 
-#'           return.all = FALSE, cores = 1, ...)
+#'           center = TRUE, 
+#'           scaled = FALSE, 
+#'           return.all = FALSE, 
+#'           return.projection = FALSE,
+#'           cores = 1, ...)
 #' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
 #' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).
 #' @param Yr either if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{sm} argument is either \code{"pls"} or \code{"loc.pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. It can be a numeric \code{vector} or \code{matrix} (regarding one or more continuous variables). The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.
