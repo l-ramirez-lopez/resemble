@@ -1023,11 +1023,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                    predobs
                                  }
   
-  if(sum(is.na(d.mat)) > 0){
+  if(any(is.na(d.mat))){
     orderr <- function(x){
       or <- order(x, na.last = TRUE)
       notna <- sum(!is.na(x))
       or[-c(1:notna)] <- NA
+      return(or)
     }
     ks.indices <- t(apply(X = d.mat, MARGIN = 2, FUN = orderr))
   }else{

@@ -7,8 +7,8 @@
 #' is calculated. 
 #' @usage 
 #' simEval(d, sideInf, lower.tri = FALSE, cores = 1, ...)
-#' @param d a \code{vector} or a square symmetric \code{matrix} (or \code{data.frame}) of similarity/dissimilarity scores between samples of a given dataset (see \code{lower.tri}).
-#' @param sideInf a \code{vector} containing the side information corresponding to the samples in the dataset from which the similarity/dissimilarity matrix was computed. It can be either a numeric vector (continuous variable) or a factor (discrete variable). If it is a numeric \code{vector},  the root mean square of differences is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. If it is a factor, then the kappa index is used. See details.
+#' @param d a symmetric \code{matrix} (or \code{data.frame}) of similarity/dissimilarity scores between samples of a given dataset. Alternatively, a \code{vector} of with the dissimilarity scores of the lower triangle (without the diagonal values) can be used (see \code{lower.tri}).
+#' @param sideInf a \code{vector}, \code{matrix} or \code{data.frame} containing the side information corresponding to the samples in the dataset from which the similarity/dissimilarity matrix was computed. It can be either a numeric (continuous variables) or a factor (discrete variable). If it is numeric,  the root mean square of differences is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. If it is a factor, then the kappa index is used. See details.
 #' @param lower.tri a \code{logical} indicating whether the input similarities/dissimilarities are given as a \code{vector} of the lower triangle of the distance matrix (as returned e.g. by \code{base::dist}) or as a square symmetric \code{matrix} (or \code{data.frame}) (default = \code{FALSE})
 #' @param cores number of cores used to find the neareast neighbours of similarity/dissimilarity scores (default = 1). See details.
 #' @param ... additional parameters (for internal use only).
@@ -180,10 +180,10 @@ simEval <- function(d, sideInf, lower.tri = FALSE, cores = 1, ...){
       if(nrow(d) != nrow(sideInf))
         stop("The number of rows of the 'd' matrix does not match the number of observations in 'sideInf'", call. = call.)
       most <- which_min(d,cores)  # find nearest neighbours
-    } else {
+    }else {
       if(!ifelse(is.matrix(d),ncol(d)==1,is.vector(d)|is.atomic(d)))
         stop("'d' must be a vector or a matrix of 1 column when lower.tri = TRUE", call. = call.)
-      if(length(d) != (nrow(sideInf)^2-nrow(sideInf))/2)
+      if(length(d) != (nrow(sideInf)^2 - nrow(sideInf))/2)
         stop("The length the 'd' vector does not match the number of observations in 'sideInf'", call. = call.)
       most <- which_minV(d,cores)
     }

@@ -89,6 +89,20 @@ NumericVector cms(arma::mat X){
   return Rcpp::wrap(mn);
 }
 
+//' @title Function for computing sum of each column in a \code{matrix}
+//' @description Computes the sum of each column in a \code{matrix}. For internal use only!
+//' @usage cSums(X)
+//' @param X a \code{matrix}.
+//' @return a vector of standard deviation values. 
+//' @useDynLib resemble
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+NumericVector cSums(arma::mat X){
+  arma::mat sm = arma::sum(X);
+  return Rcpp::wrap(sm);
+}
 
 
 //' @title orthogonal scores algorithn of partial leat squares (opls)
@@ -305,9 +319,9 @@ List opls(arma::mat X,
   
   // convert this to standard deviation
   exv.row(0) = sqrt(exv.row(0));
-
+  
   prjM = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
-
+  
   arma::mat yexi;
   arma::mat cop;
   for(int i = 0; i < ny; i++){
@@ -321,13 +335,13 @@ List opls(arma::mat X,
       yex(i,j) = pow(cop(0,0), 2);
     }
   }
-
-
+  
+  
   arma::vec ymeanv;
   arma::mat ymean = arma::mean(Y);
   ymeanv = arma::vectorise(ymean);
-
-
+  
+  
   int idx = 0;
   for(int k = 0; k < ny; k++){
     arma::mat jyload = Yloadings.col(k);
@@ -340,7 +354,7 @@ List opls(arma::mat X,
       idx = idx + 1;
     }
   }
-
+  
   return Rcpp::List::create(
     Rcpp::Named("ncomp") = ncomp,
     Rcpp::Named("coefficients") = coefficients,
@@ -361,6 +375,503 @@ List opls(arma::mat X,
     _["weights"] = weights
   );
 }
+
+
+
+
+
+
+//' @title orthogonal scores algorithn of partial leat squares (opls2)
+//' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
+//' For internal use only!
+//' @usage 
+//' opls2(X, 
+//'       Y, 
+//'       ncomp, 
+//'       scale, 
+//'       maxiter, 
+//'       tol)
+//' @param X a \code{matrix} of predictor variables.
+//' @param Y a \code{matrix} of either a single or multiple response variables.
+//' @param ncomp the number of pls components.
+//' @param scale logical indicating whether \code{X} must be scaled.
+//' @param maxiter maximum number of iterations.
+//' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @return a list containing the following elements:
+//' \itemize{
+//' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+//' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+//' \item{\code{scores}}{ the \code{matrix} of scores.}
+//' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
+//' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
+//' \item{\code{projectionM}}{ the projection \code{matrix}.}
+//' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+//' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+//' } 
+//' @useDynLib resemble
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+List opls2(arma::mat X, 
+           arma::mat Y, 
+           int ncomp,
+           bool scale,            
+           double maxiter,
+           double tol){
+  
+  int nPf = ncomp;
+  int ny = Y.n_cols;
+  int nynf = ncomp * Y.n_cols;
+  
+  arma::mat weights = arma::zeros(nPf, X.n_cols);
+  arma::mat scores = arma::zeros(X.n_rows, nPf);
+  arma::mat Xloadings = arma::zeros(nPf, X.n_cols);
+  arma::mat Yloadings = arma::zeros(nPf, ny);
+  arma::mat coefficients = arma::zeros(X.n_cols, nynf);
+  arma::mat bo = arma::zeros(ny, nPf);
+  arma::mat exv = arma::zeros(3, nPf);
+  arma::mat yex = arma::zeros(ny, nPf);
+
+  
+  // if false, it reuses memory and avoids extra copy
+  // the problem is that the matrix cannot be easily overwriten 
+  // retrieves random results
+  
+  //  arma::mat Xz(X.begin(), X.nrow(), X.ncol(), true);     
+  //  arma::mat Yz(Y.begin(), Y.nrow(), Y.ncol() , true); 
+  
+  arma::mat Xscale;
+  arma::mat Xs;
+  arma::mat xfcntr;
+  arma::mat Xz = X;
+  
+  if(scale){
+    Xscale = arma::repmat(Rcpp::as<arma::mat>(colSds(Xz)), Xz.n_rows, 1);
+    Xz = Xz / Xscale;
+    Xs =  Xscale.row(0);
+  }
+  
+  xfcntr = Rcpp::as<arma::mat>(cms(Xz));
+  
+  //Xcenter = arma::repmat(Rcpp::as<arma::mat>(cms(Xz)), Xz.n_rows, 1);
+  Xz = Xz - arma::repmat(xfcntr, Xz.n_rows, 1);
+  
+  
+  arma::mat Xpls = Xz;
+  arma::mat Ypls = Y;
+  
+  //variance of Xpls
+  double xvar = sum(pow(colSds(Xpls), 2));  
+  
+  // matrices to declare
+  arma::mat iypls;
+  arma::mat Yplsb;
+  arma::vec imsd;
+  int j;
+  bool keepg;
+  arma::mat lb;
+  arma::mat cr;
+  arma::mat tsr;
+  arma::mat ts;
+  arma::mat w;
+  arma::mat p;
+  arma::mat q;
+  arma::mat cx;
+  arma::mat cy;
+  arma::mat tsrp;
+  arma::mat ev;
+  arma::mat prjM;
+  
+  arma::mat sratio = arma::zeros(weights.n_rows, weights.n_cols);
+  
+  int nff = 0;
+  
+  for (int i = 0; i < ncomp; i++){
+    Yplsb = Ypls;
+    Xpls = Xpls;      
+    // Select the Y variable with the largest standard deviation
+    imsd = wcolSds(Ypls);
+    iypls = Ypls.col(imsd[0]);
+    arma::mat tsr = arma::zeros(Xpls.n_rows, 1);
+    tsrp = tsr + tsr;
+    
+    j = 0;
+    keepg = true;
+    
+    while(keepg){
+      if(j > 0)
+      {
+        tsrp = ts;
+      }
+      //Step 1: Compute a vector of loading weights...
+      // 1.1 Compute the 'scaling factor'
+      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // 1.2 The weights are computed as the cross product of
+      // X0 and Y0 divided by the 'scaling factor'...
+      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // Step 2: Compute the scores...
+      ts = Xpls * w;
+      // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
+      p = (trans(Xpls) * ts) / repmat((trans(ts) * ts), Xpls.n_cols, 1);
+      q = (trans(Yplsb) * ts) / repmat((trans(ts) * ts), Yplsb.n_cols, 1);
+      iypls = (Yplsb * q) / repmat((trans(q) * q), Xpls.n_rows, 1) ;
+      lb = abs(sum((ts - tsrp) / ts));
+      keepg = lb[0] > tol;
+      j = j + 1;
+      if(maxiter <= j){
+        keepg = false;
+      }
+    }
+    
+    // Step 4: The residual matrix
+    // of X is finally computed and...
+    cx = ts * trans(p) ;
+    
+    
+    //expvar = arma::var(Xpls, 0, 0);
+    
+    Xpls = Xpls - cx;
+    
+    //vip2.row(i) = expvar/arma::var(Xpls, 0, 0);
+    
+    
+    
+    // ... the vector of residuals of Y is also computed
+    cy = ts * trans(q);
+    Ypls = Ypls - cy;
+    // save the matrices corresponding to the loadings
+    // and scores..
+    weights.row(i) = trans(w);
+    scores.col(i) = ts;
+    Xloadings.row(i) = trans(p);
+    Yloadings.row(i) = trans(q);
+    exv(0,i) = arma::var(scores.col(i));
+    exv(1,i) = sum(exv.row(0)) / xvar;
+    exv(2,i) = exv(0,i)/xvar;
+
+    nff = nff + 1;
+  }
+  
+  // convert this to standard deviation
+  exv.row(0) = sqrt(exv.row(0));
+  
+  prjM = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
+  
+  arma::mat yexi;
+  arma::mat cop;
+  for(int i = 0; i < ny; i++){
+    yexi = scores % arma::repmat(trans(Yloadings.col(i)), scores.n_rows, 1) ;
+    cop = pow(arma::cor(Y.col(i), yexi.col(0)), 2);
+    //double(*cop2) = reinterpret_cast <double(*)> (cop); //does not work
+    yex(i,0) = cop(0,0);
+    for(int j = 1; j < ncomp; j++){
+      yexi.col(j) = yexi.col(j-1) + yexi.col(j);
+      cop = arma::cor(Y.col(i), yexi.col(j));
+      yex(i,j) = pow(cop(0,0), 2);
+    }
+  }
+  
+  
+  arma::vec ymeanv;
+  arma::mat ymean = arma::mean(Y);
+  ymeanv = arma::vectorise(ymean);
+  
+  arma::mat wtp;
+  arma::mat ttp;
+  arma::mat ptp;
+  arma::mat expvar;
+  arma::mat resvar;
+    
+  int idx = 0;
+  for(int k = 0; k < ny; k++){
+    arma::mat jyload = Yloadings.col(k);
+    for(int j = 0; j < ncomp; j++){
+      // Estimate coefficients
+      coefficients.col(idx) = prjM.cols(0,j) * jyload.rows(0,j);
+      
+      // computation for target projection and its selectivity ratio
+      // Rajalahti, Tarja, et al. 
+      // Biomarker discovery in mass spectral profiles by means of selectivity ratio plot.
+      // Chemometrics and Intelligent Laboratory Systems 95.1 (2009): 35-48.
+      arma::mat bd = sqrt(trans(coefficients.col(idx)) * coefficients.col(idx));
+      wtp = coefficients.col(idx)/repmat(bd, coefficients.n_rows, 1);
+      ttp = Xz * wtp;
+      ptp = trans(ttp) * Xz;
+      ptp = ptp/repmat(trans(ttp) * ttp, 1, coefficients.n_rows);
+      expvar = ttp * ptp;
+      resvar = arma::var(Xz - expvar, 0, 0);
+      expvar = arma::var(expvar, 0, 0);
+      sratio.row(j) = expvar/resvar ;
+      
+      // compute the intercept
+      arma:: vec leov;
+      arma::mat leo = xfcntr * coefficients.col(idx);
+      leov = arma::vectorise(leo);
+      bo(k,j) = ymeanv(k) - leov(0);
+      idx = idx + 1;
+    }
+  }
+
+  
+  arma::mat ss = arma::zeros(Yloadings.n_rows, Yloadings.n_cols);
+  arma::mat wss = arma::zeros(Yloadings.n_rows, Yloadings.n_cols);
+  arma::mat ssw = arma::zeros(scores.n_rows, Yloadings.n_rows);
+  arma::mat vip = arma::zeros(weights.n_rows, weights.n_cols);
+  
+  arma::mat ss1 = pow(Yloadings, 2);
+  arma::mat ss2 = cSums(pow(scores, 2));
+  ss = ss1 % ss2;
+  
+  arma::mat sqweights = trans(pow(weights, 2));
+  wss = cSums(sqweights);
+  ssw = sqweights % trans(arma::repmat(ss/wss, 1, weights.n_cols));
+  
+  arma::mat cssw = arma::zeros(weights.n_cols, weights.n_rows);
+  double sclr = ssw.n_rows;
+  int it = ssw.n_rows;
+  for(int i = 0; i < it; i++){
+    cssw.row(i) = cumsum(ssw.row(i));
+  }
+  cssw = cssw * sclr;
+  
+  vip = pow(cssw / arma::repmat(trans(cumsum(ss)), weights.n_cols, 1), 0.5);
+  
+  
+  return Rcpp::List::create(
+    Rcpp::Named("ncomp") = ncomp,
+    Rcpp::Named("coefficients") = coefficients,
+    Rcpp::Named("bo") = bo,
+    Rcpp::Named("scores") = scores,
+    Rcpp::Named("X.loadings") = Xloadings,
+    Rcpp::Named("Y.loadings") = Yloadings,
+    Rcpp::Named("projectionM") = prjM,
+    Rcpp::Named("vip") = vip,
+    Rcpp::Named("selectivityR") = trans(sratio),
+    Rcpp::Named("Y") = Y,
+    Rcpp::Named("variance") = Rcpp::List::create(
+      Rcpp::Named("x.var") = exv,
+      Rcpp::Named("y.var") = yex
+    ),
+    Rcpp::Named("transf") = Rcpp::List::create(
+      Rcpp::Named("Xcenter") = xfcntr,
+      Rcpp::Named("Xscale") = Xs
+    ),
+    _["weights"] = weights
+  );
+}
+
+
+
+
+
+
+//' @title orthogonal scores algorithn of partial leat squares (opls3)
+//' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
+//' For internal use only!
+//' @usage 
+//' opls3(X, 
+//'       Y, 
+//'       ncomp, 
+//'       scale, 
+//'       maxiter, 
+//'       tol)
+//' @param X a \code{matrix} of predictor variables.
+//' @param Y a \code{matrix} of either a single or multiple response variables.
+//' @param ncomp the number of pls components.
+//' @param scale logical indicating whether \code{X} must be scaled.
+//' @param maxiter maximum number of iterations.
+//' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @return a list containing the following elements:
+//' \itemize{
+//' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+//' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+//' \item{\code{scores}}{ the \code{matrix} of scores.}
+//' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
+//' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
+//' \item{\code{projectionM}}{ the projection \code{matrix}.}
+//' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+//' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+//' } 
+//' @useDynLib resemble
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+List opls3(arma::mat X, 
+           arma::mat Y, 
+           int ncomp,
+           bool scale,            
+           double maxiter,
+           double tol){
+  
+  int nPf = ncomp;
+  int ny = Y.n_cols;
+  int nynf = ncomp * Y.n_cols;
+  
+  arma::mat weights = arma::zeros(nPf, X.n_cols);
+  arma::mat scores = arma::zeros(X.n_rows, nPf);
+  arma::mat Xloadings = arma::zeros(nPf, X.n_cols);
+  arma::mat Yloadings = arma::zeros(nPf, ny);
+  arma::mat coefficients = arma::zeros(X.n_cols, nynf);
+  arma::mat bo = arma::zeros(ny, nPf);
+  
+  
+  // if false, it reuses memory and avoids extra copy
+  // the problem is that the matrix cannot be easily overwriten 
+  // retrieves random results
+  
+  //  arma::mat Xz(X.begin(), X.nrow(), X.ncol(), true);     
+  //  arma::mat Yz(Y.begin(), Y.nrow(), Y.ncol() , true); 
+  
+  arma::mat Xscale;
+  arma::mat Xs;
+  arma::mat xfcntr;
+  arma::mat Xz = X;
+  
+  if(scale){
+    Xscale = arma::repmat(Rcpp::as<arma::mat>(colSds(Xz)), Xz.n_rows, 1);
+    Xz = Xz / Xscale;
+    Xs =  Xscale.row(0);
+  }
+  
+  xfcntr = Rcpp::as<arma::mat>(cms(Xz));
+  
+  //Xcenter = arma::repmat(Rcpp::as<arma::mat>(cms(Xz)), Xz.n_rows, 1);
+  Xz = Xz - arma::repmat(xfcntr, Xz.n_rows, 1);
+  
+  
+  arma::mat Xpls = Xz;
+  arma::mat Ypls = Y;
+  
+  
+  // matrices to declare
+  arma::mat iypls;
+  arma::mat Yplsb;
+  arma::vec imsd;
+  int j;
+  bool keepg;
+  arma::mat lb;
+  arma::mat cr;
+  arma::mat tsr;
+  arma::mat ts;
+  arma::mat w;
+  arma::mat p;
+  arma::mat q;
+  arma::mat cx;
+  arma::mat cy;
+  arma::mat tsrp;
+  arma::mat ev;
+  arma::mat prjM;
+  
+  int nff = 0;
+  
+  for (int i = 0; i < ncomp; i++){
+    Yplsb = Ypls;
+    Xpls = Xpls;      
+    // Select the Y variable with the largest standard deviation
+    imsd = wcolSds(Ypls);
+    iypls = Ypls.col(imsd[0]);
+    arma::mat tsr = arma::zeros(Xpls.n_rows, 1);
+    tsrp = tsr + tsr;
+    
+    j = 0;
+    keepg = true;
+    
+    while(keepg){
+      if(j > 0)
+      {
+        tsrp = ts;
+      }
+      //Step 1: Compute a vector of loading weights...
+      // 1.1 Compute the 'scaling factor'
+      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // 1.2 The weights are computed as the cross product of
+      // X0 and Y0 divided by the 'scaling factor'...
+      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // Step 2: Compute the scores...
+      ts = Xpls * w;
+      // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
+      p = (trans(Xpls) * ts) / repmat((trans(ts) * ts), Xpls.n_cols, 1);
+      q = (trans(Yplsb) * ts) / repmat((trans(ts) * ts), Yplsb.n_cols, 1);
+      iypls = (Yplsb * q) / repmat((trans(q) * q), Xpls.n_rows, 1) ;
+      lb = abs(sum((ts - tsrp) / ts));
+      keepg = lb[0] > tol;
+      j = j + 1;
+      if(maxiter <= j){
+        keepg = false;
+      }
+    }
+    
+    // Step 4: The residual matrix
+    // of X is finally computed and...
+    cx = ts * trans(p) ;
+    Xpls = Xpls - cx;
+    // ... the vector of residuals of Y is also computed
+    cy = ts * trans(q);
+    Ypls = Ypls - cy;
+    // save the matrices corresponding to the loadings
+    // and scores..
+    weights.row(i) = trans(w);
+    scores.col(i) = ts;
+    Xloadings.row(i) = trans(p);
+    Yloadings.row(i) = trans(q);
+    
+    nff = nff + 1;
+  }
+  
+  prjM = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
+  
+  arma::vec ymeanv;
+  arma::mat ymean = arma::mean(Y);
+  ymeanv = arma::vectorise(ymean);
+  
+  int idx = 0;
+  for(int k = 0; k < ny; k++){
+    arma::mat jyload = Yloadings.col(k);
+    for(int j = 0; j < ncomp; j++){
+      coefficients.col(idx) = prjM.cols(0,j) * jyload.rows(0,j);
+      arma:: vec leov;
+      arma::mat leo = xfcntr * coefficients.col(idx);
+      leov = arma::vectorise(leo);
+      bo(k,j) = ymeanv(k) - leov(0);
+      idx = idx + 1;
+    }
+  }
+  
+  return Rcpp::List::create(
+    Rcpp::Named("ncomp") = ncomp,
+    Rcpp::Named("coefficients") = coefficients,
+    Rcpp::Named("bo") = bo,
+    Rcpp::Named("scores") = scores,
+    Rcpp::Named("X.loadings") = Xloadings,
+    Rcpp::Named("Y.loadings") = Yloadings,
+    Rcpp::Named("projectionM") = prjM,
+    Rcpp::Named("Y") = Y,
+    Rcpp::Named("transf") = Rcpp::List::create(
+      Rcpp::Named("Xcenter") = xfcntr,
+      Rcpp::Named("Xscale") = Xs
+    ),
+    _["weights"] = weights
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -542,8 +1053,8 @@ List fopls(arma::mat X,
 }
 
 
-//' @title Prediction function for the \code{opls} and \code{opls2} functions
-//' @description Predicts response values based on a model generated by either by \code{opls} or the \code{opls2} functions. 
+//' @title Prediction function for the \code{opls} and \code{fopls} functions
+//' @description Predicts response values based on a model generated by either by \code{opls} or the \code{fopls} functions. 
 //' For internal use only!. 
 //' @usage predopls(bo, b, ncomp, newdata, scale, Xscale)
 //' @param bo a numeric value indicating the intercept.
@@ -673,7 +1184,13 @@ Rcpp::NumericMatrix waplswCpp(arma::mat projectionm,
     xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
   }
   
+  
+  
   arma::mat rmsb = sqrt(cms(pow(coefficients.cols(0, maxF - 1), 2)));
+  
+  // xrmsres  = xrmsres / arma::repmat(sum(xrmsres, 1), 1, xrmsres.n_cols);
+  // rmsb  = rmsb / arma::repmat(sum(rmsb, 1), 1, rmsb.n_cols);
+  
   arma::mat rmsb_x = trans(rmsb.rows(minF - 1, maxF - 1)) % xrmsres.cols(minF - 1, maxF - 1);
   arma::mat whgtn = pow(rmsb_x, -1);
   whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);

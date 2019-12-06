@@ -161,7 +161,12 @@
 ##                    "pca" do not execute the PC projection. This was fixed by 
 ##                    if(length(grep("pca", object) != 0)) do PC projection
 ## 23.09.2018 Leo     add a newdata names check in predict.orthoProjection.. they need to correspond 
-#                     to variable names in orthoProjection object
+##                    to variable names in orthoProjection object
+## 03.07.2019 Leo     there was a problem retriving the optimal number of pcs in pcProjection when the 
+##                    'opc'method was used in combination with missing data in Yr. The neighbors retrieved 
+##                    were not excluding missing values generating a miscalcilation of the rmsd. 
+##                    This was solved by removing missing values before the calculations with the fastDistVV.
+
 
 orthoProjection <- function(Xr, X2 = NULL, 
                             Yr = NULL, 
@@ -457,13 +462,16 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
         for (i in 1:pcSelection$value) {
           sc <- s.scores[1:nr, i, drop = FALSE]
           if (i == 1) {
-            d <- fastDistVV(sc, cores)
+            d <- fastDistVV(sc[complete.cases(Yr),], cores)^0.5
           }
           else {
-            d <- d + fastDistVV(sc, cores)
+            d <- d + fastDistVV(sc[complete.cases(Yr),], cores)^0.5
           }
-          tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, 
-                         lower.tri = TRUE, cores = cores)
+          tmp <- simEval(d = d, 
+                         sideInf = Yr[complete.cases(Yr),], 
+                         call. = FALSE, 
+                         lower.tri = TRUE,
+                         cores = cores)
           result[i, 1:ny] <- getElement(tmp$eval, "rmsd")
           result[i, 1 + ny] <- getElement(tmp$global.eval, 
                                           "mn.sd.rmsd")
@@ -472,13 +480,16 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
         for (i in 1:pcSelection$value) {
           sc <- s.scores[1:nr, i, drop = FALSE]
           if (i == 1) {
-            d <- fastDistVV(sc, cores)
+            d <- fastDistVV(sc[complete.cases(Yr),], cores)^0.5
           }
           else {
-            d <- d + fastDistVVL(sc)
+            d <- d + fastDistVVL(sc[complete.cases(Yr),])^0.5
           }
-          tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, 
-                         lower.tri = TRUE, cores = cores)
+          tmp <- simEval(d = d, 
+                         sideInf = Yr[complete.cases(Yr),], 
+                         call. = FALSE, 
+                         lower.tri = TRUE, 
+                         cores = cores)
           result[i, 1:ny] <- getElement(tmp$eval, "rmsd")
           result[i, 1 + ny] <- getElement(tmp$global.eval, 
                                           "mn.sd.rmsd")
@@ -518,13 +529,16 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       for (i in 1:pcSelection$value) {
         sc <- s.scores[1:nr, i, drop = FALSE]
         if (i == 1) {
-          d <- fastDistVV(sc, cores)
+          d <- fastDistVV(sc[!is.na(Yr),], cores)^0.5
         }
         else {
-          d <- d + fastDistVV(sc, cores)
+          d <- d + fastDistVV(sc[!is.na(Yr),], cores)^0.5
         }
-        tmp <- simEval(d = d, sideInf = Yr, call. = FALSE, 
-                       lower.tri = TRUE, cores = cores)
+        tmp <- simEval(d = d, 
+                       sideInf = Yr[!is.na(Yr)], 
+                       call. = FALSE, 
+                       lower.tri = TRUE, 
+                       cores = cores)
         result[i] <- getElement(tmp$eval, ext)
       }
       
@@ -751,10 +765,10 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       for (i in 1:pcSelection$value) {
         sc <- s.scores[, i, drop = FALSE]
         if (i == 1) {
-          d <- fastDistVV(sc, cores)
+          d <- fastDistVV(sc, cores)^0.5
         }
         else {
-          d <- d + fastDistVV(sc, cores)
+          d <- d + fastDistVV(sc, cores)^0.5
         }
         tmp <- simEval(d = d, sideInf = Yr[inx.in, ,drop = FALSE], lower.tri = TRUE, cores = cores)
         result[i, 1:ny] <- getElement(tmp$eval, "rmsd")
@@ -792,10 +806,10 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       for (i in 1:pcSelection$value) {
         sc <- s.scores[, i, drop = FALSE]
         if (i == 1) {
-          d <- fastDistVV(sc, cores)
+          d <- fastDistVV(sc, cores)^0.5
         }
         else {
-          d <- d + fastDistVV(sc, cores)
+          d <- d + fastDistVV(sc, cores)^0.5
         }
         tmp <- simEval(d = d, sideInf = Yr[inx.in, , 
                                            drop = FALSE], lower.tri = TRUE, cores = cores)

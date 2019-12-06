@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
+#include <RcppEigen.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -54,6 +55,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// eigenMapMatMult
+SEXP eigenMapMatMult(const Eigen::Map<Eigen::MatrixXd> A, Eigen::Map<Eigen::MatrixXd> B);
+RcppExport SEXP _resemble_eigenMapMatMult(SEXP ASEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(eigenMapMatMult(A, B));
+    return rcpp_result_gen;
+END_RCPP
+}
 // movcorDist
 NumericMatrix movcorDist(NumericMatrix X, NumericMatrix Y, int w);
 RcppExport SEXP _resemble_movcorDist(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP) {
@@ -100,6 +113,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cSums
+NumericVector cSums(arma::mat X);
+RcppExport SEXP _resemble_cSums(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(cSums(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // opls
 List opls(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol, bool regression, String pcSelmethod, double pcSelvalue);
 RcppExport SEXP _resemble_opls(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP regressionSEXP, SEXP pcSelmethodSEXP, SEXP pcSelvalueSEXP) {
@@ -116,6 +140,38 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< String >::type pcSelmethod(pcSelmethodSEXP);
     Rcpp::traits::input_parameter< double >::type pcSelvalue(pcSelvalueSEXP);
     rcpp_result_gen = Rcpp::wrap(opls(X, Y, ncomp, scale, maxiter, tol, regression, pcSelmethod, pcSelvalue));
+    return rcpp_result_gen;
+END_RCPP
+}
+// opls2
+List opls2(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol);
+RcppExport SEXP _resemble_opls2(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls2(X, Y, ncomp, scale, maxiter, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// opls3
+List opls3(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol);
+RcppExport SEXP _resemble_opls3(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls3(X, Y, ncomp, scale, maxiter, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -286,11 +342,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fastDistVV", (DL_FUNC) &_resemble_fastDistVV, 2},
     {"_resemble_fastDistVVL", (DL_FUNC) &_resemble_fastDistVVL, 1},
     {"_resemble_minDissV", (DL_FUNC) &_resemble_minDissV, 2},
+    {"_resemble_eigenMapMatMult", (DL_FUNC) &_resemble_eigenMapMatMult, 2},
     {"_resemble_movcorDist", (DL_FUNC) &_resemble_movcorDist, 3},
     {"_resemble_wcolSds", (DL_FUNC) &_resemble_wcolSds, 1},
     {"_resemble_colSds", (DL_FUNC) &_resemble_colSds, 1},
     {"_resemble_cms", (DL_FUNC) &_resemble_cms, 1},
+    {"_resemble_cSums", (DL_FUNC) &_resemble_cSums, 1},
     {"_resemble_opls", (DL_FUNC) &_resemble_opls, 9},
+    {"_resemble_opls2", (DL_FUNC) &_resemble_opls2, 6},
+    {"_resemble_opls3", (DL_FUNC) &_resemble_opls3, 6},
     {"_resemble_fopls", (DL_FUNC) &_resemble_fopls, 6},
     {"_resemble_predopls", (DL_FUNC) &_resemble_predopls, 6},
     {"_resemble_projectpls", (DL_FUNC) &_resemble_projectpls, 6},

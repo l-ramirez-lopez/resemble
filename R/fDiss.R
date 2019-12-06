@@ -76,6 +76,13 @@
 ## 09.03.2014 Leo     The line rslt[is.na(rslt)] <- 0 was added in order 
 ##                    to deal with NaNs produced by the C++ code    
 ## 18.11.2015 Leo     Bug fixed. Code crashed When Xr was of one row  
+## 18.07.2019 Leo     A bug in the scaling of the euclidean distances in fDiss was detected and fixed. The distance ratios
+##                    (between samples) were correctly calculated, but the final scaling of the results was not properly 
+##                    done. The distance between Xi and Xj were scaled by taking the squared root of the mean of the squared 
+##                    differences and dividing it by the number of variables i.e. sqrt(mean((Xi-Xj)^2))/ncol(Xi), however the
+##                    correct calculation is done by taking the mean of the squared differences, dividing it by the number of
+##                    variables and then compute the squared root i.e. sqrt(mean((Xi-Xj)^2)/ncol(Xi)). 
+##                    This bug had no effect on the computations of the nearest neighbors. 
 
 
 fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE)
@@ -141,13 +148,13 @@ fDiss <- function(Xr, X2 = NULL, method = "euclid", center = TRUE, scaled = TRUE
   {
     rslt <- fastDist(X2, Xr, n.method)
     if(n.method == "euclid" )      
-      rslt <- (rslt^.5)/ncol(Xr)
+      rslt <- (rslt/ncol(Xr))^.5
     colnames(rslt) <- paste("X2", 1:nrow(X2), sep = ".")
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
   }else{
     rslt <- fastDist(Xr, Xr, n.method)
     if(n.method == "euclid")      
-      rslt <- (rslt^.5)/ncol(Xr)
+      rslt <- (rslt/ncol(Xr))^.5
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = ".")
     colnames(rslt) <- rownames(rslt)
   }

@@ -23,7 +23,7 @@ arma::mat fastDist(NumericMatrix X, NumericMatrix Y, String method){
   int nX = X.nrow(), kX = X.ncol(), nY = Y.nrow(), kY = Y.ncol();
   arma::mat XX(X.begin(), nX, kX, false); // reuses memory and avoids extra copy
   arma::mat YY(Y.begin(), nY, kY, false); // reuses memory and avoids extra copy 
-  if(method=="euclid"){
+  if(method == "euclid"){
     arma::mat output = arma::ones(nY,1) * arma::sum(arma::square(XX),1).t() + arma::sum(arma::square(YY),1)  * arma::ones(1,nX) - 2 * YY * XX.t();
     return output;
   }   

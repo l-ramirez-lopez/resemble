@@ -2,7 +2,7 @@ Package: resemble
 Type: Package
 Title: Regression and Similarity Evaluation for Memory-Based Learning in
     Spectral Chemometrics
-Version: 1.3.1
+Version: 1.3.2
 Date: 2018-03-07
 Author: Leonardo Ramirez-Lopez [aut, cre], Antoine Stevens [aut]
 Maintainer: Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
@@ -23,7 +23,7 @@ Suggests:
     prospectr,
     parallel,
     doParallel
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo, RcppEigen
 NeedsCompilation: yes
 Repository: CRAN
 RoxygenNote: 6.1.1

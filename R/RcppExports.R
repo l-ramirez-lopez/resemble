@@ -64,6 +64,10 @@ minDissV <- function(X, cores) {
     .Call('_resemble_minDissV', PACKAGE = 'resemble', X, cores)
 }
 
+eigenMapMatMult <- function(A, B) {
+    .Call('_resemble_eigenMapMatMult', PACKAGE = 'resemble', A, B)
+}
+
 #' @title Moving/rolling correlation distance of two matrices
 #' @description Computes a moving window correlation distance between two data matrices
 #' @usage 
@@ -118,6 +122,19 @@ cms <- function(X) {
     .Call('_resemble_cms', PACKAGE = 'resemble', X)
 }
 
+#' @title Function for computing sum of each column in a \code{matrix}
+#' @description Computes the sum of each column in a \code{matrix}. For internal use only!
+#' @usage cSums(X)
+#' @param X a \code{matrix}.
+#' @return a vector of standard deviation values. 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+cSums <- function(X) {
+    .Call('_resemble_cSums', PACKAGE = 'resemble', X)
+}
+
 #' @title orthogonal scores algorithn of partial leat squares (opls)
 #' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
 #' For internal use only!
@@ -164,6 +181,78 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol, regression = TRUE, pcSelmetho
     .Call('_resemble_opls', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, regression, pcSelmethod, pcSelvalue)
 }
 
+#' @title orthogonal scores algorithn of partial leat squares (opls2)
+#' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
+#' For internal use only!
+#' @usage 
+#' opls2(X, 
+#'       Y, 
+#'       ncomp, 
+#'       scale, 
+#'       maxiter, 
+#'       tol)
+#' @param X a \code{matrix} of predictor variables.
+#' @param Y a \code{matrix} of either a single or multiple response variables.
+#' @param ncomp the number of pls components.
+#' @param scale logical indicating whether \code{X} must be scaled.
+#' @param maxiter maximum number of iterations.
+#' @param tol limit for convergence of the algorithm in the nipals algorithm.
+#' @return a list containing the following elements:
+#' \itemize{
+#' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+#' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+#' \item{\code{scores}}{ the \code{matrix} of scores.}
+#' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
+#' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
+#' \item{\code{projectionM}}{ the projection \code{matrix}.}
+#' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+#' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+#' } 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+opls2 <- function(X, Y, ncomp, scale, maxiter, tol) {
+    .Call('_resemble_opls2', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol)
+}
+
+#' @title orthogonal scores algorithn of partial leat squares (opls3)
+#' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
+#' For internal use only!
+#' @usage 
+#' opls3(X, 
+#'       Y, 
+#'       ncomp, 
+#'       scale, 
+#'       maxiter, 
+#'       tol)
+#' @param X a \code{matrix} of predictor variables.
+#' @param Y a \code{matrix} of either a single or multiple response variables.
+#' @param ncomp the number of pls components.
+#' @param scale logical indicating whether \code{X} must be scaled.
+#' @param maxiter maximum number of iterations.
+#' @param tol limit for convergence of the algorithm in the nipals algorithm.
+#' @return a list containing the following elements:
+#' \itemize{
+#' \item{\code{coefficients}}{ the \code{matrix} of regression coefficients.}
+#' \item{\code{bo}}{ a \code{matrix} of one row containing the intercepts for each component.}
+#' \item{\code{scores}}{ the \code{matrix} of scores.}
+#' \item{\code{X.loadings}}{ the \code{matrix} of X loadings.}
+#' \item{\code{Y.loadings}}{ the \code{matrix} of Y loadings.}
+#' \item{\code{projectionM}}{ the projection \code{matrix}.}
+#' \item{\code{variance}}{ a \code{list} conating two objects: \code{x.var} and \code{y.var}. 
+#' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
+#' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+#' } 
+#' @useDynLib resemble
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+opls3 <- function(X, Y, ncomp, scale, maxiter, tol) {
+    .Call('_resemble_opls3', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol)
+}
+
 #' @title fast orthogonal scores algorithn of partial leat squares (opls)
 #' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
 #' In contrast to code{opls} function, this one does not compute unnecessary data for local regressions.
@@ -191,8 +280,8 @@ fopls <- function(X, Y, ncomp, scale, maxiter, tol) {
     .Call('_resemble_fopls', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol)
 }
 
-#' @title Prediction function for the \code{opls} and \code{opls2} functions
-#' @description Predicts response values based on a model generated by either by \code{opls} or the \code{opls2} functions. 
+#' @title Prediction function for the \code{opls} and \code{fopls} functions
+#' @description Predicts response values based on a model generated by either by \code{opls} or the \code{fopls} functions. 
 #' For internal use only!. 
 #' @usage predopls(bo, b, ncomp, newdata, scale, Xscale)
 #' @param bo a numeric value indicating the intercept.
