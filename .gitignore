@@ -14,3 +14,5 @@ src-i386/
 src-x64/
 .Rproj.user/
 packrat/lib*/
+rslocal.R
+rslocal.pdf
