@@ -41,7 +41,7 @@ You can also install the `resemble` package directly from github using [`devtool
   
   ```
 require("devtools")
-install_github("resemble","l-ramirez-lopez")
+install_github("l-ramirez-lopez/resemble")
 ```
 
 
@@ -157,7 +157,7 @@ __`'wapls2'`__:                                Weighted average partial least sq
 * 2014-03: The package was released on CRAN!
 
 ## Other R'elated stuff
-* [Check our other project called `prospectr`.](http://antoinestevens.github.io/prospectr/)
+* [Check our other project called `prospectr`.](http://github.com/l-ramirez-lopez/prospectr)
 * [Check this presentation in which we used the resemble package to predict soil attributes from large scale soil spectral libraries.](http://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
 
 ## Bug report and development version

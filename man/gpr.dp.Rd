@@ -4,8 +4,7 @@
 \alias{gpr.dp}
 \title{Gaussian process regression with dot product covariance}
 \usage{
-gpr.dp(Xn, Yn, noise.v = 0.001, scaled = TRUE, center = FALSE,
-  x.add = NULL)
+gpr.dp(Xn, Yn, noise.v = 0.001, scaled = TRUE, center = FALSE, x.add = NULL)
 }
 \description{
 internal

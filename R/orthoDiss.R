@@ -13,24 +13,27 @@
 #'           center = TRUE, 
 #'           scaled = FALSE, 
 #'           return.all = FALSE, 
-#'           return.projection = FALSE,
+#'           return_projection = FALSE,
 #'           cores = 1, ...)
-#' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
-#' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations(samples).
-#' @param Yr either if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{sm} argument is either \code{"pls"} or \code{"loc.pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. It can be a numeric \code{vector} or \code{matrix} (regarding one or more continuous variables). The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.
-#' @param pcSelection a list which specifies the method to be used for identifying the number of principal components to be retained for computing the Mahalanobis distance of each sample in \code{sm = "Xu"} to the centre of \code{sm = "Xr"}. It also specifies the number of components in any of the following cases: \code{sm = "pc"}, \code{sm = "loc.pc"}, \code{sm = "pls"} and \code{sm = "loc.pls"}. This list must contain two objects in the following order: \itemize{
-#'        \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b). See the \code{\link{orthoProjection}} function for more details;  \code{"cumvar"} (for selecting the number of principal components based on a given cumulative amount of explained variance); \code{"var"} (for selecting the number of principal components based on a given amount of explained variance); and  \code{"manual"} (for specifying manually the desired number of principal components)}
-#'        \item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
-#'        }}
-#'        The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
-#'        Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.
+#' @param Xr a matrix containing \code{n} reference observations/rows and \code{p} variables/columns.
+#' @param X2 an optional matrix containing data of a second set of observations with \code{p} variables/columns.
+#' @param Yr a numeric matrix of \code{n} observations or an object of class \code{factor} of length \code{n} to be used as side information variables of the observations in \code{Xr}. This argument is required if either:
+#' \itemize{
+#'        \item{\code{"opc"}  is used as the method in the \code{pcSelection} argument. See  \code{\link{orthoProjection}} function for more details on this argument.}
+#'        \item{\code{method} is one of the following: \code{"pls"} or \code{"loc.pls"}} 
+#'        }
+#' Alternatively a numeric vector of length \code{n} can be passed, in this case it will be coerced to matrix using \code{\link{as.matrix}()}. 
+
+
+
+
 #' @param method the method for projecting the data. Options are: "pca" (principal component analysis using the singular value decomposition algorithm), "pca.nipals" (principal component analysis using the non-linear iterative partial least squares algorithm) and "pls" (partial least squares). See the \code{\link{orthoProjection}} function for further details on the projection methods.
 #' @param local a logical indicating whether or not to compute the distances locally (i.e. projecting locally the data) by using the \eqn{k0} nearest neighbour samples of each sample. Default is \code{FALSE}. See details.
 #' @param k0 if \code{local = TRUE} a numeric integer value which indicates the number of nearest neighbours(\eqn{k0}) to retain in order to recompute the local orthogonal distances.
 #' @param center a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is centered on the basis of \eqn{Xr \cup Xu}. For dissimilarity computations based on pls, the data is always centered for the projections. 
 #' @param scaled a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.
 #' @param return.all a logical. In case \code{X2} is specified it indicates whether or not the distances between all the elements resulting from \eqn{Xr \cup Xu} must be computed.
-#' @param return.projection a logical. If `TRUE` the `orthoProjection` object used to compute the distances will be returned. Default is `FALSE`.
+#' @param return_projection a logical. If `TRUE` the `orthoProjection` object used to compute the distances will be returned. Default is `FALSE`.
 #' @param cores number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) and \code{local = FALSE} (default = 1). Dee details.
 #' @param ... additional arguments to be passed to the \code{\link{orthoProjection}} function.
 #' @details
@@ -42,7 +45,7 @@
 #'  \item{\code{n.components}}{ the number of components (either principal components or partial least squares components) used for computing the global distances.}
 #'  \item{\code{global.variance.info}}{ the information about the expalined variance(s) of the projection. When \code{local = TRUE}, the information corresponds to the global projection done prior computing the local projections.}
 #'  \item{\code{loc.n.components}}{ if \code{local = TRUE}, a \code{data.frame} which specifies the number of local components (either principal components or partial least squares components) used for computing the dissimilarity between each target sample and its neighbour samples.}
-#'  \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If \code{local = FALSE} a distance \code{matrix}. If \code{local = TRUE} a \code{matrix} of class \code{orthoDiss}. In this case each column represent the dissimilarity between a target sample and its neighbourhood.}
+#'  \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If \code{local = FALSE} a distance matrix. If \code{local = TRUE} a matrix of class \code{orthoDiss}. In this case each column represent the dissimilarity between a target sample and its neighbourhood.}
 #'  }
 #' Multi-threading for the computation of dissimilarities (see \code{cores} parameter) is based on OpenMP and hence works only on windows and linux.
 #' @author Leonardo Ramirez-Lopez
@@ -135,7 +138,7 @@ orthoDiss <- function(Xr, X2 = NULL,
                       k0, 
                       center = TRUE, scaled = FALSE, 
                       return.all = FALSE, 
-                      return.projection = FALSE,
+                      return_projection = FALSE,
                       cores = 1, ...){
   
   in.call <- match.call()
@@ -351,7 +354,7 @@ orthoDiss <- function(Xr, X2 = NULL,
       }
     }
     resultsList <- list(n.components = n.components, global.variance.info = prj$variance, loc.n.components = data.frame(sample.nm = colnames(distnc), sample = 1:ncol(distnc), loc.n.components = loc.n.components), dissimilarity = distnc)
-    if(return.projection){
+    if(return_projection){
       resultsList$projection <- prj
     }
     
@@ -361,7 +364,7 @@ orthoDiss <- function(Xr, X2 = NULL,
   }else{
     
     resultsList <- list(n.components = n.components, global.variance.info = prj$variance, dissimilarity = distnc)
-    if(return.projection){
+    if(return_projection){
       resultsList$projection <- prj
     }
     

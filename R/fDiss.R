@@ -171,7 +171,7 @@ e2m <- function(X, sm.method = c("svd", "eigen")){
   nms <- dimnames(X)
   
   if(ncol(X) > nrow(X))
-    stop("In order to project the matrix to a Mahalanobis space, the number of observations of the input matrix must greater than its number of variables")
+    stop("In order to project the matrix to a Mahalanobis space, the number of observations of the input matrix must larger than its number of variables")
   
   if(length(sm.method) > 1)
     sm.method <- sm.method[1]

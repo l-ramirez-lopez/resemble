@@ -31,7 +31,7 @@
 #' @param Yr if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{method} argument is \code{"pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. In case \code{method = "pca"} a \code{matrix} (regarding one or more continuous variables) can also be used as input. The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.
 #' @param pcSelection a list which specifies the method to be used for identifying the number of principal components to be retained. This list must contain two objects in the following order: \itemize{
 #'        \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b) in which the side information concept is used, see details), \code{"cumvar"} (for selecting the number of principal components based on a maximum amount of cumulative variance that need to be explained by the group of retained components); \code{"var"} (for selecting the number of principal components based on a minimum amount of variance that need to be explained by each individual component); and  \code{"manual"} (for specifying manually the desired number of principal components)}
-#'        \item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
+#'        \item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (larger than 0 and below than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
 #'        }}
 #'        The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 #'        Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.
@@ -51,10 +51,13 @@
 #'      }
 #' where \eqn{U} and \eqn{V} are othogonal matrices, and where \eqn{U} is a matrix of the left singular vectors of \eqn{X}, \eqn{D} is a diagonal matrix containing the singular values of \eqn{X} and \eqn{V} is the is a matrix of the right singular vectors of \eqn{X}.
 #' The matrix of principal component scores is obtained by a matrix multiplication of \eqn{U} and \eqn{D}, and the matrix of principal component loadings is equivalent to the matrix \eqn{V}. 
+#' 
 #' When \code{method = "pca.nipals"}, the algorithm used for principal component analysis is the non-linear iterative partial least squares (nipals).
+#' 
 #' In the case of the of the partial least squares projection (a.k.a projection to latent structures) the nipals regression algorithm. Details on the "nipals" algorithm are presented in Martens (1991).
+#' 
 #' When \code{method = "opc"}, the selection of the components is carried out by using an iterative method based on the side information concept (Ramirez-Lopez et al. 2013a, 2013b). First let be \eqn{P} a sequence of retained components (so that \eqn{P = 1, 2, ...,k }. 
-#' At each iteration, the function computes a dissimilarity matrix retaining \eqn{p_i} components. The values of the side information of the samples are compared against the side information values of their most spectrally similar samples. 
+#' At each iteration, the function computes a dissimilarity matrix retaining \eqn{p_i} components. The values in this side information variable are compared against the side information values of their most spectrally similar samples. 
 #' The optimal number of components retrieved by the function is the one that minimizes the root mean squared differences (RMSD) in the case of continuous variables, or maximizes the kappa index in the case of categorical variables. In this process the \code{\link{simEval}} function is used. 
 #' Note that for the \code{"opc"} method is necessary to specify \code{Yr} (the side information of the samples).
 #' Multi-threading for the computation of dissimilarities (see \code{cores} parameter) is based on OpenMP and hence works only on windows and linux. 
@@ -201,12 +204,10 @@ orthoProjection <- function(Xr, X2 = NULL,
 }
 
 
-#' @rdname orthoProjection      
 #' @aliases orthoProjection 
 #' @aliases plsProjection 
 #' @aliases pcProjection 
 #' @aliases predict.orthoProjection
-#' @export
 pcProjection <- function(Xr, X2 = NULL, Yr = NULL, 
                          pcSelection = list("cumvar", 0.99), 
                          center = TRUE, scaled = FALSE, 
@@ -301,7 +302,7 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       if(!is.numeric(pcSelection$value)) 
         stop("The second object in 'pcSelection' must be a numeric value", call. = call.)
       if(pcSelection$value > 1 | pcSelection$value <= 0) 
-        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number higher than 0 and lower than/or equal to 1"), call. = call.)
+        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number larger than 0 and below or equal to 1"), call. = call.)
     }
     max.i <- min(dim(Xr)) - 1
   }
@@ -580,14 +581,12 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
   return(fresults)
 }
 
-#' @rdname orthoProjection      
 #' @aliases orthoProjection 
 #' @aliases plsProjection 
 #' @aliases pcProjection 
 #' @aliases predict.orthoProjection
-#' @export
 plsProjection <- function(Xr, X2 = NULL, Yr, 
-                          pcSelection = list("opc", 40), 
+                          pcSelection = list("opc", min(dim(Xr), 40)), 
                           scaled = FALSE, 
                           tol = 1e-6, max.iter = 1000, 
                           cores = 1, ...){
@@ -672,7 +671,7 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       if(!is.numeric(pcSelection$value)) 
         stop("The second object in 'pcSelection' must be a numeric value", call. = call.)
       if(pcSelection$value > 1 | pcSelection$value <= 0) 
-        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number higher than 0 and lower than/or equal to 1"), call. = call.)
+        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number larger than 0 and below or equal to 1"), call. = call.)
     }
     max.i <- min(dim(Xr)) - 1
   }
@@ -902,12 +901,11 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
 }
 
 
-#' @rdname orthoProjection      
 #' @aliases orthoProjection 
 #' @aliases plsProjection 
 #' @aliases pcProjection 
 #' @aliases predict.orthoProjection
-#' @export
+#' @export predict.orthoProjection
 predict.orthoProjection <- function(object, newdata, ...){
   if(missing(newdata))
     return(object$scores)

@@ -126,9 +126,9 @@ NumericVector cSums(arma::mat X){
 //' cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
 //' components based on a given amount of explained variance). Default is \code{'cumvar'}
 //' @param pcSelvalue a numerical value that complements the selected method (\code{pcSelmethod}). 
-//' If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum 
+//' If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum 
 //' amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
-//' it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) 
+//' it must be a value (larger than 0 and below 1) indicating that components that explain (individually) 
 //' a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
 //' specifying the desired number of principal components to retain. Default is 0.99.
 //' @return a list containing the following elements:
@@ -1620,12 +1620,6 @@ NumericVector predgprdp(arma::mat Xz,
 //' @usage pgpcv_cpp(X, Y, mindices, pindices, noisev = 0.001, scale)
 //' @param X a \code{matrix} of predictor variables.
 //' @param Y a \code{matrix} of a single response variable.
-//' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
-//' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
-//' iteration.
-//' @param pindices a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
-//' resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
-//' iteration.
 //' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 //' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
 //' iteration.

@@ -1,3 +1,11 @@
+## change scaled by scale!!!! and put a deprecated warning
+
+## remove \code{} when specifying the vector, matric, data.frame
+
+## Add a print and plot methods for rslocal
+
+## Add a parameter where one can force a set of samples to always be in all the neighborhoods (spiking)
+
 Correct a Bug in orthoDiss 
 error: Yu must be provided either when the 'opc' is used in pcSelection is used or method = 'pls'
 

@@ -8,7 +8,7 @@
 \description{
 This is the version \code{1.3} (\code{'milagros'}) of the package. It 
 implements a number of \code{R} functions useful for 
-modeling complex visible and infrared spectra (\acronym{vis-IR}). 
+modeling complex spectral spectra (e.g. NIR, IR). 
 The package includes functions for projecting spectral data 
 onto orthogonal spaces, computing spectral dissimilarity
 matrices, removing irrelevant spectra from a reference set, 
@@ -40,21 +40,23 @@ reference set are:
 \itemize{
   \item{\code{\link{neigCleaning}}} 
   }
-The functions available for modeling spectral data using 
-memory-based learning are:
+The functions available for modeling spectral data:
 \itemize{
   \item{\code{\link{mblControl}}}
   \item{\code{\link{mbl}}} 
+  \item{\code{\link{rs_control}}} 
+  \item{\code{\link{rslocal}}} 
+  \item{\code{\link{predict.rslocal}}} 
   }
 Other supplementary functions are:
 \itemize{
-  \item{\code{\link{print.localOrthoDiss}}}
-  \item{\code{\link{print.mbl}}}
   \item{\code{\link{plot.mbl}}}
   \item{\code{\link{plot.orthoProjection}}}
-  \item{\code{\link{print.orthoProjection}}}
   }
 }
 \author{
-Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@gmail.com} & Antoine Stevens
+Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@gmail.com}, 
+Antoine Stevens, 
+Craig Lobsey, 
+Raphael Viscarra-Rossel
 }

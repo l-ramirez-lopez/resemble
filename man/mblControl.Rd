@@ -16,7 +16,7 @@ mblControl(sm = "pc",
            scaled = TRUE,
            valMethod = c("NNv", "loc_crossval"),
            localOptimization = TRUE,
-           resampling = 10, 
+           number = 10, 
            p = 0.75,
            range.pred.lim = TRUE,
            progress = TRUE,
@@ -44,7 +44,7 @@ This argument can also be set to \code{"none"}, in such a case, a dissimilarity 
 
 \item{pcSelection}{a list which specifies the method to be used for identifying the number of principal components to be retained for computing the Mahalanobis dissimilarity of each sample in \code{sm = "Xu"} to the centre of \code{sm = "Xr"}. It also specifies the number of components in any of the following cases: \code{sm = "pc"}, \code{sm = "loc.pc"}, \code{sm = "pls"} and \code{sm = "loc.pls"}. This list must contain two objects in the following order: \itemize{
 \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b). See the \code{\link{orthoProjection}} function for more details;  \code{"cumvar"} (for selecting the number of principal components based on a given cumulative amount of explained variance); \code{"var"} (for selecting the number of principal components based on a given amount of explained variance); and  \code{"manual"} (for specifying manually the desired number of principal components)}
-\item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
+\item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (larger than 0 and below 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
 }}
 The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.}
@@ -70,7 +70,7 @@ options are: \code{"NNv"} and \code{"loc_crossval"}. Alternatively \code{"none"}
 
 \item{localOptimization}{a logical. If \code{valMethod = "loc_crossval"}, it optmizes the parameters of the local pls models (i.e. pls factors for \code{pls} and minimum and maximum pls factors for \code{wapls1}).}
 
-\item{resampling}{a value indicating the number of resampling iterations at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 10.}
+\item{number}{an integer indicating the number of resampling iterations at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 10.}
 
 \item{p}{a value indicating the percentage of samples to be retained in each resampling iteration at each local segment when \code{"loc_crossval"} is selected in the \code{valMethod} argument. Default is 0.75 (i.e. 75 "\%")}
 
@@ -83,16 +83,16 @@ options are: \code{"NNv"} and \code{"loc_crossval"}. Alternatively \code{"none"}
 \item{allowParallel}{To allow parallel execution of the sample loop (default is \code{TRUE})}
 }
 \value{
-\code{mblControl} returns a \code{list} of class \code{mbl} with the specified parameters
+a \code{list} mirroring the specified parameters
 }
 \description{
-This function is used to specify various aspects in the memory-based learning process in the \code{mbl} function
+This function is used to further control some aspects of the memory-based learning process in the \code{mbl} function.
 }
 \details{
 The validation methods avaliable for assessing the predictive performance of the memory-based learning method used are described as follows:
  \itemize{
  \item{Leave-nearest-neighbour-out cross validation (\code{"NNv"}):}{ From the group of neighbours of each sample to be predicted, the nearest sample (i.e. the most similar sample) is excluded and then a local model is fitted using the remaining neighbours. This model is then used to predict the value of the target response variable of the nearest sample. These predicted values are finally cross validated with the actual values (See Ramirez-Lopez et al. (2013a) for additional details). This method is faster than \code{"loc_crossval"}}
- \item{Local leave-group-out cross validation (\code{"loc_crossval"}):}{ The group of neighbours of each sample to be predicted is partitioned into different equal size subsets. Each partition is selected based on a stratified random sampling which takes into account the values of the response variable of the corresponding set of neighbours. The selected local subset is used as local validation subset and the remaining samples are used for fitting a model. This model is used to predict the target response variable values of the local validation subset and the local root mean square error is computed. This process is repeated \eqn{m} times and the final local error is computed as the average of the local root mean square error of all the \eqn{m} iterations. In the \code{mbl} function \eqn{m} is controlled by the \code{resampling} argument and the size of the subsets is controlled by the \code{p} argument which indicates the percentage of samples to be selected from the subset of nearest neighbours. The global error of the predictions is computed as the average of the local root mean square errors.}
+ \item{Local leave-group-out cross validation (\code{"loc_crossval"}):}{ The group of neighbours of each sample to be predicted is partitioned into different equal size subsets. Each partition is selected based on a stratified random sampling which takes into account the values of the response variable of the corresponding set of neighbours. The selected local subset is used as local validation subset and the remaining samples are used for fitting a model. This model is used to predict the target response variable values of the local validation subset and the local root mean square error is computed. This process is repeated \eqn{m} times and the final local error is computed as the average of the local root mean square error of all the \eqn{m} iterations. In the \code{mbl} function \eqn{m} is controlled by the \code{number} argument and the size of the subsets is controlled by the \code{p} argument which indicates the percentage of samples to be selected from the subset of nearest neighbours. The global error of the predictions is computed as the average of the local root mean square errors.}
  \item{No validation (\code{"none"}):}{ No validation is carried out. If \code{"none"} is seleceted along with \code{"NNv"} and/or \code{"loc_crossval"}, then it will be ignored and the respective validation(s) will be carried out.} 
  }
 Multi-threading for the computation of dissimilarities is based on OpenMP and hence works only on windows and linux. 

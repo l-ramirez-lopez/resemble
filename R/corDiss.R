@@ -4,8 +4,8 @@
 #' @usage 
 #' corDiss(Xr, X2 = NULL, ws = NULL, 
 #'         center = TRUE, scaled = TRUE)
-#' @param Xr a \code{matrix} (or \code{data.frame}) containing the (reference) data.
-#' @param X2 an optional \code{matrix} (or \code{data.frame}) containing data of a second set of observations (samples).
+#' @param Xr a matrix (or \code{data.frame}) containing the (reference) data.
+#' @param X2 an optional matrix (or \code{data.frame}) containing data of a second set of observations (samples).
 #' @param ws for moving correlation dissimilarity, an odd integer value which specifies the window size. If \code{ws = NULL}, then the window size will be equal to the number of variables (columns), i.e. instead moving correlation, the normal correlation will be used. See details.
 #' @param center a logical indicating if the spectral data \code{Xr} (and \code{X2} if specified) must be centered. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup X2}.
 #' @param scaled a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup X2}.
@@ -22,7 +22,7 @@
 #' where \eqn{ws} represents a given window size which rolls sequantially fom 1 up to \eqn{p - ws} and  \eqn{p} is the number of variables of the observations.
 #' The function does not accept input data containing missing values.
 #' @return 
-#' a \code{matrix} of the computed dissimilarities. 
+#' a matrix of the computed dissimilarities. 
 #' @author Antoine Stevens and Leonardo Ramirez-Lopez
 #' @examples
 #' \dontrun{
@@ -108,7 +108,7 @@ corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
   if(!is.null(ws))
   {
     if(ws < 3 | length(ws) != 1) 
-      stop(paste("'ws' must be an unique odd value greater than 2")) 
+      stop(paste("'ws' must be an unique odd value larger than 2")) 
     if((ws %% 2) == 0)
       stop("'ws' must be an odd value")
     if(ws >= ncol(Xr))
