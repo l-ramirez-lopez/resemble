@@ -20,14 +20,14 @@
 #' @param Yr a numeric \code{vector} containing the values of the response variable corresponding to the reference data
 #' @param Xu input \code{matrix} (or \code{data.frame}) of predictor variables of the data to be predicted (observations in rows and variables in columns). 
 #' @param Yu an optional numeric \code{vector} containing the values of the response variable corresponding to the data to be predicted
-#' @param mblCtrl a list (created with the \code{\link{mblControl}} function) which contains some parameters that control the some aspects of the \code{mbl} function. See the \code{\link{mblControl}} function for more details. 
+#' @param mblCtrl a list created with the \code{\link{mblControl}} function which contains additional parameters that control some aspects of the \code{mbl} function. The default list is as returned by \code{mblControl()}. See the \code{\link{mblControl}} function for more details. 
 #' @param dissimilarityM (optional) a dissimilarity matrix. This argument can be used in case a user-defined dissimilarity matrix is preferred over the automatic dissimilarity matrix computation specified in the \code{sm} argument of the  \code{\link{mblControl}} function. When \code{dissUsage = "predictors"}, \code{dissimilarityM} must be a square symmetric dissimilarity matrix (derived from a matrix of the form \code{rbind(Xr, Xu)}) for which the diagonal values are zeros (since the dissimilarity between an object and itself must be 0). 
 #'        On the other hand if \code{dissUsage} is set to either \code{"weights"} or \code{"none"}, \code{dissimilarityM} must be a \code{matrix} representing the dissimilarity of each element in \code{Xu} to each element in \code{Xr}. The number of columns of the object correspondent to \code{dissimilarityM} must be equal to the number of rows in \code{Xu} and the number of rows equal to the number of rows in \code{Xr}.
 #'        If both \code{dissimilarityM} and  \code{sm} are specified, only the \code{dissimilarityM} argument will be taken into account.
-#' @param group an optional \code{factor} (or \code{vector} that can be coerced to a \code{factor} by \code{as.factor}) to be taken into account for internal validations. The length of the \code{vector} must be equal to \code{nrow(Xr)}, giving the identifier of related observations (e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). When one observation is selected for cross validation, all observations of the same group are removed together and assigned to validation. See details.
+#' @param group an optional \code{factor} (or \code{vector} that can be coerced to a \code{factor} by \code{as.factor}) that assigns to each sample in \code{Xr} a group/class label (e.g. groups can be given by spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). This is taken into account for internal leave-group-out cross validation for pls tuning (factor optimization) to avoid pseudo-replication. When one observation is selected for cross validation, all observations of the same group are removed together and assigned to validation. The length of the \code{vector} must be equal to the number of samples in the training set (i.e. \code{nrow(Xr)}). See details.
 #' @param dissUsage specifies how the dissimilarity information shall be used. The possible options are: \code{"predictors"}, \code{"weights"} and \code{"none"} (see details below).
 #'        Default is "predictors".
-#' @param k a numeric (integer) \code{vector} containing the sequence of k nearest neighbours to be tested. Either \code{k} or \code{k.diss} must be specified. Numbers with decimal values will be coerced to their next higher integer values. This \code{vector} will be automatically sorted into ascending order.
+#' @param k a numeric (integer) \code{vector} containing the sequence of k nearest neighbours to be tested. Either \code{k} or \code{k.diss} must be specified. Numbers with decimal values will be coerced to their next upper integer values. This \code{vector} will be automatically sorted into ascending order.
 #' @param k.diss a \code{vector} containing the sequence of dissimilarity thresholds to be tested. When the dissimilarity between a sample in \code{Xr} and a sample \code{Xu} is below the given threshold, the sample in sample in \code{Xr} is treated as a neighbour of the sample in \code{Xu}, otherwise it is ignored.  These thresholds depend
 #'        on the corresponding dissimilarity measure specified in \code{sm}. Either \code{k} or \code{k.diss} must be specified.
 #' @param k.range a \code{vector} of length 2 which specifies the minimum (first value) and the maximum (second value) number of neighbours allowed when the \code{k.diss} argument is used. 
@@ -42,7 +42,7 @@
 #' @param documentation an optional character string that can be used to describe anything related to a given computation with \code{mbl} (e.g. description of the input data). Default: \code{character()}.
 #' @param ... additional arguments to be passed to other functions. 
 #' @details
-#' By using the \code{group} argument one can specify observations (spectra) groups of samples that have something in common e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc) which could produce biased cross-validation results due to pseudo-replication. This argument allows to select calibration points that are independent from the validation ones in cross-validation. In this regard, when  \code{valMethod = "loc_crossval"} (used in \code{\link{mblControl}} function), then the \code{p} argument refer to the percentage of groups of samples (rather than single samples) to be retained in each resampling iteration at each local segment. 
+#' By using the \code{group} argument one can specify groups of samples that have something in common e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc) which could produce biased cross-validation results due to pseudo-replication. This argument allows to select calibration points that are independent from the validation ones in cross-validation. In this regard, when  \code{valMethod = "loc_crossval"} (used in \code{\link{mblControl}} function), then the \code{p} argument refer to the percentage of groups of samples (rather than single samples) to be retained in each resampling iteration at each local segment. 
 #' The \code{dissUsage} argument is used to specifiy whether the dissimilarity information must be used within the local regressions and (if so), how. When \code{dissUsage = "predictors"}
 #' the local (square symmetric) dissimilarity matrix corresponding the selected neighbourhood is used as source
 #' of additional predictors (i.e the columns of this local matrix are treated as predictor variables). In some cases this may result in an improvement 
@@ -79,7 +79,7 @@
 #' \itemize{
 #'  \item{\code{call}:}{ the call used.}
 #'  \item{\code{cntrlParam}:}{ the list with the control parameters used. If one or more control parameters were reset automatically, then a list containing a list with the initial control parameters specified and a list with the parameters which were finally used.}
-#'  \item{\code{XuNeighbourList}:}{ a list containing a matrix of neighbor indices and a matrix of neighbor dissimilarity scores. The rows of these matrices represent the predicted samples while each column represent a nearest neighbor found in the reference set (\code{Xr}). This list is only ouput if it is specified in the \code{\link{mblControl} object provided in the \code{mblCtrl} argument.}
+#'  \item{\code{XuNeighbourList}:}{ a list containing a matrix of neighbor indices and a matrix of neighbor dissimilarity scores. The rows of these matrices represent the predicted samples while each column represent a nearest neighbor found in the reference set (\code{Xr}). This list is only ouput if it is specified in the \code{\link{mblControl}} object provided in the \code{mblCtrl} argument.}
 #'  \item{\code{dissimilarities}:}{ a list with the method used to obtain the dissimilarity matrices and the dissimilarity matrices corresponding to \eqn{D(Xr, Xu)} and \eqn{D(Xr,Xr)} if \code{dissUsage = 'predictors'}. This object is returned only if the \code{returnDiss} argument in the \code{mblCtrl} list was set to \code{TRUE} in the the call used.}
 #'  \item{\code{totalSamplesPredicted}}{ the total number of samples predicted.}
 #'  \item{\code{pcAnalysis}:}{ a list containing the results of the principal component analysis. The first two objects (\code{scores_Xr} and \code{scores_Xu}) are the scores of the \code{Xr} and \code{Xu} matrices. It also contains the number of principal components used (\code{n.componentsUsed}) and another object which is  a \code{vector} containing the standardized Mahalanobis dissimilarities (also called GH, Global H distance) between each sample in \code{Xu} and the centre of \code{Xr}.}
@@ -95,7 +95,7 @@
 #'  \item{\code{k.diss}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the corresponding dissimilarity threshold for selecting the neighbors used to predict a given sample.}
 #'  \item{\code{distance}:}{ This column is only ouput if the \code{k.diss} argument is used. It is a logical that indicates whether the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument. In that case the number of neighbors used is coerced to on of the boundaries.}
 #'  \item{\code{k.org}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the number of neighbors that are retained when the given dissimilarity threshold is used.}
-#'  \item{\code{pls.comp}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
+#'  \item{\code{npls}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{min.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of minimum pls components used. If no optimization was set, it retrieves the original minimum pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{max.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of maximum pls components used. If no optimization was set, it retrieves the original maximum pls components specified in the \code{pls.c} argument.}
 #'  \item{\code{yu.obs}:}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
@@ -250,7 +250,7 @@
 #' ctrl.udd <- mblControl(sm = "none", 
 #'                        pcSelection = list("cumvar", 0.999), 
 #'                        valMethod = c("NNv", "loc_crossval"), 
-#'                        resampling = 10, p = 0.75,
+#'                        number = 10, p = 0.75,
 #'                        scaled = FALSE, center = TRUE)
 #'
 #' mbl.udd1 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,
@@ -492,12 +492,12 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
   trsh <- mblCtrl$pcSelection$value
   
   if(pcSel == "opc" & mblCtrl$pcSelection$value > min(nrow(Xr) + nrow(Xu), ncol(Xr))){
-    warning(paste("If 'mblCtrl$pcSelection$method = 'opc'' the value specified in 'mblCtrl$pcSelection$value' cannot be greater than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
+    warning(paste("If 'mblCtrl$pcSelection$method = 'opc'' the value specified in 'mblCtrl$pcSelection$value' cannot be larger than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
     trsh <- min(nrow(Xr) + nrow(Xr), ncol(Xr))
   }
   
   if(pcSel == "manual" & mblCtrl$pcSelection$value > min(nrow(Xr) + nrow(Xu), ncol(Xr))){
-    warning(paste("If 'mblCtrl$pcSelection$method = 'manual'' the value specified in 'mblCtrl$pcSelection$value' cannot be greater than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
+    warning(paste("If 'mblCtrl$pcSelection$method = 'manual'' the value specified in 'mblCtrl$pcSelection$value' cannot be larger than  min(nrow(Xr) + nrow(Xu), ncol(Xr)) (i.e ", min(nrow(Xr) + nrow(Xu), ncol(Xr)),") in this case. Therefore the value was reset to ",min(nrow(Xr) + nrow(Xu), ncol(Xr)), sep=""))
     trsh <- min(nrow(Xr) + nrow(Xr), ncol(Xr))
   }
   
@@ -860,7 +860,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                    
                                    predobs <- data.frame(o.index = i, 
                                                          k.org = c(kn.org), k = it$k,
-                                                         pls.comp = NA,
+                                                         npls = NA,
                                                          min.pls = NA,
                                                          max.pls = NA,
                                                          yu.obs = tmp.val$y, pred = NA, 
@@ -955,7 +955,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                                              CV = mblCtrl$valMethod %in% c("loc_crossval", "both"),
                                                              .optimize = mblCtrl$localOptimization,
                                                              group = tmp.group,
-                                                             p = mblCtrl$p, resampling = mblCtrl$resampling,
+                                                             p = mblCtrl$p, number = mblCtrl$number,
                                                              noise.v = noise.v, range.pred.lim = mblCtrl$range.pred.lim,
                                                              pls.max.iter = pls.max.iter, pls.tol = pls.tol)
                                         
@@ -966,7 +966,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                           if(mblCtrl$localOptimization & method %in% c("pls", "wapls1")){
                                             if(method == "pls"){
                                               o <- i.pred$validation$bestpls.c
-                                              predobs$pls.comp[kk] <- o
+                                              predobs$npls[kk] <- o
                                               oplsfs <- o
                                             }else{
                                               o <- which.min(i.pred$validation$cvResults$rmse.cv)
@@ -980,14 +980,14 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                                           }else{
                                             oplsfs <- plsF
                                             o <- ifelse(method == "pls", plsF, 1)
-                                            predobs$pls.comp[kk] <- ifelse(method == "pls", plsF, NA)
+                                            predobs$npls[kk] <- ifelse(method == "pls", plsF, NA)
                                             predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
                                             predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
                                             predobs$loc.rmse.cv[kk] <- i.pred$validation$cvResults$rmse.cv[o]
                                             predobs$loc.st.rmse.cv[kk] <- i.pred$validation$cvResults$st.rmse.cv[o]
                                           }
                                         }else{
-                                          predobs$pls.comp[kk] <- ifelse(method == "pls", plsF, NA)
+                                          predobs$npls[kk] <- ifelse(method == "pls", plsF, NA)
                                           predobs$min.pls[kk] <- ifelse(method == "wapls1", plsF[[1]], NA)
                                           predobs$max.pls[kk] <- ifelse(method == "wapls1", plsF[[2]], NA)
                                           oplsfs <- plsF
@@ -1044,7 +1044,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
           if(is.null(dtc)){"k.org"},
           if(!(mblCtrl$valMethod %in% c("NNv", "both"))){"y.nearest.pred"},
           if(method != "wapls1"){c("min.pls","max.pls")},
-          if(method != "pls"){"pls.comp"},
+          if(method != "pls"){"npls"},
           if(!(mblCtrl$valMethod %in% c("loc_crossval", "both"))){c("loc.rmse.cv", "loc.st.rmse.cv")},
           "rep")
   
@@ -1136,7 +1136,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                          center = mblCtrl$center,
                          scaled = mblCtrl$scaled,
                          valMethod = mblCtrl$valMethod,
-                         resampling = mblCtrl$resampling, 
+                         number = mblCtrl$number, 
                          p = mblCtrl$p,
                          range.pred.lim = mblCtrl$range.pred.lim,
                          progress = mblCtrl$progress, 
@@ -1154,7 +1154,7 @@ mbl <- function(Yr, Xr, Yu = NULL, Xu,
                          scaled = mblCtrl$scaled,
                          valMethod = mblCtrl$valMethod,
                          localOptimization = mblCtrl$localOptimization,
-                         resampling = mblCtrl$resampling, 
+                         number = mblCtrl$number, 
                          p = mblCtrl$p,
                          range.pred.lim = mblCtrl$range.pred.lim,
                          progress = mblCtrl$progress, 
@@ -1249,7 +1249,7 @@ pred.gpr.dp <- function(object, newdata){
 #' @description internal
 #' @keywords internal
 locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata, 
-                        pls.c = NULL, CV = FALSE, .optimize = FALSE, resampling = 10, p = 0.75, group = NULL, noise.v = 0.001, 
+                        pls.c = NULL, CV = FALSE, .optimize = FALSE, number = 10, p = 0.75, group = NULL, noise.v = 0.001, 
                         range.pred.lim = TRUE,
                         pls.max.iter = 1, pls.tol = 1e-6){
   
@@ -1279,8 +1279,8 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
     weights <- 1
   
   #   if(CV){
-  #     if(!is.numeric(resampling) | length(resampling) != 1)
-  #       stop("resampling must be a single numeric value")
+  #     if(!is.numeric(number) | length(number) != 1)
+  #       stop("number must be a single numeric value")
   #     if(!is.numeric(p) | length(p) != 1 | p >= 1 | p <= 0)
   #       stop("p must be a single numeric value higher than 0 and lower than 1")
   #   }
@@ -1329,7 +1329,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
   if(predMethod=="gpr") {    
     if(CV)
     {
-      cvVal <- gprCv(x = x, y = as.matrix(y), scaled = scaled, weights = weights, p = p, resampling = resampling, 
+      cvVal <- gprCv(x = x, y = as.matrix(y), scaled = scaled, weights = weights, p = p, number = number, 
                      group = group, retrieve = "final.model")
       fit <- cvVal$model
     } else { 
@@ -1358,7 +1358,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                      method = "pls",
                      center = TRUE, scaled = scaled, 
                      weights = weights, 
-                     p = p, resampling = resampling, 
+                     p = p, number = number, 
                      group = group, 
                      retrieve = TRUE,
                      .optimize = .optimize,
@@ -1393,7 +1393,7 @@ locFitnpred <- function(x, y, predMethod, scaled = TRUE, weights = NULL, newdata
                      minF = pls.c[[1]],
                      newX = newdata,
                      weights = weights, 
-                     p = p, resampling = resampling, 
+                     p = p, number = number, 
                      group = group, 
                      retrieve = TRUE,
                      .optimize = .optimize,
@@ -1465,7 +1465,7 @@ smpl <- function(x){
 #' @title Cross validation for Gaussian process regression
 #' @description internal
 #' @keywords internal
-gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group = NULL, noise.v = 0.001, retrieve = c("final.model", "none")){
+gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, number = 10, group = NULL, noise.v = 0.001, retrieve = c("final.model", "none")){
   
   ## Create the resampling groups
   if(is.null(group)){
@@ -1475,14 +1475,14 @@ gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group
     levels(y.cut) <- 1:length(y)
     prob.g <- data.frame(orig.order = 1:length(y), prob.group = as.numeric (y.cut))
     
-    rspi <- matrix(NA, nv, resampling)
-    mrspi <- matrix(NA, nrow(x) - nv, resampling)
-    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rspi <- matrix(NA, nv, number)
+    mrspi <- matrix(NA, nrow(x) - nv, number)
+    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:number), sep = "")
     rownames(rspi) <- paste("index", seq(1:nv), sep = "")
     rownames(mrspi) <- paste("index", seq(1:nrow(mrspi)), sep = "")
     
     idxs <- 1:nrow(x)
-    for(jj in 1:resampling)
+    for(jj in 1:number)
     {
       strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
       if(length(strs) < nv)
@@ -1507,12 +1507,12 @@ gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group
     levels(y.cut) <- paste("l_", 1:nlevels(y.cut), sep = "")
     prob.g <- data.frame(orig.order = 1:length(yg), prob.group = factor(y.cut))
     
-    rspi <- matrix(0, nv, resampling)
-    colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rspi <- matrix(0, nv, number)
+    colnames(rspi) <- paste("Resample", seq(1:number), sep = "")
     rownames(rspi) <- paste("index", seq(1:nv), sep = "")
     
     listrspi <- mlistrspi <- NULL
-    for(jj in 1:resampling)
+    for(jj in 1:number)
     {
       strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
       if(length(strs) < nv)
@@ -1529,13 +1529,13 @@ gprCv <- function(x, y, scaled, weights = NULL, p = 0.75, resampling = 10, group
     
     lensam <- lengths(listrspi)
     mlensam <- lengths(mlistrspi)
-    rspi <- matrix(NA, max(lensam), resampling)
-    mrspi <- matrix(NA, max(mlensam), resampling)
-    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rspi <- matrix(NA, max(lensam), number)
+    mrspi <- matrix(NA, max(mlensam), number)
+    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:number), sep = "")
     rownames(rspi) <- paste("index", 1:nrow(rspi), sep = "")
     rownames(mrspi) <- paste("index", 1:nrow(mrspi), sep = "")
     idxs <- 1:nrow(x)
-    for(jj in 1:resampling)
+    for(jj in 1:number)
     {
       ## ramdomly select the replacements for the missing indexes
       ## replacements are necessary!
@@ -1583,7 +1583,7 @@ plsCv <- function(x, y, ncomp,
                   newX = matrix(0,1,1),
                   weights = NULL, 
                   p = 0.75, 
-                  resampling = 10, 
+                  number = 10, 
                   group = NULL,
                   retrieve = TRUE,
                   .optimize = TRUE,
@@ -1606,14 +1606,14 @@ plsCv <- function(x, y, ncomp,
     levels(y.cut) <- 1:length(y)
     prob.g <- data.frame(orig.order = 1:length(y), prob.group = as.numeric (y.cut))
     
-    rspi <- matrix(NA, nv, resampling)
-    mrspi <- matrix(NA, nrow(x) - nv, resampling)
-    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rspi <- matrix(NA, nv, number)
+    mrspi <- matrix(NA, nrow(x) - nv, number)
+    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:number), sep = "")
     rownames(rspi) <- paste("index", seq(1:nv), sep = "")
     rownames(mrspi) <- paste("index", seq(1:nrow(mrspi)), sep = "")
     
     idxs <- 1:nrow(x)
-    for(jj in 1:resampling)
+    for(jj in 1:number)
     {
       strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
       if(length(strs) < nv)
@@ -1639,12 +1639,12 @@ plsCv <- function(x, y, ncomp,
     levels(y.cut) <- paste("l_", 1:nlevels(y.cut), sep = "")
     prob.g <- data.frame(orig.order = 1:length(yg), prob.group = factor(y.cut))
     
-    rspi <- matrix(0, nv, resampling)
-    colnames(rspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rspi <- matrix(0, nv, number)
+    colnames(rspi) <- paste("Resample", seq(1:number), sep = "")
     rownames(rspi) <- paste("index", seq(1:nv), sep = "")
     
     listrspi <- mlistrspi <- NULL
-    for(jj in 1:resampling)
+    for(jj in 1:number)
     {
       strs <- tapply(X = prob.g$orig.order, FUN = smpl, INDEX = prob.g$prob.group)
       if(length(strs) < nv)
@@ -1660,13 +1660,13 @@ plsCv <- function(x, y, ncomp,
     }
     lensam <- lengths(listrspi)
     mlensam <- lengths(mlistrspi)
-    rspi <- matrix(NA, max(lensam), resampling)
-    mrspi <- matrix(NA, max(mlensam), resampling)
-    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:resampling), sep = "")
+    rspi <- matrix(NA, max(lensam), number)
+    mrspi <- matrix(NA, max(mlensam), number)
+    colnames(rspi) <- colnames(mrspi) <- paste("Resample", seq(1:number), sep = "")
     rownames(rspi) <- paste("index", 1:nrow(rspi), sep = "")
     rownames(mrspi) <- paste("index", 1:nrow(mrspi), sep = "")
     idxs <- 1:nrow(x)
-    for(jj in 1:resampling)
+    for(jj in 1:number)
     {
       ## ramdomly select the replacements for the missing indexes
       ## replacements are necessary!
@@ -1705,8 +1705,8 @@ plsCv <- function(x, y, ncomp,
   val <- NULL
   val$resamples <- rspi
   if(method == "pls"){
-    val$cvResults <- data.frame(nPLS = 1:ncomp, rmse.cv = rowMeans(cvre$rmse.seg), st.rmse.cv = rowMeans(cvre$st.rmse.seg), rmse.sd.cv = cSds(t(cvre$rmse.seg)), rsq.cv = rowMeans(cvre$rsq.seg))
-    bestpls.c <- val$cvResults$nPLS[which(val$cvResults$rmse.cv == min(val$cvResults$rmse.cv))]
+    val$cvResults <- data.frame(npls = 1:ncomp, rmse.cv = rowMeans(cvre$rmse.seg), st.rmse.cv = rowMeans(cvre$st.rmse.seg), rmse.sd.cv = cSds(t(cvre$rmse.seg)), rsq.cv = rowMeans(cvre$rsq.seg))
+    bestpls.c <- val$cvResults$npls[which(val$cvResults$rmse.cv == min(val$cvResults$rmse.cv))]
     val$bestpls.c <- bestpls.c
     
     if(retrieve)
@@ -1738,7 +1738,7 @@ plsCv <- function(x, y, ncomp,
   if(method == "wapls1" & retrieve & !.optimize){
     val$compweights <- cvre$compweights
     val$cvResults <- data.frame(minF = minF, maxF = ncomp, rmse.cv = mean(cvre$rmse.seg), st.rmse.cv = mean(cvre$st.rmse.seg), rmse.sd.cv = sd(cvre$rmse.seg), rsq.cv = mean(cvre$rsq.seg))
-    #bestpls.c <- val$cvResults$nPLS[which(val$cvResults$rmse.cv == min(val$cvResults$rmse.cv))]
+    #bestpls.c <- val$cvResults$npls[which(val$cvResults$rmse.cv == min(val$cvResults$rmse.cv))]
     #val$bestpls.c <- bestpls.c
     
     if(!is.null(weights)){

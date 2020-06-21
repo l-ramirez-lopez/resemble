@@ -2,8 +2,8 @@
 % Please edit documentation in R/orthoProjection.R
 \name{orthoProjection}
 \alias{orthoProjection}
-\alias{pcProjection}
 \alias{plsProjection}
+\alias{pcProjection}
 \alias{predict.orthoProjection}
 \title{Orthogonal projections using partial least squares and principal component analysis}
 \usage{
@@ -26,15 +26,6 @@ plsProjection(Xr, X2 = NULL, Yr,
               cores = 1, ...) 
               
 \method{predict}{orthoProjection}(object, newdata, ...)
-
-pcProjection(Xr, X2 = NULL, Yr = NULL, pcSelection = list("cumvar",
-  0.99), center = TRUE, scaled = FALSE, method = "pca",
-  tol = 1e-06, max.iter = 1000, cores = 1, ...)
-
-plsProjection(Xr, X2 = NULL, Yr, pcSelection = list("opc", 40),
-  scaled = FALSE, tol = 1e-06, max.iter = 1000, cores = 1, ...)
-
-\method{predict}{orthoProjection}(object, newdata, ...)
 }
 \arguments{
 \item{Xr}{a \code{matrix} (or \code{data.frame}) containing the (reference) data.}
@@ -47,7 +38,7 @@ plsProjection(Xr, X2 = NULL, Yr, pcSelection = list("opc", 40),
 
 \item{pcSelection}{a list which specifies the method to be used for identifying the number of principal components to be retained. This list must contain two objects in the following order: \itemize{
 \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b) in which the side information concept is used, see details), \code{"cumvar"} (for selecting the number of principal components based on a maximum amount of cumulative variance that need to be explained by the group of retained components); \code{"var"} (for selecting the number of principal components based on a minimum amount of variance that need to be explained by each individual component); and  \code{"manual"} (for specifying manually the desired number of principal components)}
-\item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
+\item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (larger than 0 and below than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
 }}
 The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.}

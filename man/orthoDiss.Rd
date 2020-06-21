@@ -10,8 +10,11 @@ orthoDiss(Xr, X2 = NULL,
           method = "pca", 
           local = FALSE, 
           k0, 
-          center = TRUE, scaled = FALSE, 
-          return.all = FALSE, cores = 1, ...)
+          center = TRUE, 
+          scaled = FALSE, 
+          return.all = FALSE, 
+          return.projection = FALSE,
+          cores = 1, ...)
 }
 \arguments{
 \item{Xr}{a \code{matrix} (or \code{data.frame}) containing the (reference) data.}
@@ -22,7 +25,7 @@ orthoDiss(Xr, X2 = NULL,
 
 \item{pcSelection}{a list which specifies the method to be used for identifying the number of principal components to be retained for computing the Mahalanobis distance of each sample in \code{sm = "Xu"} to the centre of \code{sm = "Xr"}. It also specifies the number of components in any of the following cases: \code{sm = "pc"}, \code{sm = "loc.pc"}, \code{sm = "pls"} and \code{sm = "loc.pls"}. This list must contain two objects in the following order: \itemize{
 \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b). See the \code{\link{orthoProjection}} function for more details;  \code{"cumvar"} (for selecting the number of principal components based on a given cumulative amount of explained variance); \code{"var"} (for selecting the number of principal components based on a given amount of explained variance); and  \code{"manual"} (for specifying manually the desired number of principal components)}
-\item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
+\item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (larger than 0 and below 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
 }}
 The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.}
@@ -38,6 +41,8 @@ Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar
 \item{scaled}{a logical indicating if \code{Xr} (and \code{X2} if specified) must be scaled. If \code{X2} is specified the data is scaled on the basis of \eqn{Xr \cup Xu}.}
 
 \item{return.all}{a logical. In case \code{X2} is specified it indicates whether or not the distances between all the elements resulting from \eqn{Xr \cup Xu} must be computed.}
+
+\item{return.projection}{a logical. If `TRUE` the `orthoProjection` object used to compute the distances will be returned. Default is `FALSE`.}
 
 \item{cores}{number of cores used when \code{method} in \code{pcSelection} is \code{"opc"} (which can be computationally intensive) and \code{local = FALSE} (default = 1). Dee details.}
 

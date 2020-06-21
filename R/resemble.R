@@ -1,6 +1,6 @@
 #' This is the version \code{1.3} (\code{'milagros'}) of the package. It 
 #' implements a number of \code{R} functions useful for 
-#' modeling complex visible and infrared spectra (\acronym{vis-IR}). 
+#' modeling complex spectral spectra (e.g. NIR, IR). 
 #' The package includes functions for projecting spectral data 
 #' onto orthogonal spaces, computing spectral dissimilarity
 #' matrices, removing irrelevant spectra from a reference set, 
@@ -31,19 +31,18 @@
 #' \itemize{
 #'   \item{\code{\link{neigCleaning}}} 
 #'   }
-#' The functions available for modeling spectral data using 
-#' memory-based learning are:
+#' The functions available for modeling spectral data:
 #' \itemize{
 #'   \item{\code{\link{mblControl}}}
 #'   \item{\code{\link{mbl}}} 
+#'   \item{\code{\link{rs_control}}} 
+#'   \item{\code{\link{rslocal}}} 
+#'   \item{\code{\link{predict.rslocal}}} 
 #'   }
 #' Other supplementary functions are:
 #' \itemize{
-#'   \item{\code{\link{print.localOrthoDiss}}}
-#'   \item{\code{\link{print.mbl}}}
 #'   \item{\code{\link{plot.mbl}}}
 #'   \item{\code{\link{plot.orthoProjection}}}
-#'   \item{\code{\link{print.orthoProjection}}}
 #'   }
 #' @docType package
 #' @name resemble-package
@@ -51,10 +50,15 @@
 #' @title Overview of the functions in the resemble package
 #' @import Rcpp RcppArmadillo foreach iterators
 #' @useDynLib resemble
-#' @author Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@@gmail.com} & Antoine Stevens
+#' @author 
+#' Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@@gmail.com}, 
+#' Antoine Stevens, 
+#' Craig Lobsey, 
+#' Raphael Viscarra-Rossel
+
 ######################################################################
 # resemble
-# Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
+# Copyrigth (C) 2020 Leonardo Ramirez-Lopez
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -67,8 +71,5 @@
 # GNU General Public License for more details.
 ######################################################################
 
-
-## History:
-## 09.03.2014 Leo     History comments were added to the function files
 
 NULL

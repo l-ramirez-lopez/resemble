@@ -64,10 +64,6 @@ minDissV <- function(X, cores) {
     .Call('_resemble_minDissV', PACKAGE = 'resemble', X, cores)
 }
 
-eigenMapMatMult <- function(A, B) {
-    .Call('_resemble_eigenMapMatMult', PACKAGE = 'resemble', A, B)
-}
-
 #' @title Moving/rolling correlation distance of two matrices
 #' @description Computes a moving window correlation distance between two data matrices
 #' @usage 
@@ -135,6 +131,19 @@ cSums <- function(X) {
     .Call('_resemble_cSums', PACKAGE = 'resemble', X)
 }
 
+#' @title Singular value decomposition (SVD)
+#' @description Computes the SVD based on the divide and conquer algorithm 
+#' @usage dc_svd(X)
+#' @param X a \code{matrix}.
+#' @Details Function based on the Dirk Eddelbuettel's function. See: 
+#' https://gallery.rcpp.org/articles/divide-and-concquer-svd/
+#' @author Leonardo Ramirez-Lopez based on code from Dirk Eddelbuettel
+#' @keywords internal 
+#' @useDynLib resemble
+dc_svd <- function(X) {
+    .Call('_resemble_dc_svd', PACKAGE = 'resemble', X)
+}
+
 #' @title orthogonal scores algorithn of partial leat squares (opls)
 #' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
 #' For internal use only!
@@ -156,9 +165,9 @@ cSums <- function(X) {
 #' cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
 #' components based on a given amount of explained variance). Default is \code{'cumvar'}
 #' @param pcSelvalue a numerical value that complements the selected method (\code{pcSelmethod}). 
-#' If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum 
+#' If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum 
 #' amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
-#' it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) 
+#' it must be a value (larger than 0 and below 1) indicating that components that explain (individually) 
 #' a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
 #' specifying the desired number of principal components to retain. Default is 0.99.
 #' @return a list containing the following elements:
@@ -438,12 +447,6 @@ predgprdp <- function(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscal
 #' @usage pgpcv_cpp(X, Y, mindices, pindices, noisev = 0.001, scale)
 #' @param X a \code{matrix} of predictor variables.
 #' @param Y a \code{matrix} of a single response variable.
-#' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
-#' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
-#' iteration.
-#' @param pindices a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
-#' resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
-#' iteration.
 #' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 #' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
 #' iteration.

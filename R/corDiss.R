@@ -108,7 +108,7 @@ corDiss <- function(Xr, X2 = NULL, ws = NULL, center = TRUE, scaled = TRUE)
   if(!is.null(ws))
   {
     if(ws < 3 | length(ws) != 1) 
-      stop(paste("'ws' must be an unique odd value greater than 2")) 
+      stop(paste("'ws' must be an unique odd value larger than 2")) 
     if((ws %% 2) == 0)
       stop("'ws' must be an odd value")
     if(ws >= ncol(Xr))

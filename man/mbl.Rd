@@ -25,18 +25,18 @@ mbl(Yr, Xr, Yu = NULL, Xu,
 
 \item{Xu}{input \code{matrix} (or \code{data.frame}) of predictor variables of the data to be predicted (observations in rows and variables in columns).}
 
-\item{mblCtrl}{a list (created with the \code{\link{mblControl}} function) which contains some parameters that control the some aspects of the \code{mbl} function. See the \code{\link{mblControl}} function for more details.}
+\item{mblCtrl}{a list created with the \code{\link{mblControl}} function which contains additional parameters that control some aspects of the \code{mbl} function. The default list is as returned by \code{mblControl()}. See the \code{\link{mblControl}} function for more details.}
 
 \item{dissimilarityM}{(optional) a dissimilarity matrix. This argument can be used in case a user-defined dissimilarity matrix is preferred over the automatic dissimilarity matrix computation specified in the \code{sm} argument of the  \code{\link{mblControl}} function. When \code{dissUsage = "predictors"}, \code{dissimilarityM} must be a square symmetric dissimilarity matrix (derived from a matrix of the form \code{rbind(Xr, Xu)}) for which the diagonal values are zeros (since the dissimilarity between an object and itself must be 0). 
 On the other hand if \code{dissUsage} is set to either \code{"weights"} or \code{"none"}, \code{dissimilarityM} must be a \code{matrix} representing the dissimilarity of each element in \code{Xu} to each element in \code{Xr}. The number of columns of the object correspondent to \code{dissimilarityM} must be equal to the number of rows in \code{Xu} and the number of rows equal to the number of rows in \code{Xr}.
 If both \code{dissimilarityM} and  \code{sm} are specified, only the \code{dissimilarityM} argument will be taken into account.}
 
-\item{group}{an optional \code{factor} (or \code{vector} that can be coerced to a \code{factor} by \code{as.factor}) to be taken into account for internal validations. The length of the \code{vector} must be equal to \code{nrow(Xr)}, giving the identifier of related observations (e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). When one observation is selected for cross validation, all observations of the same group are removed together and assigned to validation. See details.}
+\item{group}{an optional \code{factor} (or \code{vector} that can be coerced to a \code{factor} by \code{as.factor}) that assigns to each sample in \code{Xr} a group/class label (e.g. groups can be given by spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). This is taken into account for internal leave-group-out cross validation for pls tuning (factor optimization) to avoid pseudo-replication. When one observation is selected for cross validation, all observations of the same group are removed together and assigned to validation. The length of the \code{vector} must be equal to the number of samples in the training set (i.e. \code{nrow(Xr)}). See details.}
 
 \item{dissUsage}{specifies how the dissimilarity information shall be used. The possible options are: \code{"predictors"}, \code{"weights"} and \code{"none"} (see details below).
 Default is "predictors".}
 
-\item{k}{a numeric (integer) \code{vector} containing the sequence of k nearest neighbours to be tested. Either \code{k} or \code{k.diss} must be specified. Numbers with decimal values will be coerced to their next higher integer values. This \code{vector} will be automatically sorted into ascending order.}
+\item{k}{a numeric (integer) \code{vector} containing the sequence of k nearest neighbours to be tested. Either \code{k} or \code{k.diss} must be specified. Numbers with decimal values will be coerced to their next upper integer values. This \code{vector} will be automatically sorted into ascending order.}
 
 \item{k.diss}{a \code{vector} containing the sequence of dissimilarity thresholds to be tested. When the dissimilarity between a sample in \code{Xr} and a sample \code{Xu} is below the given threshold, the sample in sample in \code{Xr} is treated as a neighbour of the sample in \code{Xu}, otherwise it is ignored.  These thresholds depend
 on the corresponding dissimilarity measure specified in \code{sm}. Either \code{k} or \code{k.diss} must be specified.}
@@ -60,6 +60,47 @@ used for the regressions (see details below).}
 
 \item{...}{additional arguments to be passed to other functions.}
 }
+\value{
+a \code{list} of class \code{mbl} with the following components (sorted by either \code{k} or \code{k.diss} according to the case):
+\itemize{
+ \item{\code{call}:}{ the call used.}
+ \item{\code{cntrlParam}:}{ the list with the control parameters used. If one or more control parameters were reset automatically, then a list containing a list with the initial control parameters specified and a list with the parameters which were finally used.}
+ \item{\code{XuNeighbourList}:}{ a list containing a matrix of neighbor indices and a matrix of neighbor dissimilarity scores. The rows of these matrices represent the predicted samples while each column represent a nearest neighbor found in the reference set (\code{Xr}). This list is only ouput if it is specified in the \code{\link{mblControl}} object provided in the \code{mblCtrl} argument.}
+ \item{\code{dissimilarities}:}{ a list with the method used to obtain the dissimilarity matrices and the dissimilarity matrices corresponding to \eqn{D(Xr, Xu)} and \eqn{D(Xr,Xr)} if \code{dissUsage = 'predictors'}. This object is returned only if the \code{returnDiss} argument in the \code{mblCtrl} list was set to \code{TRUE} in the the call used.}
+ \item{\code{totalSamplesPredicted}}{ the total number of samples predicted.}
+ \item{\code{pcAnalysis}:}{ a list containing the results of the principal component analysis. The first two objects (\code{scores_Xr} and \code{scores_Xu}) are the scores of the \code{Xr} and \code{Xu} matrices. It also contains the number of principal components used (\code{n.componentsUsed}) and another object which is  a \code{vector} containing the standardized Mahalanobis dissimilarities (also called GH, Global H distance) between each sample in \code{Xu} and the centre of \code{Xr}.}
+ \item{\code{components}:}{ a list containing either the number of  principal components  or partial least squares components used for the computation of the orthogonal dissimilarities. This object is only returned if the dissimilarity meausre specified in \code{mblCtrl} is any of the following options: \code{'pc'}, \code{'loc.pc'}, \code{"pls"}, \code{'loc.pls'}. If any of the local orthogonal dissimilarities was used (\code{'loc.pc'} or \code{"pls"})
+                           a \code{data.frame} is also returned in his list. This object is equivalent to the \code{loc.n.components} object returned by the \code{\link{orthoDiss}} function. It specifies the number of local components (either principal components or partial least squares components) used for computing the dissimilarity between each query sample and its neighbour samples, as returned by the \code{\link{orthoDiss}} function.
+                           }
+ \item{\code{nnValStats}:}{ a data frame containing the statistics of the nearest neighbour cross-validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'NNv'} or \code{'both'} were selected as validation method}
+ \item{\code{localCrossValStats}:}{ a data frame containing the statistics of the local leave-group-out cross validation for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{'local_crossval'} or \code{'both'} were selected as validation method}
+ \item{\code{YuPredictionStats}:}{ a data frame containing the statistics of the cross-validation of the prediction of  \code{Yu} for each either \code{k} or \code{k.diss} depending on the arguments specified in the call. It is returned only if \code{Yu} was provided.}
+ \item{\code{results}:}{ a list of data frames which contains the results of the predictions for each either \code{k} or \code{k.diss}. Each \code{data.frame} contains the following columns:}
+ \itemize{
+ \item{\code{o.index}:}{ The index of the sample predicted in the input \code{matrix}}
+ \item{\code{k.diss}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the corresponding dissimilarity threshold for selecting the neighbors used to predict a given sample.}
+ \item{\code{distance}:}{ This column is only ouput if the \code{k.diss} argument is used. It is a logical that indicates whether the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument. In that case the number of neighbors used is coerced to on of the boundaries.}
+ \item{\code{k.org}:}{ This column is only ouput if the \code{k.diss} argument is used. It indicates the number of neighbors that are retained when the given dissimilarity threshold is used.}
+ \item{\code{npls}:}{ This column is only ouput if \code{pls} regression was used. It indicates the final number of pls components used. If no optimization was set, it retrieves the original pls components specified in the \code{pls.c} argument.}
+ \item{\code{min.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of minimum pls components used. If no optimization was set, it retrieves the original minimum pls components specified in the \code{pls.c} argument.}
+ \item{\code{max.pls}:}{ This column is only ouput if \code{wapls1} regression was used. It indicates the final number of maximum pls components used. If no optimization was set, it retrieves the original maximum pls components specified in the \code{pls.c} argument.}
+ \item{\code{yu.obs}:}{ This column is only ouput if the \code{Yu} argument is used. It indicates the input values given in \code{Yu} (the response variable corresponding to the data to be predicted).}     
+ \item{\code{pred}:}{ The predicted values}     
+ \item{\code{yr.min.obs}:}{ The minimum reference value (of the response variable) in the neighborhood.}
+ \item{\code{yr.max.obs}:}{ The maximum reference value (of the response variable) in the neighborhood.}
+ \item{\code{index.nearest.in.ref}}{ The index in \code{Xr} of the nearest neighbor.}
+ \item{\code{y.nearest}:}{ The reference value (of the response variable) of the nearest neighbor in \code{Xr}.}
+ \item{\code{y.nearest.pred}:}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'NNv'}. It represents the predicted value of the nearest neighbor sample in \code{Xr} using the neighborhood of the predicted sample in \code{Xu}.}
+ \item{\code{loc.rmse.cv}:}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
+ \item{\code{loc.st.rmse.cv}:}{ This column is only ouput if the validation method (selected with the \code{\link{mblControl}} function) is equal to \code{'loc_crossval'}. It represents the cross validation standardized RMSE value computed in for the neighborhood of the sample of the predicted sample in \code{Xu}.}
+ \item{\code{dist.nearest}:}{ The distance to the nearest neighbor.}
+ \item{\code{dist.k.farthest}:}{ The distance to the farthest neighbor selected.}
+ }
+ \item{\code{documentation}}{ A character string with the documentation added.}
+ }
+When the \code{k.diss} argument is used, the printed results show a table with a column named 'p.bounded'. It represents the percentage of samples
+for which the neighbors selected by the given dissimilarity threshold were outside the boundaries specified in the \code{k.range} argument.
+}
 \description{
 This function is implemented for memory-based learning (a.k.a. instance-based learning or local regression) which is a non-linear lazy learning approach 
 for predicting a given response variable from a set of (spectral) predictor variables. For each sample in an prediction set  a specific local 
@@ -67,7 +108,7 @@ regression is carried out based on a subset of similar samples (nearest neighbou
 then used to predict the response value of the target (prediction) sample. Therefore this function does not yield a global regression model.
 }
 \details{
-By using the \code{group} argument one can specify observations (spectra) groups of samples that have something in common e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc) which could produce biased cross-validation results due to pseudo-replication. This argument allows to select calibration points that are independent from the validation ones in cross-validation. In this regard, when  \code{valMethod = "loc_crossval"} (used in \code{\link{mblControl}} function), then the \code{p} argument refer to the percentage of groups of samples (rather than single samples) to be retained in each resampling iteration at each local segment. 
+By using the \code{group} argument one can specify groups of samples that have something in common e.g. spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc) which could produce biased cross-validation results due to pseudo-replication. This argument allows to select calibration points that are independent from the validation ones in cross-validation. In this regard, when  \code{valMethod = "loc_crossval"} (used in \code{\link{mblControl}} function), then the \code{p} argument refer to the percentage of groups of samples (rather than single samples) to be retained in each resampling iteration at each local segment. 
 The \code{dissUsage} argument is used to specifiy whether the dissimilarity information must be used within the local regressions and (if so), how. When \code{dissUsage = "predictors"}
 the local (square symmetric) dissimilarity matrix corresponding the selected neighbourhood is used as source
 of additional predictors (i.e the columns of this local matrix are treated as predictor variables). In some cases this may result in an improvement 
@@ -220,7 +261,7 @@ manhattanD <- as.matrix(manhattanD)
 ctrl.udd <- mblControl(sm = "none", 
                        pcSelection = list("cumvar", 0.999), 
                        valMethod = c("NNv", "loc_crossval"), 
-                       resampling = 10, p = 0.75,
+                       number = 10, p = 0.75,
                        scaled = FALSE, center = TRUE)
 
 mbl.udd1 <- mbl(Yr = Yr, Xr = Xr, Yu = Yu, Xu = Xu,

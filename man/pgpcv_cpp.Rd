@@ -22,14 +22,6 @@ iteration.}
 \item{scale}{a logical indicating whether both the predictors 
 and the response variable must be scaled to zero mean and unit variance.}
 
-\item{mindices}{a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
-resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
-iteration.}
-
-\item{pindices}{a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
-resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
-iteration.}
-
 \item{ncomp}{an integer indicating the number of pls components.}
 }
 \value{

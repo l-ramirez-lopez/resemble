@@ -4,8 +4,17 @@
 \alias{gprCv}
 \title{Cross validation for Gaussian process regression}
 \usage{
-gprCv(x, y, scaled, weights = NULL, p = 0.75, resampling = 10,
-  group = NULL, noise.v = 0.001, retrieve = c("final.model", "none"))
+gprCv(
+  x,
+  y,
+  scaled,
+  weights = NULL,
+  p = 0.75,
+  number = 10,
+  group = NULL,
+  noise.v = 0.001,
+  retrieve = c("final.model", "none")
+)
 }
 \description{
 internal

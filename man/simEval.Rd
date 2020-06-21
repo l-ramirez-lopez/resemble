@@ -7,9 +7,9 @@
 simEval(d, sideInf, lower.tri = FALSE, cores = 1, ...)
 }
 \arguments{
-\item{d}{a \code{vector} or a square symmetric \code{matrix} (or \code{data.frame}) of similarity/dissimilarity scores between samples of a given dataset (see \code{lower.tri}).}
+\item{d}{a symmetric \code{matrix} (or \code{data.frame}) of similarity/dissimilarity scores between samples of a given dataset. Alternatively, a \code{vector} of with the dissimilarity scores of the lower triangle (without the diagonal values) can be used (see \code{lower.tri}).}
 
-\item{sideInf}{a \code{vector} containing the side information corresponding to the samples in the dataset from which the similarity/dissimilarity matrix was computed. It can be either a numeric vector (continuous variable) or a factor (discrete variable). If it is a numeric \code{vector},  the root mean square of differences is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. If it is a factor, then the kappa index is used. See details.}
+\item{sideInf}{a \code{vector}, \code{matrix} or \code{data.frame} containing the side information corresponding to the samples in the dataset from which the similarity/dissimilarity matrix was computed. It can be either a numeric (continuous variables) or a factor (discrete variable). If it is numeric,  the root mean square of differences is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. If it is a factor, then the kappa index is used. See details.}
 
 \item{lower.tri}{a \code{logical} indicating whether the input similarities/dissimilarities are given as a \code{vector} of the lower triangle of the distance matrix (as returned e.g. by \code{base::dist}) or as a square symmetric \code{matrix} (or \code{data.frame}) (default = \code{FALSE})}
 

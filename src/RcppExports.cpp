@@ -55,18 +55,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// eigenMapMatMult
-SEXP eigenMapMatMult(const Eigen::Map<Eigen::MatrixXd> A, Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _resemble_eigenMapMatMult(SEXP ASEXP, SEXP BSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigenMapMatMult(A, B));
-    return rcpp_result_gen;
-END_RCPP
-}
 // movcorDist
 NumericMatrix movcorDist(NumericMatrix X, NumericMatrix Y, int w);
 RcppExport SEXP _resemble_movcorDist(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP) {
@@ -121,6 +109,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(cSums(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dc_svd
+List dc_svd(const arma::cx_mat& X);
+RcppExport SEXP _resemble_dc_svd(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cx_mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(dc_svd(X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -342,12 +341,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fastDistVV", (DL_FUNC) &_resemble_fastDistVV, 2},
     {"_resemble_fastDistVVL", (DL_FUNC) &_resemble_fastDistVVL, 1},
     {"_resemble_minDissV", (DL_FUNC) &_resemble_minDissV, 2},
-    {"_resemble_eigenMapMatMult", (DL_FUNC) &_resemble_eigenMapMatMult, 2},
     {"_resemble_movcorDist", (DL_FUNC) &_resemble_movcorDist, 3},
     {"_resemble_wcolSds", (DL_FUNC) &_resemble_wcolSds, 1},
     {"_resemble_colSds", (DL_FUNC) &_resemble_colSds, 1},
     {"_resemble_cms", (DL_FUNC) &_resemble_cms, 1},
     {"_resemble_cSums", (DL_FUNC) &_resemble_cSums, 1},
+    {"_resemble_dc_svd", (DL_FUNC) &_resemble_dc_svd, 1},
     {"_resemble_opls", (DL_FUNC) &_resemble_opls, 9},
     {"_resemble_opls2", (DL_FUNC) &_resemble_opls2, 6},
     {"_resemble_opls3", (DL_FUNC) &_resemble_opls3, 6},

@@ -31,7 +31,7 @@
 #' @param Yr if the method used in the \code{pcSelection} argument is \code{"opc"} or if the \code{method} argument is \code{"pls"}, then it must be a \code{vector} containing the side information corresponding to the spectra in \code{Xr}. It is equivalent to the \code{sideInf} parameter of the \code{\link{simEval}} function. In case \code{method = "pca"} a \code{matrix} (regarding one or more continuous variables) can also be used as input. The root mean square of differences (rmsd) is used for assessing the similarity between the samples and their corresponding most similar samples in terms of the side information provided. When \code{sm = "pc"}, this parameter can also be a single discrete variable of class \code{factor}. In such a case the kappa index is used. See \code{\link{simEval}} function for more details.
 #' @param pcSelection a list which specifies the method to be used for identifying the number of principal components to be retained. This list must contain two objects in the following order: \itemize{
 #'        \item{\code{method}:}{the method for selecting the number of components. Possible options are:  \code{"opc"} (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b) in which the side information concept is used, see details), \code{"cumvar"} (for selecting the number of principal components based on a maximum amount of cumulative variance that need to be explained by the group of retained components); \code{"var"} (for selecting the number of principal components based on a minimum amount of variance that need to be explained by each individual component); and  \code{"manual"} (for specifying manually the desired number of principal components)}
-#'        \item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
+#'        \item{\code{value}:}{a numerical value that complements the selected method. If \code{"opc"} is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, it must be a value (larger than 0 and below than 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value specifying the desired number of principal components to retain.
 #'        }}
 #'        The default method for the \code{pcSelection} argument is \code{"opc"} and the maximal number of principal components to be tested is set to 40.
 #'        Optionally, the \code{pcSelection} argument admits \code{"opc"} or \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character string. In such a case the default for \code{"value"} when either \code{"opc"} or \code{"manual"} are used is 40. When \code{"cumvar"} is used the default \code{"value"} is set to 0.99 and when \code{"var"} is used the default \code{"value"} is set to 0.01.
@@ -201,12 +201,10 @@ orthoProjection <- function(Xr, X2 = NULL,
 }
 
 
-#' @rdname orthoProjection      
 #' @aliases orthoProjection 
 #' @aliases plsProjection 
 #' @aliases pcProjection 
 #' @aliases predict.orthoProjection
-#' @export
 pcProjection <- function(Xr, X2 = NULL, Yr = NULL, 
                          pcSelection = list("cumvar", 0.99), 
                          center = TRUE, scaled = FALSE, 
@@ -301,7 +299,7 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
       if(!is.numeric(pcSelection$value)) 
         stop("The second object in 'pcSelection' must be a numeric value", call. = call.)
       if(pcSelection$value > 1 | pcSelection$value <= 0) 
-        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number higher than 0 and lower than/or equal to 1"), call. = call.)
+        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number larger than 0 and below or equal to 1"), call. = call.)
     }
     max.i <- min(dim(Xr)) - 1
   }
@@ -580,12 +578,10 @@ pcProjection <- function(Xr, X2 = NULL, Yr = NULL,
   return(fresults)
 }
 
-#' @rdname orthoProjection      
 #' @aliases orthoProjection 
 #' @aliases plsProjection 
 #' @aliases pcProjection 
 #' @aliases predict.orthoProjection
-#' @export
 plsProjection <- function(Xr, X2 = NULL, Yr, 
                           pcSelection = list("opc", 40), 
                           scaled = FALSE, 
@@ -672,7 +668,7 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
       if(!is.numeric(pcSelection$value)) 
         stop("The second object in 'pcSelection' must be a numeric value", call. = call.)
       if(pcSelection$value > 1 | pcSelection$value <= 0) 
-        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number higher than 0 and lower than/or equal to 1"), call. = call.)
+        stop(paste("When the method for 'pcSelection' is either 'var' or 'cumvar' the value in 'pcSelection' must be a number larger than 0 and below or equal to 1"), call. = call.)
     }
     max.i <- min(dim(Xr)) - 1
   }
@@ -902,12 +898,10 @@ plsProjection <- function(Xr, X2 = NULL, Yr,
 }
 
 
-#' @rdname orthoProjection      
 #' @aliases orthoProjection 
 #' @aliases plsProjection 
 #' @aliases pcProjection 
 #' @aliases predict.orthoProjection
-#' @export
 predict.orthoProjection <- function(object, newdata, ...){
   if(missing(newdata))
     return(object$scores)

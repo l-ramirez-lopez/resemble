@@ -1,6 +1,9 @@
 # News for the resemble package
 
 ## Version 1.3 
+* 27.02.2020 The argument 'resampling' in mblControl() has been renamed to 'number' for avoiding confusions with the 
+             arguments of the new rslocal() function.
+             
 * 18.07.2019 A bug in the scaling of the euclidean distances in fDiss was detected and fixed. The distance ratios
              (between samples) were correctly calculated, but the final scaling of the results was not properly 
              done. The distance between Xi and Xj were scaled by taking the squared root of the mean of the squared 

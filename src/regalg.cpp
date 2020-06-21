@@ -1,12 +1,9 @@
 #include <RcppArmadillo.h>
+#include <RcppEigen.h>
 #include <math.h>
 #include <iostream>
-#ifdef _OPENMP
-#include <omp.h>    // OpenMP
-#endif
 
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(openmp)]]
 
 using namespace Rcpp;
 
@@ -105,6 +102,40 @@ NumericVector cSums(arma::mat X){
 }
 
 
+
+//' @title Singular value decomposition (SVD)
+//' @description Computes the SVD based on the divide and conquer algorithm 
+//' @usage dc_svd(X)
+//' @param X a \code{matrix}.
+//' @Details Function based on the Dirk Eddelbuettel's function. See: 
+//' https://gallery.rcpp.org/articles/divide-and-concquer-svd/
+//' @author Leonardo Ramirez-Lopez based on code from Dirk Eddelbuettel
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+List dc_svd(const arma::cx_mat & X) {
+  //   arma::mat U, V;
+  //   arma::vec S;
+  //   int rcols = std::min(X.n_cols, X.n_rows) - 1;
+  //   
+  //   arma::svd(U, S, V, X, "dc");
+  // 
+  //   return Rcpp::List::create(
+  //     Rcpp::Named("d") = S,
+  //     Rcpp::Named("u") = U.cols(0, rcols),
+  //     Rcpp::Named("v") = V.cols(0, rcols)
+  //   );
+  
+  arma::cx_mat U, V;
+  arma::vec S;
+  arma::svd(U, S, V, X, "dc");
+  return Rcpp::List::create(
+    Rcpp::Named("d") = S
+  );
+  
+}
+
+
 //' @title orthogonal scores algorithn of partial leat squares (opls)
 //' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
 //' For internal use only!
@@ -126,9 +157,9 @@ NumericVector cSums(arma::mat X){
 //' cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
 //' components based on a given amount of explained variance). Default is \code{'cumvar'}
 //' @param pcSelvalue a numerical value that complements the selected method (\code{pcSelmethod}). 
-//' If \code{"cumvar"} is chosen, it must be a value (higher than 0 and lower than 1) indicating the maximum 
+//' If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum 
 //' amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
-//' it must be a value (higher than 0 and lower than 1) indicating that components that explain (individually) 
+//' it must be a value (larger than 0 and below 1) indicating that components that explain (individually) 
 //' a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
 //' specifying the desired number of principal components to retain. Default is 0.99.
 //' @return a list containing the following elements:
@@ -1620,12 +1651,6 @@ NumericVector predgprdp(arma::mat Xz,
 //' @usage pgpcv_cpp(X, Y, mindices, pindices, noisev = 0.001, scale)
 //' @param X a \code{matrix} of predictor variables.
 //' @param Y a \code{matrix} of a single response variable.
-//' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
-//' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
-//' iteration.
-//' @param pindices a \code{matrix} with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
-//' resampling iterations. The elements of each column indicate the indices of the samples to be used for predicting at each 
-//' iteration.
 //' @param mindices a \code{matrix} with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
 //' resampling iterations. The elements of each column indicate the indices of the samples to be used for modeling at each 
 //' iteration.

@@ -30,7 +30,7 @@ sid(Xr, X2 = NULL,
 
 \item{bw}{if \code{mode = "density"} a numerical value indicating the smoothing kernel bandwidth to be used. Optionally the character string \code{"nrd0"} can be used, it computes the bandwidth using the \code{\link[stats]{bw.nrd0}} function of the \code{stats} package. See the \code{\link[stats]{density}} and the \code{\link[stats]{bw.nrd0}} functions for more details. By default \code{"nrd0"} is used, in this case the bandwidth is computed as \code{bw.nrd0(as.vector(X))}, if \code{X2} is specified the bandwidth is computed as \code{bw.nrd0(as.vector(rbind(X, X2)))}.}
 
-\item{reg}{a numerical value higher than 0 which indicates a regularization parameter. Values (probabilities) below this threshold are replaced by this value for numerical stability. Default is 1e-4.}
+\item{reg}{a numerical value larger than 0 which indicates a regularization parameter. Values (probabilities) below this threshold are replaced by this value for numerical stability. Default is 1e-4.}
 
 \item{...}{additional arguments to be passed to the \code{\link[stats]{density}} function of the base package.}
 }
