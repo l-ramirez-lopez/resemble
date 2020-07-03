@@ -22,7 +22,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]   
 arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){  
   
-  double eps = sqrt(DOUBLE_EPS);
+  //double eps = sqrt(DOUBLE_EPS);
   
   int nX = X.nrow(), kX = X.ncol(), nY = Y.nrow(), kY = Y.ncol();
   arma::mat XX(X.begin(), nX, kX, false); // reuses memory and avoids extra copy
@@ -33,7 +33,7 @@ arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){
   }   
   if(method=="cor"){
     arma::mat output = (1 - arma::cor(XX.t(), YY.t()))/2;   
-    return wrap(output.t());
+    return output.t();
   }
   else{ // cosine
     arma::mat numerator = XX * YY.t();
