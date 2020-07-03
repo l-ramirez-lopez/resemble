@@ -991,7 +991,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   }
   pg_bar_width  <- 10
   #to_erase <- getOption("width") - pg_bar_width - (2 * nchar(nrow(Xu))) - 2
-  to_erase <- pg_bar_width + (2 * nchar(nrow(Xu))) + 4
+  to_erase <- pg_bar_width + (2 * nchar(nrow(Xu))) + 8
   to_erase <- paste(rep(" ", to_erase), collpase = "")
   
   cat("\033[32m\033[3mPredicting...\n\033[23m\033[39m")
