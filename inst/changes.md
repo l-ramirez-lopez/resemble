@@ -1,11 +1,17 @@
-reformatted for compliying with Google and tidyverse style guideleines 
+# Changes implemented for version 2.0
 
 
-## Number of threads can be set by:
-Sys.setenv("OMP_NUM_THREADS" = 6)
+In general, the code has been reformatted for compliying with Google and 
+tidyverse style guideleines. Here the major changes are listed.
+
+### Main new fucntions
+- search_neighbors
+- rslocal
+- rs_control
+- dissimilarity
 
 
-orthoProjection, pcProjection, plsProjection (renamed to ortho_projection, 
+### orthoProjection, pcProjection, plsProjection (renamed to ortho_projection, 
 pc_projection, pls_projection respectively):
 - X2 argument renamed to Xu (for consistency throughout all the fucntions)
 - Argument scaled renamed to .scale
@@ -26,26 +32,26 @@ and n.components. Their new names are: X_loadings, Y_loadings, sc_sdv and
 n_components.
 
 
-corDiss (renamed to cor_diss):
+### corDiss (renamed to cor_diss):
 - X2 argument renamed to Xu (for consistency throughout all the fucntions)
 - Argument scaled renamed to .scale
 - default for .scale has changed from TRUE to FALSE
 - the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
 
-fDiss (renamed to f_diss):
+### fDiss (renamed to f_diss):
 - X2 argument renamed to Xu (for consistency throughout all the fucntions)
 - Argument scaled renamed to .scale
 - default for .scale has changed from TRUE to FALSE
 - the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
 
-sid:
+### sid:
 - X2 argument renamed to Xu (for consistency throughout all the fucntions)
 - Argument scaled renamed to .scale
 - default for .scale has changed from TRUE to FALSE
 - the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
 
 
-orthoDiss (renamed to ortho_diss):
+### orthoDiss (renamed to ortho_diss):
 - X2 argument renamed to Xu (for consistency throughout all the fucntions)
 - Argument scaled renamed to .scale
 - Argument local renamed to .local
@@ -62,7 +68,7 @@ neighborhood, etc)
 - Output global.variance.info has been renamed to global_variance_info
 
 
-simEval (renamed to sim_eval):
+### simEval (renamed to sim_eval):
 - argument sideInf renamed to side_info
 - argument lower.tri renamed to lower_triangle
 - argument cores renamed to omp_threads
@@ -74,7 +80,7 @@ available, but the number of threads must be set in the R global enviroment (e.g
 Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
   
   
-mbl
+### mbl
 - pls.max.iter, pls.tol and noise.v were moved to mbl from mbl_control()
 - Argument scaled (from mbl_control()) renamed to .scale and moved to mbl
 - new arguments: gh and spike
@@ -91,7 +97,7 @@ computed outiside the mbl fucntion. This can be done now with the new argument
 diss_method of mbl which was previosly named "sm" and it was in mblControl()
 
 
-neigCleaning (now search_neighbors)
+### neigCleaning (now search_neighbors)
 - Function renamed to search_neighbors
 - Argument cores is deprecated, it wwas used to set the number of cores in some 
 c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
@@ -103,7 +109,7 @@ available, but the number of threads must be set in the R global enviroment (e.g
 Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 
 
-mblControl (renamed to mbl_control):
+### mblControl (renamed to mbl_control):
 - sm argument is deprecated. Now the dissmilarity metric is an argument of the 
 mbl fucntion
 - scale and center arguments have been moved to the mbl fucntion
@@ -117,6 +123,13 @@ Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 - valMethod has been renamed to validation
 - Option "loc_crossval" in validation has been renamed to "local_cv"
 
-plot.mbl
+### plot.mbl
 - option "pca" was replaced by option "gh" which plots the pls projection used 
 for computing the gh distance in mbl 
+
+
+### Note
+
+In `R`, the number of threads can be set by
+
+Sys.setenv("OMP_NUM_THREADS" = 6)
