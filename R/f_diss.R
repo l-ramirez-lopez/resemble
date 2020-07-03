@@ -227,7 +227,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
     colnames(rslt) <- rownames(rslt)
   }
-  if (diss_method = "cosine") {
+  if (diss_method == "cosine") {
     rslt[is.nan(rslt)] <- 0
   }
   
