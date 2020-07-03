@@ -19,3 +19,8 @@ r_packages:
   - RcppArmadillo
   - foreach
   - iterators
+  - covr
+  - data.table,
+
+after_success:
+  - Rscript -e 'library(covr); codecov()'
