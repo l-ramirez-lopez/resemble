@@ -35,8 +35,9 @@
 #' to be used in the local regressions when the weighted average partial least
 #' squares (\code{local_fit_wapls}) method is used. See details.
 #' @param noise_variance a numeric value indicating the variance of the noise
-#' for Gaussian process local regressions (\code{local_fit_gpr}).
-#' Default is 0.001.
+#' for Gaussian process local regressions (\code{local_fit_gpr}). Default is 
+#' 0.001.
+#' 
 #' @details  
 #' These functions are used to indicate how to fit
 #' the regression models within the \code{\link{mbl}} and \code{\link{rslocal}}
