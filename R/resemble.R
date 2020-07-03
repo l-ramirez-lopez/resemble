@@ -71,13 +71,7 @@
 #' @aliases resemble-package resemble
 #' @title Overview of the functions in the resemble package
 #' @author
-#' Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@@gmail.com},
-#' 
-#' Antoine Stevens,
-#' 
-#' Craig Lobsey,
-#' 
-#' Raphael Viscarra-Rossel
+#' LLL
 
 ######################################################################
 # resemble
