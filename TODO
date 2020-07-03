@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+## change scaled by scale!!!! and put a deprecated warning
+
+## remove \code{} when specifying the vector, matric, data.frame
+
+>>>>>>> 8832206f7f455d7fc8b1be579ba7eaada3e4c0d0
 ## Add a print and plot methods for rslocal
 
 ## Add a parameter where one can force a set of samples to always be in all the neighborhoods (spiking)

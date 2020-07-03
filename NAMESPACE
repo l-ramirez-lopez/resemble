@@ -15,9 +15,13 @@ export(mblControl)
 export(neigCleaning)
 export(orthoDiss)
 export(orthoProjection)
+<<<<<<< HEAD
 export(predict.rslocal)
 export(rs_control)
 export(rslocal)
+=======
+export(predict.orthoProjection)
+>>>>>>> 8832206f7f455d7fc8b1be579ba7eaada3e4c0d0
 export(sid)
 export(simEval)
 import(Rcpp)

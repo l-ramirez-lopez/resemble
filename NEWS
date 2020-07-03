@@ -1,6 +1,14 @@
 # News for the resemble package
 
 ## Version 1.3 
+<<<<<<< HEAD
+=======
+* 11.04.2020 The option 'movcor' for the argument sm of mblControl() is deprecated. The 'movcor' moving window correlations between
+             spectra as dissimilarity measure. Now This option can be specified by using 'cor' as the method in the argument 'sm' 
+             and passing a window size to the argument 'ws'of mblControl(). If 'ws' is not specified, the standard correlation 
+             between spectra is computed.  
+             
+>>>>>>> 8832206f7f455d7fc8b1be579ba7eaada3e4c0d0
 * 27.02.2020 The argument 'resampling' in mblControl() has been renamed to 'number' for avoiding confusions with the 
              arguments of the new rslocal() function.
              
