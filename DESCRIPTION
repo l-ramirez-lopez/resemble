@@ -3,13 +3,10 @@ Type: Package
 Title: 
     Regression and Similarity Evaluation for Memory-Based Learning in
     Spectral Chemometrics
-Version: 1.3.5
-Date: 2020-03-31
+Version: 2.0.0
+Date: 2020-07-02
 Author: 
-    Leonardo Ramirez-Lopez [aut, cre], 
-    Antoine Stevens [aut], 
-    Craig Lobsey [aut], 
-    Raphael Viscarra-Rossel [aut]
+    llll
 Maintainer: 
     Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: 
@@ -17,25 +14,33 @@ BugReports:
 Description: 
     Functions for spectral similarity/dissimilarity
     analysis and memory-based learning (MBL) for non-linear modeling
-    in complex spectral datasets. In chemometrics MBL is also known 
+    in complex spectral data sets. In chemometrics MBL is also known 
     as local modeling.
-License: GPL (>=3)
+License: MIT + file LICENSE
 URL: http://l-ramirez-lopez.github.io/resemble/
 Depends:
     R (>= 3.5.0)
 Imports: 
     foreach, 
-    kernlab, 
     iterators,  
-    Rcpp (>= 1.0.3)
+    data.table,
+    Rcpp (>= 1.0.3),
+    dplyr (>= 0.7.0),
+    magrittr (>= 1.5.0),
+    lifecycle (>= 0.2.0)
 Suggests: 
     prospectr, 
     parallel, 
-    doParallel
+    doParallel,
+    mathjaxr,
+    testthat
 LinkingTo: 
     Rcpp, 
     RcppArmadillo, 
     RcppEigen
+RdMacros: 
+    mathjaxr,
+    lifecycle
 NeedsCompilation: yes
 Repository: CRAN
 RoxygenNote: 7.1.0
