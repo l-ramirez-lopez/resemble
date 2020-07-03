@@ -7,7 +7,7 @@
 
 _Last update: 03.07.2020_
 
-During the (strict) lockdown time we invested some of our free time to come up 
+During the recent lockdown time we invested some of our free time to come up 
 with a new version of our package. This new `resemble` 2.0 comes with MAJOR 
 improvements and new functions! For these improvements major changes were 
 required. The most evident changes are in the function and argument names.
