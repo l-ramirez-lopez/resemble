@@ -7,8 +7,6 @@
 
 _Last update: 03.07.2020_
 
-Visit the [`resemble` site here](http://l-ramirez-lopez.github.io/resemble/)
-
 During the (strict) lockdown time we invested some of our free time to come up 
 with a new version of our package. This new `resemble` 2.0 comes with MAJOR 
 improvements and new functions! For these improvements major changes were 
