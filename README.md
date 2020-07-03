@@ -152,8 +152,10 @@ function, the _k_-nearest neighbour search is performed by computing spectral
 dissimilarity matrices between observations. The `mbl` function offers the 
 following regression options for calibrating the (local) models:
 
-__`'gpr'`__:          Gaussian process with linear kernel.
-__`'pls'`__:          Partial least squares.       
+__`'gpr'`__:          Gaussian process with linear kernel
+
+__`'pls'`__:          Partial least squares.     
+
 __`'wapls'`__:        Weighted average partial least squares (Shenk et al., 1997).
 
 ## Data-driven search and optimization in spectral libraries for building data-specific calibrations (RS-LOCAL)
