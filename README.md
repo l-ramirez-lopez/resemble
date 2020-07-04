@@ -1,9 +1,10 @@
+<!-- badges: start -->
 [![Travis-CI Build Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https://travis-ci.org/l-ramirez-lopez/resemble/)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](http://cran.r-project.org/web/packages/resemble)
 [![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](http://cran.r-project.org/web/packages/resemble)
 
 <img align="right" src="./man/figures/logo.png" width="30%">
-
+<!-- badges: end -->
 
 _Last update: 03.07.2020_
 
