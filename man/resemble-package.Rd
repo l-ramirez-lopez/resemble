@@ -58,11 +58,5 @@ Other supplementary functions:
   }
 }
 \author{
-Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@gmail.com},
-
-Antoine Stevens,
-
-Craig Lobsey,
-
-Raphael Viscarra-Rossel
+LLL
 }
