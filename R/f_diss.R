@@ -76,6 +76,7 @@
 #' a matrix of the computed dissimilarities.
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @examples
+#' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
 #' 
@@ -115,6 +116,7 @@
 #' 
 #' # Cosine dissimilarity matrix
 #' cdiss_xr_xu <- f_diss(Xr, Xu, "cosine")
+#' }
 #' @export
 
 ######################################################################
