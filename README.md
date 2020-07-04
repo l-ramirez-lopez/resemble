@@ -1,13 +1,23 @@
+# resemble  
 <!-- badges: start -->
+
 [![Travis-CI Build Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https://travis-ci.org/l-ramirez-lopez/resemble/)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](http://cran.r-project.org/web/packages/resemble)
 [![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](http://cran.r-project.org/web/packages/resemble)
 
 <img align="right" src="./man/figures/logo.png" width="30%">
+
 <!-- badges: end -->
+
 
 _Last update: 03.07.2020_
 
+## About
+The `resemble` package provides high-performing functionality for 
+data-driven modeling, nearest neighbor search and orthogonal projections 
+in spectral data.
+
+## New version
 During the recent lockdown time we invested some of our free time to come up 
 with a new version of our package. This new `resemble` 2.0 comes with MAJOR 
 improvements and new functions! For these improvements major changes were 
@@ -26,6 +36,7 @@ retrieves from a refence set the k-nearest neighbors of another given data set.
 The `dissimilarity()` function computes dissimilarity matrices based on various 
 metrics. 
 
+## Installation 
 If you want to install the package and try its functionality, it is very simple,
 just type the following line in your `R` console:
 
@@ -55,6 +66,8 @@ using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html):
 ```
 devtools::install_github("l-ramirez-lopez/resemble")
 ```
+
+## Example
 
 After installing `resemble` you should be also able to run the following lines:
   
