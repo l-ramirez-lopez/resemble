@@ -17,6 +17,34 @@ The `resemble` package provides high-performing functionality for
 data-driven modeling, nearest neighbor search and orthogonal projections 
 in spectral data.
 
+## Core functionality 
+
+The core functionality of the package can be sumarizted with the following 
+functions:
+  
+__`mbl`__: implements memory-based learning (MBL) for modeling and predicting 
+continuous response variables. For example, it can be used to reproduce the 
+famous LOCAL algorithm proposed by Shenk et al. (1997). In general, this 
+function allowes you to easily customize your own MBL regression-prediction 
+method.
+
+__`rslocal`__: implements the rs-local modeling approach proposed by 
+Lobsey et al. (2017). This function allows you to find in a reference data set, 
+an optimal set of observations to build a model for an specific set of 
+observations. 
+
+__`dissimilarity`__: Computes dissimilarity matrices based on several methods 
+(e.g. Euclidean, Mahalanobis, cosine, correlation, moving correlation, 
+Spectral information divergence, principal components dissimilarity and partial 
+least squares dissimilarity).
+
+__`ortho_projection`__: A function for dimensionality reduction using either 
+principal component analysis or partial least squares (a.k.a projection to 
+latent structures). 
+
+__`search_neighbors`__: A function to efficiently retrieve from a refence set the 
+k-nearest neighbors of another given data set.
+
 ## New version
 During the recent lockdown time we invested some of our free time to come up 
 with a new version of our package. This new `resemble` 2.0 comes with MAJOR 
@@ -116,34 +144,6 @@ modelling in the chemometrics literature). The package also includes functions
 for: computing and evaluate spectral dissimilarity matrices, projecting the 
 spectra onto low dimensional orthogonal variables, spectral neighbor search, etc. 
 
-## Core functionality 
-
-The core functionality of the package can be sumarizted with the following 
-functions:
-  
-__`mbl`__: implements memory-based learning (MBL) for modeling and predicting 
-continuous response variables. For example, it can be used to reproduce the 
-famous LOCAL algorithm proposed by Shenk et al. (1997). In general, this 
-function allowes you to easily customize your own MBL regression-prediction 
-method.
-
-__`rslocal`__: implements the rs-local modeling approach proposed by 
-Lobsey et al. (2017). This function allows you to find in a reference data set, 
-an optimal set of observations to build a model for an specific set of 
-observations. 
-
-__`dissimilarity`__: Computes dissimilarity matrices based on several methods 
-(e.g. Euclidean, Mahalanobis, cosine, correlation, moving correlation, 
-Spectral information divergence, principal components dissimilarity and partial 
-least squares dissimilarity).
-
-__`ortho_projection`__: A function for dimensionality reduction using either 
-principal component analysis or partial least squares (a.k.a projection to 
-latent structures). 
-
-__`search_neighbors`__: A function to efficiently retrieve from a refence set the 
-k-nearest neighbors of another given data set.
-
 ## Memory-based learning (MBL)
 
 To expand a bit more the explanation on the `mbl` function, let's define 
@@ -178,14 +178,6 @@ Given a specific sample set, the purpose of the RS-LOCAL algorithm
 (Lobsey et al., 2017) is to find in a (large) reference training set an optimal 
 subset of observations to build predictive models with strong generalization 
 performance for the type of observations provided in the specific sample set.
-
-## Keywords
-* _Infrared spectroscopy_
-* _Chemometrics_
-* _Local modelling_
-* _Spectral library_
-* _Lazy learning_
-* _Soil spectroscopy_
 
 ## News
 * 2020.04: [Tsakiridis et al. (2020)](https://www.sciencedirect.com/science/article/abs/pii/S0016706119308870?via%3Dihub), 
