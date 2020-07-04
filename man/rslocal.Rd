@@ -246,18 +246,7 @@ When selecting values for the \code{k},\code{b},\code{retain} parameters,
 }
 \examples{
 \dontrun{
-#' ## GOOD EXAMPLES ARE REQUIRED
-
-## could we base an example on LUCAS (SL) and NIRsoil (local) - these are 
-Belgium, are they in LUCAS?
-
-## First example showing basic implementation, returning index (k_idx) 
-in the the SL, then spiking (to final rslocal calibration data set)
-
-## Second example showing use of final model / prediction (using internal 
-functions)
-
-## Third example showing use of method 'reconstruction'
+# FIXME: GOOD EXAMPLES ARE REQUIRED
 }
 }
 \references{

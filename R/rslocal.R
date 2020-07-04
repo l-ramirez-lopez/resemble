@@ -235,18 +235,7 @@
 #' 95(1), 35-48.
 #' @examples
 #' \dontrun{
-#' #' ## GOOD EXAMPLES ARE REQUIRED
-#'
-#' ## could we base an example on LUCAS (SL) and NIRsoil (local) - these are 
-#' Belgium, are they in LUCAS?
-#'
-#' ## First example showing basic implementation, returning index (k_idx) 
-#' in the the SL, then spiking (to final rslocal calibration data set)
-#'
-#' ## Second example showing use of final model / prediction (using internal 
-#' functions)
-#'
-#' ## Third example showing use of method 'reconstruction'
+#' # FIXME: GOOD EXAMPLES ARE REQUIRED
 #' }
 #' @export rslocal
 
@@ -278,9 +267,6 @@
 ## 2020.06.23 (Leo):    Argument "pls_tune" was removed and passed to rs_control 
 ##                      as tune
 ##                      method must be "local_fit" object 
-
-## TODO: (Craig/Leo):   discuss about the default optimization 
-##                      reconstruction | response
 
 
 "rslocal" <-
