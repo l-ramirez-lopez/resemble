@@ -35,8 +35,8 @@ to be used in the local regressions when the weighted average partial least
 squares (\code{local_fit_wapls}) method is used. See details.}
 
 \item{noise_variance}{a numeric value indicating the variance of the noise
-for Gaussian process local regressions (\code{local_fit_gpr}).
-Default is 0.001.}
+for Gaussian process local regressions (\code{local_fit_gpr}). Default is 
+0.001.}
 }
 \value{
 An object of class \code{local_fit} mirroring the input arguments.
