@@ -23,7 +23,7 @@ Depends:
 Imports: 
     foreach, 
     iterators,  
-    data.table,
+    data.table, 
     Rcpp (>= 1.0.3),
     dplyr (>= 0.7.0),
     mathjaxr (>= 1.0),
