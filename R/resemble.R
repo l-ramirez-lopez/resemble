@@ -10,6 +10,7 @@
 #' @importFrom lifecycle deprecate_soft
 ## usethis namespace: end
 #' @importFrom magrittr %>%
+#' @importFrom data.table data.table
 #' @importFrom dplyr mutate rename if_else select
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats model.frame model.matrix model.extract na.fail sd reshape
