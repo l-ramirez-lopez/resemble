@@ -87,6 +87,7 @@ NOTE: The computed distances are divided by the number of variables/columns
 in \code{Xr}.
 }
 \examples{
+\dontrun{
 library(prospectr)
 data(NIRsoil)
 
@@ -126,6 +127,7 @@ md_xr_xu <- f_diss(Xr[, 1:20], Xu[, 1:20], "mahalanobis")
 
 # Cosine dissimilarity matrix
 cdiss_xr_xu <- f_diss(Xr, Xu, "cosine")
+}
 }
 \author{
 Leonardo Ramirez-Lopez and Antoine Stevens
