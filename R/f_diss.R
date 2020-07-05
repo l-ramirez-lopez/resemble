@@ -1,77 +1,77 @@
 #' @title Euclidean, Mahalanobis and cosine dissimilarity measurements
 #' @description
 #' \loadmathjax
-#' 
+#'
 #' \lifecycle{stable}
-#' 
-#' This function is used to compute the dissimilarity between observations 
-#' based on Euclidean or Mahalanobis distance measures or on cosine 
+#'
+#' This function is used to compute the dissimilarity between observations
+#' based on Euclidean or Mahalanobis distance measures or on cosine
 #' dissimilarity measures (a.k.a spectral angle mapper).
 #' @usage
 #' f_diss(Xr, Xu = NULL, diss_method = "euclid",
 #'        center = TRUE, scale = FALSE)
 #' @param Xr a matrix containing the (reference) data.
-#' @param Xu an optional matrix containing data of a second set of observations 
+#' @param Xu an optional matrix containing data of a second set of observations
 #' (samples).
-#' @param diss_method the method for computing the dissimilarity matrix. 
-#' Options are \code{"euclid"} (Euclidean distance), \code{"mahalanobis"} 
-#' (Mahalanobis distance) and \code{"cosine"} (cosine distance, a.k.a spectral 
+#' @param diss_method the method for computing the dissimilarity matrix.
+#' Options are \code{"euclid"} (Euclidean distance), \code{"mahalanobis"}
+#' (Mahalanobis distance) and \code{"cosine"} (cosine distance, a.k.a spectral
 #' angle mapper). See details.
-#' @param center a logical indicating if the spectral data \code{Xr} (and 
-#' \code{Xu} if specified) must be centered. If \code{Xu} is provided, the data  
+#' @param center a logical indicating if the spectral data \code{Xr} (and
+#' \code{Xu} if specified) must be centered. If \code{Xu} is provided, the data
 #' is scaled on the basis of \mjeqn{Xr \cup Xu}{Xr U Xu}.
-#' @param scale a logical indicating if \code{Xr} (and \code{Xu} if specified) 
-#' must be scaled. If \code{Xu} is provided the data is scaled on the basis 
+#' @param scale a logical indicating if \code{Xr} (and \code{Xu} if specified)
+#' must be scaled. If \code{Xu} is provided the data is scaled on the basis
 #' of \mjeqn{Xr \cup Xu}{Xr U Xu}.
 #' @details
-#' 
+#'
 #' the base [`dist`][base::dist()]
-#' 
+#'
 #' The results obtained for Euclidean dissimilarity are equivalent to those
-#' returned by the base [`dist`][base::dist()] function, but are scaled 
-#' differently. However, \code{f_diss} is considerably faster (which can be 
-#' advantageous when computing dissimilarities for very large matrices). The 
-#' final scaling of the dissimilarity scores in \code{f_diss} where 
+#' returned by the base [`dist`][base::dist()] function, but are scaled
+#' differently. However, \code{f_diss} is considerably faster (which can be
+#' advantageous when computing dissimilarities for very large matrices). The
+#' final scaling of the dissimilarity scores in \code{f_diss} where
 #' the number of variables is used to scale the squared dissimilarity scores. See
-#' the examples section for a comparison between [`dist`][base::dist()] and 
+#' the examples section for a comparison between [`dist`][base::dist()] and
 #' \code{f_diss}.
-#' 
+#'
 #' In the case of both the Euclidean and Mahalanobis distances, the scaled
-#' dissimilarity matrix \mjeqn{D}{D} between between observations in a given 
+#' dissimilarity matrix \mjeqn{D}{D} between between observations in a given
 #' matrix \mjeqn{X}{X} is computed as follows:
-#' 
+#'
 #' \mjdeqn{D(x_i, x_j)^{2} = (x_i - x_j)M^{-1}(x_i - x_j)^{\mathrm{T}}}{D(x_i, x_j)^{2} = (x_i - x_j)M^{-1}(x_i - x_j)^T}
 #' \mjdeqn{D_{scaled}(x_i, x_j) = \sqrt{\frac{1}{p}D(x_i, x_j)^{2}}}{D_scaled (x_i, x_j) = sqrt(1/p D(x_i, x_j)^2)}
-#' 
-#' where \mjeqn{p}{p} is the number of variables in \mjeqn{X}{X}, \mjeqn{M}{M} is the identity 
-#' matrix in the case of the Euclidean distance and the variance-covariance 
-#' matrix of \mjeqn{X}{X} in the case of the Mahalanobis distance. The Mahalanobis 
-#' distance can also be viewed as the Euclidean distance after applying a 
-#' linear transformation of the original variables. Such a linear transformation 
-#' is done by using a factorization of the inverse covariance matrix as 
-#' \mjeqn{M^{-1} = W^{T}W}{M^-1 = W^TW}, where \mjeqn{M}{M} is merely the square root of 
+#'
+#' where \mjeqn{p}{p} is the number of variables in \mjeqn{X}{X}, \mjeqn{M}{M} is the identity
+#' matrix in the case of the Euclidean distance and the variance-covariance
+#' matrix of \mjeqn{X}{X} in the case of the Mahalanobis distance. The Mahalanobis
+#' distance can also be viewed as the Euclidean distance after applying a
+#' linear transformation of the original variables. Such a linear transformation
+#' is done by using a factorization of the inverse covariance matrix as
+#' \mjeqn{M^{-1} = W^{T}W}{M^-1 = W^TW}, where \mjeqn{M}{M} is merely the square root of
 #' \mjeqn{M^{-1}}{M^{-1}} which can be found by using a singular value decomposition.
-#' 
-#' Note that when attempting to compute the Mahalanobis distance on a data set 
-#' with highly correlated variables (i.e. spectral variables) the 
-#' variance-covariance matrix may result in a singular matrix which cannot be 
+#'
+#' Note that when attempting to compute the Mahalanobis distance on a data set
+#' with highly correlated variables (i.e. spectral variables) the
+#' variance-covariance matrix may result in a singular matrix which cannot be
 #' inverted and therefore the distance cannot be computed.
-#' This is also the case when the number of observations in the data set is 
+#' This is also the case when the number of observations in the data set is
 #' smaller than the number of variables.
-#' 
-#' For the computation of the Mahalanobis distance, the mentioned method is 
+#'
+#' For the computation of the Mahalanobis distance, the mentioned method is
 #' used.
-#' 
-#' The cosine dissimilarity \mjeqn{S}{S} between two observations 
+#'
+#' The cosine dissimilarity \mjeqn{S}{S} between two observations
 #' \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is computed as follows:
-#' 
+#'
 #' \mjdeqn{S(x_i, x_j) = cos^{-1}{\frac{\sum_{k=1}^{p}x_{i,k} x_{j,k}}{\sqrt{\sum_{k=1}^{p} x_{i,k}^{2}} \sqrt{\sum_{k=1}^{p} x_{j,k}^{2}}}}}{S(x_i, x_j) = cos^{-1} ((sum_(k=1)^p x_(i,k) x_(j,k))/(sum_(k=1)^p x_(i,k) sum_(k=1)^p x_(j,k)))}
-#' 
+#'
 #' where \mjeqn{p}{p} is the number of variables of the observations.
 #' The function does not accept input data containing missing values.
-#' NOTE: The computed distances are divided by the number of variables/columns 
+#' NOTE: The computed distances are divided by the number of variables/columns
 #' in \code{Xr}.
-#' 
+#'
 #' @return
 #' a matrix of the computed dissimilarities.
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
@@ -79,41 +79,41 @@
 #' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
-#' 
-#' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train),]
-#' Xr <- NIRsoil$spc[as.logical(NIRsoil$train),]
-#' 
+#'
+#' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
+#' Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+#'
 #' # Euclidean distances between all the observations in Xr
-#' 
+#'
 #' ed <- f_diss(Xr = Xr, diss_method = "euclid")
-#' 
+#'
 #' # Equivalence with the dist() fucntion of R base
 #' ed_dist <- (as.matrix(dist(Xr))^2 / ncol(Xr))^0.5
 #' round(ed_dist - ed, 5)
-#' 
+#'
 #' # Comparing the computational time
 #' iter <- 20
 #' tm <- proc.time()
-#' for(i in 1:iter){
+#' for (i in 1:iter) {
 #'   f_diss(Xr)
 #' }
 #' f_diss_time <- proc.time() - tm
-#' 
+#'
 #' tm_2 <- proc.time()
-#' for(i in 1:iter){
+#' for (i in 1:iter) {
 #'   dist(Xr)
 #' }
 #' dist_time <- proc.time() - tm_2
-#' 
+#'
 #' f_diss_time
 #' dist_time
-#' 
+#'
 #' # Euclidean distances between observations in Xr and observations in Xu
 #' ed_xr_xu <- f_diss(Xr, Xu)
-#' 
+#'
 #' # Mahalanobis distance computed on the first 20 spectral variables
 #' md_xr_xu <- f_diss(Xr[, 1:20], Xu[, 1:20], "mahalanobis")
-#' 
+#'
 #' # Cosine dissimilarity matrix
 #' cdiss_xr_xu <- f_diss(Xr, Xu, "cosine")
 #' }
@@ -147,11 +147,11 @@
 ##                    This bug had no effect on the computations of the nearest neighbors.
 ## 21.04.2020 Leo     styler applied and Argument scaled renamed to scale
 ##                    the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
-## 03.07.2020 Leo     FIXME: with cosine  diss between the same observation in some 
+## 03.07.2020 Leo     FIXME: with cosine  diss between the same observation in some
 ##                    cases NaN are returned and also values around 1e-08
 
-f_diss <- function(Xr, Xu = NULL, diss_method = "euclid", 
-                  center = TRUE, scale = FALSE) {
+f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
+                   center = TRUE, scale = FALSE) {
   if (!is.null(Xu)) {
     if (ncol(Xu) != ncol(Xr)) {
       stop("The number of columns (variables) in Xr must be equal to \n the number of columns (variables) in Xu")
@@ -215,7 +215,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
   }
 
   if (!is.null(Xu)) {
-    rslt <-  fast_diss(Xu, Xr, n_method)
+    rslt <- fast_diss(Xu, Xr, n_method)
     if (n_method == "euclid") {
       rslt <- (rslt / ncol(Xr))^.5
     }
@@ -232,12 +232,12 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
   if (diss_method == "cosine") {
     rslt[is.nan(rslt)] <- 0
   }
-  
+
   rslt
 }
 
 
-#' @title A function for transforming a matrix from its Euclidean space to 
+#' @title A function for transforming a matrix from its Euclidean space to
 #' its Mahalanobis space
 #' @description For internal use only
 #' @keywords internal
@@ -262,7 +262,7 @@ euclid_to_mahal <- function(X, sm_method = c("svd", "eigen")) {
   sq_S <- solve(sq_vcv)
   ms_x <- X %*% sq_S
   dimnames(ms_x) <- nms
-  
+
   ms_x
 }
 

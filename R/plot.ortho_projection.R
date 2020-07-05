@@ -1,8 +1,8 @@
 #' @title Plot method for an object of class \code{ortho_projection}
-#' @description 
-#' 
+#' @description
+#'
 #' \lifecycle{maturing}
-#' 
+#'
 #' Plots the content pf an object of class \code{ortho_projection}
 #' @aliases plot.ortho_projection
 #' @usage \method{plot}{ortho_projection}(x, ...)
@@ -24,7 +24,7 @@ plot.ortho_projection <- function(x, ...) {
   } else {
     x_variance <- x$variance
   }
-  
+
   if (x$pc_selection$method == "opc") {
     tpl <- x$opc_evaluation[, c(1, ncol(x$opc_evaluation))]
     if ("mean_standardized_rmsd" %in% colnames(tpl)) {
@@ -42,7 +42,6 @@ plot.ortho_projection <- function(x, ...) {
     )
   }
   if (x$pc_selection$method == "cumvar") {
-
     barplot(x_variance[grep("cumulative", rownames(x_variance)), ],
       horiz = F,
       names.arg = colnames(x_variance), ylim = c(0, 1),

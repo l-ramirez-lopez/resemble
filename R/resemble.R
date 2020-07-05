@@ -1,11 +1,11 @@
 #' @useDynLib resemble
-#' @import lifecycle 
-#' @import Rcpp 
-#' @import foreach 
-#' @import iterators 
-#' @import data.table 
-#' @import grDevices 
-#' @import graphics 
+#' @import lifecycle
+#' @import Rcpp
+#' @import foreach
+#' @import iterators
+#' @import data.table
+#' @import grDevices
+#' @import graphics
 ## usethis namespace: start
 #' @importFrom lifecycle deprecate_soft
 ## usethis namespace: end
@@ -13,15 +13,15 @@
 #' @importFrom dplyr mutate rename if_else select
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats model.frame model.matrix model.extract na.fail sd reshape
-#' @description 
-#' 
+#' @description
+#'
 #' \lifecycle{maturing}
-#' 
+#'
 #' Functions for memory-based learning
 #' \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
-#' 
+#'
 #' @details
-#' 
+#'
 #' This is the version \code{2.0} (\code{'gordillo'}) of the package. It
 #' implements a number of \code{R} functions useful for
 #' modeling complex spectral spectra (e.g. NIR, IR).

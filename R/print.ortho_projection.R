@@ -2,7 +2,7 @@
 #' @description Prints the contents of an object of class \code{ortho_projection}
 #' @aliases print.ortho_projection
 #' @usage \method{print}{ortho_projection}(x, ...)
-#' @param x an object of class \code{ortho_projection} (as returned by the 
+#' @param x an object of class \code{ortho_projection} (as returned by the
 #' \code{ortho_projection} function).
 #' @param ... arguments to be passed to methods (not yet functional).
 #' @author Leonardo Ramirez-Lopez

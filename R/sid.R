@@ -1,11 +1,11 @@
-#' @title A function for computing the spectral information divergence between 
+#' @title A function for computing the spectral information divergence between
 #' spectra (sid)
 #' @description
-#' 
+#'
 #' \lifecycle{experimental}
-#' 
+#'
 #' \loadmathjax
-#' This function computes the spectral information divergence (distance) between 
+#' This function computes the spectral information divergence (distance) between
 #' spectra based on the kullback-leibler divergence algorithm (see details).
 #' @usage
 #' sid(Xr, Xu = NULL,
@@ -17,115 +17,115 @@
 #'     reg = 1e-04,
 #'     ...)
 #' @param Xr a matrix containing the spectral (reference) data.
-#' @param Xu an optional matrix containing the spectral data of a second set of 
+#' @param Xu an optional matrix containing the spectral data of a second set of
 #' observations.
-#' @param mode the method to be used for computing the spectral information 
-#' divergence. Options are \code{"density"} (default) for computing the divergence 
-#' values on the density distributions of the spectral observations, and 
-#' \code{"feature"} for computing the divergence vales on the spectral variables. 
+#' @param mode the method to be used for computing the spectral information
+#' divergence. Options are \code{"density"} (default) for computing the divergence
+#' values on the density distributions of the spectral observations, and
+#' \code{"feature"} for computing the divergence vales on the spectral variables.
 #' See details.
-#' @param center a logical indicating if the computations must be carried out on 
-#' the centred \code{X} and \code{Xu} (if specified) matrices. If 
-#' \code{mode = "feature"} centring is not carried out since this option does 
-#' not accept negative values which are generated after centring the matrices. 
+#' @param center a logical indicating if the computations must be carried out on
+#' the centred \code{X} and \code{Xu} (if specified) matrices. If
+#' \code{mode = "feature"} centring is not carried out since this option does
+#' not accept negative values which are generated after centring the matrices.
 #' Default is FALSE. See details.
-#' @param scale a logical indicating if the computations must be carried out on 
-#' the variance scaled \code{X} and \code{Xu} (if specified) matrices. Default 
+#' @param scale a logical indicating if the computations must be carried out on
+#' the variance scaled \code{X} and \code{Xu} (if specified) matrices. Default
 #' is TRUE.
-#' @param kernel if \code{mode = "density"} a character string indicating the 
-#' smoothing kernel to be used. It must be one of \code{"gaussian"} (default), 
-#' \code{"rectangular"}, \code{"triangular"}, \code{"epanechnikov"}, 
-#' \code{"biweight"}, \code{"cosine"} or \code{"optcosine"}. See the 
+#' @param kernel if \code{mode = "density"} a character string indicating the
+#' smoothing kernel to be used. It must be one of \code{"gaussian"} (default),
+#' \code{"rectangular"}, \code{"triangular"}, \code{"epanechnikov"},
+#' \code{"biweight"}, \code{"cosine"} or \code{"optcosine"}. See the
 #' \code{\link[stats]{density}} function of the \code{stats} package.
-#' @param n if \code{mode = "density"} a numerical value indicating the number 
-#' of equally spaced points at which the density is to be estimated. See the 
-#' \code{\link[stats]{density}} function of the \code{stats} package for further 
+#' @param n if \code{mode = "density"} a numerical value indicating the number
+#' of equally spaced points at which the density is to be estimated. See the
+#' \code{\link[stats]{density}} function of the \code{stats} package for further
 #' details. Default is \code{round(0.5 * ncol(X))}.
-#' @param bw if \code{mode = "density"} a numerical value indicating the 
-#' smoothing kernel bandwidth to be used. Optionally the character string 
-#' \code{"nrd0"} can be used, it computes the bandwidth using the \code{bw.nrd0} 
-#' function of the \code{stats} package (see \code{bw.nrd0}). See the 
-#' \code{\link[stats]{density}} and the \code{bw.nrd0} functions for more 
-#' details. By default \code{"nrd0"} is used, in this case the bandwidth is 
-#' computed as \code{bw.nrd0(as.vector(X))}, if \code{Xu} is specified the 
+#' @param bw if \code{mode = "density"} a numerical value indicating the
+#' smoothing kernel bandwidth to be used. Optionally the character string
+#' \code{"nrd0"} can be used, it computes the bandwidth using the \code{bw.nrd0}
+#' function of the \code{stats} package (see \code{bw.nrd0}). See the
+#' \code{\link[stats]{density}} and the \code{bw.nrd0} functions for more
+#' details. By default \code{"nrd0"} is used, in this case the bandwidth is
+#' computed as \code{bw.nrd0(as.vector(X))}, if \code{Xu} is specified the
 #' bandwidth is computed as \code{bw.nrd0(as.vector(rbind(X, Xu)))}.
-#' @param reg a numerical value larger than 0 which indicates a regularization 
-#' parameter. Values (probabilities) below this threshold are replaced by this 
+#' @param reg a numerical value larger than 0 which indicates a regularization
+#' parameter. Values (probabilities) below this threshold are replaced by this
 #' value for numerical stability. Default is 1e-4.
-#' @param ... additional arguments to be passed to the 
+#' @param ... additional arguments to be passed to the
 #' \code{\link[stats]{density}} function of the base package.
 #' @details
-#' This function computes the spectral information divergence (distance) 
+#' This function computes the spectral information divergence (distance)
 #' between spectra.
-#' When \code{mode = "density"}, the function first computes the probability 
-#' distribution of each spectrum which result in a matrix of density 
-#' distribution estimates. The density distributions of all the observations in 
+#' When \code{mode = "density"}, the function first computes the probability
+#' distribution of each spectrum which result in a matrix of density
+#' distribution estimates. The density distributions of all the observations in
 #' the data sets are compared based on the kullback-leibler divergence algorithm.
-#' When \code{mode = "feature"}, the kullback-leibler divergence between all 
+#' When \code{mode = "feature"}, the kullback-leibler divergence between all
 #' the observations is computed directly on the spectral variables.
-#' The spectral information divergence (SID) algorithm (Chang, 2000) uses the 
-#' Kullback-Leibler divergence (\mjeqn{KL}{KL}) or relative entropy 
-#' (Kullback and Leibler, 1951) to account for the vis-NIR information provided 
-#' by each spectrum. The SID between two spectra (\mjeqn{x_{i}}{x_i} and 
+#' The spectral information divergence (SID) algorithm (Chang, 2000) uses the
+#' Kullback-Leibler divergence (\mjeqn{KL}{KL}) or relative entropy
+#' (Kullback and Leibler, 1951) to account for the vis-NIR information provided
+#' by each spectrum. The SID between two spectra (\mjeqn{x_{i}}{x_i} and
 #' \mjeqn{x_{j}}{x_j}) is computed as follows:
-#' 
+#'
 #' \mjdeqn{SID(x_{i},x_{j}) = KL(x_{i} \left |\right | x_{j}) + KL(x_{j} \left |\right | x_{i})}{SID(x_i,x_j) = KL(x_i  |\ | x_j) + KL(x_j  |\ | x_i)}
-#' 
+#'
 #' \mjdeqn{SID(x_{i},x_{j}) = \sum_{l=1}^{k} p_l \ log(\frac{p_l}{q_l}) + \sum_{l=1}^{k} q_l \ log(\frac{q_l}{p_l})}{SID(x_i,x_j) = \sum_{l=1}^{k} p_l \ log(p_l/q_l) + \sum_{l=1}^{k} q_l \ log(q_l/p_l)}
-#' 
-#' where \mjeqn{k}{k} represents the number of variables or spectral features, 
-#' \mjeqn{p}{p} and \mjeqn{q}{q} are the probability vectors of \mjeqn{x_{i}}{x_i} and 
+#'
+#' where \mjeqn{k}{k} represents the number of variables or spectral features,
+#' \mjeqn{p}{p} and \mjeqn{q}{q} are the probability vectors of \mjeqn{x_{i}}{x_i} and
 #' \mjeqn{x_{i}}{x_j} respectively which are calculated as:
-#' 
+#'
 #' \mjdeqn{p = \frac{x_i}{\sum_{l=1}^{k} x_{i,l}}}{p = x_i/{\sum_{l=1}^{k} x_{i,l}}}
-#' 
+#'
 #' \mjdeqn{q = \frac{x_j}{\sum_{l=1}^{k} x_{j,l}}}{q = x_j1/\sum_{l=1}^{k} x_{j,l}}
-#' 
-#' From the above equations it can be seen that the original SID algorithm 
-#' assumes that all the components in the data matrices are nonnegative. 
-#' Therefore centering cannot be applied when \code{mode = "feature"}. If a 
-#' data matrix with negative values is provided and \code{mode = "feature"}, 
+#'
+#' From the above equations it can be seen that the original SID algorithm
+#' assumes that all the components in the data matrices are nonnegative.
+#' Therefore centering cannot be applied when \code{mode = "feature"}. If a
+#' data matrix with negative values is provided and \code{mode = "feature"},
 #' the \code{sid} function automatically scales the matrix as follows:
-#' 
+#'
 #' \mjdeqn{X_s = \frac{X-min(X)}{max(X)-min(X)}}{X_s = {X-min(X)}/{max(X)-min(X)}}
-#' 
+#'
 #' or
-#' 
+#'
 #' \mjdeqn{X_{s} = \frac{X-min(X, Xu)}{max(X, Xu)-min(X, Xu)}}{X_{s} = {X-min(X, Xu)}/{max(X, Xu)-min(X, Xu)}}
-#' 
+#'
 #' \mjdeqn{Xu_{s} = \frac{Xu-min(X, Xu)}{max(X, Xu)-min(X, Xu)}}{Xu_{s} = {Xu-min(X, Xu)}/{max(X, Xu)-min(X, Xu)}}
-#' 
-#' if \code{Xu} is specified. The 0 values are replaced by a regularization 
+#'
+#' if \code{Xu} is specified. The 0 values are replaced by a regularization
 #' parameter (\code{reg} argument) for numerical stability.
-#' The default of the \code{sid} function is to compute the SID based on the 
-#' density distributions of the spectra (\code{mode = "density"}). For each 
-#' spectrum in \code{X} the density distribution is computed using the 
+#' The default of the \code{sid} function is to compute the SID based on the
+#' density distributions of the spectra (\code{mode = "density"}). For each
+#' spectrum in \code{X} the density distribution is computed using the
 #' \code{\link[stats]{density}} function of the \code{stats} package.
-#' The 0 values of the estimated density distributions of the spectra are 
-#' replaced by a regularization parameter (\code{"reg"} argument) for numerical 
-#' stability. Finally the divergence between the computed spectral histogramas 
-#' is computed using the SID algorithm. Note that if \code{mode = "density"}, 
-#' the \code{sid} function will accept negative values and matrix centering 
+#' The 0 values of the estimated density distributions of the spectra are
+#' replaced by a regularization parameter (\code{"reg"} argument) for numerical
+#' stability. Finally the divergence between the computed spectral histogramas
+#' is computed using the SID algorithm. Note that if \code{mode = "density"},
+#' the \code{sid} function will accept negative values and matrix centering
 #' will be possible.
 #' @return a \code{list} with the following components:
 #' \itemize{
-#'  \item{\code{sid}}{ if only \code{"X"} is specified (i.e. \code{Xu = NULL}), 
-#'  a square symmetric matrix of SID distances between all the components in 
-#'  \code{"X"}. If both \code{"X"} and \code{"Xu"} are specified, a matrix 
-#'  of SID distances between the components in \code{"X"} and the components 
-#'  in \code{"Xu"}) where the rows represent the objects in \code{"X"} and the 
+#'  \item{\code{sid}}{ if only \code{"X"} is specified (i.e. \code{Xu = NULL}),
+#'  a square symmetric matrix of SID distances between all the components in
+#'  \code{"X"}. If both \code{"X"} and \code{"Xu"} are specified, a matrix
+#'  of SID distances between the components in \code{"X"} and the components
+#'  in \code{"Xu"}) where the rows represent the objects in \code{"X"} and the
 #'  columns represent the objects in \code{"Xu"}}
-#'  \item{\code{Xr}}{ the (centered and/or scaled if specified) spectral 
+#'  \item{\code{Xr}}{ the (centered and/or scaled if specified) spectral
 #'  \code{X} matrix}
-#'  \item{\code{Xu}}{ the (centered and/or scaled if specified) spectral 
+#'  \item{\code{Xu}}{ the (centered and/or scaled if specified) spectral
 #'  \code{Xu} matrix}
-#'  \item{\code{densityDisXr}}{ if \code{mode = "density"}, the computed 
+#'  \item{\code{densityDisXr}}{ if \code{mode = "density"}, the computed
 #'  density distributions of \code{Xr}}
-#'  \item{\code{densityDisXu}}{ if \code{mode = "density"}, the computed 
+#'  \item{\code{densityDisXu}}{ if \code{mode = "density"}, the computed
 #'  density distributions of \code{Xu}}
 #'  }
-#' @references Chang, C.I. 2000. An information theoretic-based approach to 
-#' spectral variability, similarity and discriminability for hyperspectral 
+#' @references Chang, C.I. 2000. An information theoretic-based approach to
+#' spectral variability, similarity and discriminability for hyperspectral
 #' image analysis. IEEE Transactions on Information Theory 46, 1927-1932.
 #' @seealso \code{\link[stats]{density}}
 #' @author Leonardo Ramirez-Lopez
@@ -148,7 +148,7 @@
 #' # Compute the SID distance between all the observations in Xr
 #' xr_sid <- sid(Xr)
 #' xr_sid
-#' 
+#'
 #' # Example 2
 #' # Compute the SID distance between the observations in Xr and the observations
 #' # in Xu
@@ -176,7 +176,7 @@
 ## 09.03.2014 Leo     Doc examples  were formated with a max. line width
 ## 23.05.2020 Leo     - Argument scaled renamed to scale
 ##                    - default for scale has changed from TRUE to FALSE
-##                    - the dimnames of the resulting matrix are now 
+##                    - the dimnames of the resulting matrix are now
 ##                      Xr_1... Xr_n (previusly Xr.1... Xr.n)
 
 
