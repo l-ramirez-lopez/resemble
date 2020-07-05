@@ -43,7 +43,7 @@ n_components.
 - Argument scaled renamed to .scale
 - default for .scale has changed from TRUE to FALSE
 - the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
-- argument methdod changed to diss_method
+- argument method changed to diss_method
 
 ### sid:
 - X2 argument renamed to Xu (for consistency throughout all the fucntions)
