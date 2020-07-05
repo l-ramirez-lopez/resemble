@@ -81,15 +81,14 @@ install.packages('foreach')
 install.packages('iterators')
 ```
 __Note__: Apart from these packages we stronly recommend to download and install 
-Rtools ([directly from here](http://cran.r-project.org/web/packages/devtools/index.html) 
-or from CRAN [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)). 
+Rtools [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)). 
 This is important for obtaining the proper C++ toolchain that might be needed 
 for `resemble`.
 
 Then, install `resemble`
 
 You can also install the development version of `resemble` directly from github 
-using [`devtools`](http://cran.r-project.org/web/packages/devtools/index.html):
+using [`devtools`](https://CRAN.R-project.org/package=devtools):
   
 ```
 devtools::install_github("l-ramirez-lopez/resemble")
@@ -258,7 +257,7 @@ interesting results on applying memory-based learning to predict soil properties
 * 2016-04: In some recent entries of [this blog](http://nir-quimiometria.blogspot.com/), 
 the author shows some exmaples on the use `resemble`
 
-* 2016-02: As promised, `resemble 1.2 (alma-de-coco)` is now available on  [CRAN](https://cran.r-project.org/web/packages/resemble/index.html).
+* 2016-02: As promised, `resemble 1.2 (alma-de-coco)` is now available on  [CRAN](https://CRAN.R-project.org/package=resemble).
 * 2016-01: The version 1.2 (alma-de-coco) has been submitted to CRAN and is 
 available from the github repository!
 
