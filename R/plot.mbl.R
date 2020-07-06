@@ -152,6 +152,7 @@ plot.mbl <- function(x,
       par(mfrow = c(1, 1))
       message("No validation results to plot")
     } else {
+      
       # par(mfrow = c(1, length(g)))
       dtn <- colnames(tpl)
       opt <- c("rmse", "st_rmse", "r2")
@@ -168,7 +169,8 @@ plot.mbl <- function(x,
       colnames(to_plot) <- gsub("[.]", " ", colnames(to_plot))
 
       if (param == "r2") {
-        to_plot <- to_plot[, !colnames(to_plot) == "r2_loc_crossval"]
+        select_rs <- which(!colnames(to_plot) == "r2_loc_crossval")
+        to_plot <- to_plot[ , ..select_rs]
         col <- col[!col == "green4"]
       }
       do.call("matplot", c(
