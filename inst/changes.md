@@ -121,7 +121,7 @@ available, but the number of threads must be set in the R global enviroment (e.g
 Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 - k0, pcMethod, ghMethod are deprecated
 - localOptimization has been renamed to tune_locally
-- valMethod has been renamed to validation
+- valMethod has been renamed to validation_type
 - Option "loc_crossval" in validation has been renamed to "local_cv"
 
 ### plot.mbl
