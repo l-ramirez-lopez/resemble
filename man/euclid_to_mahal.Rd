@@ -2,7 +2,7 @@
 % Please edit documentation in R/f_diss.R
 \name{euclid_to_mahal}
 \alias{euclid_to_mahal}
-\title{A function for transforming a matrix from its Euclidean space to 
+\title{A function for transforming a matrix from its Euclidean space to
 its Mahalanobis space}
 \usage{
 euclid_to_mahal(X, sm_method = c("svd", "eigen"))

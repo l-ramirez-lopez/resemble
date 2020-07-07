@@ -24,13 +24,13 @@ get_neighbor_info(
 )
 }
 \description{
-This fucntion gathers information of all neighborhoods of the 
-\code{Xu} observations found in \code{Xr}. This information is equired during 
+This fucntion gathers information of all neighborhoods of the
+\code{Xu} observations found in \code{Xr}. This information is equired during
 local regressions.
 }
 \details{
-For local pca and pls distances, the local dissimilarity matrices are not 
-computed as it is cheaer to compute them during the local regressions. 
+For local pca and pls distances, the local dissimilarity matrices are not
+computed as it is cheaer to compute them during the local regressions.
 Instead the global distances (required for later local dissimilarity matrix
 computation are output)
 }

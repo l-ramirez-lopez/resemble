@@ -7,7 +7,7 @@
 \method{print}{ortho_projection}(x, ...)
 }
 \arguments{
-\item{x}{an object of class \code{ortho_projection} (as returned by the 
+\item{x}{an object of class \code{ortho_projection} (as returned by the
 \code{ortho_projection} function).}
 
 \item{...}{arguments to be passed to methods (not yet functional).}

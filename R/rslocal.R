@@ -104,9 +104,9 @@
 #' the training set (i.e. \code{train} or \code{Xr}) a group/class label (e.g.
 #' groups can be given by spectra collected from the same batch of measurements,
 #' from the same observation, from observations with very similar origin, etc).
-#' This is taken into account for internal leave-group-out cross validation for
+#' This is taken into account for internal leave-group-out cross-validation for
 #' pls tuning (factor optimization) to avoid pseudo-replication. When one
-#' observation is selected for cross validation, all observations of the same
+#' observation is selected for cross-validation, all observations of the same
 #' group are removed together and assigned to validation. The length of the
 #' vector must be equal to the number of observations in the training set
 #' (i.e. \code{nrow(train)} or \code{nrow(Xr)}). See details.

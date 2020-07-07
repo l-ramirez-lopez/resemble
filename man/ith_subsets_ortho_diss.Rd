@@ -15,7 +15,7 @@ ith_subsets_ortho_diss(x, xu = NULL, y, kindx, na_rm = FALSE)
 
 \item{kindx}{a matrix of nearest neighbor indices}
 
-\item{remove}{NA indices from kindx (useful when working with dissimilarity 
+\item{remove}{NA indices from kindx (useful when working with dissimilarity
 thresholds to select the neighbors (instead of fixed number of neighbors).}
 }
 \description{

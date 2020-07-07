@@ -2,31 +2,31 @@
 % Please edit documentation in R/local_helpers.R
 \name{get_wapls_weights}
 \alias{get_wapls_weights}
-\title{Internal function for computing the weights of the PLS components 
+\title{Internal function for computing the weights of the PLS components
 necessary for weighted average PLS}
 \usage{
 get_wapls_weights(pls_model, original_x, type = "w1", new_x = NULL, pls_c)
 }
 \arguments{
-\item{pls_model}{either an object returned by the \code{pls_cv} function or an 
+\item{pls_model}{either an object returned by the \code{pls_cv} function or an
 object as returned by the \code{opls_get_basics} function which contains a pls model.}
 
-\item{original_x}{the original spectral matrix which was used for calibrating the 
+\item{original_x}{the original spectral matrix which was used for calibrating the
 pls model.}
 
-\item{type}{type of weight to be computed. The only available option (for 
-the moment) is \code{"w1"}. See details on the \code{mbl} function where it 
-is explained how \code{"w1"} is computed whitin the \code{"wapls"} 
+\item{type}{type of weight to be computed. The only available option (for
+the moment) is \code{"w1"}. See details on the \code{mbl} function where it
+is explained how \code{"w1"} is computed whitin the \code{"wapls"}
 regression.}
 
-\item{new_x}{a vector of a new spectral observation. When "w1" is selected, new_x 
+\item{new_x}{a vector of a new spectral observation. When "w1" is selected, new_x
 must be specified.}
 
-\item{pls_c}{a vector of length 2 which contains both the minimum and maximum 
+\item{pls_c}{a vector of length 2 which contains both the minimum and maximum
 number of PLS components for which the weights must be computed.}
 }
 \value{
-\code{get_wapls_weights} returns a vector of weights for each PLS 
+\code{get_wapls_weights} returns a vector of weights for each PLS
 component specified
 }
 \description{

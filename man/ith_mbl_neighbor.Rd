@@ -25,14 +25,14 @@ ith_mbl_neighbor(
 
 \item{Yu}{the Yu matrix in mbl.}
 
-\item{diss_usage}{a character string indicating if the dissimilarity data 
+\item{diss_usage}{a character string indicating if the dissimilarity data
 will be used as predictors ("predictors") or not ("none").}
 
-\item{neighbor_indices}{a matrix with the indices of neighbors of every Xu 
+\item{neighbor_indices}{a matrix with the indices of neighbors of every Xu
 found in Xr.}
 
-\item{neighbor_diss}{a matrix with the dissimilarity socres for the neighbors 
-of every Xu found in Xr. This matrix is organized in the same way as 
+\item{neighbor_diss}{a matrix with the dissimilarity socres for the neighbors
+of every Xu found in Xr. This matrix is organized in the same way as
 \code{neighbor_indices}.}
 
 \item{diss_xr_xr}{a dissimilarity matrix between sampes in Xr.}
@@ -40,28 +40,28 @@ of every Xu found in Xr. This matrix is organized in the same way as
 \item{group}{a factor representing the group labes of Xr.}
 }
 \value{
-an object of \code{class} iterator giving the following list: 
+an object of \code{class} iterator giving the following list:
 itemize{
-\item{ith_xr:}{ the Xr data of the neighbors for the ith observation (if 
-\code{diss_usage = "predictors"}, this data is combined with the local 
+\item{ith_xr:}{ the Xr data of the neighbors for the ith observation (if
+\code{diss_usage = "predictors"}, this data is combined with the local
 dissmilarity scores of the neighbors of Xu)}
 \item{ith_yr:}{ the Yr data of the neighbors for the ith observation}
-\item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"}, 
+\item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"},
 this data is combined with the local dissmilarity scores to its Xr neighbors}
 \item{ith_yu:}{ the ith Yu observation}
-\item{ith_neigh_diss:}{ the dissimilarity scores of the neighbors for the ith 
+\item{ith_neigh_diss:}{ the dissimilarity scores of the neighbors for the ith
 observation}
 \item{ith_group:}{ the group labels for ith_xr}
 \item{n_k:}{ the number of neighbors}
 }
 }
 \description{
-internal function. It collects only the data necessary to 
+internal function. It collects only the data necessary to
 execute a local prediction for the mbl function based on a list of neighbors.
 Not valid for local dissmilitary (e.g. for ortho_diss(...., .local = TRUE))
 }
 \details{
-isubset will look at the order of knn in each col of D and 
+isubset will look at the order of knn in each col of D and
 re-organize the rows of x accordingly
 }
 \author{

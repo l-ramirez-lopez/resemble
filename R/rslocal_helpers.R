@@ -57,7 +57,7 @@ biter <- function(itersubs,
     #
 
     if (tune) {
-      # perform a leave-group-out cross validation of the selected SL (k)
+      # perform a leave-group-out cross.validation of the selected SL (k)
       # observations to determine a suitable number of pls factors
       plsv <- pls_cv(
         x = its$x,
