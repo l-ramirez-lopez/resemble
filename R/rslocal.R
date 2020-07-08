@@ -9,12 +9,11 @@
 #' \lifecycle{maturing}
 #'
 #' This function implements the re-sampling local (RS-LOCAL) algorithm. The
-#' algorithm selects a subset from a large calibration data set that is more
-#' appropriate for deriving 'local' or site-specific calibrations.
-#' It uses a data-driven approach to capture the local or site-specific
-#' relationship between the response and predictor variables often not
-#' represented or is generalized by existing large calibration data sets
-#' (e.g. spectral libraries).
+#' algorithm selects a subset from a large calibration/reference data optimized 
+#' for deriving 'local' or site-specific calibrations. It uses a data-driven 
+#' approach to capture the local or site-specific relationship between the 
+#' response and predictor variables often not represented by large and complex 
+#' calibration data sets (e.g. spectral libraries).
 #'
 #' @usage
 #' \method{rslocal}{formula}(formula, train, test,
@@ -86,10 +85,11 @@
 #'  (\code{Xu}). This error is estimated by projecting the test set onto the pls
 #'  space (using the pls model built in each iteration with a fixed number of
 #'  pls factors) and then back-transforming (reconstruct) the projected test set
-#'  to its spectral space. Finally, the RMSE of this reconstruction is computed
-#'  and used to select the observations. This reconstruction is done with a fixed
-#'  number of pls components for all the iterations so that reconstruction errors
-#'  are comparable. In this case, it response values for the test set are not
+#'  to its spectral space. Finally, the root mean squared error (RMSE) of this 
+#'  reconstruction is computed and used to identify the relevant observations 
+#'  to be retained. This reconstruction is done with a fixed number of pls 
+#'  components for all the iterations so that reconstruction errors are 
+#'  comparable. In this case, it response values for the test set are not 
 #'  required.}
 #'  }
 #' @param control a list created with the \code{\link{rs_control}} function
@@ -112,7 +112,7 @@
 #' (i.e. \code{nrow(train)} or \code{nrow(Xr)}). See details.
 #' @param documentation an optional character string that can be used to
 #' describe anything related to the \code{mbl} call (e.g. description of the
-#' input data). Default: \code{character()}. NOTE: his is an experimental
+#' input data). Default: \code{character()}. NOTE: this is an experimental
 #' argument.
 #' @param ... optional parameters used in method `formula` to be passed to the
 #' low level function rslocal.default. Not currently used for `predict` and
@@ -129,25 +129,32 @@
 #' `response` (default) and `scores`.
 #'
 #' @details
-#' The rs-local algorithm requires a large data set (where the sample
-#' search is conducted), a subset of specific observations, \code{m},
-#' and three parameters, \code{k}, \code{b} and \code{r}, which are described
-#' below. The predictor variables of the \code{m} observations must be available,
-#' along with (optionally) their response values.
-#'
-#' These observations should also be representative of the entire population
+#' The rs-local algorithm requires a (large) reference data set (\code{Xr}, 
+#' where the sample search is conducted), a subset of specific observations (\code{Xu}),
+#' and three parameters, \code{k}, \code{b} and \code{retain}, which are described
+#' below. 
+#' The \code{Xu} observations should be representative of the entire population
 #' which they originated from. They may be selected, for example, from a large
 #' set of observations (with unknown response values) using sampling method such
 #' Kennard-Stone (Kennard & Stone, 1969).
 #'
-#' The rs-local algorithm uses the \code{m} data and  re-sampling to evaluate
-#' and then retain the relevant observations and remove irrelevant ones from
-#' the reference training set so that the data that remain
-#' are the most appropriate for deriving a data-specific regression model.
-#' If response values are available for observations in the test set, these are
-#' used to augment the subset of the reference set returned by the rs-local
-#' algorithm to finally build the data-specific regression model.
-#' When selecting values for the \code{k},\code{b},\code{retain} parameters,
+#' The rs-local algorithm uses \code{Xu} to iteratively remove irrelevant 
+#' reference observations (from \code{Yr, Xr}) until a 
+#' subset of approximately \code{k} reference observations is found. Irrelevant 
+#' observations are those that tend to increase the root mean square error (RMSE)
+#' of either the prediction of \code{Yu} or the pls reconstruction of \code{Xu}. 
+#' In rs-local, a re-sampling method is employed where the reference observations 
+#' that consistently fall in the the sampling subsets with the largest errors 
+#' are identified and labelled as irrelevant and the rest are retained. The 
+#' argument \code{retain} of the function controls the amount of samples to be 
+#' retained.
+#' 
+#' Since the optimizations are based on the RMSEs, the subset found by 
+#' \code{rslocal} is supposed to be the subset of approximately \code{k} 
+#' reference observations that maximizes the accuracy of pls mdels for samples 
+#' similar to the ones provided in the test set. 
+#' 
+#' When choosing the values for: 
 #' \itemize{
 #'  \item{\code{k:}}{ The size of the randomly sampled data set used in the
 #'  internal calibration and validation step of the algorithm. It is also the
@@ -155,7 +162,7 @@
 #'  i.e. when insufficient  samples remain in the reference/training set to
 #'  continue re-sampling. For recommended values see
 #'  Lobsey et al. 2017.}
-#'  \item{\code{r:}}{ The number of times each training observation is tested in each
+#'  \item{\code{b:}}{ The number of times each training observation is tested in each
 #'  iteration of the algorithm (on average). More consistent results are
 #'  achieved with high \code{b} values, however this will increase processing
 #'  time. A recommended value for \code{b} is greater than 40.}

@@ -3,7 +3,7 @@
 #'
 #' \lifecycle{maturing}
 #'
-#' Plots the content pf an object of class \code{ortho_projection}
+#' Plots objects of class \code{ortho_projection}
 #' @aliases plot.ortho_projection
 #' @usage \method{plot}{ortho_projection}(x, ...)
 #' @param x an object of class \code{ortho_projection} (as returned by \code{ortho_projection}).

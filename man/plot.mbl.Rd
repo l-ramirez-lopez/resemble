@@ -11,14 +11,15 @@
 
 \item{g}{a character vector indicating what results shall be plotted.
 Options are: \code{"validation"} (for plotting the validation results) and/or
-\code{"gh"} (for plotting the pls scores used to compute the GH distance,
-see details).}
+\code{"gh"} (for plotting the pls scores used to compute the GH distance. 
+See details).}
 
-\item{param}{one of the following options "rmse", "st_rmse" or "r2". The
-respective validation statistic is then plotted. It is only available if
-\code{"validation"} is specified in the \code{g} argument.}
+\item{param}{a character string indicating what validation statistics shall be 
+plotted. The following options are available: \code{"rmse"}, \code{"st_rmse"} 
+or \code{"r2"}. These options only available if the \code{mbl} object contains 
+validation results.}
 
-\item{pls_c}{a vector of length one or two indicating the pls factors to be
+\item{pls_c}{a numeric vector of length one or two indicating the pls factors to be
 plotted. Default is \code{c(1, 2)}. It is only available if \code{"gh"} is
 specified in the \code{g} argument.}
 
@@ -30,7 +31,7 @@ specified in the \code{g} argument.}
 Plots the content of an object of class \code{mbl}
 }
 \details{
-For plotting the pls scores from the pls score matrix of more than one column,
+For plotting the pls scores from the pls score matrix (of more than one column),
 this matrix is first transformed from the Euclidean space to the Mahalanobis
 space. This is done by multiplying the score matrix by the root square of
 its covariance matrix. The root square of this matrix is estimated using a

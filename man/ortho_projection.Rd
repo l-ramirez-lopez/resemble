@@ -40,7 +40,7 @@ function. In case \code{method = "pca"}, a matrix (with one or more
 continuous variables) can also be used as input. The root mean square of
 differences (rmsd) is used for assessing the similarity between the observations
 and their corresponding most similar observations in terms of the side information
-provided. A single discrete variable of class factor can also be passed. In 
+provided. A single discrete variable of class factor can also be passed. In
 that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.}
 
 \item{method}{the method for projecting the data. Options are: "pca" (principal
@@ -56,7 +56,7 @@ components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
        \item{\code{"opc"}:} { optimized principal component selection based on
-       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components 
+       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
        of a given set of observations is the one for which its distance matrix
        minimizes the differences between the \code{Yr} value of each
        observation and the \code{Yr} value of its closest observation. In this
@@ -124,13 +124,13 @@ return a \code{list} of class \code{ortho_projection} with the following
 components:
 \itemize{
  \item{\code{scores}}{ a matrix of scores corresponding to the observations in
- \code{Xr} (and \code{Xu} if it was provided). The components retrieved 
+ \code{Xr} (and \code{Xu} if it was provided). The components retrieved
  correspond to the ones optimized or specified.}
  \item{\code{X_loadings}}{ a matrix of loadings corresponding to the
- explanatory variables. The components retrieved correspond to the ones 
+ explanatory variables. The components retrieved correspond to the ones
  optimized or specified.}
  \item{\code{Y_loadings}}{ a matrix of partial least squares loadings
- corresponding to \code{Yr}. The components retrieved  correspond to the 
+ corresponding to \code{Yr}. The components retrieved  correspond to the
  ones optimized or specified.
  This object is only returned if the partial least squares algorithm was used.}
  \item{\code{weigths}}{ a matrix of partial least squares ("pls") weights.
@@ -148,7 +148,7 @@ components:
  computed on the basis of \code{Xr} and \code{Xu} (if it applies) since both
  matrices are employed in the computation of the projection matrix (loadings
  in this case)}.
- \item{\code{sdv}}{ the standard deviation of the retrieved scores. This vector 
+ \item{\code{sdv}}{ the standard deviation of the retrieved scores. This vector
  can be different from the "sd" in \code{variance}.}
  \item{\code{n_components}}{ the number of components (either principal
  components or partial least squares components) used for computing the
@@ -178,7 +178,7 @@ decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follo
 \deqn{
      X = UDV^{\mathrm{T}}
      }
-where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right 
+where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right
 singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
 containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
 the right singular vectors of \mjeqn{X}{X}.
@@ -208,7 +208,7 @@ In this process, the \code{\link{sim_eval}} function is used.
 Note that for the \code{"opc"} method \code{Yr} is required (i.e. the
 side information of the observations).
 
-This function supports multi-threading for the computation of dissimilarities 
+This function supports multi-threading for the computation of dissimilarities
 via OpenMP in Rcpp.
 }
 \examples{

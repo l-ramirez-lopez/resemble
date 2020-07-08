@@ -1,5 +1,5 @@
 #' @title Plot method for an object of class \code{rslocal}
-#' @description  Plots the content of an object of class \code{rslocal}
+#' @description Plots objects of class \code{rslocal}
 #' @aliases plot.rslocal
 #' @usage \method{plot}{rslocal}(x, g = c("rmse", "n"), ...)
 #' @param x an object of class \code{rslocal} (as returned by \code{rslocal}).

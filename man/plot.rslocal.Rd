@@ -17,7 +17,7 @@ of observations removed at each iteration).}
 \item{...}{some arguments to be passed to the plot methods.}
 }
 \description{
-Plots the content of an object of class \code{rslocal}
+Plots objects of class \code{rslocal}
 }
 \seealso{
 \code{\link{rslocal}}
