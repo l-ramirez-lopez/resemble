@@ -483,7 +483,6 @@ rslocal.default <- function(Xr,
     # and test count for each sample
     #
 
-    # note there must be a better way to do this with apply - to do.
     for (i in 1:nrow(results_df$sampleidx)) {
       U[results_df$sampleidx[i, ]] <- U[results_df$sampleidx[i, ]] + results_df$rmsesubset[i] # the index of samples used starts at 4
       V[results_df$sampleidx[i, ]] <- V[results_df$sampleidx[i, ]] + 1
