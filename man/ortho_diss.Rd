@@ -24,19 +24,19 @@ ortho_diss(Xr, Xu = NULL,
 \item{Xu}{an optional matrix containing data of a second set of observations
 with \code{p} variables/columns.}
 
-\item{Yr}{a matrix of \code{n} rows and one or more columns (variables) with 
-side information corresponding to the observations in \code{Xr} (e.g. response 
-variables). It can be numeric with multiple variables/columns, or character 
+\item{Yr}{a matrix of \code{n} rows and one or more columns (variables) with
+side information corresponding to the observations in \code{Xr} (e.g. response
+variables). It can be numeric with multiple variables/columns, or character
 with one single column. This argument is
-required if: 
+required if:
 \itemize{
-\item{\code{diss_method == 'pls'}: \code{Yr} is required to project the variables 
-to orthogonal directions such that the covariance between the extracted pls 
+\item{\code{diss_method == 'pls'}: \code{Yr} is required to project the variables
+to orthogonal directions such that the covariance between the extracted pls
 components and \code{Yr} is maximized.}
 \item{\code{pc_selection$method == 'opc'}: \code{Yr}  is required to optimize
-the number of components. The optimal number of projected components is the one 
-for which its distance matrix minimizes the differences between the \code{Yr} 
-value of each observation and the \code{Yr} value of its closest observation. 
+the number of components. The optimal number of projected components is the one
+for which its distance matrix minimizes the differences between the \code{Yr}
+value of each observation and the \code{Yr} value of its closest observation.
 See \code{\link{sim_eval}}.}
 }}
 
@@ -49,8 +49,8 @@ method). The methods available are:
 \itemize{
        \item{\code{"opc"}:} { optimized principal component selection based on
        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-       (of a given set of observations) is the one for which its distance 
-       matrix minimizes the differences between the \code{Yr} value of each 
+       (of a given set of observations) is the one for which its distance
+       matrix minimizes the differences between the \code{Yr} value of each
        observation and the \code{Yr} value of its closest observation. In this
        case, \code{value} must be a value (larger than 0 and
        below \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}) indicating the maximum
@@ -83,10 +83,10 @@ string. In such case, the default \code{"value"} when either \code{"opc"} or
 \code{"value"} is set to 0.99 and when \code{"var"} is used the default
 \code{"value"} is set to 0.01.}
 
-\item{diss_method}{a character value indicating the type of projection on which 
-the dissimilarities must be computed. This argument is equivalent to 
-\code{method} argument in the \code{\link{ortho_projection}} function. 
-Options are: 
+\item{diss_method}{a character value indicating the type of projection on which
+the dissimilarities must be computed. This argument is equivalent to
+\code{method} argument in the \code{\link{ortho_projection}} function.
+Options are:
 \itemize{
 \item{\code{"pca"}}{: principal component analysis using the singular value
 decomposition algorithm)}
@@ -97,7 +97,7 @@ the non-linear iterative partial least squares algorithm.}
 See the \code{\link{ortho_projection}} function for further details on the
 projection methods.}
 
-\item{.local}{a logical indicating whether or not to compute the dissimilarities 
+\item{.local}{a logical indicating whether or not to compute the dissimilarities
 locally (i.e. projecting locally the data) by using the \code{pre_k} nearest
 neighbor observations of each target observation. Default is \code{FALSE}. See details.}
 
@@ -151,7 +151,7 @@ a \code{list} of class \code{ortho_diss} with the following elements:
  \code{.local = FALSE} a distance matrix. If \code{.local = TRUE} a matrix of
  class \code{localortho_diss}. In this case, each column represent the dissimilarity
  between a target observation and its neighbor observations.}
- \item{\code{projection}}{if \code{return_projection = TRUE}, 
+ \item{\code{projection}}{if \code{return_projection = TRUE},
  an \code{ortho_projection} object.}
  }
 }
