@@ -1,10 +1,10 @@
 #' @title A function that controls some aspects of the the \code{rslocal} function
 #' @description
-#' 
+#'
 #' \lifecycle{maturing}
-#' 
+#'
 #' This function is used to further control some aspects of the \code{rslocal} function.
-#' 
+#'
 #' @usage
 #' rs_control(retain_by = "proportion",
 #'            percentile_type = if(retain_by == "probability") 7,
