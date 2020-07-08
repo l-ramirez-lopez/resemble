@@ -33,16 +33,15 @@ pls_projection(Xr, Xu = NULL, Yr,
 \item{Xu}{an optional matrix containing data of a second set of observations.}
 
 \item{Yr}{if the method used in the \code{pc_selection} argument is \code{"opc"}
-or if the \code{method} argument is \code{"pls"}, then it must be a matrix
+or if \code{method = "pls"}, then it must be a matrix
 containing the side information corresponding to the spectra in \code{Xr}.
 It is equivalent to the \code{side_info} parameter of the \code{\link{sim_eval}}
-function. In case \code{method = "pca"} a matrix (regarding one or more
+function. In case \code{method = "pca"}, a matrix (with one or more
 continuous variables) can also be used as input. The root mean square of
 differences (rmsd) is used for assessing the similarity between the observations
 and their corresponding most similar observations in terms of the side information
-provided. When \code{sm = "pc"}, this parameter can also be a single discrete
-variable of class factor. In such a case the kappa index is used. See
-\code{\link{sim_eval}} function for more details.}
+provided. A single discrete variable of class factor can also be passed. In 
+that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.}
 
 \item{method}{the method for projecting the data. Options are: "pca" (principal
 component analysis using the singular value decomposition algorithm),
@@ -56,22 +55,22 @@ to be retained. This list must contain two elements (in the following order):
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} {optimized principal component selection based on
-       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-       (of set of observations) is the one for which its distance matrix
+       \item{\code{"opc"}:} { optimized principal component selection based on
+       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components 
+       of a given set of observations is the one for which its distance matrix
        minimizes the differences between the \code{Yr} value of each
        observation and the \code{Yr} value of its closest observation. In this
        case \code{value} must be a value (larger than 0 and
-       below \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}) indicating the maximum
+       below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
        number of principal components to be tested. See details.}
 
-       \item{\code{"cumvar"}:}{selection of the principal components based
+       \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
        indicating the maximum amount of cumulative variance that the
        retained components should explain.}
 
-       \item{\code{"var"}:}{selection of the principal components based
+       \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
        indicating the minimum amount of variance that a component should
@@ -79,7 +78,7 @@ method). The methods available are:
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
-       (larger than 0 and \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}).
+       (larger than 0 and below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))}).
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
@@ -125,14 +124,14 @@ return a \code{list} of class \code{ortho_projection} with the following
 components:
 \itemize{
  \item{\code{scores}}{ a matrix of scores corresponding to the observations in
- \code{Xr} and \code{Xu} (if it applies). The number of components that the
- scores represent is given by the number of components chosen in the function.}
+ \code{Xr} (and \code{Xu} if it was provided). The components retrieved 
+ correspond to the ones optimized or specified.}
  \item{\code{X_loadings}}{ a matrix of loadings corresponding to the
- explanatory variables. The number of components that these loadings represent
- is given by the number of components chosen in the function.}
+ explanatory variables. The components retrieved correspond to the ones 
+ optimized or specified.}
  \item{\code{Y_loadings}}{ a matrix of partial least squares loadings
- corresponding to \code{Yr}. The number of components that these loadings
- represent is given by the number of components chosen in the function.
+ corresponding to \code{Yr}. The components retrieved  correspond to the 
+ ones optimized or specified.
  This object is only returned if the partial least squares algorithm was used.}
  \item{\code{weigths}}{ a matrix of partial least squares ("pls") weights.
  This object is only returned if the "pls" algorithm was used.}
@@ -149,10 +148,11 @@ components:
  computed on the basis of \code{Xr} and \code{Xu} (if it applies) since both
  matrices are employed in the computation of the projection matrix (loadings
  in this case)}.
- \item{\code{svd}}{ the standard deviation of the retrieved scores.}
+ \item{\code{sdv}}{ the standard deviation of the retrieved scores. This vector 
+ can be different from the "sd" in \code{variance}.}
  \item{\code{n_components}}{ the number of components (either principal
  components or partial least squares components) used for computing the
- global dissimilarity socres.}
+ global dissimilarity scores.}
  \item{\code{opc_evaluation}}{ a matrix containing the statistics computed
  for optimizing the number of principal components based on the variable(s)
  specified in the \code{Yr} argument. If \code{Yr} was a continuous  was a
@@ -174,12 +174,12 @@ using principal component analysis (pca) and partial least squares (pls).
 }
 \details{
 In the case of \code{method = "pca"}, the algrithm used is the singular value
-decomposition in which given a data matrix \mjeqn{X}{X}, is factorized as follows:
+decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
 \deqn{
      X = UDV^{\mathrm{T}}
      }
-where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, and where \mjeqn{U}{U} is a
-matrix of the left singular vectors of \mjeqn{X}{X}, \mjeqn{D}{D} is a diagonal matrix
+where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right 
+singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
 containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
 the right singular vectors of \mjeqn{X}{X}.
 The matrix of principal component scores is obtained by a matrix
@@ -190,25 +190,26 @@ When \code{method = "pca.nipals"}, the algorithm used for principal component
 analysis is the non-linear iterative partial least squares (nipals).
 
 In the case of the of the partial least squares projection (a.k.a projection
-to latent structures) the nipals regression algorithm. Details on the "nipals"
+to latent structures) the nipals regression algorithm is used. Details on the "nipals"
 algorithm are presented in Martens (1991).
 
 When \code{method = "opc"}, the selection of the components is carried out by
 using an iterative method based on the side information concept
 (Ramirez-Lopez et al. 2013a, 2013b). First let be \mjeqn{P}{P} a sequence of
-retained components (so that \mjeqn{P = 1, 2, ...,k }{P = 1, 2, ...,k }.
+retained components (so that \mjeqn{P = 1, 2, ...,k }{P = 1, 2, ...,k }).
 At each iteration, the function computes a dissimilarity matrix retaining
 \mjeqn{p_i}{p_i} components. The values in this side information variable are
 compared against the side information values of their most spectrally similar
-observations.
+observations (closest \code{Xr} observation).
 The optimal number of components retrieved by the function is the one that
 minimizes the root mean squared differences (RMSD) in the case of continuous
 variables, or maximizes the kappa index in the case of categorical variables.
-In this process the \code{\link{sim_eval}} function is used.
-Note that for the \code{"opc"} method is necessary to specify \code{Yr} (the
+In this process, the \code{\link{sim_eval}} function is used.
+Note that for the \code{"opc"} method \code{Yr} is required (i.e. the
 side information of the observations).
-Multi-threading for the computation of dissimilarities is supported via OpenMP
-in Rcpp.
+
+This function supports multi-threading for the computation of dissimilarities 
+via OpenMP in Rcpp.
 }
 \examples{
 \dontrun{

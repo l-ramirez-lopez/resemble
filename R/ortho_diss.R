@@ -54,7 +54,7 @@
 #'        matrix minimizes the differences between the \code{Yr} value of each
 #'        observation and the \code{Yr} value of its closest observation. In this
 #'        case, \code{value} must be a value (larger than 0 and
-#'        below \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}) indicating the maximum
+#'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
 #'
