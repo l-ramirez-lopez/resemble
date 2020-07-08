@@ -168,7 +168,7 @@ plot.mbl <- function(x,
       colnames(to_plot) <- gsub("[.]", " ", colnames(to_plot))
 
       if (param == "r2") {
-        to_plot <- to_plot[, !colnames(to_plot) == "r2_loc_crossval"]
+        to_plot <- to_plot[, !colnames(to_plot) == "r2_local_cv"]
         col <- col[!col == "green4"]
       }
       do.call("matplot", c(
