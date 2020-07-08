@@ -29,27 +29,27 @@ get_ith_local_neighbors(
 
 \item{ith_xu}{the Xu observation}
 
-\item{ith_yr}{the response values of the set of neighbors of the Xu 
+\item{ith_yr}{the response values of the set of neighbors of the Xu
 observation found in Xr}
 
 \item{ith_yu}{the response value of the xu observation}
 
-\item{diss_usage}{a character string indicating if the dissimilarity data 
+\item{diss_usage}{a character string indicating if the dissimilarity data
 will be used as predictors ("predictors") or not ("none").}
 
 \item{ith_neig_indices}{a vector of the original indices of the Xr neighbors.}
 
-\item{k}{the number of nearest neighbors to select from the already 
+\item{k}{the number of nearest neighbors to select from the already
 identified neighbors}
 
-\item{k_diss}{the distance threshold to select the neighbors from the already 
+\item{k_diss}{the distance threshold to select the neighbors from the already
 identified neighbors}
 
-\item{k_range}{a min and max  number of allowed neighbors when \code{k_diss} 
+\item{k_range}{a min and max  number of allowed neighbors when \code{k_diss}
 is used}
 
-\item{spike}{a vector with the indices of the observations forced to be 
-retained as neighbors. They have to be present in all the neighborhoods and 
+\item{spike}{a vector with the indices of the observations forced to be
+retained as neighbors. They have to be present in all the neighborhoods and
 at the top of \code{neighbor_indices}.}
 
 \item{diss_method}{the ortho_diss() method}
@@ -65,14 +65,14 @@ at the top of \code{neighbor_indices}.}
 \value{
 a list:
 itemize{
-\item{ith_xr:}{ the new Xr data of the neighbors for the ith observation (if 
-\code{diss_usage = "predictors"}, this data is combined with the local 
+\item{ith_xr:}{ the new Xr data of the neighbors for the ith observation (if
+\code{diss_usage = "predictors"}, this data is combined with the local
 dissmilarity scores of the neighbors of Xu)}
 \item{ith_yr:}{ the new Yr data of the neighbors for the ith observation}
-\item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"}, 
+\item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"},
 this data is combined with the local dissmilarity scores to its Xr neighbors}
 \item{ith_yu:}{ the ith Yu observation}
-\item{ith_neigh_diss:}{ the new dissimilarity scores of the neighbors for the ith 
+\item{ith_neigh_diss:}{ the new dissimilarity scores of the neighbors for the ith
 observation}
 \item{ith_group:}{ the group labels for the new ith_xr}
 \item{n_k:}{ the number of neighbors}
@@ -80,11 +80,11 @@ observation}
 }
 }
 \description{
-internal function. This function is used to obtain the local 
-neighbors based on dissimilarity matrices from orthogonal projections. These 
-neighbors are obatin from an orthogonal projection on a set of precomputed 
-neighbors. This function is used internally by the mbl fucntion. 
-ortho_diss(, .local = TRUE) operates in the same way, however for mbl, it is 
+internal function. This function is used to obtain the local
+neighbors based on dissimilarity matrices from orthogonal projections. These
+neighbors are obatin from an orthogonal projection on a set of precomputed
+neighbors. This function is used internally by the mbl fucntion.
+ortho_diss(, .local = TRUE) operates in the same way, however for mbl, it is
 more efficient to do the re-search of the neighbors inside its main for loop
 }
 \author{

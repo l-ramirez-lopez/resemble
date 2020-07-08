@@ -9,17 +9,17 @@
 \arguments{
 \item{x}{an object of class \code{mbl} (as returned by \code{mbl}).}
 
-\item{g}{a character vector indicating what results shall be plotted. 
-Options are: \code{"validation"} (for plotting the validation results) and/or 
-\code{"gh"} (for plotting the pls scores used to compute the GH distance, 
+\item{g}{a character vector indicating what results shall be plotted.
+Options are: \code{"validation"} (for plotting the validation results) and/or
+\code{"gh"} (for plotting the pls scores used to compute the GH distance,
 see details).}
 
-\item{param}{one of the following options "rmse", "st_rmse" or "r2". The 
-respective validation statistic is then plotted. It is only available if 
+\item{param}{one of the following options "rmse", "st_rmse" or "r2". The
+respective validation statistic is then plotted. It is only available if
 \code{"validation"} is specified in the \code{g} argument.}
 
-\item{pls_c}{a vector of length one or two indicating the pls factors to be 
-plotted. Default is \code{c(1, 2)}. It is only available if \code{"gh"} is 
+\item{pls_c}{a vector of length one or two indicating the pls factors to be
+plotted. Default is \code{c(1, 2)}. It is only available if \code{"gh"} is
 specified in the \code{g} argument.}
 
 \item{...}{some arguments to be passed to the plot methods.}
@@ -30,10 +30,10 @@ specified in the \code{g} argument.}
 Plots the content of an object of class \code{mbl}
 }
 \details{
-For plotting the pls scores from the pls score matrix of more than one column, 
-this matrix is first transformed from the Euclidean space to the Mahalanobis 
-space. This is done by multiplying the score matrix by the root square of 
-its covariance matrix. The root square of this matrix is estimated using a 
+For plotting the pls scores from the pls score matrix of more than one column,
+this matrix is first transformed from the Euclidean space to the Mahalanobis
+space. This is done by multiplying the score matrix by the root square of
+its covariance matrix. The root square of this matrix is estimated using a
 singular value decomposition.
 }
 \examples{

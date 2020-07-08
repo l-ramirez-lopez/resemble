@@ -165,7 +165,7 @@
 #' measurements, from the same observation, from observations with very similar origin,
 #' etc). This is taken into account for internal leave-group-out cross
 #' validation for pls tuning (factor optimization) to avoid pseudo-replication.
-#' When one observation is selected for cross validation, all observations of
+#' When one observation is selected for cross-validation, all observations of
 #' the same group are removed together and assigned to validation. The length
 #' of the vector must be equal to the number of observations in the
 #' reference/training set (i.e. \code{nrow(Xr)}). See details.
@@ -566,7 +566,7 @@
 ##                    an argument.
 ## 16.02.2016 Leo     Bug fixed. It caused the mbl function to return an error
 ##                    (sometimes) when the group argument was used together
-##                    with local cross validation. The errors occurred when
+##                    with local cross-validation. The errors occurred when
 ##                    groups containing very few observations (e.g. 1 or 2) were used.
 ## 09.03.2018 Leo     A new output (XuneighborList) has been added. It was
 ##                    requested by Eva Ampe and Miriam de Winter.

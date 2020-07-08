@@ -1073,7 +1073,7 @@ Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat,
   return Rcpp::wrap(whgt);
 }
 
-//' @title Internal Cpp function for performing leave-group-out cross validations for pls regression 
+//' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
 //' @description For internal use only!. 
 //' @usage opls_cv_cpp(X, Y, scale, method, 
 //'                   mindices, pindices, 

@@ -12,13 +12,13 @@ ithrssubsets(x, y, group = NULL, indx)
 
 \item{y}{a response variable}
 
-\item{group}{a variable giving the groups/calsses to which the observations 
+\item{group}{a variable giving the groups/calsses to which the observations
 belong to (used for avoiding pseudo-replication during validation)}
 
 \item{indx}{the indices to retrieve}
 }
 \value{
-an object of \code{class} iterator giving a \code{list} with (a) a 
+an object of \code{class} iterator giving a \code{list} with (a) a
 subset of the input matrix with rows re-arranged according to `indx`
 }
 \description{
