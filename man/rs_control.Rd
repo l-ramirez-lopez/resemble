@@ -53,6 +53,7 @@ a \code{list} mirroring the specified parameters.
 }
 \description{
 \lifecycle{maturing}
+
 This function is used to further control some aspects of the \code{rslocal} function.
 }
 \details{
