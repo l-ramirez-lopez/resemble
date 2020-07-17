@@ -72,15 +72,22 @@ sbl <- mbl(
 )
 ```
 
-the sresukt cann be ploted
+the resulting object can be ploted
 ```{r sblprintresult2,  eval = TRUE, include = TRUE, fig.cap = "Effect of first derivative and second derivative", fig.height = 6, fig.width = 10, tidy = TRUE, dpi = 50, out.height = "60%", out.width = "100%"}
 plot(sbl)
 ```
+
+### Running `mbl()` in parallel
+
+Explain briefly how to do it and how it is. Mention that openMP is also used in cpp code
 
 ## RS-LOCAL
 
 The RS-LOCAL algorithm was recently introduces by [@lobsey2017rs]...
 
+### Running `rslocal()` in parallel
+
+Explain briefly how to do it and how it is implemented
 
 ## Neighbor search 
 
@@ -88,6 +95,8 @@ Neighbor search is used when having a dataset, it is necessary to identify/selec
 its most spectrally similar observations from another dataset. This kind of subset 
 selection can bee very useful when dealing with very large spectral 
 datasets. ......
+
+
 
 ## Orthogonal projections (Principal Components and Partial Least Squares)
 
