@@ -15,6 +15,7 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
+library(formatR)
 knitr::opts_chunk$set(
   collapse = TRUE
 )
@@ -22,10 +23,59 @@ knitr::opts_chunk$set(
 
 Our aim with the `resemble` package  is...
 
+
+
+Load the necessary packages and data...
+```{r libraries, tidy = TRUE, message = FALSE}
+library(resemble)
+library(tidyr)
+library(prospectr)
+data(NIRsoil)
+# NIRsoil is a data.frame with 825 obs and 5 variables: 
+# Nt (Total Nitrogen), Ciso (Carbon), CEC (Cation Exchange Capacity), 
+# train (vector of 0,1 indicating training (1) and validation (0) samples),
+# spc (spectral matrix)
+str(NIRsoil)
+```
+
+
+Preprocess the data and split into calibration and validation...
+```{r NIRsoil, tidy = TRUE, message = FALSE}
+NIRsoil <- NIRsoil[NIRsoil$CEC %>% complete.cases(),]
+wavs <- as.numeric(colnames(NIRsoil$spc))
+
+NIRsoil$spc_p <- NIRsoil$spc %>% 
+  standardNormalVariate() %>% 
+  resample(wavs, seq(min(wavs), max(wavs), by = 11)) %>% 
+  savitzkyGolay(p = 1, w = 5, m = 1)
+
+train_x <- NIRsoil$spc_p[as.logical(NIRsoil$train), ]
+train_y <- NIRsoil$CEC[as.logical(NIRsoil$train)]
+
+test_x <- NIRsoil$spc_p[!as.logical(NIRsoil$train), ]
+test_y <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+```
+
 ## Memory-based learning (MBL)
 
 MBL has proven to be a method to derive highly accurate predictions from large 
 spectral libraries ([@ramirez2013spectrum])...
+
+
+```{r sblnorpint,  eval = TRUE, results='hide'}
+# Use MBL as in Ramirez-Lopez et al. (2013)
+sbl <- mbl(
+  Xr = train_x, Yr = train_y, Xu = test_x,
+  k = seq(50, 130, by = 20),
+  method = local_fit_gpr(),
+  control = mbl_control(validation_type = "NNv")
+)
+```
+
+the sresukt cann be ploted
+```{r sblprintresult2,  eval = TRUE, include = TRUE, fig.cap = "Effect of first derivative and second derivative", fig.height = 6, fig.width = 10, tidy = TRUE, dpi = 50, out.height = "60%", out.width = "100%"}
+plot(sbl)
+```
 
 ## RS-LOCAL
 
