@@ -1,0 +1,51 @@
+---
+title: "Bulding highly accurate local models with the resemble package"
+author: 
+ - name: Leonardo Ramirez-Lopez, Alexandre Wadoux, Raphael Viscarra Rossel, ???, ???, ..., ???
+   email: ramirez.lopez.leo@gmail.com
+date: "`r Sys.Date()`"
+bibliography: ["one.bib"]
+biblio-style: "apalike"
+link-citations: true
+output: knitr:::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Bulding highly accurate local models with the resemble package}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE
+)
+```
+
+Our aim with the `resemble` package  is...
+
+## Memory-based learning (MBL)
+
+MBL has proven to be a method to derive highly accurate predictions from large 
+spectral libraries ([@ramirez2013spectrum])...
+
+## RS-LOCAL
+
+The RS-LOCAL algorithm was recently introduces by [@lobsey2017rs]...
+
+
+## Neighbor search 
+
+Neighbor search is used when having a dataset, it is necessary to identify/select 
+its most spectrally similar observations from another dataset. This kind of subset 
+selection can bee very useful when dealing with very large spectral 
+datasets. ......
+
+## Orthogonal projections (Principal Components and Partial Least Squares)
+
+Perhaps this can go on another vignette document
+
+## Dissimilaritry
+
+Perhaps this can also go on another vignette document
+
+## References
+
