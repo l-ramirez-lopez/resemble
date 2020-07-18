@@ -1,7 +1,7 @@
 ---
-title: "Bulding highly accurate local models with the resemble package"
+title: "Modelling complex spectral data with the resemble package"
 author: 
- - name: Leonardo Ramirez-Lopez, Alexandre Wadoux, Raphael Viscarra Rossel, ???, ???, ..., ???
+ - name: Leonardo Ramirez-Lopez, Alexandre M.J.-C. Wadoux, Raphael Viscarra-Rossel, ???, ???, ..., ???
    email: ramirez.lopez.leo@gmail.com
 date: "`r Sys.Date()`"
 bibliography: ["one.bib"]
@@ -21,16 +21,31 @@ knitr::opts_chunk$set(
 )
 ```
 
-Our aim with the `resemble` package  is...test Alextes2
-Alex test3
 
+Modelling using spectral data has garnered wide interest in the last two decades. Spectroscopy is the study of the spectral signature of material (e.g. soil, leaf, etc.). The spectral signature directly or indirectly relates to a wide range of chemical, physical of biological characteristics of the material under study. Spectroscopic measurements are fast, non-destructive and cost-efficient. The wide interest of spectroscopy has led to recent initiatives compiling large amount of spectral data, which increases *de facto* the complexity of the resulting datasets. To analyse large and complex spectral data, one must then resort numerical and statistical tools such as dimensionality reduction, and local spectroscopic modelling based the most similar spectra found in the dataset.    
 
+The `resemble` package contains functions for dimensionality reduction, computing spectral dissimilarity matrices, nearest neighbour search, and to fit local spectroscopic models. The core package functionalities include: 
 
-Load the necessary packages and data...
+* spectral dimension reduction
+* the computation of similarity measures
+* evaluation of dissimilarity matrices
+* spectral neighbour search
+* fitting local spectroscopic models
+* plotting results of modelling
+
+__Example dataset__
+The example of this vignette uses external spectroscopic data. The spectral data are scans of soil samples recorded in the the visible and near-infrared (vis-NIR) range of the electromagnetic spectrum.
+[here data description]
+
+Load the necessary packages and data. [to be improve - maybe best separate package loading and data description]
 ```{r libraries, tidy = TRUE, message = FALSE}
 library(resemble)
 library(tidyr)
 library(prospectr)
+```
+
+The data can be loaded into R using the following code. 
+```{r, tidy = TRUE, message = FALSE}
 data(NIRsoil)
 # NIRsoil is a data.frame with 825 obs and 5 variables: 
 # Nt (Total Nitrogen), Ciso (Carbon), CEC (Cation Exchange Capacity), 
@@ -57,6 +72,30 @@ test_x <- NIRsoil$spc_p[!as.logical(NIRsoil$train), ]
 test_y <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 ```
 
+## Dimension reduction
+
+[AW: Leonardo, can you provide some subsections: what has to be shown?]
+
+## Dissimilarity measures
+[AW: When I have the data I can fill all this]
+
+### Correlation
+### Euclidean distance
+### Mahalanobis distance
+### Spectral angle mapper
+### Spectral information divergence
+
+## Evaluating (dis-)similarity measures
+
+[AW: I have a nice example]
+
+## Neighbour search 
+
+Neighbour search is used when having a dataset, it is necessary to identify/select 
+its most spectrally similar observations from another dataset. This kind of subset 
+selection can bee very useful when dealing with very large spectral 
+datasets. ......
+
 ## Memory-based learning (MBL)
 
 MBL has proven to be a method to derive highly accurate predictions from large 
@@ -73,12 +112,12 @@ sbl <- mbl(
 )
 ```
 
-the resulting object can be ploted
+the resulting object can be plotted
 ```{r sblprintresult2,  eval = TRUE, include = TRUE, fig.cap = "Effect of first derivative and second derivative", fig.height = 6, fig.width = 10, tidy = TRUE, dpi = 50, out.height = "60%", out.width = "100%"}
 plot(sbl)
 ```
 
-### Running `mbl()` in parallel
+### `mbl()` in parallel
 
 Explain briefly how to do it and how it is. Mention that openMP is also used in cpp code
 
@@ -86,26 +125,11 @@ Explain briefly how to do it and how it is. Mention that openMP is also used in 
 
 The RS-LOCAL algorithm was recently introduces by [@lobsey2017rs]...
 
-### Running `rslocal()` in parallel
+### `rslocal()` in parallel
 
 Explain briefly how to do it and how it is implemented
 
-## Neighbor search 
 
-Neighbor search is used when having a dataset, it is necessary to identify/select 
-its most spectrally similar observations from another dataset. This kind of subset 
-selection can bee very useful when dealing with very large spectral 
-datasets. ......
-
-
-
-## Orthogonal projections (Principal Components and Partial Least Squares)
-
-Perhaps this can go on another vignette document
-
-## Dissimilaritry
-
-Perhaps this can also go on another vignette document
 
 ## References
 
