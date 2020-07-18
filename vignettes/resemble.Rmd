@@ -95,10 +95,19 @@ test_y <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 
 ## Dimension reduction
 
+
 [AW: Leonardo, can you provide some subsections: what has to be shown?]
 
+### Principal components
+
+### Projection to latent structures - Partial leats squares
+
+### Optimal selection of the number of components when side information is available
+[here a demonstration of why opc is much better than any other method of components selection]
+
+
 ## Dissimilarity measures
-[AW: When I have the data I can fill all this]
+
 
 ### Correlation
 ### Euclidean distance
