@@ -22,9 +22,27 @@ knitr::opts_chunk$set(
 ```
 
 
-Modelling using spectral data has garnered wide interest in the last two decades. Spectroscopy is the study of the spectral signature of material (e.g. soil, leaf, etc.). The spectral signature directly or indirectly relates to a wide range of chemical, physical of biological characteristics of the material under study. Spectroscopic measurements are fast, non-destructive and cost-efficient. The wide interest of spectroscopy has led to recent initiatives compiling large amount of spectral data, which increases *de facto* the complexity of the resulting datasets. To analyse large and complex spectral data, one must then resort numerical and statistical tools such as dimensionality reduction, and local spectroscopic modelling based the most similar spectra found in the dataset.    
+Modelling using spectral data has garnered wide interest in the last two decades. 
+Spectroscopy is the study of the spectral response of a matrix (e.g. soil, 
+plant material, seeds, etc.) when it interacts with electromagnetic radiation. 
+This spectral response directly or indirectly relates to a wide range of 
+compositional characteristics (chemical, physical or biological) of the matrix. 
+Therefore, it is possible to develop empirical models that can accurately 
+quantify properties of different matrices. In this respect, quantitative 
+spectroscopy techniques are usually fast, non-destructive and cost-efficient in 
+comparison to conventional laboratory methods used in the analyses of these 
+matrices.  This has resulted in the development of comprehensive 
+spectral databases for several agricultural products comprising large amounts 
+of observations. The size of such databases increases *de facto* their 
+complexity. To analyse large and complex spectral data, one must then resort 
+numerical and statistical tools such as dimensionality reduction, and local 
+spectroscopic modelling based on spectral similarity concepts.    
 
-The `resemble` package contains functions for dimensionality reduction, computing spectral dissimilarity matrices, nearest neighbour search, and to fit local spectroscopic models. The core package functionalities include: 
+The aim of the `resemble` package is to provide tools to efficiently and 
+accurately extract quantitative information from  large and complex spectral 
+databases. The package contains functions for dimensionality reduction, 
+spectral dissimilarity measurements, nearest neighbour search, and local modeling. 
+The core functionality of the package include: 
 
 * spectral dimension reduction
 * the computation of similarity measures
@@ -34,10 +52,13 @@ The `resemble` package contains functions for dimensionality reduction, computin
 * plotting results of modelling
 
 __Example dataset__
-The example of this vignette uses external spectroscopic data. The spectral data are scans of soil samples recorded in the the visible and near-infrared (vis-NIR) range of the electromagnetic spectrum.
+The example of this vignette uses external spectroscopic data. The spectral data 
+are scans of soil samples recorded in the the visible and near-infrared (vis-NIR) 
+range of the electromagnetic spectrum.
 [here data description]
 
-Load the necessary packages and data. [to be improve - maybe best separate package loading and data description]
+Load the necessary packages and data. [to be improve - maybe best separate 
+package loading and data description]
 ```{r libraries, tidy = TRUE, message = FALSE}
 library(resemble)
 library(tidyr)
@@ -119,7 +140,8 @@ plot(sbl)
 
 ### `mbl()` in parallel
 
-Explain briefly how to do it and how it is. Mention that openMP is also used in cpp code
+Explain briefly how to do it and how it is. Mention that openMP is also used in 
+cpp code
 
 ## RS-LOCAL
 
