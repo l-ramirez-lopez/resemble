@@ -9,13 +9,14 @@
 
 <!-- badges: end -->
 
+_Last update: 19.07.2020_
 
-_Last update: 03.07.2020_
+<em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
 ## About
 The `resemble` package provides high-performing functionality for 
-data-driven modeling, nearest neighbor search and orthogonal projections 
-in spectral data.
+data-driven modeling (including local modeling), nearest neighbor search and 
+orthogonal projections in spectral data.
 
 ## Core functionality 
 
@@ -300,6 +301,10 @@ calibrations. European Journal of Soil Science, 68(6), 840-852.
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., 
 Scholten, T. 2013. The spectrum-based learner: A new local approach for modeling 
 soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
+
+Saul, L. K., & Roweis, S. T. 2003. Think globally, fit locally: unsupervised 
+learning of low dimensional manifolds. Journal of machine learning research, 
+4(Jun), 119-155.
 
 Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL 
 calibration procedure for near infrared instruments. Journal of Near Infrared 
