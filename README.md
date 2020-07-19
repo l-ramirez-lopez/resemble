@@ -15,8 +15,8 @@ _Last update: 03.07.2020_
 
 ## About
 The `resemble` package provides high-performing functionality for 
-data-driven modeling, nearest neighbor search and orthogonal projections 
-in spectral data.
+data-driven modeling (including local modeling), nearest neighbor search and 
+orthogonal projections in spectral data.
 
 ## Core functionality 
 
