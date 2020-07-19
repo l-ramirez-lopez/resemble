@@ -9,6 +9,7 @@
 
 <!-- badges: end -->
 
+<p style="text-align: center;"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p>
 
 _Last update: 03.07.2020_
 
@@ -300,6 +301,10 @@ calibrations. European Journal of Soil Science, 68(6), 840-852.
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., 
 Scholten, T. 2013. The spectrum-based learner: A new local approach for modeling 
 soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
+
+Saul, L. K., & Roweis, S. T. 2003. Think globally, fit locally: unsupervised 
+learning of low dimensional manifolds. Journal of machine learning research, 
+4(Jun), 119-155.
 
 Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL 
 calibration procedure for near infrared instruments. Journal of Near Infrared 
