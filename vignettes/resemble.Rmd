@@ -21,6 +21,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+<em><p align="right"> Think Globally, Fit Locally [@saul2003think] </p></em>
+
 
 Modelling using spectral data has garnered wide interest in the last two decades. 
 Spectroscopy is the study of the spectral response of a matrix (e.g. soil, 
