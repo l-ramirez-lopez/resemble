@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-<em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003 </p></em>
+<em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
 _Last update: 03.07.2020_
 
