@@ -382,6 +382,8 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
       ))
     }
   }
+  
+  ny <- ncol(Yr)
 
   if (!is.null(Xu)) {
     if (ncol(Xr) != ncol(Xu)) {
@@ -487,8 +489,12 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     if (nrow(Yr) != effective_rows_xr) {
       stop("The number of rows in Xr does not match the number of cases in Yr")
     }
-    if (sum(duplicated(colnames(Yr))) > 0) {
-      stop("column names in Yr must be different")
+    if (!is.null(colnames(Yr))) {
+      if (sum(duplicated(colnames(Yr))) > 0) {
+        stop("column names in Yr must be different")
+      }
+    } else {
+      colnames(Yr) <- paste0("Yr_", 1:ny)
     }
     results <- eval_multi_pc_diss(pc_scores[, 1:max_comp],
       side_info = Yr,
@@ -653,10 +659,13 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     if (nrow(Yr) != nrow(Xr)) {
       stop("The number of rows in Xr does not match the number of cases in Yr")
     }
-    if (sum(duplicated(colnames(Yr))) > 0) {
-      stop("column names in Yr must be different")
+    if (!is.null(colnames(Yr))) {
+      if (sum(duplicated(colnames(Yr))) > 0) {
+        stop("column names in Yr must be different")
+      }
+    } else {
+      colnames(Y0) <- colnames(Yr) <- paste0("Yr_", 1:ny)
     }
-
     results <- eval_multi_pc_diss(plsp$scores[, 1:max_comp],
       side_info = as.matrix(Y0),
       method = "pls",
@@ -689,11 +698,10 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
 
   colnames(yex) <- rownames(Y_loadings)
   if (ny > 1) {
-    y_sufix <- 1:ny
+    rownames(yex) <- paste0("explained_var_", colnames(Yr))
   } else {
-    y_sufix <- NULL
+    rownames(yex) <- "explained_var_Yr"
   }
-  rownames(yex) <- paste0("explained_var_Yr", y_sufix)
 
   if (sum(nas) > 0) {
     scores.a <- matrix(NA, length(c(non_nas_yr, nas_yr)), ncol(scores))

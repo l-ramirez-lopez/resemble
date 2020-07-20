@@ -21,13 +21,13 @@ eval_multi_pc_diss <- function(scores,
   } else {
     extract_sim_results <- function(x) {
       measure_names <- c(
-        paste0("rmsd_", names(x$eval[, "rmsd_Yr"])),
+        paste0("rmsd_", names(x$eval[, "rmsd"])),
         "mean_standardized_rmsd_Yr"
       )
       return(list(
         result = c(
-          x$eval[, "rmsd_Yr"],
-          x$global_eval[, "mean_standardized_rmsd_Yr"]
+          x$eval[, "rmsd"],
+          x$global_eval[, "mean_standardized_rmsd"]
         ),
         measure_names = measure_names
       ))
@@ -65,20 +65,22 @@ eval_multi_pc_diss <- function(scores,
       side_info = side_info
     )
     ith_result <- extract_sim_results(tmp)
-    results[i, 1:n_cols_results] <- ith_result$result
+    results[i, 1:n_cols_results] <- unlist(ith_result$result)
   }
-
+  
   colnames(results) <- ith_result$measure_names
   eval_pcs <- matrix(eval_pcs, dimnames = list(eval_pcs, method))
   results <- cbind(pc = eval_pcs, results)
 
-  colnames(results) <- gsub("rmsd", "rmsd_Yr", colnames(results))
+  if (ncol(side_info) == 1) {
+    colnames(results) <- gsub("rmsd", "rmsd_Yr", colnames(results))
+  }
 
   if ("kappa" %in% ith_result$measure_names) {
     best_pc <- eval_pcs[which.max(results[, "kappa"])]
   }
-  if ("mean_standardized_rmsd" %in% ith_result$measure_names) {
-    best_pc <- eval_pcs[which.min(results[, "mean_standardized_rmsd"])]
+  if ("mean_standardized_rmsd_Yr" %in% ith_result$measure_names) {
+    best_pc <- eval_pcs[which.min(results[, "mean_standardized_rmsd_Yr"])]
   }
   if ("rmsd" %in% ith_result$measure_names) {
     best_pc <- eval_pcs[which.min(results[, "rmsd_Yr"])]
