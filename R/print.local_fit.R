@@ -15,15 +15,11 @@ print.local_fit <- function(x, ...) {
   if (x$method == "pls") {
     cat("Partial least squares (pls)")
     cat("\nNumber of factors:", x$pls_c)
-    cat("\nMax. iterations:", x$pls_max_iter)
-    cat("\nTolerance:", x$pls_tol)
   }
 
   if (x$method == "wapls") {
     cat("Weighted average partial least squares (wapls)")
     cat("\nMin. and max. number of factors: from", x$pls_c[["min_pls_c"]], "to", x$pls_c[["max_pls_c"]])
-    cat("\nMax. iterations:", x$pls_max_iter)
-    cat("\nTolerance:", x$pls_tol)
   }
 
   if (x$method == "gpr") {
