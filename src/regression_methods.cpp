@@ -1652,7 +1652,6 @@ List pca_nipals(arma::mat X,
   arma::mat pc_loadings = arma::zeros(Xpls.n_cols, ncomp);
   arma::mat explained_var = arma::zeros(3, ncomp);
   
-  // aa$Xz - (aa$tt %*% t(aa$pp))
   int ith_comp = 0;
   for (int i = 0; i < ncomp; i++){
     arma::mat tt = Xpls.col(0);
