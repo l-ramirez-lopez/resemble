@@ -13,21 +13,15 @@
 #' within each iteration in the \code{\link{mbl}} and \code{\link{rslocal}}
 #' functions.
 #' @usage
-#' local_fit_pls(pls_c, pls_max_iter = 1, pls_tol = 1e-6)
+#' local_fit_pls(pls_c)
 #'
-#' local_fit_wapls(min_pls_c, max_pls_c, pls_max_iter = 1, pls_tol = 1e-6)
+#' local_fit_wapls(min_pls_c, max_pls_c)
 #'
 #' local_fit_gpr(noise_variance = 0.001)
 #'
 #' @param pls_c an integer indicating the number of pls components to be used in
 #' the local regressions when the partial least squares (\code{local_fit_pls})
 #' method is used.
-#' @param pls_max_iter a numeric value indicating the maximum number of
-#' iterations for the partial least squares methods (\code{local_fit_pls} or
-#' \code{local_fit_wapls}). Default 1.
-#' @param pls_tol a numeric value indicating a limit for convergence for the
-#' partial least squares methods (\code{local_fit_pls} or
-#' \code{local_fit_wapls}) which use the nipals algorithm. Default is 1e-6.
 #' @param min_pls_c an integer indicating the minimum number of pls components
 #' to be used in the local regressions when the weighted average partial least
 #' squares (\code{local_fit_wapls}) method is used. See details.
@@ -107,8 +101,12 @@
 
 ## History:
 ## 28.05.2020 Leo     Hello world!
+## 19.07.2020 Leo     arguments pls_max_iter and pls_tol were removed fas they 
+##                    are only required when modleing for more than one response 
+##                    variable, i.e. pls2 (which is not implemented for mbl)
 
-local_fit_pls <- function(pls_c, pls_max_iter = 1, pls_tol = 1e-6) {
+
+local_fit_pls <- function(pls_c) {
   if (missing(pls_c)) {
     stop("'pls_c' must be specified")
   }
@@ -123,9 +121,7 @@ local_fit_pls <- function(pls_c, pls_max_iter = 1, pls_tol = 1e-6) {
 
   fit_type <- list(
     method = "pls",
-    pls_c = pls_c,
-    pls_max_iter = pls_max_iter,
-    pls_tol = pls_tol
+    pls_c = pls_c
   )
   class(fit_type) <- c("local_fit", "list")
   fit_type
@@ -133,14 +129,10 @@ local_fit_pls <- function(pls_c, pls_max_iter = 1, pls_tol = 1e-6) {
 
 #' @aliases local_fit
 #' @export local_fit_wapls
-local_fit_wapls <- function(min_pls_c, max_pls_c,
-                            pls_max_iter = 1,
-                            pls_tol = 1e-6) {
+local_fit_wapls <- function(min_pls_c, max_pls_c) {
   if (missing(min_pls_c) | missing(max_pls_c)) {
     stop("Both 'min_pls_c' and 'max_pls_c' must be specified")
   }
-
-
 
   if (length(min_pls_c) != 1 | !is.numeric(min_pls_c)) {
     stop(paste0(
@@ -164,10 +156,7 @@ local_fit_wapls <- function(min_pls_c, max_pls_c,
 
   fit_type <- list(
     method = "wapls",
-    pls_c = c(min_pls_c = min_pls_c, max_pls_c = max_pls_c),
-    pls_max_iter = pls_max_iter,
-    pls_tol = pls_tol
-  )
+    pls_c = c(min_pls_c = min_pls_c, max_pls_c = max_pls_c))
 
   class(fit_type) <- c("local_fit", "list")
   fit_type

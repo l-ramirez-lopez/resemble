@@ -1162,8 +1162,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
           number = control$number,
           noise_variance = method$noise_variance,
           range_prediction_limits = control$range_prediction_limits,
-          pls_max_iter = method$pls_max_iter,
-          pls_tol = method$pls_tol
+          pls_max_iter = 1,
+          pls_tol = 1e-6
         )
 
         ith_pred_results$pred[kk] <- i_k_pred$prediction
@@ -1218,8 +1218,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
             CV = FALSE,
             tune = FALSE,
             range_prediction_limits = control$range_prediction_limits,
-            pls_max_iter = method$pls_max_iter,
-            pls_tol = method$pls_tol
+            pls_max_iter = 1,
+            pls_tol = 1e-6
           )$prediction
 
           ith_pred_results$y_nearest_pred[kk] <- nearest_pred / kth_weights[1]
