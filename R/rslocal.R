@@ -479,8 +479,8 @@ rslocal.default <- function(Xr,
       p = control$p,
       number = control$number,
       scale = scale,
-      max_iter = method$pls_max_iter,
-      tol = method$pls_tol,
+      max_iter = 1,
+      tol = 1e-6,
       allow_parallel = control$allow_parallel
     )
 
@@ -577,8 +577,8 @@ rslocal.default <- function(Xr,
     group = group,
     retrieve = FALSE,
     tune = TRUE,
-    max_iter = method$pls_max_iter,
-    tol = method$pls_tol
+    max_iter = 1,
+    tol = 1e-6
   )
 
   ## TEMPORARY (THIS MUST GO WHEN A PROPER PLS FUNCTION IS IMPLEMENTED)
@@ -587,8 +587,8 @@ rslocal.default <- function(Xr,
     Y = as.matrix(Yr[k_idx, ]),
     ncomp = method$pls_c,
     scale = scale,
-    maxiter = method$pls_max_iter,
-    tol = method$pls_tol
+    maxiter = 1,
+    tol = 1e-6
   )
 
   rnms <- rownames(plsval$resamples)
@@ -651,8 +651,8 @@ rslocal.default <- function(Xr,
       Y = tmpy,
       ncomp = method$pls_c,
       scale = scale,
-      maxiter = method$pls_max_iter,
-      tol = method$pls_tol
+      maxiter = 1,
+      tol = 1e-6
     )
   } else {
     finalpls <- plsval$models
