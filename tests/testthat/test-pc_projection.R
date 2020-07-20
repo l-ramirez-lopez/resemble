@@ -1,18 +1,22 @@
 context("test-pc_projection")
 
 test_that("pc_projection works", {
+  # tolernce for results supposed to be 0s 
+  tol <- 1e-5
   nirdata <- data("NIRsoil", package = "prospectr")
 
   Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
   Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 
   Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
+  Yr_2 <- NIRsoil$Ciso[as.logical(NIRsoil$train)]
   Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
 
   Xu <- Xu[!is.na(Yu), ]
   Xr <- Xr[!is.na(Yr), ]
 
   Yu <- Yu[!is.na(Yu)]
+  Yr_2 <- Yr[!is.na(Yr)]
   Yr <- Yr[!is.na(Yr)]
 
   
@@ -29,19 +33,61 @@ test_that("pc_projection works", {
                                       pc_selection = list(method = "cumvar", value = cumvar_value),
                                       center = TRUE, scale = FALSE,
                                       method = "pca")
-  expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  expect_true(all(two_input_matrices$variance[2,] < cumvar_value))
-
-  opc_method <- pc_projection(Xr, Xu, Yr = Yr,
-                                      pc_selection = list(method = "opc", value = 30),
+  
+  two_input_matrices_var <- pc_projection(Xr, Xu,
+                                      pc_selection = list(method = "var", value = 1 - cumvar_value),
                                       center = TRUE, scale = FALSE,
                                       method = "pca")
   
+  
+  expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
+  expect_true(all(two_input_matrices$variance[2,] < cumvar_value))
+  
+  preds <- sum(abs(predict(two_input_matrices)[1:nrow(Xr), ] - predict(two_input_matrices, Xr)))
+  expect_true(preds < tol)
+
+  opc_method <- pc_projection(Xr, Xu, Yr = Yr,
+                              pc_selection = list(method = "opc", value = 30),
+                              center = TRUE, scale = FALSE,
+                              method = "pca")
+  
+  opc_method_nipals <- pc_projection(Xr, Xu, Yr = Yr,
+                              pc_selection = list(method = "opc", value = 30),
+                              center = TRUE, scale = FALSE,
+                              method = "pca.nipals")
+  
   expect_true(opc_method$n_components == which.min(opc_method$opc_evaluation[,2]))
+  expect_true(opc_method$n_components == 20)
+  
+  # check that nipals is equivalent to svd method
+  expect_true(opc_method$n_components == opc_method_nipals$n_components)
+  
+  cor_equiv <- sapply(1:opc_method$n_components, 
+                      FUN = function(x, y, i) abs(cor(x[,i], y[,i])), 
+                      x = opc_method_nipals$scores,
+                      y = opc_method$scores)
+  
+  expect_true(sum(1 - cor_equiv) < tol)
+
+  # check that the number of components for method = "cumvar" is properly 
+  # obtained, this can be done with the results of opc_method as it selects more 
+  # components than in the "cumvar" test
+  expect_true(sum(opc_method$variance[2,] < cumvar_value) ==  two_input_matrices$n_components)
+  # do the same for method = "var"
+  expect_true(sum(opc_method$variance[3,] > (1 - cumvar_value)) ==  two_input_matrices_var$n_components)
   
   
   expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
   expect_true(all(two_input_matrices$variance[2,] < cumvar_value))
   
   
+  bb <- cbind(name_test_yr = Yr, Yr_2)
+
+  opc_method_nipals <- pc_projection(Xr, Xu, Yr = bb,
+                                     pc_selection = list(method = "opc", value = 30),
+                                     center = TRUE, scale = FALSE,
+                                     method = "pca.nipals")
+  
+  expect_true("rmsd_name_test_yr" %in% colnames(opc_method_nipals$opc_evaluation))
+
 })
