@@ -36,8 +36,7 @@ Suggests:
     testthat
 LinkingTo: 
     Rcpp, 
-    RcppArmadillo, 
-    RcppEigen
+    RcppArmadillo
 RdMacros: 
     mathjaxr,
     lifecycle

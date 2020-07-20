@@ -39,10 +39,6 @@ minDissV <- function(X) {
     .Call('_resemble_minDissV', PACKAGE = 'resemble', X)
 }
 
-eigenMapMatMult <- function(A, B) {
-    .Call('_resemble_eigenMapMatMult', PACKAGE = 'resemble', A, B)
-}
-
 #' @title Moving/rolling correlation distance of two matrices
 #' @description Computes a moving window correlation distance between two data matrices
 #' @usage 
