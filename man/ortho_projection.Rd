@@ -105,7 +105,7 @@ to \code{pc_projection} or \code{pls_projection}.}
 
 \item{tol}{tolerance limit for convergence of the algorithm in the nipals
 algorithm (default is 1e-06). In the case of PLS this applies only to Yr with
-more than two variables.}
+more than one variable.}
 
 \item{max_iter}{maximum number of iterations (default is 1000). In the case of
 \code{method = "pls"} this applies only to \code{Yr} matrices with more than

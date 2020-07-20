@@ -7,9 +7,9 @@
 \alias{local_fit_gpr}
 \title{Local fit functions}
 \usage{
-local_fit_pls(pls_c, pls_max_iter = 1, pls_tol = 1e-6)
+local_fit_pls(pls_c)
 
-local_fit_wapls(min_pls_c, max_pls_c, pls_max_iter = 1, pls_tol = 1e-6)
+local_fit_wapls(min_pls_c, max_pls_c)
 
 local_fit_gpr(noise_variance = 0.001)
 }
@@ -17,14 +17,6 @@ local_fit_gpr(noise_variance = 0.001)
 \item{pls_c}{an integer indicating the number of pls components to be used in
 the local regressions when the partial least squares (\code{local_fit_pls})
 method is used.}
-
-\item{pls_max_iter}{a numeric value indicating the maximum number of
-iterations for the partial least squares methods (\code{local_fit_pls} or
-\code{local_fit_wapls}). Default 1.}
-
-\item{pls_tol}{a numeric value indicating a limit for convergence for the
-partial least squares methods (\code{local_fit_pls} or
-\code{local_fit_wapls}) which use the nipals algorithm. Default is 1e-6.}
 
 \item{min_pls_c}{an integer indicating the minimum number of pls components
 to be used in the local regressions when the weighted average partial least
