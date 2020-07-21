@@ -427,11 +427,11 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   }
 
   if (method == "pca") {
-    sv_decomposition <- svd(x = X0)
+    sv_decomposition <- svd(x = X0, nu = max_comp, nv = max_comp)
+    sv_decomposition$d <- sv_decomposition$d[1:max_comp]
     # Loadings and scores
     pc_loadings <- t(sv_decomposition$v)
     pc_scores <- sv_decomposition$u %*% diag(sv_decomposition$d)
-
     # Variance of each PC variable
     sdPC <- get_column_sds(pc_scores)
     # Compute the percentage of explained variance for all the PCs
