@@ -166,7 +166,7 @@ function, the _k_-nearest neighbour search is performed by computing spectral
 dissimilarity matrices between observations. The `mbl` function offers the 
 following regression options for calibrating the (local) models:
 
-__`'gpr'`__:          Gaussian process with linear kernel
+__`'gpr'`__:          Gaussian process with linear kernel.
 
 __`'pls'`__:          Partial least squares.     
 
@@ -190,8 +190,6 @@ of soil properties using NIR spectroscopy and geographical information.
 * 2019.03,08: [Tsakiridis et al. (2019a)](https://www.sciencedirect.com/science/article/abs/pii/S0925231220300291) and [Tsakiridis et al. (2019b)](https://www.sciencedirect.com/science/article/abs/pii/S1568494619302741),
 compared several machine learning methods for predictive soil spectroscopy and 
 show that MBL `resemble` offers highly competive results.
-
-
 
 * 2020.01: [Sanderman et al., (2020)](https://acsess.onlinelibrary.wiley.com/doi/epdf/10.1002/saj2.20009) used `resemble` for the prediction of soil health indicatorsin the United States.
 
