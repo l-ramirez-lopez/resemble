@@ -309,10 +309,12 @@ rslocal.default <- function(Xr,
     stop("The number of spectra in Xr must equal to the length of Yr")
   }
 
-  if (nrow(Xu) != length(Yu)) {
-    stop("The number of spectra in Xu must equal to the length of Yu")
+  if (!is.null(Yu)) {
+    if (nrow(Xu) != length(Yu)) {
+      stop("The number of spectra in Xu must equal to the length of Yu")
+    }
   }
-
+  
   if (optimization == "response") {
     if (anyNA(Yu) | anyNA(Xu)) {
       stop("Missing values are not allowed in the response variables when optimization == 'response'")
@@ -559,8 +561,10 @@ rslocal.default <- function(Xr,
 
   if (control$verbose) {
     cat("\nFitting final model on", length(k_idx), "selected training samples... \n")
-    if (sum(complete.cases(Yu)) != 0) {
-      cat("and", sum(complete.cases(Yu)), "test samples for which response values were available... \n")
+    if (!is.null(Yu)) {
+      if (sum(complete.cases(Yu)) != 0) {
+        cat("and", sum(complete.cases(Yu)), "test samples for which response values were available... \n")
+      }
     }
   }
 
@@ -647,20 +651,21 @@ rslocal.default <- function(Xr,
     tmpx <- tmpx[complete.cases(tmpy), ]
     tmpy <- tmpy[complete.cases(tmpy), , drop = FALSE]
 
-    finalpls <- opls_get_all(
-      X = tmpx,
-      Y = tmpy,
-      ncomp = method$pls_c,
-      scale = scale,
-      maxiter = 1,
-      tol = 1e-6
-    )
   } else {
-    finalpls <- plsval$models
+    tmpx <- as.matrix(Xr[k_idx, ])
+    tmpy <- as.matrix(Yr[k_idx, ])
   }
 
-
-  ncompnms <- names(finalpls) %in% "ncomp"
+  finalpls <- opls_get_all(
+    X = tmpx,
+    Y = tmpy,
+    ncomp = method$pls_c,
+    scale = scale,
+    maxiter = 1,
+    tol = 1e-6
+  )  
+  
+    ncompnms <- names(finalpls) %in% "ncomp"
   if (any(ncompnms)) {
     names(finalpls)[names(finalpls) %in% "ncomp"] <- "npls"
   }
@@ -875,7 +880,7 @@ predict.rslocal <- function(object, newdata, type = "response", ...) {
   # if(all(pnames %in% colnames(newdata)))
 
   if (type == "response") {
-    preds <- resemble:::predict_opls(
+    preds <- predict_opls(
       bo = object$final_model$bo,
       b = t(object$final_model$coefficients),
       ncomp = object$final_model$npls,
