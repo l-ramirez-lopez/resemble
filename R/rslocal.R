@@ -817,7 +817,6 @@ rslocal.formula <- function(formula,
 #' @export
 predict.rslocal <- function(object, newdata, type = "response", ...) {
   
-  browser()
   if (missing(newdata)) {
     stop("newdata is missing")
   }
