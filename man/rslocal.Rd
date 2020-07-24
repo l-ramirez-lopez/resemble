@@ -172,6 +172,7 @@ a \code{list} with the following elements:
  }
  \item{\code{control}:}{ a list mirroring the one provided in the
  \code{control} argument.}
+ \item{\code{scale}:}{ was scaling used?.}
  \item{\code{final_model}:}{ a list with the following elements of a pls
  regression model:
  #'  \itemize{

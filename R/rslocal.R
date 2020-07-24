@@ -202,6 +202,7 @@
 #'  }
 #'  \item{\code{control}:}{ a list mirroring the one provided in the
 #'  \code{control} argument.}
+#'  \item{\code{scale}:}{ was scaling used?.}
 #'  \item{\code{final_model}:}{ a list with the following elements of a pls
 #'  regression model:
 #'  #'  \itemize{
@@ -705,6 +706,7 @@ rslocal.default <- function(Xr,
     ),
     validation_results = validation,
     control = control,
+    scale = scale,
     final_model = finalpls,
     documentation = documentation
   )
@@ -814,6 +816,8 @@ rslocal.formula <- function(formula,
 #' @importFrom stats .MFclass terms delete.response
 #' @export
 predict.rslocal <- function(object, newdata, type = "response", ...) {
+  
+  browser()
   if (missing(newdata)) {
     stop("newdata is missing")
   }
@@ -821,13 +825,14 @@ predict.rslocal <- function(object, newdata, type = "response", ...) {
   if (!is.null(object$formula)) {
     dcls <- object$dataclasses[-1]
 
-    if (!class(newdata) %in% c("matrix", "data.frame")) {
+    if (!"matrix" %in% class(newdata) | !"data.frame" %in% class(newdata)) {
       stop(paste0(
         "When predicting from objects of class 'rslocal' fitted with ",
         "formula, the argument 'newdata' must be a 'data.frame' ",
         "or alternatively a 'matrix'"
       ))
     }
+    
     if (class(newdata) == "data.frame") {
       if (!all(names(dcls) %in% names(newdata))) {
         mss <- names(dcls)[!names(dcls) %in% names(newdata)]
@@ -871,15 +876,12 @@ predict.rslocal <- function(object, newdata, type = "response", ...) {
   # if(all(pnames %in% colnames(newdata)))
 
   if (type == "response") {
-    preds <- predict_opls(
+    preds <- resemble:::predict_opls(
       bo = object$final_model$bo,
       b = t(object$final_model$coefficients),
       ncomp = object$final_model$npls,
       newdata = as.matrix(newdata),
-      scale = !identical(
-        dim(object$final_model$transf$Xscale),
-        as.integer(c(0, 0))
-      ),
+      scale = object$scale,
       Xscale = object$final_model$transf$Xscale
     )
   }

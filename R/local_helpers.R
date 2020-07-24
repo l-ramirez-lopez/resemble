@@ -786,7 +786,7 @@ get_col_sds <- function(x) {
 #' @title Local multivariate regression
 #' @description internal
 #' @keywords internal
-fit_and_predict <- function(x, y, pred_method, scale = TRUE, weights = NULL,
+fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
                             newdata, pls_c = NULL, CV = FALSE,
                             tune = FALSE, number = 10, p = 0.75,
                             group = NULL, noise_variance = 0.001,
@@ -876,7 +876,7 @@ fit_and_predict <- function(x, y, pred_method, scale = TRUE, weights = NULL,
       b = fit$coefficients,
       ncomp = ncomp,
       newdata = newdata,
-      scale = if_else(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
+      scale = scale,
       Xscale = fit$transf$Xscale
     )[, ncomp]
   }
@@ -945,7 +945,7 @@ fit_and_predict <- function(x, y, pred_method, scale = TRUE, weights = NULL,
       b = fit$coefficients,
       ncomp = pls_c[[2]],
       newdata = newdata,
-      scale = if_else(nrow(fit$transf$Xscale) == 1, TRUE, FALSE),
+      scale = scale,
       Xscale = fit$transf$Xscale
     )
     pred <- sum(new_x_prediction * w) # weighted preds
