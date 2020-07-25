@@ -1236,7 +1236,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
 
     if (control$progress) {
       if (kk == nrow(ith_pred_results) & i != n_iter) {
-        cat("\r", to_erase, "\r")
+        cat(to_erase, "\r")
       }
 
       if (i == n_iter) {
