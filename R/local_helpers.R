@@ -755,7 +755,7 @@ get_ith_local_neighbors <- function(ith_xr, ith_xu, ith_yr, ith_yu = NULL,
   loc_neighbors <- ith_neig_indices[loc_neigh$neighbors]
   ith_neigh_diss <- loc_neigh$neighbors_diss
 
-  if (is.null(ith_group)) {
+  if (!is.null(ith_group)) {
     ith_group <- ith_group[loc_neigh$neighbors]
   }
 
