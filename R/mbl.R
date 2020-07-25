@@ -993,6 +993,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     }
   }
 
+  
   if (!".local" %in% names(input_dots)) {
     iter_neighborhoods <- ith_mbl_neighbor(
       Xr = Xr, Xu = Xu, Yr = Yr, Yu = Yu,
@@ -1007,7 +1008,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       Xr = Xr, Xu = Xu, Yr = Yr, Yu = Yu,
       diss_usage = "none",
       neighbor_indices = neighborhoods$neighbors,
-      neighbor_diss = neighborhoods$neighbors_diss
+      neighbor_diss = neighborhoods$neighbors_diss,
+      group = group
     )
   }
 

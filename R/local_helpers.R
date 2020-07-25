@@ -571,6 +571,7 @@ ith_mbl_neighbor <- function(Xr, Xu, Yr, Yu = NULL,
   iter_yu <- iter(Yu, by = "cell")
   neighbor_diss <- t(neighbor_diss)
   iter_xr_xu_diss <- iter(neighbor_diss, by = "row")
+  group
 
   nextEl <- function() {
     ith_neighborhood <- nextElem(iter_neighbors)
@@ -595,7 +596,7 @@ ith_mbl_neighbor <- function(Xr, Xu, Yr, Yu = NULL,
       ith_xr_neighbors <- cbind(ith_local_xr_xr_diss, ith_xr_neighbors)
       ith_xu <- cbind(ith_neigh_diss, ith_xu)
     }
-
+    
     if (!is.null(group)) {
       ith_group <- factor(group[ith_neighborhood])
     } else {
