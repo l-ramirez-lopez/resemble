@@ -99,6 +99,7 @@ test_that("mbl delivers expeted results", {
   skip_on_cran()
   skip_on_travis()
   
+  
   nirdata <- data("NIRsoil", package = "prospectr")
   NIRsoil$spc <- prospectr:::savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0)
   
@@ -181,7 +182,7 @@ test_that("mbl delivers expeted results", {
   )
   
   set.seed(tseed)
-  xgroup <- rep((1:(floor(xx/2))), each = 2)
+  xgroup <- rep((1:(floor(nrow(Xr)/2))), each = 2)
   pls_group <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
@@ -194,7 +195,8 @@ test_that("mbl delivers expeted results", {
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
     method = local_fit_pls(pls_pls),
-    control = ctrl_1, group = xgroup
+    control = ctrl_1, group = xgroup,
+    .local = TRUE, pre_k = 200
   )
   
   
@@ -235,12 +237,12 @@ test_that("mbl delivers expeted results", {
   
   cv_group_local <- c(
     pls_group_local$validation_results$local_cross_validation$rmse < 2,
-    pls_group_local$validation_results$local_cross_validation$rmse > 1.4
+    pls_group_local$validation_results$local_cross_validation$rmse > 1
   )
   
-  nnv_group_local <- pls_group_local$validation_results$nearest_neighbor_validation$r2 > 0.81
+  nnv_group_local <- pls_group_local$validation_results$nearest_neighbor_validation$r2 > 0.4
   
-  nnv_group <- pls_group$validation_results$nearest_neighbor_validation$r2 > 0.81
+  nnv_group <- pls_group$validation_results$nearest_neighbor_validation$r2 > 0.7
   
   nnv_gpr <- gpr$validation_results$nearest_neighbor_validation$r2 > 0.81
   
