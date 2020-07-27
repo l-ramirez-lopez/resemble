@@ -31,8 +31,7 @@ method.
 
 __`rslocal`__: implements the rs-local modeling approach proposed by 
 Lobsey et al. (2017). This function allows you to find in a reference data set, 
-an optimal set of observations to build a model for an specific set of 
-observations. 
+an optimal set of observations to build a model for a particular case. 
 
 __`dissimilarity`__: Computes dissimilarity matrices based on several methods 
 (e.g. Euclidean, Mahalanobis, cosine, correlation, moving correlation, 
