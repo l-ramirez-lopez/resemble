@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-_Last update: 19.07.2020_
+_Last update: 27.07.2020_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -46,13 +46,13 @@ __`search_neighbors`__: A function to efficiently retrieve from a refence set th
 k-nearest neighbors of another given data set.
 
 ## New version
-During the recent lockdown time we invested some of our free time to come up 
+During the recent lockdown we invested some of our free time to come up 
 with a new version of our package. This new `resemble` 2.0 comes with MAJOR 
 improvements and new functions! For these improvements major changes were 
 required. The most evident changes are in the function and argument names.
 These have been now adapted to properly follow the 
 [tydiverse style guide](https://style.tidyverse.org/). A number of changes have 
-been done also for the sake of computational efficiency. These changes are 
+been implemented for the sake of computational efficiency. These changes are 
 documented in `inst\changes.md`.
 
 New interesing functions and fucntionality are also available, for example, 
