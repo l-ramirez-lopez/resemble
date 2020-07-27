@@ -20,7 +20,7 @@ orthogonal projections in spectral data.
 
 ## Core functionality 
 
-The core functionality of the package can be sumarizted with the following 
+The core functionality of the package can be sumarized into the following 
 functions:
   
 __`mbl`__: implements memory-based learning (MBL) for modeling and predicting 
@@ -33,7 +33,7 @@ __`rslocal`__: implements the rs-local modeling approach proposed by
 Lobsey et al. (2017). This function allows you to find in a reference data set, 
 an optimal set of observations to build a model for a particular case. 
 
-__`dissimilarity`__: Computes dissimilarity matrices based on several methods 
+__`dissimilarity`__: Computes dissimilarity matrices based on various methods 
 (e.g. Euclidean, Mahalanobis, cosine, correlation, moving correlation, 
 Spectral information divergence, principal components dissimilarity and partial 
 least squares dissimilarity).
