@@ -579,7 +579,7 @@ rslocal.default <- function(Xr,
     min_component = 1,
     p = control$p,
     number = control$number,
-    group = group,
+    group = group[k_idx],
     retrieve = FALSE,
     tune = TRUE,
     max_iter = 1,
@@ -696,7 +696,7 @@ rslocal.default <- function(Xr,
 
   colnames(finalpls$scores) <- 1:method$pls_c
   rownames(finalpls$scores) <- 1:nrow(finalpls$scores)
-
+  
   resultsList <- list(
     x_local = Xr[k_idx, ],
     y_local = Yr[k_idx],

@@ -360,6 +360,7 @@ pls_cv <- function(x, y, ncomp,
 
   val <- NULL
   val$resamples <- cv_samples$hold_out
+  
   if (method == "pls") {
     val$cv_results <- data.table(
       npls = 1:ncomp,
