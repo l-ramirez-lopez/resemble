@@ -1073,7 +1073,6 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         ...
       )
 
-
       ith_pred_results$loc_n_components[] <- ith_observation$ith_components
       additional_results$ith_neig_indices <- ith_observation$ith_neig_indices
       additional_results$ith_neigh_diss <- ith_observation$ith_neigh_diss
@@ -1263,7 +1262,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   ))
 
 
-  if (".local" %in% names(input_dots)) {
+  if (".local" %in% names(input_dots) & diss_method %in% ortho_diss_methods) {
     diss_xr_xu <- do.call(
       "cbind",
       lapply(iteration_order,
@@ -1282,6 +1281,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       paste0("Xr_", 1:nrow(diss_xr_xu)),
       paste0("Xu_", 1:ncol(diss_xr_xu))
     )
+    
     neighborhoods$neighbors <- do.call(
       "cbind", lapply(iteration_order,
         FUN = function(x, m, ii) {
