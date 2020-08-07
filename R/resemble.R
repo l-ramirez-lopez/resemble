@@ -71,8 +71,17 @@
 #' @aliases resemble-package resemble
 #' @title Overview of the functions in the resemble package
 #' @author
-#' LLL
-
+#' Leonardo Ramirez-Lopez  
+#' 
+#' Antoine Stevens 
+#' 
+#' Raphael Viscarra Rossel 
+#' 
+#' Craig Lobsey 
+#' 
+#' Alex Wadoux 
+#' 
+#' Timo Breure 
 ######################################################################
 # resemble
 # Copyright (C) 2020 Leonardo Ramirez-Lopez
