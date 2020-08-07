@@ -58,5 +58,15 @@ Other supplementary functions:
   }
 }
 \author{
-LLL
+Leonardo Ramirez-Lopez  
+
+Antoine Stevens 
+
+Raphael Viscarra Rossel 
+
+Craig Lobsey 
+
+Alex Wadoux 
+
+Timo Breure
 }
