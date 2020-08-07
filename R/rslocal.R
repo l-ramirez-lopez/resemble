@@ -425,6 +425,8 @@ rslocal.default <- function(Xr,
   pp <- r
   cat_progress <- cat_iter(c("\\", "|", "/", "-"))
   cat_progress2 <- cat_iter(c("\\", "|", "/", "-"))
+  
+
   while (length(k_idx) > (k * (1 + pp)) & sum(!is.na(sl_idx)) > k) {
     #
     # Step 1 - Initialise K as a subset of the SL, initially full. k_idx only
