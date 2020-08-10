@@ -10,8 +10,7 @@
 #'
 #' \loadmathjax
 #' These functions define the way in which each local fit/prediction is done
-#' within each iteration in the \code{\link{mbl}} and \code{\link{rslocal}}
-#' functions.
+#' within each iteration in the \code{\link{mbl}} function.
 #' @usage
 #' local_fit_pls(pls_c)
 #'
@@ -92,7 +91,7 @@
 #' Rasmussen, C.E., Williams, C.K. Gaussian Processes for Machine Learning.
 #' Massachusetts Institute of Technology: MIT-Press, 2006.
 #'
-#' @seealso \code{\link{mbl}}, \code{\link{rslocal}}
+#' @seealso \code{\link{mbl}}
 #' @examples
 #' \dontrun{
 #' local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
