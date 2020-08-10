@@ -29,10 +29,6 @@ famous LOCAL algorithm proposed by Shenk et al. (1997). In general, this
 function allowes you to easily customize your own MBL regression-prediction 
 method.
 
-__`rslocal`__: implements the rs-local modeling approach proposed by 
-Lobsey et al. (2017). This function allows you to find in a reference data set, 
-an optimal set of observations to build a model for a particular case. 
-
 __`dissimilarity`__: Computes dissimilarity matrices based on various methods 
 (e.g. Euclidean, Mahalanobis, cosine, correlation, moving correlation, 
 Spectral information divergence, principal components dissimilarity and partial 
@@ -56,8 +52,7 @@ been implemented for the sake of computational efficiency. These changes are
 documented in `inst\changes.md`.
 
 New interesing functions and fucntionality are also available, for example, 
-the `rslocal()` function implements the rs-local modeling approach proposed by 
-Lobsey et al. (2017). The `mbl()` function now allows sample spiking, where a 
+the `mbl()` function now allows sample spiking, where a 
 set of reference observations can be forced to be included in the neighborhhoods 
 of each sample to be predicted. The `serach_neighbors()` function efficiently 
 retrieves from a refence set the k-nearest neighbors of another given data set. 
@@ -170,13 +165,6 @@ __`'gpr'`__:          Gaussian process with linear kernel.
 __`'pls'`__:          Partial least squares.     
 
 __`'wapls'`__:        Weighted average partial least squares (Shenk et al., 1997).
-
-## Data-driven search and optimization in spectral libraries for building data-specific calibrations (RS-LOCAL)
-
-Given a specific sample set, the purpose of the RS-LOCAL algorithm 
-(Lobsey et al., 2017) is to find in a (large) reference training set an optimal 
-subset of observations to build predictive models with strong generalization 
-performance for the type of observations provided in the specific sample set.
 
 ## News
 * 2020.04: [Tsakiridis et al. (2020)](https://www.sciencedirect.com/science/article/abs/pii/S0016706119308870?via%3Dihub), 

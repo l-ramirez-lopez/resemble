@@ -57,13 +57,10 @@
 #'   \item{\code{\link{mbl_control}}}
 #'   \item{\code{\link{mbl}}}
 #'   \item{\code{\link{rs_control}}}
-#'   \item{\code{\link{rslocal}}}
-#'   \item{\code{\link{predict.rslocal}}}
 #'   }
 #' Other supplementary functions:
 #' \itemize{
 #'   \item{\code{\link{plot.mbl}}}
-#'   \item{\code{\link{plot.rslocal}}}
 #'   \item{\code{\link{plot.ortho_projection}}}
 #'   }
 #' @docType package
