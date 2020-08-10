@@ -38,8 +38,7 @@ An object of class \code{local_fit} mirroring the input arguments.
 
 \loadmathjax
 These functions define the way in which each local fit/prediction is done
-within each iteration in the \code{\link{mbl}} and \code{\link{rslocal}}
-functions.
+within each iteration in the \code{\link{mbl}} function.
 }
 \details{
 These functions are used to indicate how to fit
@@ -106,7 +105,7 @@ Rasmussen, C.E., Williams, C.K. Gaussian Processes for Machine Learning.
 Massachusetts Institute of Technology: MIT-Press, 2006.
 }
 \seealso{
-\code{\link{mbl}}, \code{\link{rslocal}}
+\code{\link{mbl}}
 }
 \author{
 Leonardo Ramirez-Lopez

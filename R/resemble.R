@@ -54,9 +54,8 @@
 #'   }
 #' The functions available for modeling spectral data:
 #' \itemize{
-#'   \item{\code{\link{mbl_control}}}
 #'   \item{\code{\link{mbl}}}
-#'   \item{\code{\link{rs_control}}}
+#'   \item{\code{\link{mbl_control}}}
 #'   }
 #' Other supplementary functions:
 #' \itemize{
