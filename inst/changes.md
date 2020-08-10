@@ -122,7 +122,7 @@ Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 - k0, pcMethod, ghMethod are deprecated
 - localOptimization has been renamed to tune_locally
 - valMethod has been renamed to validation_type
-- Option "loc_crossval" in validation has been renamed to "local_cv"
+- Option "loc_crossval" in validation_type has been renamed to "local_cv"
 
 ### plot.mbl
 - option "pca" was replaced by option "gh" which plots the pls projection used 
