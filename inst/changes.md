@@ -6,8 +6,6 @@ tidyverse style guideleines. Here the major changes are listed.
 
 ### Main new fucntions
 - search_neighbors
-- rslocal
-- rs_control
 - dissimilarity
 
 
