@@ -7,76 +7,76 @@
 sim_eval(d, side_info)
 }
 \arguments{
-\item{d}{a symmetric matrix of dissimilarity scores between observations of 
-a given data set. Alternatively, a vector of with the dissimilarity 
-scores of the lower triangle (without the diagonal values) can be used 
+\item{d}{a symmetric matrix of dissimilarity scores between observations of
+a given data set. Alternatively, a vector of with the dissimilarity
+scores of the lower triangle (without the diagonal values) can be used
 (see details).}
 
-\item{side_info}{a matrix containing the side information corresponding to 
-the observations in the data set from which the dissimilarity matrix was 
-computed. It can be either a numeric matrix with one or multiple 
-columns/variables or a matrix with one character variable (discrete variable). 
-If it is numeric, the root mean square of differences is used for assessing 
-the similarity between the observations and their corresponding most similar 
-observations in terms of the side information provided. If it is a character 
+\item{side_info}{a matrix containing the side information corresponding to
+the observations in the data set from which the dissimilarity matrix was
+computed. It can be either a numeric matrix with one or multiple
+columns/variables or a matrix with one character variable (discrete variable).
+If it is numeric, the root mean square of differences is used for assessing
+the similarity between the observations and their corresponding most similar
+observations in terms of the side information provided. If it is a character
 variable, then the kappa index is used. See details.}
 }
 \value{
 \code{sim_eval} returns a list with the following components:
 \itemize{
- \item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or 
+ \item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or
  the kappa index}
- \item{\code{first_nn}}{ a matrix containing the original side 
- informative variable in the first half of the columns, and the side 
- informative values of the corresponding nearest neighbors in the second half 
+ \item{\code{first_nn}}{ a matrix containing the original side
+ informative variable in the first half of the columns, and the side
+ informative values of the corresponding nearest neighbors in the second half
  of the columns.}
  }
 }
 \description{
 \lifecycle{stable}
 
-This function searches for the most similar observation (closest neighbor) of 
-each observation in a given data set based on a dissimilarity (e.g. distance 
-matrix). The observations are compared against their corresponding closest 
-observations in terms of their side information provided. The root mean 
-square of differences and the correlation coefficient are used for continuous 
+This function searches for the most similar observation (closest neighbor) of
+each observation in a given data set based on a dissimilarity (e.g. distance
+matrix). The observations are compared against their corresponding closest
+observations in terms of their side information provided. The root mean
+square of differences and the correlation coefficient are used for continuous
 variables and for discrete variables the kappa index is used.
 }
 \details{
 \loadmathjax
-For the evaluation of dissimilarity matrices this function uses side 
+For the evaluation of dissimilarity matrices this function uses side
 information (information about one variable which is available for a
-group of observations, Ramirez-Lopez et al., 2013). It is assumed that there 
-is a (direct or indirect) correlation between this side informative variable 
-and the variables from which the dissimilarity was computed. 
-If \code{side_info} is numeric, the root mean square of differences (RMSD) 
-is used for assessing the similarity between the observations and their 
-corresponding most similar observations in terms of the side information 
+group of observations, Ramirez-Lopez et al., 2013). It is assumed that there
+is a (direct or indirect) correlation between this side informative variable
+and the variables from which the dissimilarity was computed.
+If \code{side_info} is numeric, the root mean square of differences (RMSD)
+is used for assessing the similarity between the observations and their
+corresponding most similar observations in terms of the side information
 provided. It is computed as follows:
 
 \mjdeqn{RMSD = \sqrt{\frac{1}{n} \sum_{i=1}^n {(y_i - \ddot{y}_i)^2}}}{RMSD = \sqrt{1/n sum_{i=1}^n (y_i - ddot y_i)^2}}
 
-where \mjeqn{y_{i}}{y_i} is the value of the side variable of the \mjeqn{i}{i}th 
-observation, \mjeqn{\ddot{y}_i}{ddot y_i} is the value of the side variable 
-of the nearest neighbor of the \mjeqn{i}{i}th observation and \mjeqn{n}{n} 
+where \mjeqn{y_{i}}{y_i} is the value of the side variable of the \mjeqn{i}{i}th
+observation, \mjeqn{\ddot{y}_i}{ddot y_i} is the value of the side variable
+of the nearest neighbor of the \mjeqn{i}{i}th observation and \mjeqn{n}{n}
 is the total number of observations.
 
-If \code{side_info} is a factor the kappa index (\mjeqn{\kappa}{kappa}) is 
+If \code{side_info} is a factor the kappa index (\mjeqn{\kappa}{kappa}) is
 used instead the RMSD. It is computed as follows:
 
 \mjdeqn{\kappa = \frac{p_{o}-p_{e}}{1-p_{e}}}{kappa = {p_o-p_e}/{1-p_e}}
 
-where both \mjeqn{p_o}{p_o} and \mjeqn{p_e}{p_e} are two different agreement 
-indices between the the side information of the observations and the side 
-information of their corresponding nearest observations (i.e. most similar 
-observations). While \mjeqn{p_o}{p_o} is the relative agreement 
+where both \mjeqn{p_o}{p_o} and \mjeqn{p_e}{p_e} are two different agreement
+indices between the the side information of the observations and the side
+information of their corresponding nearest observations (i.e. most similar
+observations). While \mjeqn{p_o}{p_o} is the relative agreement
 \mjeqn{p_e}{p_e} is the the agreement expected by chance.
 
-This functions accepts vectors to be passed to argument \code{d}, in this 
-case, the vector must represent the lower triangle of a dissimilarity matrix 
-(e.g. as returned by the [base::dist()] function of \code{R} base).
+This functions accepts vectors to be passed to argument \code{d}, in this
+case, the vector must represent the lower triangle of a dissimilarity matrix
+(e.g. as returned by the [stats::dist()] function of \code{stats}).
 
-This function supports multi-threading based on OpenMP for retrieving the 
+This function supports multi-threading based on OpenMP for retrieving the
 closest observations.
 }
 \examples{
@@ -152,12 +152,12 @@ eval_corr_diss$eval
 }
 }
 \references{
-Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., 
-Scholten, T. 2013a. The spectrum-based learner: A new local approach for 
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
+Scholten, T. 2013a. The spectrum-based learner: A new local approach for
 modeling soil vis-NIR spectra of complex datasets. Geoderma 195-196, 268-279.
 
-Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., 
-Dematte, J. A. M.,  Scholten, T. 2013b. Distance and similarity-search 
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R.,
+Dematte, J. A. M.,  Scholten, T. 2013b. Distance and similarity-search
 metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 }
 \author{

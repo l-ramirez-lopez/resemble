@@ -10,7 +10,7 @@
 
 print.rslocal <- function(x, ...) {
   val <- x$validation_results$results
-  
+
   if (!is.null(val$train)) {
     train_stats <- val$train
   } else {
@@ -24,13 +24,13 @@ print.rslocal <- function(x, ...) {
 
   sys_width <- getOption("width")
   bar_width <- 55
-  
+
   if (bar_width > sys_width) {
     bar_width <- sys_width
   }
-  
+
   div <- paste(rep("_", bar_width), collapse = "")
-    
+
   cat("\n")
   cat("Call:", "\n\n")
   print(attr(x, "call"))
@@ -40,7 +40,7 @@ print.rslocal <- function(x, ...) {
   cat("Total number of observations selected:", length(x$indices), "\n")
   cat("Total number of observations discarded:", max(x$n_removed$cummulative), "\n")
   cat("Final number of pls factors:", x$final_model$npls, "\n")
-  
+
   cat(div, "\n")
 
   if (!is.null(train_stats)) {

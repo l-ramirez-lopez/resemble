@@ -1,11 +1,11 @@
 #' @useDynLib resemble
-#' @import lifecycle 
-#' @import Rcpp 
-#' @import foreach 
-#' @import iterators 
-#' @import data.table 
-#' @import grDevices 
-#' @import graphics 
+#' @import lifecycle
+#' @import Rcpp
+#' @import foreach
+#' @import iterators
+#' @import data.table
+#' @import grDevices
+#' @import graphics
 ## usethis namespace: start
 #' @importFrom lifecycle deprecate_soft
 ## usethis namespace: end
@@ -13,15 +13,15 @@
 #' @importFrom dplyr mutate rename if_else select
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats model.frame model.matrix model.extract na.fail sd reshape
-#' @description 
-#' 
+#' @description
+#'
 #' \lifecycle{maturing}
-#' 
+#'
 #' Functions for memory-based learning
 #' \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
-#' 
+#'
 #' @details
-#' 
+#'
 #' This is the version \code{2.0} (\code{'gordillo'}) of the package. It
 #' implements a number of \code{R} functions useful for
 #' modeling complex spectral spectra (e.g. NIR, IR).
@@ -57,13 +57,10 @@
 #'   \item{\code{\link{mbl_control}}}
 #'   \item{\code{\link{mbl}}}
 #'   \item{\code{\link{rs_control}}}
-#'   \item{\code{\link{rslocal}}}
-#'   \item{\code{\link{predict.rslocal}}}
 #'   }
 #' Other supplementary functions:
 #' \itemize{
 #'   \item{\code{\link{plot.mbl}}}
-#'   \item{\code{\link{plot.rslocal}}}
 #'   \item{\code{\link{plot.ortho_projection}}}
 #'   }
 #' @docType package
@@ -71,8 +68,17 @@
 #' @aliases resemble-package resemble
 #' @title Overview of the functions in the resemble package
 #' @author
-#' LLL
-
+#' Leonardo Ramirez-Lopez  
+#' 
+#' Antoine Stevens 
+#' 
+#' Raphael Viscarra Rossel 
+#' 
+#' Craig Lobsey 
+#' 
+#' Alex Wadoux 
+#' 
+#' Timo Breure 
 ######################################################################
 # resemble
 # Copyright (C) 2020 Leonardo Ramirez-Lopez

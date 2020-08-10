@@ -14,7 +14,7 @@
 \description{
 \lifecycle{maturing}
 
-Plots the content pf an object of class \code{ortho_projection}
+Plots objects of class \code{ortho_projection}
 }
 \seealso{
 \code{\link{ortho_projection}}

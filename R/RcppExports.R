@@ -39,10 +39,6 @@ minDissV <- function(X) {
     .Call('_resemble_minDissV', PACKAGE = 'resemble', X)
 }
 
-eigenMapMatMult <- function(A, B) {
-    .Call('_resemble_eigenMapMatMult', PACKAGE = 'resemble', A, B)
-}
-
 #' @title Moving/rolling correlation distance of two matrices
 #' @description Computes a moving window correlation distance between two data matrices
 #' @usage 
@@ -361,7 +357,7 @@ get_pls_weights <- function(projection_mat, xloadings, coefficients, new_x, min_
     .Call('_resemble_get_pls_weights', PACKAGE = 'resemble', projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale)
 }
 
-#' @title Internal Cpp function for performing leave-group-out cross validations for pls regression 
+#' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
 #' @description For internal use only!. 
 #' @usage opls_cv_cpp(X, Y, scale, method, 
 #'                   mindices, pindices, 

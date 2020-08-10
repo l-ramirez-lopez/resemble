@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{opls_cv_cpp}
 \alias{opls_cv_cpp}
-\title{Internal Cpp function for performing leave-group-out cross validations for pls regression}
+\title{Internal Cpp function for performing leave-group-out cross-validations for pls regression}
 \usage{
 opls_cv_cpp(X, Y, scale, method, 
                   mindices, pindices, 

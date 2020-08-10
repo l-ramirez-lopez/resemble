@@ -2,7 +2,7 @@
 % Please edit documentation in R/ortho_diss_helpers.R
 \name{local_ortho_diss}
 \alias{local_ortho_diss}
-\title{local ortho dissimilarity matrices initialized by a global 
+\title{local ortho dissimilarity matrices initialized by a global
 dissimilarity matrix}
 \usage{
 local_ortho_diss(

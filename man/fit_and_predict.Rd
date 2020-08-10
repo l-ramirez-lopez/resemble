@@ -8,7 +8,7 @@ fit_and_predict(
   x,
   y,
   pred_method,
-  scale = TRUE,
+  scale = FALSE,
   weights = NULL,
   newdata,
   pls_c = NULL,

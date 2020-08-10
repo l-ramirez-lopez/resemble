@@ -1,0 +1,168 @@
+---
+title: "Modelling complex spectral data with the resemble package"
+author: 
+ - name: Leonardo Ramirez-Lopez, Alexandre M.J.-C. Wadoux, Raphael Viscarra-Rossel, ???, ???, ..., ???
+   email: ramirez.lopez.leo@gmail.com
+date: "`r Sys.Date()`"
+bibliography: ["one.bib"]
+biblio-style: "apalike"
+link-citations: true
+output: knitr:::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Bulding highly accurate local models with the resemble package}
+---
+
+```{r setup, include = FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  collapse = TRUE
+)
+```
+
+<em><p align="right"> Think Globally, Fit Locally [@saul2003think] </p></em>
+
+
+Modelling using spectral data has garnered wide interest in the last two decades. 
+Spectroscopy is the study of the spectral response of a matrix (e.g. soil, 
+plant material, seeds, etc.) when it interacts with electromagnetic radiation. 
+This spectral response directly or indirectly relates to a wide range of 
+compositional characteristics (chemical, physical or biological) of the matrix. 
+Therefore, it is possible to develop empirical models that can accurately 
+quantify properties of different matrices. In this respect, quantitative 
+spectroscopy techniques are usually fast, non-destructive and cost-efficient in 
+comparison to conventional laboratory methods used in the analyses of these 
+matrices.  This has resulted in the development of comprehensive 
+spectral databases for several agricultural products comprising large amounts 
+of observations. The size of such databases increases *de facto* their 
+complexity. To analyse large and complex spectral data, one must then resort 
+numerical and statistical tools such as dimensionality reduction, and local 
+spectroscopic modelling based on spectral similarity concepts.    
+
+The aim of the `resemble` package is to provide tools to efficiently and 
+accurately extract quantitative information from  large and complex spectral 
+databases. The package contains functions for dimensionality reduction, 
+spectral dissimilarity measurements, nearest neighbour search, and local modeling. 
+The core functionality of the package include: 
+
+* spectral dimension reduction
+* the computation of similarity measures
+* evaluation of dissimilarity matrices
+* spectral neighbour search
+* fitting local spectroscopic models
+* plotting results of modelling
+
+__Example dataset__
+The example of this vignette uses external spectroscopic data. The spectral data 
+are scans of soil samples recorded in the the visible and near-infrared (vis-NIR) 
+range of the electromagnetic spectrum.
+[here data description]
+
+Load the necessary packages and data. [to be improve - maybe best separate 
+package loading and data description]
+```{r libraries, tidy = TRUE, message = FALSE}
+library(resemble)
+library(tidyr)
+library(prospectr)
+```
+
+The data can be loaded into R using the following code. 
+```{r, tidy = TRUE, message = FALSE}
+data(NIRsoil)
+# NIRsoil is a data.frame with 825 obs and 5 variables: 
+# Nt (Total Nitrogen), Ciso (Carbon), CEC (Cation Exchange Capacity), 
+# train (vector of 0,1 indicating training (1) and validation (0) samples),
+# spc (spectral matrix)
+str(NIRsoil)
+```
+
+
+Preprocess the data and split into calibration and validation...
+```{r NIRsoil, tidy = TRUE, message = FALSE}
+NIRsoil <- NIRsoil[NIRsoil$CEC %>% complete.cases(),]
+wavs <- as.numeric(colnames(NIRsoil$spc))
+
+NIRsoil$spc_p <- NIRsoil$spc %>% 
+  standardNormalVariate() %>% 
+  resample(wavs, seq(min(wavs), max(wavs), by = 11)) %>% 
+  savitzkyGolay(p = 1, w = 5, m = 1)
+
+train_x <- NIRsoil$spc_p[as.logical(NIRsoil$train), ]
+train_y <- NIRsoil$CEC[as.logical(NIRsoil$train)]
+
+test_x <- NIRsoil$spc_p[!as.logical(NIRsoil$train), ]
+test_y <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+```
+
+## Dimension reduction
+
+
+[AW: Leonardo, can you provide some subsections: what has to be shown?]
+
+### Principal components
+
+### Projection to latent structures - Partial leats squares
+
+### Optimal selection of the number of components when side information is available
+[here a demonstration of why opc is much better than any other method of components selection]
+
+
+## Dissimilarity measures
+
+
+### Correlation
+### Euclidean distance
+### Mahalanobis distance
+### Spectral angle mapper
+### Spectral information divergence
+
+## Evaluating (dis-)similarity measures
+
+[AW: I have a nice example]
+
+## Neighbour search 
+
+Neighbour search is used when having a dataset, it is necessary to identify/select 
+its most spectrally similar observations from another dataset. This kind of subset 
+selection can bee very useful when dealing with very large spectral 
+datasets. ......
+
+## Memory-based learning (MBL)
+
+MBL has proven to be a method to derive highly accurate predictions from large 
+spectral libraries ([@ramirez2013spectrum])...
+
+
+```{r sblnorpint,  eval = TRUE, results='hide'}
+# Use MBL as in Ramirez-Lopez et al. (2013)
+sbl <- mbl(
+  Xr = train_x, Yr = train_y, Xu = test_x,
+  k = seq(50, 130, by = 20),
+  method = local_fit_gpr(),
+  control = mbl_control(validation_type = "NNv")
+)
+```
+
+the resulting object can be plotted
+```{r sblprintresult2,  eval = TRUE, include = TRUE, fig.cap = "Effect of first derivative and second derivative", fig.height = 6, fig.width = 10, tidy = TRUE, dpi = 50, out.height = "60%", out.width = "100%"}
+plot(sbl)
+```
+
+### `mbl()` in parallel
+
+Explain briefly how to do it and how it is. Mention that openMP is also used in 
+cpp code
+
+## RS-LOCAL
+
+The RS-LOCAL algorithm was recently introduces by [@lobsey2017rs]...
+
+### `rslocal()` in parallel
+
+Explain briefly how to do it and how it is implemented
+
+
+
+## References
+

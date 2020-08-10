@@ -14,28 +14,28 @@ diss_to_neighbors(
 )
 }
 \arguments{
-\item{diss_matrix}{a matrix representing the dissimilarities between 
-observations in a matrix \code{Xu} and observations in another matrix 
+\item{diss_matrix}{a matrix representing the dissimilarities between
+observations in a matrix \code{Xu} and observations in another matrix
 \code{Xr}. \code{Xr} in rows \code{Xu} in columns.}
 
-\item{k}{an integer value indicating the k-nearest neighbors of each 
+\item{k}{an integer value indicating the k-nearest neighbors of each
 observation in \code{Xu} that must be selected from \code{Xr}.}
 
-\item{k_diss}{an integer value indicating a dissimilarity treshold. 
-For each observation in \code{Xu}, its nearest neighbors in \code{Xr} 
-are selected as those for which their dissimilarity to \code{Xu} is below 
-this \code{k_diss} threshold. This treshold depends on the corresponding 
-dissimilarity metric specified in \code{diss_method}. Either \code{k} or 
+\item{k_diss}{an integer value indicating a dissimilarity treshold.
+For each observation in \code{Xu}, its nearest neighbors in \code{Xr}
+are selected as those for which their dissimilarity to \code{Xu} is below
+this \code{k_diss} threshold. This treshold depends on the corresponding
+dissimilarity metric specified in \code{diss_method}. Either \code{k} or
 \code{k_diss} must be specified.}
 
-\item{k_range}{an integer vector of length 2 which specifies the minimum 
-(first value) and the maximum (second value) number of neighbors to be 
+\item{k_range}{an integer vector of length 2 which specifies the minimum
+(first value) and the maximum (second value) number of neighbors to be
 retained when the \code{k_diss} is given.}
 
-\item{spike}{a vector of integers indicating what observations in \code{Xr} 
+\item{spike}{a vector of integers indicating what observations in \code{Xr}
 (and \code{Yr}) must be 'forced' to always be part of all the neighborhoods.}
 
-\item{return_dissimilarity}{logical indicating if the input dissimilarity 
+\item{return_dissimilarity}{logical indicating if the input dissimilarity
 must be mirroed in the output.}
 }
 \description{
