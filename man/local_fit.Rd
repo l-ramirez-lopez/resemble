@@ -42,8 +42,7 @@ within each iteration in the \code{\link{mbl}} function.
 }
 \details{
 These functions are used to indicate how to fit
-the regression models within the \code{\link{mbl}} and \code{\link{rslocal}}
-functions.
+the regression models within the \code{\link{mbl}} function.
 
 There are three possible options for performing these regressions:
 \itemize{

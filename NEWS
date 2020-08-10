@@ -21,8 +21,7 @@ Now This option can be specified by using 'cor' as the method in the argument
 is not specified, the standard correlation between spectra is computed.  
              
 * 27.02.2020 
-The argument 'resampling' in mblControl() has been renamed to 'number' for 
-avoiding confusions with the arguments of the new rslocal() function.
+The argument 'resampling' in mblControl() has been renamed to 'number'
              
 * 18.07.2019 
 A bug in the scaling of the euclidean distances in fDiss was detected and fixed. 
