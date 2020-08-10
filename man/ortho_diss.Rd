@@ -2,7 +2,7 @@
 % Please edit documentation in R/ortho_diss.R
 \name{ortho_diss}
 \alias{ortho_diss}
-\title{A function for computing dissimilarity matrices from orthogonal 
+\title{A function for computing dissimilarity matrices from orthogonal
 projections (ortho_diss)}
 \usage{
 ortho_diss(Xr, Xu = NULL,
@@ -18,174 +18,179 @@ ortho_diss(Xr, Xu = NULL,
            allow_parallel = TRUE, ...)
 }
 \arguments{
-\item{Xr}{a matrix containing \code{n} reference observations/rows and 
+\item{Xr}{a matrix containing \code{n} reference observations/rows and
 \code{p} variables/columns.}
 
-\item{Xu}{an optional matrix containing data of a second set of observations 
+\item{Xu}{an optional matrix containing data of a second set of observations
 with \code{p} variables/columns.}
 
-\item{Yr}{a matrix of \code{n} observations. It can be numercic with multiple
-variables/columns, or character with one single column. This argument is 
+\item{Yr}{a matrix of \code{n} rows and one or more columns (variables) with
+side information corresponding to the observations in \code{Xr} (e.g. response
+variables). It can be numeric with multiple variables/columns, or character
+with one single column. This argument is
 required if:
 \itemize{
-\item{\code{diss_method == 'pls'}: \code{Yr} is required to 
-extract to project the variables to orthogonal directions such that the 
-covariance between the extracted components and \code{Yr} is maximized.}
-\item{\code{pc_selection$method == 'opc'}: \code{Yr}  is required to optimize 
-the number of components. The optimal number of projected components (of set 
-of observations) is the one for which its distance matrix minimizes the 
-differences between the \code{Yr} value of each observation and the \code{Yr} 
-value of its closest observation. See \code{\link{sim_eval}}.}
+\item{\code{diss_method == 'pls'}: \code{Yr} is required to project the variables
+to orthogonal directions such that the covariance between the extracted pls
+components and \code{Yr} is maximized.}
+\item{\code{pc_selection$method == 'opc'}: \code{Yr}  is required to optimize
+the number of components. The optimal number of projected components is the one
+for which its distance matrix minimizes the differences between the \code{Yr}
+value of each observation and the \code{Yr} value of its closest observation.
+See \code{\link{sim_eval}}.}
 }}
 
-\item{pc_selection}{a list of length 2 which specifies the method to be used 
-for optimizing the number of components (principal components or pls factors) 
-to be retained. This list must contain two elements (in the following order): 
-\code{method} (a character indicating the method for selecting the number of 
-components) and \code{value} (a numerical value that complements the selected 
+\item{pc_selection}{a list of length 2 which specifies the method to be used
+for optimizing the number of components (principal components or pls factors)
+to be retained. This list must contain two elements (in the following order):
+\code{method} (a character indicating the method for selecting the number of
+components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} {optimized principal component selection based on 
-       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components 
-       (of set of observations) is the one for which its distance matrix 
-       minimizes the differences between the \code{Yr} value of each 
-       observation and the \code{Yr} value of its closest observation. In this 
-       case \code{value} must be a value (larger than 0 and 
-       below \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}) indicating the maximum 
-       number of principal components to be tested. See the 
-       \code{\link{ortho_projection}} function for more details.}  
-       
-       \item{\code{"cumvar"}:}{selection of the principal components based 
+       \item{\code{"opc"}:} { optimized principal component selection based on
+       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
+       (of a given set of observations) is the one for which its distance
+       matrix minimizes the differences between the \code{Yr} value of each
+       observation and the \code{Yr} value of its closest observation. In this
+       case, \code{value} must be a value (larger than 0 and
+       below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
+       number of principal components to be tested. See the
+       \code{\link{ortho_projection}} function for more details.}
+
+       \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
-       \code{value} must be a value (larger than 0 and below or equal to 1) 
-       indicating the maximum amount of cumulative variance that the 
-       retained components should explain.} 
-       
-       \item{\code{"var"}:}{selection of the principal components based 
+       \code{value} must be a value (larger than 0 and below or equal to 1)
+       indicating the maximum amount of cumulative variance that the
+       retained components should explain.}
+
+       \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
-       \code{value} must be a value (larger than 0 and below or equal to 1) 
-       indicating the minimum amount of variance that a component should 
+       \code{value} must be a value (larger than 0 and below or equal to 1)
+       indicating the minimum amount of variance that a component should
        explain in order to be retained.}
-       
-       \item{\code{"manual"}:}{ for manually specifying a fix number of 
-       principal components. In this case, \code{value} must be a value 
-       (larger than 0 and \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}). 
-       indicating the minimum amount of variance that a component should 
+
+       \item{\code{"manual"}:}{ for manually specifying a fix number of
+       principal components. In this case, \code{value} must be a value
+       (larger than 0 and below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))}).
+       indicating the minimum amount of variance that a component should
        explain in order to be retained.}
-       } 
-The default list passed is \code{list(method = "cumvar", value = 0.99)}. 
-Optionally, the \code{pc_selection} argument admits \code{"opc"} or 
-\code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character 
-string. In such a case the default \code{"value"} when either \code{"opc"} or 
-\code{"manual"} are used is 40. When \code{"cumvar"} is used the default 
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default 
+       }
+The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+Optionally, the \code{pc_selection} argument admits \code{"opc"} or
+\code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
+string. In such case, the default \code{"value"} when either \code{"opc"} or
+\code{"manual"} are used is 40. When \code{"cumvar"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used the default
 \code{"value"} is set to 0.01.}
 
-\item{diss_method}{a character value indicating the method for projecting the 
-data. Options are: 
+\item{diss_method}{a character value indicating the type of projection on which
+the dissimilarities must be computed. This argument is equivalent to
+\code{method} argument in the \code{\link{ortho_projection}} function.
+Options are:
 \itemize{
-\item{\code{"pca"}}{: principal component analysis using the singular value 
-decomposition algorithm)} 
-\item{\code{"pca.nipals"}}{: principal component analysis using 
+\item{\code{"pca"}}{: principal component analysis using the singular value
+decomposition algorithm)}
+\item{\code{"pca.nipals"}}{: principal component analysis using
 the non-linear iterative partial least squares algorithm.}
 \item{\code{"pls"}}{: partial least squares.}
 }
-See the \code{\link{ortho_projection}} function for further details on the 
+See the \code{\link{ortho_projection}} function for further details on the
 projection methods.}
 
-\item{.local}{a logical indicating whether or not to compute the distances 
-locally (i.e. projecting locally the data) by using the \code{pre_k} nearest 
+\item{.local}{a logical indicating whether or not to compute the dissimilarities
+locally (i.e. projecting locally the data) by using the \code{pre_k} nearest
 neighbor observations of each target observation. Default is \code{FALSE}. See details.}
 
-\item{pre_k}{if \code{.local = TRUE} a numeric integer value which indicates the 
-number of nearest neighbours to (pre-)retain for each observation to 
-compute the (local) orthogonal dissimilarities to each observation in its 
+\item{pre_k}{if \code{.local = TRUE} a numeric integer value which indicates the
+number of nearest neighbors to (pre-)retain for each observation to
+compute the (local) orthogonal dissimilarities to each observation in its
 neighborhhod.}
 
-\item{center}{a logical indicating if the \code{Xr} and \code{Xu} must be 
-centered. If \code{Xu} is provided the data is centered around the mean of 
+\item{center}{a logical indicating if the \code{Xr} and \code{Xu} must be
+centered. If \code{Xu} is provided the data is centered around the mean of
 the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}). For
-dissimilarity computations based on pls, the data is always centered for 
+dissimilarity computations based on pls, the data is always centered for
 the projections.}
 
-\item{scale}{a logical indicating if the \code{Xr} and \code{Xu} must be 
-scaled. If \code{Xu} is provided the data is scaled based on the standard 
-deviation of the the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}). 
+\item{scale}{a logical indicating if the \code{Xr} and \code{Xu} must be
+scaled. If \code{Xu} is provided the data is scaled based on the standard
+deviation of the the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}).
 if \code{center = TRUE}, scaling is applied after centering.}
 
-\item{compute_all}{a logical. In case \code{Xu} is specified it indicates 
-whether or not the distances between all the elements resulting from the 
+\item{compute_all}{a logical. In case \code{Xu} is specified it indicates
+whether or not the distances between all the elements resulting from the
 pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu} must be computed).}
 
-\item{return_projection}{a logical. If `TRUE` the `ortho_projection` object 
-used to compute the distances will be returned. Default is `FALSE`. Note that
-for \code{.local = TRUE} only the initial projection is returned (i.e. local 
+\item{return_projection}{a logical. If \code{TRUE} the `ortho_projection` object
+on which the dissimilarities are computed will be returned. Default is \code{FALSE}. Note that
+for \code{.local = TRUE} only the initial projection is returned (i.e. local
 projections are not).}
 
-\item{allow_parallel}{a logical (default TRUE). It allows parallel computing 
-of the local distance matrices (i.e. when \code{.local = TRUE}). This is done 
-via \code{\link[foreach]{foreach}} function in the 'foreach' package.}
+\item{allow_parallel}{a logical (default TRUE). It allows parallel computing
+of the local distance matrices (i.e. when \code{.local = TRUE}). This is done
+via \code{\link[foreach]{foreach}} function of the 'foreach' package.}
 
-\item{...}{additional arguments to be passed to the 
+\item{...}{additional arguments to be passed to the
 \code{\link{ortho_projection}} function.}
 }
 \value{
-a \code{list} of class \code{ortho_diss} with the following components:
+a \code{list} of class \code{ortho_diss} with the following elements:
 \itemize{
- \item{\code{n_components}}{ the number of components (either principal 
- components or partial least squares components) used for computing the 
- global distances.}
- \item{\code{global_variance_info}}{ the information about the expalined 
- variance(s) of the projection. When \code{.local = TRUE}, the information 
- corresponds to the global projection done prior computing the local 
+ \item{\code{n_components}}{ the number of components (either principal
+ components or partial least squares components) used for computing the
+ global dissimilarities.}
+ \item{\code{global_variance_info}}{ the information about the expalined
+ variance(s) of the projection. When \code{.local = TRUE}, the information
+ corresponds to the global projection done prior computing the local
  projections.}
- \item{\code{local_n_components}}{ if \code{.local = TRUE}, a data.table 
- which specifies the number of local components (either principal components 
- or partial least squares components) used for computing the dissimilarity 
- between each target observation and its neighbour observations.}
- \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If 
- \code{.local = FALSE} a distance matrix. If \code{.local = TRUE} a matrix of 
- class \code{ortho_diss}. In this case each column represent the dissimilarity 
- between a target observation and its neighbour observations.}
- \item{\code{projection}}{an `ortho_projection` object (if requested).}
+ \item{\code{local_n_components}}{ if \code{.local = TRUE}, a data.table
+ which specifies the number of local components (either principal components
+ or partial least squares components) used for computing the dissimilarity
+ between each target observation and its neighbor observations.}
+ \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If
+ \code{.local = FALSE} a distance matrix. If \code{.local = TRUE} a matrix of
+ class \code{localortho_diss}. In this case, each column represent the dissimilarity
+ between a target observation and its neighbor observations.}
+ \item{\code{projection}}{if \code{return_projection = TRUE},
+ an \code{ortho_projection} object.}
  }
 }
 \description{
 \lifecycle{maturing}
 
 \loadmathjax
-This function computes dissimilarities (in an orthogonal space) between 
-either observations in a given set or between observations in two different 
-sets.The dissimilarities are computed based on either principal component 
-projection or partial least squares projection of the data. After projecting 
+This function computes dissimilarities (in an orthogonal space) between
+either observations in a given set or between observations in two different
+sets.The dissimilarities are computed based on either principal component
+projection or partial least squares projection of the data. After projecting
 the data, the Mahalanobis distance is applied.
 }
 \details{
-When \code{.local = TRUE}, first a global distance matrix is computed based on 
-the parameters specified. Then, by using this matrix for each target 
-observation, a given set of nearest neighbours (\code{pre_k}) are identified. 
-These neighbours (together with the target observation) are projected 
-(from the original data space) onto a (local) orthogonal space (using the 
-same parameters specified in the function). In this projected space the 
-Mahalanobis distance between the target observation and the neighbours is 
-recomputed. A missing value is assigned to the observations that do not belong to 
-this set of neighbours (non-neighbour observations).
-In this case the dissimilarity matrix cannot be considered as a distance 
-metric since it does not necessarily satisfies the symmetry condition for 
-distance matrices (i.e. given two observations \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j}, the local 
-dissimilarity (\mjeqn{d}{d}) between them is relative since generally 
-\mjeqn{d(x_i, x_j) \neq d(x_j, x_i)}{d(x_i, x_j) ne d(x_j, x_i)}). On the other hand, when 
-\code{.local = FALSE}, the dissimilarity matrix obtained can be considered as 
+When \code{.local = TRUE}, first a global dissimilarity matrix is computed based on
+the parameters specified. Then, by using this matrix for each target
+observation, a given set of nearest neighbors (\code{pre_k}) are identified.
+These neighbors (together with the target observation) are projected
+(from the original data space) onto a (local) orthogonal space (using the
+same parameters specified in the function). In this projected space the
+Mahalanobis distance between the target observation and the neighbors is
+recomputed. A missing value is assigned to the observations that do not belong to
+this set of neighbors (non-neighbor observations).
+In this case the dissimilarity matrix cannot be considered as a distance
+metric since it does not necessarily satisfies the symmetry condition for
+distance matrices (i.e. given two observations \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j}, the local
+dissimilarity (\mjeqn{d}{d}) between them is relative since generally
+\mjeqn{d(x_i, x_j) \neq d(x_j, x_i)}{d(x_i, x_j) ne d(x_j, x_i)}). On the other hand, when
+\code{.local = FALSE}, the dissimilarity matrix obtained can be considered as
 a distance matrix.
 
-In the cases where \code{"Yr"} is required to compute the dissimilarities and 
+In the cases where \code{"Yr"} is required to compute the dissimilarities and
 if \code{.local = TRUE}, care must be taken as some neighborhoods might
 not have enough observations with non-missing \code{"Yr"} values, which might retrieve
-unreliable dissimilarity computations. 
+unreliable dissimilarity computations.
 
-If \code{.local = TRUE} and \code{pc_selection$method} is \code{"opc"} or 
+If \code{.local = TRUE} and \code{pc_selection$method} is \code{"opc"} or
 \code{"manual"}, the minimum number of observations with non-missing \code{"Yr"}
-values at each neighborhood is determined by \code{pc_selection$value} 
+values at each neighborhood is determined by \code{pc_selection$value}
 (i.e. the maximum number of components to compute).
 }
 \examples{
@@ -212,9 +217,9 @@ pca_diss <- ortho_diss(Xr, Xu)
 # the "opc" method for the selection of the principal components
 pca_diss_optim <- ortho_diss(
   Xr, Xu, Yr,
-  pc_selection = list("opc", 40),  
+  pc_selection = list("opc", 40),
   compute_all = TRUE
-  )
+)
 
 # Computation of a partial least squares (PLS) dissimilarity
 # matrix using the "opc" method for the selection of the PLS
@@ -228,12 +233,12 @@ pls_diss_optim <- ortho_diss(
 }
 }
 \references{
-Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M., 
-Scholten, T. 2013a. The spectrum-based learner: A new local approach for 
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
+Scholten, T. 2013a. The spectrum-based learner: A new local approach for
 modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
 
-Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte, 
-J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use 
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
+J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use
 with soil vis-NIR spectra. Geoderma 199, 43-53.
 }
 \seealso{

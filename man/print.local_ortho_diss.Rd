@@ -7,7 +7,7 @@
 \method{print}{local_ortho_diss}(x, ...)
 }
 \arguments{
-\item{x}{an object of class \code{localortho_diss} (returned by 
+\item{x}{an object of class \code{localortho_diss} (returned by
 \code{ortho_diss} when it uses \code{.local = TRUE}).}
 
 \item{...}{arguments to be passed to methods (not yet functional).}

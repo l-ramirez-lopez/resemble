@@ -2,32 +2,32 @@
 % Please edit documentation in R/local_helpers.R
 \name{sample_str}
 \alias{sample_str}
-\title{A function to create the sample sets for calibration/validation in 
-cross validation.}
+\title{A function to create the sample sets for calibration/validation in
+cross-validation.}
 \usage{
 sample_str(y, p, number, group = NULL)
 }
 \arguments{
 \item{y}{a matrix of one column with the response variable.}
 
-\item{p}{the percentage of samples (or groups if group argument is used) to 
+\item{p}{the percentage of samples (or groups if group argument is used) to
 retain in the hold_in set}
 
 \item{number}{the number of sample groups to be crated}
 
-\item{group}{the labels for each sample in \code{y} indicating the group each 
+\item{group}{the labels for each sample in \code{y} indicating the group each
 observation belongs to.}
 }
 \value{
-a list with two matrices (\code{hold_in} and \code{hold_out}) giving 
-the indices of the observations in each column. The number of colums represents 
+a list with two matrices (\code{hold_in} and \code{hold_out}) giving
+the indices of the observations in each column. The number of colums represents
 the number of sampling repetitions.
 }
 \description{
-for internal use only! This is stratified sampling based on the 
+for internal use only! This is stratified sampling based on the
 values of a continous response variable (y). If group is provided, the
-sampling is done based on the groups and the average of y per group. This 
-function is used to create groups forleave-group-out cross validations (or 
-leave-group-of-groups-out cross validation if group argument is provided).
+sampling is done based on the groups and the average of y per group. This
+function is used to create groups forleave-group-out cross-validations (or
+leave-group-of-groups-out cross-validation if group argument is provided).
 }
 \keyword{internal}

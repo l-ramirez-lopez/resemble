@@ -1,8 +1,8 @@
 #' @title Extract predictions from an object of class \code{mbl}
-#' @description 
-#' 
+#' @description
+#'
 #' \lifecycle{stable}
-#' 
+#'
 #' Extract predictions from an object of class \code{mbl}
 #' @usage
 #' get_predictions(object)

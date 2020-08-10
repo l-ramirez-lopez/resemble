@@ -4,9 +4,40 @@ Title:
     Regression and Similarity Evaluation for Memory-Based Learning in
     Spectral Chemometrics
 Version: 2.0.0
-Date: 2020-07-02
-Author: 
-    llll
+Date: 2020-08-07
+Authors@R:  
+    c(person(given = "Leonardo",
+             family = "Ramirez-Lopez",
+             role = c("aut", "cre"),
+             email = "ramirez.lopez.leo@gmail.com",
+             comment = c(ORCID = "0000-0002-5369-5120")),
+      person(given = "Antoine",
+             family = "Stevens",
+             role = "ctb",
+             comment = c(ORCID = "0000-0002-1588-7519")),
+      person(given = "Raphael",
+             family = "Viscarra Rossel",
+             role = "ctb",
+             comment = c(ORCID = "0000-0003-1540-4748")),
+      person(given = "Craig",
+             family = "Lobsey",
+             role = "ctb",
+             comment = c(ORCID = "0000-0001-5416-8640")),
+      person(given = "Alex",
+             family = "Wadoux",
+             role = "ctb",
+             comment = c(ORCID = "0000-0001-7325-9716")),
+      person(given = "Timo",
+             family = "Breure",
+             role = "ctb",
+             comment = c(ORCID = "0000-0001-5695-8064"))
+      )
+Author: Leonardo Ramirez-Lopez [aut, cre], 
+    Antoine Stevens [ctb], 
+    Raphael Viscarra Rossel [ctb], 
+    Craig Lobsey [ctb], 
+    Alex Wadoux [ctb], 
+    Timo Breure [ctb]
 Maintainer: 
     Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: 
@@ -36,12 +67,11 @@ Suggests:
     testthat
 LinkingTo: 
     Rcpp, 
-    RcppArmadillo, 
-    RcppEigen
+    RcppArmadillo
 RdMacros: 
     mathjaxr,
     lifecycle
 NeedsCompilation: yes
 Repository: CRAN
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8

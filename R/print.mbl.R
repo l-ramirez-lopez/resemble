@@ -10,7 +10,7 @@
 
 print.mbl <- function(x, ...) {
   val <- x$validation_results
-  
+
   if (!is.null(val$nearest_neighbor_validation)) {
     nn_val_stats <- val$nearest_neighbor_validation
   } else {
@@ -28,13 +28,13 @@ print.mbl <- function(x, ...) {
   }
   sys_width <- getOption("width")
   bar_width <- 55
-  
+
   if (bar_width > sys_width) {
     bar_width <- sys_width
   }
-  
+
   div <- paste(rep("_", bar_width), collapse = "")
-    
+
   cat("\n")
   cat("Call:", "\n\n")
   print(x$call)

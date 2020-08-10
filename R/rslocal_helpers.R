@@ -1,10 +1,9 @@
-#' @title iterates over elements to print 
-#' @description internal. used for printing 
+#' @title iterates over elements to print
+#' @description internal. used for printing
 #' @keywords internal
 cat_iter <- function(x) {
-  
   iter_x <- iter(x, by = "cell", recycle = TRUE)
-  
+
   next_e <- function() {
     nextElem(iter_x)
   }
@@ -29,13 +28,11 @@ biter <- function(itersubs,
                   max_iter,
                   tol,
                   allow_parallel) {
-  
-  
   "%mydo%" <- get("%do%")
   if (allow_parallel & getDoParRegistered()) {
     "%mydo%" <- get("%dopar%")
   }
-  
+
   its <- NULL
   rdf <- foreach(
     idx = iter_sequence,
@@ -48,19 +45,19 @@ biter <- function(itersubs,
     #                        size = k,
     #                        replace = FALSE)
     #
-    # # retrieve the spectra and dependent variable from the SL for the training 
+    # # retrieve the spectra and dependent variable from the SL for the training
     # set selection
     # X <- Xr[selected.idx,]
     # Y <- Yr[selected.idx]
-    
+
     # dataset <- cbind(X, Y)
-    
+
     #
     # Step 3 calibrate a PLS model using the selected SL samples
     #
-    
+
     if (tune) {
-      # perform a leave-group-out cross validation of the selected SL (k) 
+      # perform a leave-group-out cross.validation of the selected SL (k)
       # observations to determine a suitable number of pls factors
       plsv <- pls_cv(
         x = its$x,
@@ -78,13 +75,12 @@ biter <- function(itersubs,
         max_iter = max_iter,
         tol = tol
       )
-      
+
       selected_pls_c <- which.min(plsv$cv_results$rmse_cv)[1]
-      
     } else {
       selected_pls_c <- ncomp
     }
-    
+
     # build the model
     mod <- opls_get_basics(
       X = its$x,
@@ -94,10 +90,10 @@ biter <- function(itersubs,
       maxiter = max_iter,
       tol = tol
     )
-    
+
     if (optimization == "response") {
       # rs <- Xu - (Xu %*% mod$projection_mat %*% mod$X_loadings)
-      
+
       y_pred <- predict_opls(
         bo = mod$bo,
         b = mod$coefficients,
@@ -107,38 +103,38 @@ biter <- function(itersubs,
         Xscale = mod$transf$Xscale
       )
       y_pred <- y_pred[, selected_pls_c]
-      
+
       #
       # Step 4 - validate on the 'm' site specific observations
       #
       # y_pred <- as.numeric(predict(mod, Xu, ncomp=selected_pls_c))
-      
-      # It is possible we get NA predictions, catch this case and ignore this 
+
+      # It is possible we get NA predictions, catch this case and ignore this
       # observation test
       if (any(is.na(y_pred))) {
-        
+
       } else {
         # rmse <- sqrt(sum((y_pred - Yu)^2)/(length(Yu) - 1))
         # rmse <- sqrt(sum((y_pred - Yu)^2)/(length(Yu)))
         rmse <- sqrt(mean((y_pred - Yu)^2))
       }
     }
-    
+
     if (optimization == "reconstruction") {
       ## this must be implemented in Rcpp
       # xpred <- (Xu %*% mod$projection_mat) %*% mod$X_loadings
       # rmse <- sqrt(mean((Xu - xpred)^2))
       rmse <- reconstruction_error(Xu, mod$projection_mat, mod$X_loadings)[[1]]
     }
-    
-    # combine the validation results and the observations that were selected for this 
+
+    # combine the validation results and the observations that were selected for this
     # model
     return(c(
       rmse_subset = rmse,
       sample = its$idx
     ))
   }
-  
+
   # compile a data frame of all results of the sampling iterations
   rdf <- do.call("rbind", rdf)
   rmsesubset <- rdf[, "rmse_subset"]
@@ -154,10 +150,10 @@ biter <- function(itersubs,
 #' @description internal
 #' @param x an input matrix of predictors
 #' @param y a response variable
-#' @param group a variable giving the groups/calsses to which the observations 
+#' @param group a variable giving the groups/calsses to which the observations
 #' belong to (used for avoiding pseudo-replication during validation)
 #' @param indx the indices to retrieve
-#' @return an object of \code{class} iterator giving a \code{list} with (a) a 
+#' @return an object of \code{class} iterator giving a \code{list} with (a) a
 #' subset of the input matrix with rows re-arranged according to `indx`
 #' @details this is designed to be used within (parallel) loops to avoid sending
 #' entire matrices to each core. It just sends the subset of that is required.
@@ -168,7 +164,7 @@ ithrssubsets <- function(x,
                          group = NULL,
                          indx) {
   it_indx <- iter(indx, by = "column")
-  
+
   if (is.null(group)) {
     nextEl <- function() {
       ss <- nextElem(it_indx)

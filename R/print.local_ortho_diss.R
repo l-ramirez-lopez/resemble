@@ -1,7 +1,7 @@
 #' @title Print method for an object of class \code{ortho_diss}
 #' @description Prints the content of an object of class \code{ortho_diss}
 #' @usage \method{print}{local_ortho_diss}(x, ...)
-#' @param x an object of class \code{localortho_diss} (returned by 
+#' @param x an object of class \code{localortho_diss} (returned by
 #' \code{ortho_diss} when it uses \code{.local = TRUE}).
 #' @param ... arguments to be passed to methods (not yet functional).
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
@@ -32,9 +32,11 @@ print.local_ortho_diss <- function(x, ...) {
     obj$dissimilarity <- as.matrix(round(obj$dissimilarity, getOption("digits")))
     obj$dissimilarity[is.na(obj$dissimilarity)] <- "*"
     dm <- format(obj$dissimilarity, digits = getOption("digits"), justify = "right")
-    print(list(n.components = object$n_components, 
-               loc_n_components = object$neighborhood_info$local_n_components, 
-               dissimilarity = noquote(dm)))
+    print(list(
+      n.components = object$n_components,
+      loc_n_components = object$neighborhood_info$local_n_components,
+      dissimilarity = noquote(dm)
+    ))
     cat("*: Not a (local) neighbor")
   }
   if (is.matrix(obj)) {

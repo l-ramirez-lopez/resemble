@@ -12,17 +12,17 @@ cor_diss(Xr, Xu = NULL, ws = NULL,
 
 \item{Xu}{an optional matrix containing data of a second set of observations.}
 
-\item{ws}{for moving correlation dissimilarity, an odd integer value which 
-specifies the window size. If \code{ws = NULL}, then the window size will be 
-equal to the number of variables (columns), i.e. instead moving correlation, 
+\item{ws}{for moving correlation dissimilarity, an odd integer value which
+specifies the window size. If \code{ws = NULL}, then the window size will be
+equal to the number of variables (columns), i.e. instead moving correlation,
 the normal correlation will be used. See details.}
 
-\item{center}{a logical indicating if the spectral data \code{Xr} (and 
-\code{Xu} if specified) must be centered. If \code{Xu} is provided, the data  
+\item{center}{a logical indicating if the spectral data \code{Xr} (and
+\code{Xu} if specified) must be centered. If \code{Xu} is provided, the data
 is scaled on the basis of \mjeqn{Xr \cup Xu}{Xr U Xu}.}
 
-\item{scale}{a logical indicating if \code{Xr} (and \code{Xu} if specified) 
-must be scaled. If \code{Xu} is provided the data is scaled on the basis 
+\item{scale}{a logical indicating if \code{Xr} (and \code{Xu} if specified)
+must be scaled. If \code{Xu} is provided the data is scaled on the basis
 of \mjeqn{Xr \cup Xu}{Xr U Xu}.}
 }
 \value{
@@ -36,20 +36,20 @@ a matrix of the computed dissimilarities.
 Computes correlation and moving correlation dissimilarity matrices.
 }
 \details{
-The correlation dissimilarity \mjeqn{cd}{cd} between two observations  
+The correlation dissimilarity \mjeqn{cd}{cd} between two observations
 \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is computed as follows:
 
 \mjdeqn{cd(x_i, x_j) = \frac{1}{2}(1 - cor(x_i, x_j))}{cd(x_i, x_j) = 1/2 (1 - cor (x_i, x_j))}
 
 The avobe formlula is used when \code{ws = NULL}.
-On the other hand (when \code{ws != NULL}) the moving correlation 
-dissimilarity \mjeqn{mcd}{mcd} between two observations \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} 
+On the other hand (when \code{ws != NULL}) the moving correlation
+dissimilarity \mjeqn{mcd}{mcd} between two observations \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j}
 is computed as follows:
 
 \mjdeqn{mcd(x_i, x_j) = \frac{1}{2 ws}\sum_{k=1}^{p-ws}(1 - cor(x_{i,(k:k+ws)}, x_{j,(k:k+ws)}))}{mcd(x_i, x_j) = 1/(2 ws)\sum_(k=1)^{p-ws}(1 - cor(x_(i,k:k+ws), x_(j,k:k+ws)))}
- 
-where \mjeqn{ws}{ws} represents a given window size which rolls sequentially 
-from 1 up to \mjeqn{p - ws}{p - ws} and  \mjeqn{p}{p} is the number of 
+
+where \mjeqn{ws}{ws} represents a given window size which rolls sequentially
+from 1 up to \mjeqn{p - ws}{p - ws} and  \mjeqn{p}{p} is the number of
 variables of the observations.
 
 The function does not accept input data containing missing values.

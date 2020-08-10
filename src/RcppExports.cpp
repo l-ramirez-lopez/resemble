@@ -2,7 +2,6 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
-#include <RcppEigen.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -50,18 +49,6 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(minDissV(X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eigenMapMatMult
-SEXP eigenMapMatMult(const Eigen::Map<Eigen::MatrixXd> A, Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _resemble_eigenMapMatMult(SEXP ASEXP, SEXP BSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigenMapMatMult(A, B));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -368,7 +355,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fast_diss_vector", (DL_FUNC) &_resemble_fast_diss_vector, 1},
     {"_resemble_fastDistVVL", (DL_FUNC) &_resemble_fastDistVVL, 1},
     {"_resemble_minDissV", (DL_FUNC) &_resemble_minDissV, 1},
-    {"_resemble_eigenMapMatMult", (DL_FUNC) &_resemble_eigenMapMatMult, 2},
     {"_resemble_moving_cor_diss", (DL_FUNC) &_resemble_moving_cor_diss, 3},
     {"_resemble_get_col_largest_sd", (DL_FUNC) &_resemble_get_col_largest_sd, 1},
     {"_resemble_get_column_sds", (DL_FUNC) &_resemble_get_column_sds, 1},

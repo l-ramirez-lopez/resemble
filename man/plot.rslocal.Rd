@@ -9,15 +9,15 @@
 \arguments{
 \item{x}{an object of class \code{rslocal} (as returned by \code{rslocal}).}
 
-\item{g}{a character vector indicating what results shall be plotted. 
-Options are: \code{"rmse"} (for plotting the progress of the maximum RMSE found 
-during the iterations) and/or \code{"n"} (for plotting the cumulative number 
+\item{g}{a character vector indicating what results shall be plotted.
+Options are: \code{"rmse"} (for plotting the progress of the maximum RMSE found
+during the iterations) and/or \code{"n"} (for plotting the cumulative number
 of observations removed at each iteration).}
 
 \item{...}{some arguments to be passed to the plot methods.}
 }
 \description{
-Plots the content of an object of class \code{rslocal}
+Plots objects of class \code{rslocal}
 }
 \seealso{
 \code{\link{rslocal}}

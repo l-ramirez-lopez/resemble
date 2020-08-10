@@ -20,7 +20,7 @@ orthogonal projections in spectral data.
 
 ## Core functionality 
 
-The core functionality of the package can be sumarizted with the following 
+The core functionality of the package can be sumarized into the following 
 functions:
   
 __`mbl`__: implements memory-based learning (MBL) for modeling and predicting 
@@ -29,12 +29,7 @@ famous LOCAL algorithm proposed by Shenk et al. (1997). In general, this
 function allowes you to easily customize your own MBL regression-prediction 
 method.
 
-__`rslocal`__: implements the rs-local modeling approach proposed by 
-Lobsey et al. (2017). This function allows you to find in a reference data set, 
-an optimal set of observations to build a model for an specific set of 
-observations. 
-
-__`dissimilarity`__: Computes dissimilarity matrices based on several methods 
+__`dissimilarity`__: Computes dissimilarity matrices based on various methods 
 (e.g. Euclidean, Mahalanobis, cosine, correlation, moving correlation, 
 Spectral information divergence, principal components dissimilarity and partial 
 least squares dissimilarity).
@@ -47,18 +42,17 @@ __`search_neighbors`__: A function to efficiently retrieve from a refence set th
 k-nearest neighbors of another given data set.
 
 ## New version
-During the recent lockdown time we invested some of our free time to come up 
+During the recent lockdown we invested some of our free time to come up 
 with a new version of our package. This new `resemble` 2.0 comes with MAJOR 
 improvements and new functions! For these improvements major changes were 
 required. The most evident changes are in the function and argument names.
 These have been now adapted to properly follow the 
 [tydiverse style guide](https://style.tidyverse.org/). A number of changes have 
-been done also for the sake of computational efficiency. These changes are 
+been implemented for the sake of computational efficiency. These changes are 
 documented in `inst\changes.md`.
 
 New interesing functions and fucntionality are also available, for example, 
-the `rslocal()` function implements the rs-local modeling approach proposed by 
-Lobsey et al. (2017). The `mbl()` function now allows sample spiking, where a 
+the `mbl()` function now allows sample spiking, where a 
 set of reference observations can be forced to be included in the neighborhhoods 
 of each sample to be predicted. The `serach_neighbors()` function efficiently 
 retrieves from a refence set the k-nearest neighbors of another given data set. 
@@ -166,18 +160,11 @@ function, the _k_-nearest neighbour search is performed by computing spectral
 dissimilarity matrices between observations. The `mbl` function offers the 
 following regression options for calibrating the (local) models:
 
-__`'gpr'`__:          Gaussian process with linear kernel
+__`'gpr'`__:          Gaussian process with linear kernel.
 
 __`'pls'`__:          Partial least squares.     
 
 __`'wapls'`__:        Weighted average partial least squares (Shenk et al., 1997).
-
-## Data-driven search and optimization in spectral libraries for building data-specific calibrations (RS-LOCAL)
-
-Given a specific sample set, the purpose of the RS-LOCAL algorithm 
-(Lobsey et al., 2017) is to find in a (large) reference training set an optimal 
-subset of observations to build predictive models with strong generalization 
-performance for the type of observations provided in the specific sample set.
 
 ## News
 * 2020.04: [Tsakiridis et al. (2020)](https://www.sciencedirect.com/science/article/abs/pii/S0016706119308870?via%3Dihub), 
@@ -190,8 +177,6 @@ of soil properties using NIR spectroscopy and geographical information.
 * 2019.03,08: [Tsakiridis et al. (2019a)](https://www.sciencedirect.com/science/article/abs/pii/S0925231220300291) and [Tsakiridis et al. (2019b)](https://www.sciencedirect.com/science/article/abs/pii/S1568494619302741),
 compared several machine learning methods for predictive soil spectroscopy and 
 show that MBL `resemble` offers highly competive results.
-
-
 
 * 2020.01: [Sanderman et al., (2020)](https://acsess.onlinelibrary.wiley.com/doi/epdf/10.1002/saj2.20009) used `resemble` for the prediction of soil health indicatorsin the United States.
 
