@@ -109,9 +109,9 @@
 #' @details
 #' In the case of \code{method = "pca"}, the algrithm used is the singular value
 #' decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
-#' \deqn{
-#'      X = UDV^{\mathrm{T}}
-#'      }
+#'      
+#'  \mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}
+#'      
 #' where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right
 #' singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
 #' containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
