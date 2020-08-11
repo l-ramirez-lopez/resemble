@@ -25,19 +25,19 @@
 #' to be used in the selection of the nearest neighbors of each observation.
 #' \itemize{
 #'        \item{\code{"pca"}:}{  Mahalanobis distance
-#'        computed on the maxtix of scores of a Principal Component (PC)
+#'        computed on the matrix of scores of a Principal Component (PC)
 #'        projection of \code{Xr} and \code{X2}. PC projection is done using the
 #'        singlar value decomposition (SVD) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
 #'
 #'        \item{\code{"pca.nipals"}}{ Mahalanobis distance
-#'        computed on the maxtix of scores of a Principal Component (PC)
+#'        computed on the matrix of scores of a Principal Component (PC)
 #'        projection of \code{Xr} and \code{X2}. PC projection is done using the
 #'        non-linear iterative partial least squares (niapls) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
 #'
 #'        \item{\code{"pls"}}{ Mahalanobis distance
-#'        computed on the maxtix of scores of a partial least squares projection
+#'        computed on the matrix of scores of a partial least squares projection
 #'        of \code{Xr} and \code{X2}. In this case, \code{Yr} is always required.
 #'        See \code{\link{ortho_diss}} function.}
 #'
