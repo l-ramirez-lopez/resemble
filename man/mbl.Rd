@@ -58,19 +58,19 @@ observation. Options are:
 \itemize{
        \item{\code{"pca"} (Default):}{ Mahalanobis distance
        computed on the matrix of scores of a Principal Component (PC)
-       projection of \code{Xr} and \code{X2}. PC projection is done using the
+       projection of \code{Xr} and \code{Xu}. PC projection is done using the
        singular value decomposition (SVD) algorithm.
        See \code{\link{ortho_diss}} function.}
 
        \item{\code{"pca.nipals"}}{ Mahalanobis distance
        computed on the matrix of scores of a Principal Component (PC)
-       projection of \code{Xr} and \code{X2}. PC projection is done using the
+       projection of \code{Xr} and \code{Xu}. PC projection is done using the
        non-linear iterative partial least squares (nipals) algorithm.
        See \code{\link{ortho_diss}} function.}
 
        \item{\code{"pls"}}{ Mahalanobis distance
        computed on the matrix of scores of a partial least squares projection
-       of \code{Xr} and \code{X2}. In this case, \code{Yr} is always required.
+       of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
        See \code{\link{ortho_diss}} function.}
 
        \item{\code{"cor"}}{ correlation coefficient
