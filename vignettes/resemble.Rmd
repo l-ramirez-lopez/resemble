@@ -98,24 +98,172 @@ test_y <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 ## Dimension reduction
 
 
-[AW: Leonardo, can you provide some subsections: what has to be shown?]
-
 ### Principal components
 
-### Projection to latent structures - Partial leats squares
+```{r}
+# principal component analysis using 5 components
+pc5_spectra <- ortho_projection(Xr = train_x, 
+                             pc_selection = list("manual", 5), 
+                             method = 'pca')
+
+# display the information contained in the pcspectraRs object
+print(pc5_spectra)
+```
+```{r}
+plot(pc5_spectra)
+```
+
+### Projection to latent structures - Partial least squares
+
+```{r}
+# A partial least squares projection using the "opc" method
+# for the selection of the optimal number of components
+pls_projected <- ortho_projection(
+  Xr = train_x , Xu = test_x, Yr = train_y, method = "pls",
+  pc_selection = list("opc", 20)
+)
+pls_projected
+plot(pls_projected)
+```
+
+
+```{r}
+# A partial least squares projection using the "cumvar" method
+# for the selection of the optimal number of components
+pls_projected_2 <- ortho_projection(
+  Xr = train_x , Xu = test_x, Yr = train_y,
+  method = "pls",
+  pc_selection = list("cumvar", 0.9)
+)
+
+pls_projected_2
+plot(pls_projected_2)
+
+```
 
 ### Optimal selection of the number of components when side information is available
 [here a demonstration of why opc is much better than any other method of components selection]
+```{r}
+# principal components projection using the "opc" method
+# for the selection of the optimal number of components
 
+# perform the PCA
+pc_opc_spectra <- ortho_projection(Xr = train_x, Xu = test_x, Yr = train_y,
+                                method = "pca",
+                                pc_selection = list("opc", value = 20))
+
+# display the information contained in the pcspectraRs object
+print(pc_opc_spectra)
+```
+
+```{r}
+plot(pc_opc_spectra)
+```
 
 ## Dissimilarity measures
 
 
 ### Correlation
+```{r}
+# compute correlation similarity with the resemble package
+cd2 <- cor_diss(Xr = train_x, 
+               Xu = train_x, 
+               center = FALSE, scale = FALSE)
+
+# check that the two methods have similar results 
+round(x = cd2[1:3,1:3], digits = 5)
+```
+
+Alternatively, the correlation similarity can be computed using a moving window. In this case, the correlation similarity is computed by averaging the moving window correlation measures. It can be computationally demanding for large datasets. We start by defining a window size. 
+```{r}
+# the moving window value must be an odd number
+w4cd <- 51 
+```
+Now we can use it in the `corDiss` function in `resemble`. 
+```{r}
+# compute the correlation similarity with a moving window
+mwcd <- cor_diss(Xr = train_x, 
+                Xu = train_x, 
+                ws = w4cd,
+                center = FALSE, scale = FALSE)
+
+# check the first three correlation similarity values
+mwcd[1:3,1:3]
+```
+
+
 ### Euclidean distance
+
+```{r, message=FALSE, warning=FALSE}
+# compute Euclidean distance between spectra
+EucD <- f_diss(Xr = train_x, 
+              Xu = train_x, 
+              diss_method = 'euclid', 
+              center = TRUE, scale = TRUE)
+```
+We can then display the pairwise distance between the first three spectra of the dataset. 
+```{r}
+# print the pairwise distance between the three first spectra
+EucD[1:3,1:3]
+```
+
 ### Mahalanobis distance
+
+```{r}
+# specify the maximum amount of variance explained the one want to have retained
+maxexplvar <- 0.99
+```
+Now we can compute the principal components of the absorbance spectra. 
+```{r}
+# compute the principal components
+pcspectraA <- pc_projection(Xr = train_x, 
+                          pc_selection = list('cumvar', maxexplvar),
+                          method = 'pca',
+                          center = TRUE, scale = FALSE)
+
+# obtain the names of the sub-objects in the PC object created
+names(pcspectraA)
+```
+
+The Mahalanobis distance between spectra can be computed by the `fDiss` function, using the PC scores as input.  
+```{r}
+# compute the Mahalanobis distance between spectra scores
+mahD <- f_diss(Xr = pcspectraA$scores, 
+              Xu = pcspectraA$scores, 
+              diss_method = 'mahalanobis', 
+              center = FALSE, scale = FALSE)
+```
+We can then display the pairwise distance between the first three scores of the absorbance spectra. 
+```{r}
+# print pairwise distance between the three first spectra
+mahD[1:3,1:3]
+```
+
 ### Spectral angle mapper
+
+```{r}
+# compute the pairwise SAM similarity 
+samD <- f_diss(Xr = train_x, 
+              Xu = train_x, 
+              diss_method = 'cosine', 
+              center = FALSE, scale = FALSE)
+
+# show the first three similarity values
+samD[1:3,1:3]
+```
+
 ### Spectral information divergence
+
+```{r}
+# compute the pairwise SID similarity 
+sidD <- sid(Xr = train_x, 
+            Xu = train_x, 
+            mode = 'density', 
+            center = FALSE, scale = TRUE)
+
+# show the first three similarity values
+sidD$sid[1:3,1:3]
+```
 
 ## Evaluating (dis-)similarity measures
 
