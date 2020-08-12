@@ -230,7 +230,7 @@ print(pcopc_pca_spectra)
 ```
 Out of 20 combinations tested, from 1 to 20 components, the `opc` method determined that using 17 components is the optimal number. One can also plot the results using the `plot` function. 
 
-```{r, fig.align='center', fig.cap='Number of principal components against the averaged distance between the side information value `Yr` and its corresponding nearest neighbour selected from the spectra principal component space (RMSD of `Yr`, see also @ramirez2013spectrum.)'}
+```{r, fig.align='center', fig.cap='Number of principal components against the averaged distance between the side information value `Yr` and its corresponding nearest neighbour selected from the spectra principal component space (RMSD of `Yr`, see also @ramirez2013spectrum.'}
 plot(pcopc_pca_spectra)
 ```
 
