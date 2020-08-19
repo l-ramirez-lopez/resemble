@@ -289,7 +289,6 @@ get_samples_from_strata <- function(original_order,
   
   strata_samples <- list(calibration = keep,
                          validation = exclude)
-  
   strata_samples
 }
 
