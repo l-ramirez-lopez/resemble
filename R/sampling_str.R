@@ -1,7 +1,7 @@
 #' @title A function to create the sample sets for calibration/validation in
 #' cross-validation.
 #' @description for internal use only! This is stratified sampling based on the
-#' values of a continous response variable (y). If group is provided, the
+#' values of a continuous response variable (y). If group is provided, the
 #' sampling is done based on the groups and the average of y per group. This
 #' function is used to create groups forleave-group-out cross-validations (or
 #' leave-group-of-groups-out cross-validation if group argument is provided).
