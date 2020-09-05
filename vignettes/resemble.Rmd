@@ -1,7 +1,7 @@
 ---
 title: "Modelling complex spectral data with the resemble package"
 author: 
- - name: Leonardo Ramirez-Lopez, Alexandre M.J.-C. Wadoux, Raphael Viscarra-Rossel, ???, ???, ..., ???
+ - name: Leonardo Ramirez-Lopez, Alexandre M.J.-C. Wadoux, Raphael Viscarra-Rossel
    email: ramirez.lopez.leo@gmail.com
 date: "`r Sys.Date()`"
 bibliography: ["one.bib"]
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 <em><p align="right"> Think Globally, Fit Locally [@saul2003think] </p></em>
 
 
-Modelling using spectral data has garnered wide interest in the last two decades. 
+Modeling spectral data has garnered wide interest in the last four decades. 
 Spectroscopy is the study of the spectral response of a matrix (e.g. soil, 
 plant material, seeds, etc.) when it interacts with electromagnetic radiation. 
 This spectral response directly or indirectly relates to a wide range of 
@@ -36,30 +36,38 @@ comparison to conventional laboratory methods used in the analyses of these
 matrices.  This has resulted in the development of comprehensive 
 spectral databases for several agricultural products comprising large amounts 
 of observations. The size of such databases increases *de facto* their 
-complexity. To analyse large and complex spectral data, one must then resort 
+complexity. To analyze large and complex spectral data, one must then resort 
 numerical and statistical tools such as dimensionality reduction, and local 
 spectroscopic modelling based on spectral dissimilarity concepts.    
 
 The aim of the `resemble` package is to provide tools to efficiently and 
 accurately extract quantitative information from  large and complex spectral 
 databases. The package contains functions for dimensionality reduction, 
-spectral dissimilarity measurements, nearest neighbour search, and local modeling. 
+spectral dissimilarity measurements, neighbour search, and local modeling. 
 The core functionalities of the package include: 
 
-* spectral dimension reduction
-* the computation of dissimilarity measures
+* dimensionality reduction
+* computation of dissimilarity measures
 * evaluation of dissimilarity matrices
 * spectral neighbour search
-* fitting local spectroscopic models
-* plotting results of modelling
+* fitting and predicting local spectroscopic models
 
 #### Example datasets
-This vignette uses two example soil spectroscopic data provided in the `resemble` package. 
+This vignette uses a soil spectroscopic dataset provided in the `resemble`
+package. This data is stored in a data frame which includes a total of 772 
+observations, of which 742 come from a soil spectral library of Australia 
+(covering Queensland, New South Wales, South Australia, Victoria and Western 
+Australia, @rossel2010using). The remaining 30 observations come from a small 
+local farm also in Australia within the region covered by the spectral library. 
 
-* The `large_visNIR` dataset contain spectral data of soil samples which come from a large area covering Queensland, New South Wales, South Australia, Victoria and Western Australia in Australia. Each soil sample has a unique id, the laboratory-analysed values of clay content and the associated spectra in the visible and near-infrared range. This is a subset of the dataset used by @rossel2010using.
-* The `local_visNIR` dataset contain spectral data of soil samples which come from a small farm in XXX. Each soil sample has a unique id, the laboratory-analysed values of clay content and the associated spectra in the visible and near-infrared range.
-
-Both datasets spectral data are recorded in the the visible and near-infrared (vis-NIR) range of the electromagnetic spectrum between 350 and 2500 nm at 2 nm resolution.
+In the data frame, each observation/soil sample has an unique identifier (ID), 
+a reference value of clay content, the set it originates from (i.e. Australia's
+spectral library or local farm) and its corresponding spectrum. The spectra is
+stored as a matrix inside the data frame (accessed with `$spc`). Each column in 
+this matrix represents a spectral variable, the `colnames` of this matrix 
+indicate the wavelengths of the spectra. The spectral data is recorded as 
+absorbance in the visible and near-infrared (vis-NIR) range of the electromagnetic 
+spectrum between 351 and 2500 nm at 7 nm resolution.
 
 Load the necessary packages and data. 
 ```{r libraries, tidy = TRUE, message = FALSE}
@@ -68,45 +76,30 @@ library(tidyr)
 library(prospectr)
 ```
 
-The `large_visNIR` dataset can be loaded into R using the following code. 
+The dataset can be loaded into R as follows: 
 ```{r, tidy = FALSE, message = FALSE}
-data(large_visNIR)
-# large_visNIR is a data.frame with 742 observations and 3 variables: 
-# a unique id 'id' 
-# soil clay content 'clay'
-# spectral matrix 'spc' 
-str(large_visNIR)
+data(SoilSpectroscopy)
+dim(SoilSpectroscopy)
+str(SoilSpectroscopy)
 ```
-The `local_visNIR` dataset can be loaded into R using the following code. 
-```{r, tidy = FALSE, message = FALSE}
-data(local_visNIR)
-# local_visNIR is a data.frame with 30 observations and 3 variables: 
-# a unique id 'id' 
-# soil clay content 'clay'
-# spectral matrix 'spc' 
-str(local_visNIR)
-```
+
 
 #### Pre-processing of spectra
-This step aims at removing missing values from the dataset and improving the quality of the spectra before making use of it in quantitative analysis. We apply standard methods for the dataset and spectra pre-processing as follows: 
+This step aims at improving the signal quality of the spectra for quantitative
+analysis. In this respect, the following standard methods are applied: 
 
-1. Removal of the soil samples having a missing value on the side information, in our case the soil clay content.
-2. Single light scattering correction using standard normal variate [@barnes1989standard] and implemented in the `prospectr` package.
-3. Resampling of the spectra at a coarser resolution. This enables faster computation without much information loss in the spectra. 
-4. Savitsky-Golay [@Savitzky1964] filtering to smooth the spectra. In the Savitsky-Golay filter, a local polynomial regression (of order $k$) is fitted on the spectral values to determine the smoothed value for each wavelength, for a window size. We use the implementation provided in the `prospectr` package. 
+1. Scatter correction using the standard normal variate method
+[@barnes1989standard] implemented in the `prospectr` package.
+2. First derivative using Savitsky-Golay [@Savitzky1964] filtering also 
+implemented in the `prospectr` package. 
 
-It is implemented as follows. 
 ```{r NIRsoil, tidy = FALSE, message = FALSE}
-# removing soil samples with missing values in the side information
-large_visNIR <- large_visNIR[large_visNIR$clay %>% complete.cases(),]
+# obtain a numeric vector of the wavelengths at which spectra is recorded 
+wavs <- as.numeric(colnames(SoilSpectroscopy))
 
-# obtain a numeric vector of the spectra wavelengths
-wavs <- as.numeric(colnames(large_visNIR$spc))
-
-# apply pre-processing of spectra
-large_visNIR$spc_p <- large_visNIR$spc %>% 
+# pre-process the spectra
+SoilSpectroscopy$spc_p <- SoilSpectroscopy$spc %>% 
   standardNormalVariate() %>% 
-  resample(wavs, seq(min(wavs), max(wavs), by = 11)) %>% 
   savitzkyGolay(p = 1, w = 5, m = 1)
 ```
 
