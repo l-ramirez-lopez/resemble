@@ -1,0 +1,78 @@
+---
+title: "Modelling complex spectral data with the resemble package"
+author: 
+ - name: Leonardo Ramirez-Lopez, Alexandre M.J.-C. Wadoux, Raphael Viscarra-Rossel
+   email: ramirez.lopez.leo@gmail.com
+date: "`r Sys.Date()`"
+bibliography: ["one.bib"]
+biblio-style: "apalike"
+link-citations: true
+output: knitr:::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Bulding highly accurate local models with the resemble package}
+---
+
+```{r setup, include = FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  collapse = TRUE
+)
+```
+
+<em><p align="right"> Think Globally, Fit Locally [@saul2003think] </p></em>
+
+
+Modeling spectral data has garnered wide interest in the last four decades. 
+Spectroscopy is the study of the spectral response of a matrix (e.g. soil, 
+plant material, seeds, etc.) when it interacts with electromagnetic radiation. 
+This spectral response directly or indirectly relates to a wide range of 
+compositional characteristics (chemical, physical or biological) of the matrix. 
+Therefore, it is possible to develop empirical models that can accurately 
+quantify properties of different matrices. In this respect, quantitative 
+spectroscopy techniques are usually fast, non-destructive and cost-efficient in 
+comparison to conventional laboratory methods used in the analyses of these 
+matrices.  This has resulted in the development of comprehensive 
+spectral databases for several agricultural products comprising large amounts 
+of observations. The size of such databases increases *de facto* their 
+complexity. To analyze large and complex spectral data, one must then resort 
+numerical and statistical tools such as dimensionality reduction, and local 
+spectroscopic modelling based on spectral dissimilarity concepts.    
+
+The aim of the `resemble` package is to provide tools to efficiently and 
+accurately extract meaningful quantitative information from large and complex 
+spectral databases. The package contains functions for dimensionality reduction, 
+spectral dissimilarity measurements, neighbour search, and local modeling. 
+The core functionalities of the package include: 
+
+* dimensionality reduction
+* computation of dissimilarity measures
+* evaluation of dissimilarity matrices
+* spectral neighbour search
+* fitting and predicting local spectroscopic models
+
+#### Example datasets
+
+This vignette uses a soil spectroscopic dataset provided in the `prospectr`
+package. It is a soil spectral library used in the \sQuote{Chimiometrie 2006} 
+challenge by @pierna2008soil. The library contains absorbance spectra of dried 
+and sieved 825 soil observations/samples. These samples originate from agricultural 
+fields collected from all over the Walloon region in Belgium. The dataset is 
+in a data frame which is organized as follows:
+ 
+* Response variables: 
+  * Nt (Total Nitrogen in g/Kg of dry soil): A numerical variable (values 
+      are available for 645 samples and missing for 180 samples).
+  * Ciso (Carbon in g/100 g of dry soil): A numerical 
+      variable (values are available for 732 and missing for 93 samples).
+  * CEC (Cation Exchange Capacity in meq/100 g of dry soil): A numerical 
+      variable (values are available for 447 and missing for 378 samples).
+* Predictor variables: The predictor variables are in a matrix embedded in the
+data frame, which can be accessed via `NIRSoil$spc`. These variables contain the
+absorbance Near-Infrared (NIR) spectra of the samples recorded between the 
+1100 nm and 2498 nm of the electromagnetic spectrum at 2 nm interval. Each 
+column name in the matrix of spectra represent a specific wavelength (in nm).
+* Set: this is a "binary" variable that indicates the 618 samples belong to the 
+training subset (represented by 1) and the 207 samples that belong to the test 
+subset (represented by 0). 
