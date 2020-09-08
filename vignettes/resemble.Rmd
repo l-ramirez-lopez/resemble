@@ -41,8 +41,8 @@ numerical and statistical tools such as dimensionality reduction, and local
 spectroscopic modelling based on spectral dissimilarity concepts.    
 
 The aim of the `resemble` package is to provide tools to efficiently and 
-accurately extract quantitative information from  large and complex spectral 
-databases. The package contains functions for dimensionality reduction, 
+accurately extract meaningful quantitative information from large and complex 
+spectral databases. The package contains functions for dimensionality reduction, 
 spectral dissimilarity measurements, neighbour search, and local modeling. 
 The core functionalities of the package include: 
 
@@ -53,6 +53,7 @@ The core functionalities of the package include:
 * fitting and predicting local spectroscopic models
 
 #### Example datasets
+
 This vignette uses a soil spectroscopic dataset provided in the `resemble`
 package. This data is stored in a data frame which includes a total of 772 
 observations, of which 742 come from a soil spectral library of Australia 
@@ -72,15 +73,15 @@ spectrum between 351 and 2500 nm at 7 nm resolution.
 Load the necessary packages and data. 
 ```{r libraries, tidy = TRUE, message = FALSE}
 library(resemble)
-library(tidyr)
+library(magrittr)
 library(prospectr)
 ```
 
 The dataset can be loaded into R as follows: 
 ```{r, tidy = FALSE, message = FALSE}
-data(SoilSpectroscopy)
-dim(SoilSpectroscopy)
-str(SoilSpectroscopy)
+data("NIRsoil")
+dim(NIRsoil)
+str(NIRsoil)
 ```
 
 
@@ -95,15 +96,21 @@ implemented in the `prospectr` package.
 
 ```{r NIRsoil, tidy = FALSE, message = FALSE}
 # obtain a numeric vector of the wavelengths at which spectra is recorded 
-wavs <- as.numeric(colnames(SoilSpectroscopy))
+wavs <- as.numeric(colnames(SoilSpectroscopy$spc))
 
 # pre-process the spectra
-SoilSpectroscopy$spc_p <- SoilSpectroscopy$spc %>% 
+poly_order <- 1
+window <- 5
+diff_order <- 1
+
+NIRsoil$spc_p <- NIRsoil$spc %>% 
   standardNormalVariate() %>% 
-  savitzkyGolay(p = 1, w = 5, m = 1)
+  savitzkyGolay(p = poly_order, w = window, m = diff_order)
 ```
 
-For the example, we further separate the data into training (75%) and testing (25%) by splitting randomly the dataset. 
+For the examples presented here, the SoilSpectroscopy data is split into 
+training (75%, of the Autralia library), testing (25%, of the Autralia library) 
+and validation subests (). 
 
 ```{r}
 set.seed(123)
