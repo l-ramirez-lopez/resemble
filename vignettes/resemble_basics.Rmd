@@ -141,16 +141,47 @@ burdened with the issue of high dimensionality. It is such that we may be
 dealing with (using NIR spectra data as an example) over 2000 individual 
 wavelengths for each spectrum. When one wants to investigate patterns in the 
 data, spectral similarities and differences, or detect spectral outliers, it is 
-necessary to reduce the dimension of the spectra while keeping the important 
-features. A natural candidate of this is principal component analysis (PCA). 
+necessary to reduce the dimension of the spectra while retaining important 
+information. A natural candidate of this job is principal component analysis (PCA). 
 
-Several functions are available in the `resemble` package for dimensionality reduction. The master function `ortho_projection()` call two other functions `pc_projection()` and `pls_projection()`, i.e. all the functionalities are available in the `ortho_projection()` function. The function offer several options for dimensionality reduction using different methods for projecting the data:
+Several functions are available in the `resemble` package for dimensionality 
+reduction. The master function `ortho_projection()` is a wrapper for two other 
+functions: `pc_projection()` and `pls_projection()`. The function offer several 
+options for dimensionality reduction using different methods for projecting the data:
 
-* `"pca"`: the standard method for principal component analysis using singular value decomposition.
-* `"pca.nipals"`: principal component analysis using the non-linear iterative partial least squares algorithm.
-* `"pls"`: partial least square algorithm for projection, makes use of the side information. User must also fill argument `Yr`.
+* `"pca"`: the standard method for PCA based on the singular value decomposition 
+algorithm.
+* `"pca.nipals"`: PCA based on the non-linear iterative partial least squares 
+algorithm.
+* `"pls"`: partial least squares algorithm for projection, makes use of side 
+information which is indeed equivalent response variable information. In this
+case, the side information data must be passed to the `Yr` argument.
 
-Besides, the `ortho_projection()` function enables to choose how the optimal number of components with the argument `pc_selection` using either a finite, user-defined number if `"manual"`, the cumulative amount of variance explained if `"cumvar"`, a user-defined value of variance explained required if `"var"` and finally using the method described in @ramirez2013spectrum, in which the optinal number of components is selected based on the side information. In the latter case, the user must also specify the `Yr` argument, i.e. the values of the side information for the training dataset. We describe each of the case in the following subsections. 
+The argument `pc_selection` of the `ortho_projection()` function helps in the 
+selection of the number of components/dimensions the spectra should be 
+reduced to. The following options are available:
+* Manual selection, `"manual"`: the user explicitly defines how many 
+components to retrieve.
+* Cumulative variance-based selection, `"cumvar"`: only the first 
+components that together explain an user-defined amount of the original spectral 
+variance are retained. 
+* Single component explanined variance-based selection, `"var"`: those 
+components that alone explain more than an user-defined amount of the original 
+spectral variance are retained. 
+* Optimal component selection `"opc"`: the selection of the components is 
+carried out by using an iterative method based on the side information concept
+presented in @ramirez2013spectrum. First let be $P$ a sequence of retained 
+components (so that $P = 1, 2, ...,k$). At each iteration, the function computes 
+a dissimilarity matrix retaining $p_i$ components. The values in this side 
+information variable are compared against the side information values of their 
+most spectrally similar observations.
+The optimal number of components retrieved by the function is the one that 
+minimizes the root mean squared differences (RMSD) in the case of continuous
+variables, or maximizes the kappa index in the case of categorical variables.
+In this process, the `sim_eval` function is used. Note that for the `"opc"` 
+method `Yr` is required (i.e. the side information of the observations).
+
+We describe demo the above options case in the following subsections. 
 
 
 ### Principal components analysis
