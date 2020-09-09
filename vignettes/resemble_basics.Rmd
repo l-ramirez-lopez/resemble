@@ -76,3 +76,527 @@ column name in the matrix of spectra represent a specific wavelength (in nm).
 * Set: this is a "binary" variable that indicates the 618 samples belong to the 
 training subset (represented by 1) and the 207 samples that belong to the test 
 subset (represented by 0). 
+
+Load the necessary packages and data. 
+```{r libraries, tidy = TRUE, message = FALSE}
+library(resemble)
+library(prospectr)
+library(magrittr)
+```
+
+The dataset can be loaded into R as follows: 
+```{r, tidy = FALSE, message = FALSE}
+data(NIRsoil)
+dim(NIRsoil)
+str(NIRsoil)
+```
+
+#### Pre-processing of spectra
+This step aims at improving the signal quality of the spectra for quantitative
+analysis. In this respect, the following standard methods are applied: 
+
+1. Scatter correction using the standard normal variate method
+[@barnes1989standard] implemented in the `prospectr` package.
+2. First derivative using Savitsky-Golay [@Savitzky1964] filtering also 
+implemented in the `prospectr` package. 
+
+```{r NIRsoil, tidy = FALSE, message = FALSE}
+# obtain a numeric vector of the wavelengths at which spectra is recorded 
+wavs <- NIRsoil$spc %>% colnames() %>% as.numeric()
+
+# pre-process the spectra
+poly_order <- 1
+window <- 5
+diff_order <- 1
+
+NIRsoil$spc_p <- NIRsoil$spc %>% 
+  standardNormalVariate() %>% 
+  savitzkyGolay(p = poly_order, w = window, m = diff_order)
+```
+
+For more explicit examples, the `NIRSoil` data is split into training and 
+testing subsets: 
+
+```{r}
+# training dataset
+training  <- NIRsoil[NIRsoil$train == 1, ]
+testing  <- NIRsoil[NIRsoil$train == 0, ]
+```
+
+Note that in the resemble package we follow the notation provided by 
+@ramirez2013spectrum, i.e.: 
+
+* `Xr` stands for the matrix of predictor variables in the reference/training 
+set (spectral data for calibration).
+* `Yr` stands for the response variable(s) in the reference/training set 
+(dependent variable for calibration).
+* `Xu` stands for the matrix of predictor variables in the unknown/test 
+set (spectral data for validation/esting).
+* `Yu` stands for the response variable(s) in the unknown/test set (dependent 
+variable for calibration).
+
+## Dimensionality reduction
+When conducting exploratory analysis of spectral data, we are immediately 
+burdened with the issue of high dimensionality. It is such that we may be 
+dealing with (using NIR spectra data as an example) over 2000 individual 
+wavelengths for each spectrum. When one wants to investigate patterns in the 
+data, spectral similarities and differences, or detect spectral outliers, it is 
+necessary to reduce the dimension of the spectra while keeping the important 
+features. A natural candidate of this is principal component analysis (PCA). 
+
+Several functions are available in the `resemble` package for dimensionality reduction. The master function `ortho_projection()` call two other functions `pc_projection()` and `pls_projection()`, i.e. all the functionalities are available in the `ortho_projection()` function. The function offer several options for dimensionality reduction using different methods for projecting the data:
+
+* `"pca"`: the standard method for principal component analysis using singular value decomposition.
+* `"pca.nipals"`: principal component analysis using the non-linear iterative partial least squares algorithm.
+* `"pls"`: partial least square algorithm for projection, makes use of the side information. User must also fill argument `Yr`.
+
+Besides, the `ortho_projection()` function enables to choose how the optimal number of components with the argument `pc_selection` using either a finite, user-defined number if `"manual"`, the cumulative amount of variance explained if `"cumvar"`, a user-defined value of variance explained required if `"var"` and finally using the method described in @ramirez2013spectrum, in which the optinal number of components is selected based on the side information. In the latter case, the user must also specify the `Yr` argument, i.e. the values of the side information for the training dataset. We describe each of the case in the following subsections. 
+
+
+### Principal components analysis
+The standard method for dimensionality reduction is principal component analysis. In principal components analysis, the original variables are transformed into a (smaller) number of uncorrelated variables called principal components. The first principal component accounts for most of the variability in the data, and each succeeding component accounts for a sequentially decreasing amount of the remaining variability in the data. Thus with a few components we may be able to explain most of the variation in the spectra. With a lower dimension dataset we can perform outlier detection or select the spectra in which to perform laboratory-based chemical analysis so as to calibrate soil attribute predictive functions.
+
+For principal components analysis we can use the `ortho_projection()` function in `resemble`. Note that we use the method `"pca"` and the `pc_selection` argument to `"manual"`. Let use decide that we want 5 principal components. 
+
+```{r}
+# principal component analysis using 5 components
+pc5_spectra <- ortho_projection(Xr = train_x,
+                             pc_selection = list("manual", 10),
+                             method = 'pca')
+
+# display the information contained in the pc5_spectra object
+print(pc5_spectra)
+```
+
+The results above show that four components only are sufficient to explain nearly 95% of the variance of the original dataset. For the example, we may also want to use a user-defined amount of cumulative variance explained that needs to be retained. Usually, we expect the PCA to explain at least 90% of the variance of the original data. For complex datasets, this means that we may end up for more than simply five components in total. 
+
+Principal component analysis using a user defined values of the cumulative variance to be explained. We need to set `"var"` in the argument `pc_selection`. The method argument remains the standard PCA `"pca"`. 
+
+```{r}
+# specify amount of cumulative variance that needs to be retained by the PCs. 
+# note that in most cases 0.99 is difficult to reach for very complex datasets
+maxexplvar <- 0.99
+
+# principal component analysis using 5 components
+pc099_spectra <- ortho_projection(Xr = train_x,
+                             pc_selection = list("cumvar", maxexplvar),
+                             method = 'pca')
+
+# display the information contained in the pc099_spectra object
+print(pc099_spectra)
+```
+It shows that in this dataset, 16 components are required to explain 99% of the variance found in the spectral data.
+Let us plot the results using a screeplot: 
+```{r, fig.align='center', fig.width=8, fig.height=3, fig.cap = 'Cumulative explained variance of the principal components (left) and individual contribution the the explained variance for each of the components (right).'}
+par(mfrow=c(1,2))
+plot(pc099_spectra)
+```
+
+The screeplot above illustrates the cumulative amount of variance explained (left side) or the amount of variance in the spectra that is described by each component. It is always the case that the first component explains most of the variation. Each successive component decreasingly explains a little bit less of the variation. Here the first five components describe over 90% of the spectral variation. Alone the first component describes above 80%. We have reduced what was a very high dimensional spectral dataset down to just a few components.
+
+
+### Projection to latent structures - Partial least squares
+
+When side information is available, for example the soil clay content for the `large_visNIR` dataset, it is judicious to use this information when deriving the principal components. The standard PCA captures only the characteristics of the spectral data. Partial least square (PLS) is a regression that combine PCA and linear regression. In PLS, the principal components are obtained with consideration for the correlation between the side information and the spectral data. Usually, more components are required to explained a given cumulative amount of variance explained than when using PCA, because the complexity is more important. 
+
+We use the `ortho_projection()` function for computing the principal components using the `"pls"` method.
+
+```{r}
+# A partial least squares projection using the "cumvar" method
+# for the selection of the optimal number of components
+pc09_pls_spectra <- ortho_projection(Xr = train_x , Xu = test_x, Yr = train_y,
+                                   method = "pls",
+                                   pc_selection = list("cumvar", 0.90))
+
+# display the information contained in the pc09_pls_spectra object
+print(pc09_pls_spectra)
+```
+
+Five components explain 90% of the cumulative variance in the spectral data, and almost 80% in the side information. As before the results can be plotted using the `plot` function. It shows the variance explained by the components for the spectral data.  
+
+```{r, fig.align='center', fig.width=8, fig.height=3, fig.cap = 'Cumulative explained variance of the principal components (left) and individual contribution the the explained variance for each of the components (right). Note that only four components are evaluated since they explain more than 90% of the total variance of the spectral data.'}
+par(mfrow=c(1,2))
+plot(pc09_pls_spectra)
+```
+
+### Optimal selection of the number of components when side information is available
+
+As noted previously, if side information is available, it is sensible to use it when performing the PCA. The `ortho_projection()` offers the possibility to select an optimal number of components, as proposed in @ramirez2013spectrum. Note that this is to select the optimal number of principal components, but do not affect how the principal components are obtained (using the `method` argument). In @ramirez2013spectrum, the optimal number of components is the one which provides the smallest distance between the side information value `Yr` and its corresponding nearest neighbour selected from the spectra principal component space, averaged over all samples. In this sense, the optimal number of components is selected to reflect also the side information variability. 
+
+To select the optimal number of principal components for a given method, we use the `ortho_projection()` function by setting `"opc"` in the argument `pc_selection`. In this case, `value` is set to 20 and represent the maximum number of components evaluated. For the example we use the standard PCA method, but in this case we also need to provide the side information (i.e. clay content) in `Yr` to determine the optimal number of components. 
+
+```{r}
+# principal components projection using the "opc" method
+# for the selection of the optimal number of components
+
+# perform the PCA
+pcopc_pca_spectra <- ortho_projection(Xr = train_x, Xu = test_x, Yr = train_y,
+                                method = "pca",
+                                pc_selection = list("opc", value = 20))
+
+# display the information contained in the pcopc_pca_spectra object
+print(pcopc_pca_spectra)
+```
+Out of 20 combinations tested, from 1 to 20 components, the `opc` method determined that using 17 components is the optimal number. One can also plot the results using the `plot` function. 
+
+```{r, fig.align='center', fig.cap='Number of principal components against the averaged distance between the side information value `Yr` and its corresponding nearest neighbour selected from the spectra principal component space (RMSD of `Yr`, see also @ramirez2013spectrum.'}
+plot(pcopc_pca_spectra)
+```
+
+This figure shows that 17 components is the optimal number, but that using 8 components only (e.g. to save computation time) would not result in a substantial difference in terms of side information variability explained. 
+
+## Dissimilarity measures
+Dissimilarity or distance measures are useful for a number of applications, for example for outlier detection or dissimilarity search in spectral database. In the `resemble` package, we use dissimilarity measures to determine spectra which spectra are close to a reference spectrum, so as to select a subset of similar (in terms of spectral characteristics) spectra from a large dataset. To assess dissimilarity, we usually compare two spectra wavelength by wavelength and compute the distance between them. The distance between the two spectra is averaged into a single dissimilarity metric. It is assumed that the closer two spectra are one to another, the higher is the dissimilarity between the soil properties that they characterize. These measures are based on distances computed directly on the spectra, or indirectly from derived information from the spectra (e.g. after a PCA). Computing these dissimilarity measures is the basis of the `mbl` function. 
+
+The dissimilarity measures implemented in the `resemble` packages are:
+
+* Correlation dissimilarity - `dissimilarity` or `cor_diss`
+* Euclidean distance - `dissimilarity` or `f_diss`
+* Mahalanobis distance - `dissimilarity` or `f_diss`
+* Spectral angle mapper - `dissimilarity` or `f_diss`
+* Spectra information divergence - `dissimilarity` or `sid`
+
+Note that all these measures are implemented into a single function `dissimilarity`, but that several other functions are implemented each of the measures. The wrap-up function `dissimilarity` provide in addition the opportunity to compute the Mahalanobis distance on the principal components, using either the standard PCA, the PLS or the PCA using the nipals algorithm. 
+
+The examples in this vignette will compute the distance between the spectra in the training spectral data `train_x` and the spectra in the testing spectral data `test_x`. No side information is used expect for computing the principal components when needed (e.g. for the PLS method).
+
+### Correlation dissimilarity 
+Correlation dissimilarity is based on the Pearson's *r* correlation coefficient between spectra. The Pearson's *r* is not a distance metric and while two spectra can be strongly correlated, they can have very different reflectance or absorbance values. The value of Pearson's *r* varies between -1 and 1. A correlation of 1 indicates that the two spectra under study have identical characteristics (i.e. they are similar). A values of -1, conversely, indicates that the two spectra are strongly negatively correlated, which in spectroscopy implies that the two spectra are dissimilar. The correlation dissimilarity  scales the values between 0 and 1, where the higher the values, the more dissimilar the two spectra are. The correlation dissimilarity ($cd$) between two spectra $\mathbf{x}_{a}$ and $\mathbf{x}_{b}$ is thus described by:
+                                                                                                                                                                                                                                        \begin{equation}
+                                                                                                                                                                                                                                      cd(\mathbf{x}_{a}, \mathbf{x}_{b}) = \frac{1-r(\mathbf{x}_{a}, \mathbf{x}_{b})}{2}.
+                                                                                                                                                                                                                                      \end{equation}
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      We use the `dissimilarity` function and set the argument `diss_method = "cor"`.
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # compute correlation dissimilarity with the resemble package
+                                                                                                                                                                                                                                      cd <- dissimilarity(Xr = train_x, Xu = test_x, 
+                                                                                                                                                                                                                                                          diss_method = "cor")
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      # check that the two methods have similar results 
+                                                                                                                                                                                                                                      round(x = cd$dissimilarity[1:3,1:3], digits = 5)
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      The dissimilarity matrix returned has a number of row equal to the number of spectra in `Xr` and a number of column equal to the number of spectra in `Xu`. In the results displayed above, the first spectrum in the spectra used for training `Xr` is more similar to the second spectrum of the spectral data for testing `Xu` than it is to the first or third spectra in `Xu`
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      Alternatively, the correlation dissimilarity can be computed using a moving window. In this case, the correlation dissimilarity  is computed by averaging the moving window correlation measures. It can be computationally demanding for large datasets. We start by defining a window size. 
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # the moving window value must be an odd number
+                                                                                                                                                                                                                                      w4cd <- 51 
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      Now we can use it in the `dissimilarity` function by setting the argument `ws` by the window size. 
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # compute the correlation dissimilarity with a moving window
+                                                                                                                                                                                                                                      mwcd <- dissimilarity(Xr = train_x, 
+                                                                                                                                                                                                                                                            Xu = test_x, 
+                                                                                                                                                                                                                                                            diss_method = "cor",
+                                                                                                                                                                                                                                                            ws = w4cd)
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      # check the first three correlation dissimilarity values
+                                                                                                                                                                                                                                      mwcd$dissimilarity[1:3,1:3]
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ### Euclidean distance
+                                                                                                                                                                                                                                      Euclidean distance is the most common way of representing the distance between two points or objects. It is calculated by taking the square root of the differences between two points. In our case, we compute the pairwise Euclidean distance $d$ between the two spectra $\mathbf{x}_{a}$ and $\mathbf{x}_{b}$, as follows:
+                                                                                                                                                                                                                                        \begin{equation}
+                                                                                                                                                                                                                                      d_{EU}(\mathbf{x}_{a}, \mathbf{x}_{b})=\sqrt{(\mathbf{x}_{b}-\mathbf{x}_{a})I^{-1}(\mathbf{x}_{b}-\mathbf{x}_{a})^{T}},
+                                                                                                                                                                                                                                      \end{equation}
+                                                                                                                                                                                                                                      where $I$ is the identity matrix. The smaller the distance between the two spectra, the larger the similarity between them. The distance is always positive and has no limit. A small value of the Euclidean distance (i.e. close to zero) indicates strong similarity between the two spectra under study.    
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      The euclidean distance is computed by the `dissimilarity` function by setting the argument `diss_method = "euclid"`.
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ```{r, message=FALSE, warning=FALSE}
+                                                                                                                                                                                                                                      # compute Euclidean distance between spectra
+                                                                                                                                                                                                                                      EucD <- dissimilarity(Xr = train_x, Xu = test_x, 
+                                                                                                                                                                                                                                                            diss_method = "euclid")
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      We can then display the pairwise distance between the first three spectra of the dataset. 
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # print the pairwise distance between the three first spectra
+                                                                                                                                                                                                                                      EucD$dissimilarity[1:3,1:3]
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ### Mahalanobis distance
+                                                                                                                                                                                                                                      The Mahalanobis distance [@mahalanobis1936generalized] is similar to the Euclidean distance but includes a covariance term between spectra, which means that it accounts for the fact that two spectra may measure similar properties due to the correlation between specific bands of the spectra. The Mahalanobis distance between spectra $\mathbf{x}_{a}$ and $\mathbf{x}_{b}$ is defined by:
+                                                                                                                                                                                                                                        \begin{equation}
+                                                                                                                                                                                                                                      d_{MB}(\mathbf{x}_{a}, \mathbf{x}_{b})=\sqrt{(\mathbf{x}_{b}-\mathbf{x}_{a})C^{-1}(\mathbf{x}_{b}-\mathbf{x}_{a})^{T}},
+                                                                                                                                                                                                                                      \end{equation}
+                                                                                                                                                                                                                                      where $C$ is the variance-covariance matrix between the spectra. The variance-covariance matrix is used as a scaling factor of the relationships between two spectra. The use of the covariance matrix introduces additional considerations. In particular, the matrix does not have an inverse when the number of spectra is smaller than the number of wavebands in the dataset. A simple way around this is to compute the Mahalanobis distance on the first few principal components of the spectra.
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      The `dissimilarity` function enable to compute the Mahalanobis distance on the principal components of the spectra. The user can choose between several methods, which are all described in the previous section. For the example, we compute the Mahalanobis on the principal components, using the most standard method for deriving the components (i.e. setting the argument `diss_method = "pca"`).
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # compute the Mahalanobis distance between spectra scores
+                                                                                                                                                                                                                                      mahD <- dissimilarity(Xr = train_x, Xu = test_x, 
+                                                                                                                                                                                                                                                            diss_method = "pca")
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      We can then display the pairwise distance between the first three scores of the spectra in the training and testing datasets. 
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # print pairwise distance between the three first spectra
+                                                                                                                                                                                                                                      mahD$dissimilarity[1:3,1:3]
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      The Mahalanobis distance is always positive. A small value between two spectra indicates that they are similar. In the results displayed above, the first spectra in the spectral training data is most similar to the second spectra in the spectral testing data (out of the three first). 
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ### Spectral angle mapper
+                                                                                                                                                                                                                                      The spectral angle mapper (SAM) also called dot-product cosine distance has been extensively applied in remote sensing as a tool for unsupervised classification and spectral similarity analysis. The SAM algorithm derives an angular difference (in radians) between two spectra, which means that the larger the angle is, the more dissimilar the two spectra are. The SAM distance between two spectra ($\mathbf{x}_{a}$ and $\mathbf{x}_{b}$) is calculated as:
+                                                                                                                                                                                                                                        \begin{equation}
+                                                                                                                                                                                                                                      \mathrm{SAM}(\mathbf{x}_{a}, \mathbf{x}_{b})=\cos^{-1}\frac{\sum_{j=1}^{b}\mathbf{x}_{a,j}\mathbf{x}_{b,j}}{\sum_{j=1}^{b}(\mathbf{x}_{a, j}^{2})^{1/2} \sum_{j=1}^{b}(\mathbf{x}_{a, j}^{2})^{1/2}}. 
+                                                                                                                                                                                                                                      \end{equation}
+                                                                                                                                                                                                                                      where $j=1, ..., b$ is the number of spectral wavelengths. The values range between 0 and $\pi/2$ (about 1.57), where small values indicates strong similarity. The range of values can be scaled between 0 and 1 by dividing $\pi/2$ to $\pi$.
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      The spectral angle mapper dissmilarity measures is computed in the `dissimilarity` function by setting the argument `diss_method = "cosine"`.
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # compute the pairwise SAM dissimilarity 
+                                                                                                                                                                                                                                      samD <- dissimilarity(Xr = train_x, 
+                                                                                                                                                                                                                                                            Xu = test_x, 
+                                                                                                                                                                                                                                                            diss_method = 'cosine')
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      # show the first three dissimilarity values
+                                                                                                                                                                                                                                      samD$dissimilarity[1:3,1:3]
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ### Spectral information divergence
+                                                                                                                                                                                                                                      Spectral information divergence (SID) was introduced by @chang2000information to measure the dissimilarity between spectra based on their spectral signature probability distribution. In other words, it measures the distance between the probability distribution produced by the spectral signature of two vectors. To measure the distance, the Kullback–Leibler (KL) divergence or cross-entropy is used. The SID is defined by: 
+                                                                                                                                                                                                                                        \begin{align}
+                                                                                                                                                                                                                                      \mathrm{SID}(\mathbf{x}_{a}, \mathbf{x}_{b})&= \mathrm{KL}(\mathbf{x}_{a}||\mathbf{x}_{b}) + \mathrm{KL}(\mathbf{x}_{b}|| \mathbf{x}_{a})\\
+                                                                                                                                                                                                                                      & = \sum_{j=1}^{b}p_{j}\log\frac{p_{j}}{q_{j}} + \sum_{j=1}^{b}q_{j}\log\frac{q_{j}}{p_{j}}
+                                                                                                                                                                                                                                      \end{align}
+                                                                                                                                                                                                                                      where $b$ is the total number of wavelengths and $\mathbf{p} = \mathbf{x}_{a}/\sum_{j=1}^{b}\mathbf{x}_{a,j}$ and $\mathbf{q}= \mathbf{x}_{b}/\sum_{j=1}^{b}\mathbf{x}_{b,j}$ are the probability vectors (vector with non-negative entries that add up to one) of $\mathbf{x}_{a}$ and $\mathbf{x}_{b}$, respectively. $\mathrm{KL}(\mathbf{x}_{a}||\mathbf{x}_{b})$ is the Kullback–Leibler information measure. The higher the value, the larger is the difference (the dissimilarity) between the two spectra.  
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      The spectral information divergence measures is computed in the `dissimilarity` function by setting the argument `diss_method = "sid"`.
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # compute the pairwise SID dissimilarity 
+                                                                                                                                                                                                                                      sidD <- dissimilarity(Xr = train_x, 
+                                                                                                                                                                                                                                                            Xu = test_x, 
+                                                                                                                                                                                                                                                            diss_method = 'sid')
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      # show the first three dissimilarity values
+                                                                                                                                                                                                                                      sidD$dissimilarity[1:3,1:3]
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ## Making use of dissimilarity measures
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ### Dissimilarity and side information
+                                                                                                                                                                                                                                      Dissimilarity measures between the spectra should be able to reflect their dissimilarity also in terms of ancillary information, and conversely their similarity should reflect their similarity in terms of side information. On this basis, @ramirez2013distance proposed a general approach in which the side information of a spectrum in a dataset is compared to that of the closest spectrum. The closest spectrum is selected based on some dissimilarity measures.   
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      This can be implemented in the `sim_eval` function. This function searches for the most similar observation (closest neighbour) of each observation in a given data set based on a dissimilarity (e.g. distance matrix). The observations are compared against their corresponding closest observations in terms of their side information provided. The root mean square of differences and the correlation coefficient are used for continuous variables and for discrete variables the kappa index is used.
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      Let us first compute the distance matrix between spectra in the training dataset.
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # compute the Mahalanobis distance between spectra scores
+                                                                                                                                                                                                                                      mdXr  <- dissimilarity(Xr = train_x, 
+                                                                                                                                                                                                                                                             diss_method = "pca")
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      Once the distance matrix between spectra computed, it can be used to select the neighbour spectrum, for each spectrum, and compare their side information. We use the `sim_eval` function. 
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ```{r}
+                                                                                                                                                                                                                                      # use the sim_eval function to get the RMSD and the Pearson's r correlation coefficient
+                                                                                                                                                                                                                                      dEval <- sim_eval(d = mdXr$dissimilarity, 
+                                                                                                                                                                                                                                                        side_info = as.matrix(train_y))
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      # print the results
+                                                                                                                                                                                                                                      dEval$eval
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      There appears to be a strong correlation between the side information value on its nearest neighbour. The values of the side information can be plotted, as they are returned as well under `first_nn`. 
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                      ```{r, fig.align='center', fig.cap = 'Scatterplot of the clay content in the reference spectral dataset `train_x` against value of the clay content for the closest neighbour in this dataset.'}
+# the final values of the side information (Yr) and the values of
+# the side information corresponding to the first nearest neighbour
+# found by using the distance matrix
+plot(dEval$first_nn, 
+     xlab = 'clay content reference spectra, /%',
+     ylab = 'clay content from nearest neighbour, /%',
+     pch = 16,
+     col = rgb(red = 1, green = 0.2, blue = 0.2, alpha = 0.5))
+grid(); abline(0, 1)
+```
+
+
+
+### Neighbour search 
+Neighbour search aims at finding the most similar spectra for a given radius of distance. In a large spectral dataset, it might be judicious to select the spectra that are the most spectrally similar to another. This has several advantages, for example to speed up computation time or to improve the modelling. Instead of building a global model, one can use the most spectrally similar spectra only. 
+
+The `resemble` package has the function `search_neighbors()` to search in a reference set the neighbours of the spectra provided in another set. The neighbourhood is chosen based on a similarity measures. All the similarity measures described in this vignette can be implemented, e.g. Euclidean or Mahalanobis. Similarity measures are continuous values, and so the user must specify a threshold beyond which the spectra will not be part of the neighbourhood. The user can either specify the argument `k` or the argument `k_diss`. The former is an integer the exact number of spectra that should be included in the neighbour, the latter is also an integer but specifying the distance above which a spectra is excluded from the neighbourhood. 
+
+For illustration, we use the Mahalanobis distance computed in the three first principal component scores of the spectra (`diss_method = "pca"`). We specify the `k` argument to `k = 50`. The objective is to select for each spectrum in `text_x`, the `k = 50` most spectrally similar spectra in `train_x`.
+
+```{r}
+ex1 <- search_neighbors(Xr = train_x, Xu = test_x,
+                        diss_method = "pca",
+                        pc_selection = list("manual", 3),
+                        return_projection = TRUE,
+                        k = 50)
+```
+
+```{r, echo = FALSE, fig.align='center', fig.width=7, fig.height=7, message = FALSE, fig.cap='3D scatterplot of the principal component scores of the specta in the training data (green dots), testing data (blue dots), with example of a single points (red dot) and the selected 50 neighbours (red circles).'}
+# select the reference spectrum, randomly at 20 for the illustration
+ref_point <- 20
+
+
+
+require(scatterplot3d)
+
+sct3d <- scatterplot3d(x = ex1$projection$scores[,1], 
+                       y = ex1$projection$scores[,2], 
+                       z = ex1$projection$scores[,3], 
+                       xlab ='PC 1', 
+                       ylab ='PC 2',
+                       zlab = 'PC 3',
+                       color= rgb(red = 0.7, green = 0.7, blue = 0.5, alpha = 0.8),
+                       pch = 16, grid=FALSE, angle = 50)
+
+
+disMat_test_x <- ortho_projection(Xr = test_x, 
+                        diss_method = "pca",
+                        pc_selection = list("manual", 3))
+# plot the test_x PC scores
+sct3d$points3d(x = disMat_test_x$scores[,1],
+               y = disMat_test_x$scores[,2],
+               z = disMat_test_x$scores[,3],
+               col= rgb(red = 0.5, green = 0.7, blue = 0.7, alpha = 0.8),
+               pch = 16)
+# take a point
+sct3d$points3d(x = disMat_test_x$scores[,1][ref_point],
+               y = disMat_test_x$scores[,2][ref_point], 
+               z = disMat_test_x$scores[,3][ref_point], 
+               col = "red", 
+               pch = 19, 
+               cex = 2)
+
+# add the 25 closest neighbours
+sct3d$points3d(x = ex1$projection$scores[,1][ex1$neighbors[,ref_point]],
+               y = ex1$projection$scores[,2][ex1$neighbors[,ref_point]],
+               z = ex1$projection$scores[,3][ex1$neighbors[,ref_point]],
+               pch = 1,
+               col = 'red',
+               cex = 1.5)
+```
+
+It is also possible to identify the spectra that do not fall in any neighbour, using the following: 
+```{r}
+# observations that do not belong to any neighbourhood
+seq(1, nrow(train_x))[!seq(1, nrow(train_x)) %in% ex1$unique_neighbors]
+```
+
+## Memory-based learning (MBL)
+
+Memory-based learning (MBL) is a local calibration method presented in @ramirez2013spectrum. MBL has been developed to deal with complex, often continental or global, soil spectral datasets. Instead of building a single (global) function to link the soil property and the spectra, the spectral dataset is split into a number of subsets sharing similar spectral characteristics. In this sense, this algorithm makes extensively use of distance metrics in the principal component space to select the closest points for building a local model. Subsequently, MBL can deal with complex non-linear relationships between the spectra and a particular soil property.  
+MBL works in the following stages:
+
+1. Build a $p$-dimensional space of the spectra where $p$ is often the number of principal components scores.
+2. For each point of the testing dataset in the spectral space, select its $k$-nearest neighbours from the training dataset, where the value of the property of interest is known.  
+3. Fit a local model for point of the testing dataset using its nearest neighbours spectra found in the training. Several models are available for the fit. 
+
+Some aspects are therefore particularly important in the MBL algorithm. One must choose the similarity/dissimilarity metric used to select the closest point in the spectra space. A second important point is the number of neighbours that one wants to use in the fitting process. This number must be sufficiently large to build a realistic model but increasing too much the number of points might also decrease prediction accuracy. 
+
+In the function `mbl` the user must then choose:
+
+* the similarity metric `diss_method`, in this example the Mahalanobis distance in the PC space (`diss_method  = "pca"`).
+* the choice of the optimal number of PCs under the argument `pc_selection`, in this example te PCs are selected based on the cumulative explained variance.
+* the model for fitting, in our example the weighted average PLS model (`method = "local_fit_wapls(min_pls_c = 4, max_pls_c = 17)"`).
+* the validation method used, in this example the leave-nearest-neighbour-out cross validation (`validation_type = 'NNv'` in the `mbl_control` argument).
+
+We further decide a sequence of nearest neighbours `k` to test (in order to find the optimal number of neighbours in local model fitting). Here we test a sequence from 20 up to 120 in steps of 10.
+```{r}
+# define the sequence of neighbours
+k2t <- seq(from = 20, to = 120, by = 10)
+```
+We can now perform the model fitting using MBL and the `mbl` function. We use the object `control` which contains the parameters of the `mbl` function. We make use of a regression function called weighted average partial least square (`wapls1`). It uses multiple models generated by multiple PLS components (i.e. between a minimum and a maximum number of PLS components). At each local partition the final predicted value is a weighted average of all the predicted values generated by the multiple PLS models. See the package documentation for more details.
+```{r, results='hide', warning=FALSE, message=FALSE}
+# maximum cumulative variance explained to be retained by the PCs
+maxexplvar <- 0.99
+
+# run the mbl algorithm
+mblResults1 <- mbl(Xr = train_x, 
+                   Yr = train_y, 
+                   # we assume we do not know the clay content of the testing dataset
+                   Yu = NULL, 
+                   Xu = test_x,
+                   diss_method = 'pca',
+                   control = mbl_control(validation_type = 'NNv'), 
+                   diss_usage = 'none', 
+                   k = k2t, 
+                   # define the number of minimum and maximum components for 'wapls1'
+                   method = local_fit_wapls(min_pls_c = 4, max_pls_c = 17),
+                   pc_selection = list('cumvar', maxexplvar),
+                   scale = FALSE, center = TRUE)
+```
+We can summarize the information derived and plot the results using the `plot.mbl` function. 
+
+```{r, fig.align='center', fig.width=8, fig.height=4, fig.cap = 'Values of the root mean square error against number of neighbours in MBL in the testing dataset (left), and principal component scores of the PLS local model for the training and testing dataset (right).'}
+plot(mblResults1, main = '')
+```
+
+
+```{r}
+# print a summary of the model
+mblResults1
+```
+
+According to the results the optimal number of neighbours that minimizes the RMSE is 110. 
+```{r}
+# rmse values
+rmseMBL <- mblResults1$validation_results$nearest_neighbor_validation$rmse
+
+# minimum rmse value
+minRmseMBL <- min(mblResults1$validation_results$nearest_neighbor_validation$rmse)
+
+# number of neighbours values
+neighNumber <- mblResults1$validation_results$nearest_neighbor_validation
+
+# select the optimal number of neighbours
+optNn <- neighNumber[rmseMBL == minRmseMBL,]$k
+```
+
+Instead of assuming that the total carbon content in the validation set is unknown (the `NULL` in the `Yu` argument), we can use the actual total carbon content values of this dataset. Note that they are not used at all during computations, they are only used for validation purposes (i.e. comparing what it was predicted to the actual values).
+```{r, results='hide', warning=FALSE}
+# run the mbl algorithm specifying the Yu argument 
+mblResults2 <- mbl(Xr = train_x, 
+                   Yr = train_y, 
+                   Yu = test_y, 
+                   Xu = test_x,
+                   diss_method = 'pca',
+                   control = mbl_control(validation_type = 'NNv'), 
+                   diss_usage = 'none', 
+                   k = optNn, 
+                   # define the number of minimum and maximum components for 'wapls1'
+                   method = local_fit_wapls(min_pls_c = 4, max_pls_c = 17),
+                   pc_selection = list('cumvar', maxexplvar),
+                   scale = FALSE, center = TRUE)
+```
+We can plot the predicted and observed values of the clay content.  
+
+```{r, fig.align = 'center', fig.cap = 'Scatterplot of observed against predicted values of the clay. The predictions are made by MBL using a weighted local PLS model.'}
+# plot validation 
+plot(test_y, mblResults2$results$k_110$pred, 
+     xlab = 'Observed', 
+     ylab = 'Predicted',
+     xlim = c(0, 100), 
+     ylim = c(0, 100),
+     pch = 16)
+abline(0, 1)
+
+```
+
+```{r}
+mblResults2
+```
+
+
+
+### `mbl()` in parallel
+
+
+Explain briefly how to do it and how it is. Mention that openMP is also used in 
+cpp code
+
+
+## References
+
