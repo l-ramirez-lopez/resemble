@@ -23,6 +23,9 @@ using namespace Rcpp;
 arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){  
   
   //double eps = sqrt(DOUBLE_EPS);
+  //FIXME check numerical precision in Rcpp
+  //in some cases it returns 0s as -1e-14 
+  //perhaps due to reuse memory?
   
   int nX = X.nrow(), kX = X.ncol(), nY = Y.nrow(), kY = Y.ncol();
   arma::mat XX(X.begin(), nX, kX, false); // reuses memory and avoids extra copy
@@ -62,7 +65,7 @@ NumericVector fast_diss_vector(NumericVector X){
   int n = ((nX*nX)-nX)/2;
   NumericVector output(n);  
 #if defined(_OPENMP) 
-  #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 #endif
   for(int i = 0; i < nX-1; i++)
     for(int j = i+1; j < nX; j++){
@@ -146,7 +149,7 @@ NumericVector minDissV(NumericVector X){
   arma::uvec vindex(len); 
   int i,j;
 #if defined(_OPENMP) 
-  #pragma omp parallel for private(i,j) schedule(dynamic)
+#pragma omp parallel for private(i,j) schedule(dynamic)
 #endif
   for(int i = 0; i < nX - 1; i++)
     for(int j = i + 1; j < nX; j++){
