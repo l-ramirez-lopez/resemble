@@ -1044,7 +1044,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   n_iter <- nrow(Xu)
 
   pred_obs <- foreach(
-    i = 1:n_iter, ith_observation = iter_neighborhoods,
+    i = 1:n_iter, 
+    ith_observation = iter_neighborhoods,
     .inorder = FALSE,
     .export = c(
       "ortho_diss", "fit_and_predict", "pls_cv",
