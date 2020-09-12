@@ -18,8 +18,7 @@ test_that("mbl works", {
   k_test <- seq(25, 35, by = 10)
   k_diss_test <- 0.1
   k_range_test <- c(15, 30)
-  
-  
+
   ctrl_1 <- mbl_control(
     validation_type = c("NNv", "local_cv"),
     number = 4, p = 0.5,
@@ -68,8 +67,7 @@ test_that("mbl works", {
     method = local_fit_wapls(3, 5),
     control = ctrl_1
   )
-  
-  
+
   group_test <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
@@ -98,8 +96,7 @@ test_that("mbl works", {
 test_that("mbl delivers expeted results", {
   skip_on_cran()
   skip_on_travis()
-  
-  
+
   nirdata <- data("NIRsoil", package = "prospectr")
   NIRsoil$spc <- prospectr:::savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0)
   
@@ -198,7 +195,6 @@ test_that("mbl delivers expeted results", {
     control = ctrl_1, group = xgroup,
     .local = TRUE, pre_k = 200
   )
-  
   
   cv_gpr <- c(
     gpr$validation_results$local_cross_validation$rmse < 1.8,
