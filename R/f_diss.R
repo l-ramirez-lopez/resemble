@@ -220,7 +220,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
     ## perhaps due to reuse memory?
     rslt <- abs(fast_diss(Xu, Xr, n_method))
     if (n_method == "euclid") {
-      rslt <- (rslt / ncol(Xr))^.5
+      rslt <- sqrt(rslt / ncol(Xr))
     }
     colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
@@ -230,7 +230,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
     ## perhaps due to reuse memory?
     rslt <- abs(fast_diss(Xr, Xr, n_method))
     if (n_method == "euclid") {
-      rslt <- (rslt / ncol(Xr))^.5
+      rslt <- sqrt(rslt / ncol(Xr))
     }
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
     colnames(rslt) <- rownames(rslt)
