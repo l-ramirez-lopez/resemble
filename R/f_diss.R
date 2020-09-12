@@ -163,37 +163,37 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
   if (sum(is.na(Xr)) > 0) {
     stop("Matrices with missing values are not accepted")
   }
-
+  
   n_method <- diss_method
   if (!n_method %in% c("euclid", "mahalanobis", "cosine")) {
     stop("'diss_method' must be one of: 'euclid', 'mahalanobis' or'cosine'")
-
+    
     if (length(n_method) > 1) {
     } else {
       n_method <- diss_method[[1]]
       message(paste("More than one diss_method was specified, only", n_method, "was used."))
     }
   }
-
+  
   if (!is.logical(center)) {
     stop("'center' must be logical")
   }
-
+  
   if (!is.logical(scale)) {
     stop("'scale' must be logical")
   }
-
+  
   if (center | scale | n_method %in% c("mahalanobis", "euclid")) {
     X <- rbind(Xr, Xu)
-
+    
     if (center) {
       X <- sweep(x = X, MARGIN = 2, FUN = "-", STATS = colMeans(X))
     }
-
+    
     if (scale) {
       X <- sweep(x = X, MARGIN = 2, FUN = "/", STATS = get_col_sds(X))
     }
-
+    
     if (n_method == "mahalanobis") {
       if (nrow(X) < ncol(X)) {
         stop("For computing the Mahalanobis distance, the total number of observations (rows) \n must be larger than the number of variables (columns).")
@@ -204,7 +204,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
       }
       n_method <- "euclid"
     }
-
+    
     if (!is.null(Xu)) {
       Xu <- X[(nrow(X) - nrow(Xu) + 1):nrow(X), , drop = FALSE]
       Xr <- X[1:(nrow(X) - nrow(Xu)), , drop = FALSE]
@@ -213,18 +213,24 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
     }
     rm(X)
   }
-
+  
   if (!is.null(Xu)) {
-    rslt <- fast_diss(Xu, Xr, n_method)
+    ## FIXME check numerical precision in Rcpp
+    ## in some cases it returns 0s as -1e-14 
+    ## perhaps due to reuse memory?
+    rslt <- abs(fast_diss(Xu, Xr, n_method))
     if (n_method == "euclid") {
-      rslt <- (rslt / ncol(Xr))^.5
+      rslt <- sqrt(rslt / ncol(Xr))
     }
     colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
   } else {
-    rslt <- fast_diss(Xr, Xr, n_method)
+    ## FIXME check numerical precision in Rcpp
+    ## in some cases it returns 0s as -1e-14 
+    ## perhaps due to reuse memory?
+    rslt <- abs(fast_diss(Xr, Xr, n_method))
     if (n_method == "euclid") {
-      rslt <- (rslt / ncol(Xr))^.5
+      rslt <- sqrt(rslt / ncol(Xr))
     }
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
     colnames(rslt) <- rownames(rslt)
@@ -232,7 +238,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
   if (diss_method == "cosine") {
     rslt[is.nan(rslt)] <- 0
   }
-
+  
   rslt
 }
 
@@ -244,25 +250,25 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
 #' @importFrom stats cov
 euclid_to_mahal <- function(X, sm_method = c("svd", "eigen")) {
   nms <- dimnames(X)
-
+  
   if (ncol(X) > nrow(X)) {
     stop("In order to project the matrix to a Mahalanobis space, the number of observations of the input matrix must larger than its number of variables")
   }
-
+  
   if (length(sm_method) > 1) {
     sm_method <- sm_method[1]
   }
   if (!(sm_method %in% c("svd", "eigen"))) {
     stop("sm_method must be one of 'svd', 'eigen'")
   }
-
+  
   X <- as.matrix(X)
   vcv <- cov(X)
   sq_vcv <- sqrt_sm(vcv, method = sm_method)
   sq_S <- solve(sq_vcv)
   ms_x <- X %*% sq_S
   dimnames(ms_x) <- nms
-
+  
   ms_x
 }
 
@@ -280,7 +286,7 @@ sqrt_sm <- function(X, method = c("svd", "eigen")) {
   if (!(method %in% c("svd", "eigen"))) {
     stop("method must be one of 'svd', 'eigen'")
   }
-
+  
   if (method == "svd") {
     ## REPLACE BY  arma::svd(U, S, V, X, "dc")
     out <- svd(X)
@@ -288,7 +294,7 @@ sqrt_sm <- function(X, method = c("svd", "eigen")) {
     U <- out$v
     return(U %*% (D^0.5) %*% t(U))
   }
-
+  
   if (method == "eigen") {
     out <- eigen(X)
     D <- diag(out$values)
