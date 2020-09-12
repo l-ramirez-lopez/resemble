@@ -93,7 +93,7 @@ test_that("mbl works", {
   expect_true(all(expected_names %in% output_names))
 })
 
-test_that("mbl delivers expeted results", {
+test_that("mbl delivers expected results", {
   skip_on_cran()
   skip_on_travis()
 
