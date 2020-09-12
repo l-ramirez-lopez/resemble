@@ -216,7 +216,8 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
 
   if (!is.null(Xu)) {
     ## FIXME check numerical precision in Rcpp
-    ## in some cases it returns 0s as 1e-14 
+    ## in some cases it returns 0s as -1e-14 
+    ## perhaps due to reuse memory?
     rslt <- abs(fast_diss(Xu, Xr, n_method))
     if (n_method == "euclid") {
       rslt <- (rslt / ncol(Xr))^.5
@@ -224,7 +225,10 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
     colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
   } else {
-    rslt <- fast_diss(Xr, Xr, n_method)
+    ## FIXME check numerical precision in Rcpp
+    ## in some cases it returns 0s as -1e-14 
+    ## perhaps due to reuse memory?
+    rslt <- abs(fast_diss(Xr, Xr, n_method))
     if (n_method == "euclid") {
       rslt <- (rslt / ncol(Xr))^.5
     }
