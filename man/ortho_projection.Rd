@@ -61,8 +61,8 @@ method). The methods available are:
        minimizes the differences between the \code{Yr} value of each
        observation and the \code{Yr} value of its closest observation. In this
        case \code{value} must be a value (larger than 0 and
-       below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
-       number of principal components to be tested. See details.}
+       below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating 
+       the maximum number of principal components to be tested. See details.}
 
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
@@ -175,9 +175,9 @@ using principal component analysis (pca) and partial least squares (pls).
 \details{
 In the case of \code{method = "pca"}, the algrithm used is the singular value
 decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
-\deqn{
-     X = UDV^{\mathrm{T}}
-     }
+     
+ \mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}
+     
 where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right
 singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
 containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
