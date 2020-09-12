@@ -215,7 +215,9 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
   }
 
   if (!is.null(Xu)) {
-    rslt <- fast_diss(Xu, Xr, n_method)
+    ## FIXME check numerical precision in Rcpp
+    ## in some cases it returns 0s as 1e-14 
+    rslt <- abs(fast_diss(Xu, Xr, n_method))
     if (n_method == "euclid") {
       rslt <- (rslt / ncol(Xr))^.5
     }
