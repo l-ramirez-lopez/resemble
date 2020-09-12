@@ -1042,7 +1042,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
 
   cat("\033[32m\033[3mPredicting...\n\033[23m\033[39m")
   n_iter <- nrow(Xu)
-
+browser()
   pred_obs <- foreach(
     i = 1:n_iter, 
     ith_observation = iter_neighborhoods,
@@ -1053,6 +1053,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     ),
     .noexport = c("Xr", "Xu")
   ) %mydo% {
+    browser()
     ith_pred_results <- template_pred_results
     additional_results <- NULL
     ith_pred_results$o_index[] <- i
