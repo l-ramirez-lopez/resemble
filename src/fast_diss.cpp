@@ -23,6 +23,9 @@ using namespace Rcpp;
 arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){  
   
   //double eps = sqrt(DOUBLE_EPS);
+  //FIXME check numerical precision in Rcpp
+  //in some cases it returns 0s as -1e-14 
+  //perhaps due to reuse memory?
   
   int nX = X.nrow(), kX = X.ncol(), nY = Y.nrow(), kY = Y.ncol();
   arma::mat XX(X.begin(), nX, kX, false); // reuses memory and avoids extra copy
