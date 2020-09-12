@@ -57,8 +57,8 @@
 #'        minimizes the differences between the \code{Yr} value of each
 #'        observation and the \code{Yr} value of its closest observation. In this
 #'        case \code{value} must be a value (larger than 0 and
-#'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
-#'        number of principal components to be tested. See details.}
+#'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating 
+#'        the maximum number of principal components to be tested. See details.}
 #'
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
@@ -109,9 +109,9 @@
 #' @details
 #' In the case of \code{method = "pca"}, the algrithm used is the singular value
 #' decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
-#' \deqn{
-#'      X = UDV^{\mathrm{T}}
-#'      }
+#'      
+#'  \mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}
+#'      
 #' where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right
 #' singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
 #' containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
@@ -321,7 +321,7 @@ ortho_projection <- function(Xr, Xu = NULL,
                              pc_selection = list(method = "cumvar", value = 0.99),
                              center = TRUE, scale = FALSE, ...) {
   method <- match.arg(method, c("pls", "pca", "pca.nipals"))
-
+  
   if (method == "pls") {
     if (!is.numeric(as.matrix(Yr))) {
       stop("When pls projection is used, 'Yr' must be numeric")
@@ -338,10 +338,10 @@ ortho_projection <- function(Xr, Xu = NULL,
       center = center, scale = scale, method = method, ...
     )
   }
-
+  
   proj$method <- mthd
   class(proj) <- c("ortho_projection", "list")
-
+  
   proj
 }
 
@@ -359,17 +359,17 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
                           tol = 1e-6, max_iter = 1000, ...) {
   pc_selection_method <- pc_selection[[1]]
   match.arg(pc_selection_method, c("opc", "var", "cumvar", "manual"))
-
+  
   match.arg(method, c("pca", "pca.nipals"))
-
+  
   if (!is.logical(center)) {
     stop("'center' must be logical")
   }
-
+  
   if (!is.logical(scale)) {
     stop("'scale' must be logical")
   }
-
+  
   if (!is.null(Yr)) {
     Yr <- as.matrix(Yr)
     # if (!is.matrix(Yr)) {
@@ -384,13 +384,13 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   }
   
   ny <- ncol(Yr)
-
+  
   if (!is.null(Xu)) {
     if (ncol(Xr) != ncol(Xu)) {
       stop("Number of columns in 'Xr' and 'Xu' do not match")
     }
   }
-
+  
   effective_rows_xr <- nrow(Xr)
   n_cols_xr <- ncol(Xr)
   # here ifelse is preferred over if_else as the later returns an error
@@ -407,9 +407,9 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   )
   pc_selection <- dparam$pc_selection_checked
   max_comp <- dparam$max_comp
-
+  
   pc_selection_copy <- pc_selection
-
+  
   # center
   if (center) {
     mean_vector <- colMeans(Xr)
@@ -418,14 +418,14 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     mean_vector <- rep(0, ncol(Xr))
     X0 <- Xr
   }
-
+  
   if (scale) {
     sd_vector <- get_column_sds(X0)
     X0 <- sweep(x = X0, MARGIN = 2, FUN = "/", STATS = sd_vector)
   } else {
     sd_vector <- rep(1, ncol(X0))
   }
-
+  
   if (method == "pca") {
     sv_decomposition <- svd(x = X0, nu = max_comp, nv = max_comp)
     sv_decomposition$d <- sv_decomposition$d[1:max_comp]
@@ -444,7 +444,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
       explained_var = explained_v
     )
   }
-
+  
   if (method == "pca.nipals") {
     nipals_pca <- pca_nipals(
       X = X0,
@@ -456,7 +456,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
       pcSelmethod = pc_selection_method,
       pcSelvalue = pc_selection_copy$value
     )
-
+    
     pc_scores <- nipals_pca$pc_scores
     pc_loadings <- nipals_pca$pc_loadings
     explained_v <- nipals_pca$pc_variance
@@ -467,7 +467,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     )
     colnames(variance) <- paste0("pc_", 1:ncol(variance))
   }
-
+  
   # assign names
   colnames(pc_scores) <- paste0("pc_", 1:ncol(pc_scores))
   rownames(pc_scores) <- c(
@@ -478,7 +478,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   )
   colnames(pc_loadings) <- colnames(X0)
   rownames(pc_loadings) <- paste0("pc_", 1:nrow(pc_loadings))
-
+  
   if (pc_selection_method == "opc") {
     if (is.null(Yr) | !is.matrix(Yr)) {
       stop(paste0(
@@ -497,37 +497,37 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
       colnames(Yr) <- paste0("Yr_", 1:ny)
     }
     results <- eval_multi_pc_diss(pc_scores[, 1:max_comp],
-      side_info = Yr,
-      method = "pc",
-      check_dims = FALSE
+                                  side_info = Yr,
+                                  method = "pc",
+                                  check_dims = FALSE
     )
     selected_pcs <- results$best_pc
     results <- results$result
   }
-
+  
   if (pc_selection_method == "cumvar") {
     selected_pcs <- variance[2, ] <= pc_selection_copy$value
     selected_pcs <- sum(selected_pcs)
   }
-
+  
   if (pc_selection_method == "var") {
     selected_pcs <- variance[3, ] >= pc_selection_copy$value
     selected_pcs <- sum(selected_pcs)
   }
-
+  
   if (pc_selection_method == "manual") {
     selected_pcs <- (1:ncol(pc_scores)) <= pc_selection_copy$value
     selected_pcs <- sum(selected_pcs)
   }
-
+  
   if (pc_selection_method == "opc") {
     selected_pcs <- sum(selected_pcs)
   }
-
+  
   scores_sd <- get_column_sds(pc_scores[, 1:selected_pcs, drop = FALSE])
   colnames(scores_sd) <- colnames(pc_scores[, 1:selected_pcs, drop = FALSE])
   rownames(scores_sd) <- "sd"
-
+  
   fresults <- list(
     scores = pc_scores[, 1:selected_pcs, drop = FALSE],
     X_loadings = pc_loadings[1:selected_pcs, , drop = FALSE],
@@ -543,7 +543,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     fresults$opc_evaluation <- results
   }
   class(fresults) <- c("ortho_projection", "list")
-
+  
   fresults
 }
 
@@ -558,12 +558,12 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
                            scale = FALSE, tol = 1e-6, max_iter = 1000, ...) {
   pc_selection_method <- pc_selection[[1]]
   match.arg(pc_selection_method, c("opc", "var", "cumvar", "manual"))
-
+  
   if (!is.logical(scale)) {
     stop("'scale' argument must be logical")
   }
-
-
+  
+  
   if (missing(Yr)) {
     stop("'Yr' must be provided")
   } else {
@@ -572,23 +572,23 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
       stop("'Yr' must be a numeric matrix")
     }
   }
-
+  
   if (!is.null(Xu)) {
     if (ncol(Xr) != ncol(Xu)) {
       stop("Number of columns in 'Xr' and 'Xu' do not match")
     }
   }
-
+  
   if (is.null(pc_selection$value)) {
     pc_selection_value <- pc_selection[[2]]
   } else {
     pc_selection_value <- pc_selection$value
   }
-
+  
   nas <- rowSums(is.na(Yr)) > 0
-
+  
   ny <- ncol(Yr)
-
+  
   X0 <- Xr
   Y0 <- Yr
   non_nas_yr <- 1:nrow(Xr)
@@ -608,11 +608,11 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
       }
     }
   }
-
-
+  
+  
   effective_rows_xr <- nrow(X0)
   n_cols_xr <- ncol(X0)
-
+  
   dparam <- check_pc_arguments(
     n_rows_x = effective_rows_xr,
     n_cols_x = n_cols_xr,
@@ -623,20 +623,20 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
   )
   pc_selection <- dparam$pc_selection_checked
   max_comp <- dparam$max_comp
-
+  
   weights <- matrix(NA, max_comp, ncol(X0))
   scores <- matrix(NA, nrow(X0), max_comp)
   X_loadings <- matrix(NA, max_comp, ncol(X0))
   Y_loadings <- matrix(NA, max_comp, ny)
   pls_variance <- matrix(NA, 3, max_comp)
-
+  
   if (pc_selection_method %in% c("opc", "manual")) {
     pc_selection$value <- pc_selection_value - 1
     cpp_method <- "manual"
   } else {
     cpp_method <- pc_selection_method
   }
-
+  
   plsp <- opls_for_projection(
     X = X0,
     Y = as.matrix(Y0),
@@ -648,7 +648,7 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     pcSelvalue = pc_selection$value
   )
   max_comp <- plsp$ncomp
-
+  
   if (pc_selection_method == "opc") {
     if (is.null(Yr) | !is.matrix(Yr)) {
       stop(paste0(
@@ -667,15 +667,15 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
       colnames(Y0) <- colnames(Yr) <- paste0("Yr_", 1:ny)
     }
     results <- eval_multi_pc_diss(plsp$scores[, 1:max_comp],
-      side_info = as.matrix(Y0),
-      method = "pls",
-      check_dims = FALSE
+                                  side_info = as.matrix(Y0),
+                                  method = "pls",
+                                  check_dims = FALSE
     )
     max_comp <- results$best_pc
     results <- results$result
   }
-
-
+  
+  
   # Select the necessary components
   pls_variance <- plsp$variance$x_var[, 1:max_comp, drop = FALSE]
   weights <- plsp$weights[1:max_comp, , drop = FALSE]
@@ -683,7 +683,7 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
   X_loadings <- plsp$X_loadings[1:max_comp, , drop = FALSE]
   Y_loadings <- plsp$Y_loadings[1:max_comp, , drop = FALSE]
   plsp$projection_mat <- plsp$projection_mat[, 1:max_comp, drop = FALSE]
-
+  
   # Give some names...
   colnames(X_loadings) <- colnames(X0)
   rownames(X_loadings) <- colnames(plsp$projection_mat) <- paste0("pls_", 1:max_comp)
@@ -693,16 +693,16 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
   colnames(weights) <- colnames(X_loadings)
   colnames(pls_variance) <- rownames(X_loadings)
   rownames(pls_variance) <- c("sd", "cumulative_explained_var_X", "explained_var_X")
-
+  
   yex <- plsp$variance$y_var[, 1:max_comp, drop = FALSE]
-
+  
   colnames(yex) <- rownames(Y_loadings)
   if (ny > 1) {
     rownames(yex) <- paste0("explained_var_", colnames(Yr))
   } else {
     rownames(yex) <- "explained_var_Yr"
   }
-
+  
   if (sum(nas) > 0) {
     scores.a <- matrix(NA, length(c(non_nas_yr, nas_yr)), ncol(scores))
     scores.a[nas_yr, ] <- project_opls(
@@ -716,11 +716,11 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     scores.a[non_nas_yr, ] <- scores
     scores <- scores.a
   }
-
+  
   rownames(scores) <- paste0("Xr_", 1:nrow(scores))
   colnames(scores) <- rownames(Y_loadings)
-
-
+  
+  
   if (!is.null(Xu)) {
     if (is.vector(Xu)) {
       Xu <- t(Xu)
@@ -733,16 +733,16 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
       Xcenter = plsp$transf$Xcenter,
       Xscale = plsp$transf$Xscale
     )
-
+    
     colnames(scores_Xu) <- rownames(Y_loadings)
     rownames(scores_Xu) <- paste0("Xu_", 1:nrow(Xu))
     scores <- rbind(scores, scores_Xu)
   }
-
+  
   if (!nrow(plsp$transf$Xscale)) {
     plsp$transf$Xscale <- matrix(1, 1, length(plsp$transf$Xcenter))
   }
-
+  
   scores_sd <- get_column_sds(scores)
   colnames(scores_sd) <- colnames(scores)
   rownames(scores_sd) <- "sd"
@@ -764,7 +764,7 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     fresults$opc_evaluation <- results
   }
   class(fresults) <- c("ortho_projection", "list")
-
+  
   fresults
 }
 
@@ -777,14 +777,14 @@ predict.ortho_projection <- function(object, newdata, ...) {
   if (missing(newdata)) {
     return(object$scores)
   }
-
+  
   nms.org <- colnames(object$X_loadings)
   nms.nd <- colnames(newdata)
-
+  
   if (sum(!nms.org %in% nms.nd) != 0) {
     stop("There are missing variables in new data that are required for the projection")
   }
-
+  
   else {
     if (length(grep("pca", object$method)) != 0) {
       newdata <- sweep(newdata, MARGIN = 2, FUN = "-", STATS = object$center)
@@ -799,10 +799,10 @@ predict.ortho_projection <- function(object, newdata, ...) {
         Xcenter = object$center,
         Xscale = object$scale
       )
-
+      
       colnames(predpoj) <- paste0("pls", 1:ncol(predpoj))
       rownames(predpoj) <- rownames(newdata)
-
+      
       return(predpoj)
     }
   }
