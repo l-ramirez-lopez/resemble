@@ -61,8 +61,8 @@ method). The methods available are:
        minimizes the differences between the \code{Yr} value of each
        observation and the \code{Yr} value of its closest observation. In this
        case \code{value} must be a value (larger than 0 and
-       below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
-       number of principal components to be tested. See details.}
+       below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating 
+       the maximum number of principal components to be tested. See details.}
 
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
@@ -139,8 +139,9 @@ components:
  onto a "pls" space. This object is only returned if the "pls" algorithm was
  used.}
  \item{\code{variance}}{ a matrix indicating the standard deviation of each
- component (sd), the cumulative explained variance (cumulative_explained_var) and the
- variance explained by each single component (explained_var). These values are
+ component (sd), the variance explained by each single component 
+ (explained_var) and the cumulative explained variance 
+ (cumulative_explained_var). These values are
  computed based on the data used to create the projection matrices.
  For example if the "pls" method was used, then these values are computed
  based only on the data that contains information on \code{Yr} (i.e. the
