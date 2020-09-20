@@ -204,11 +204,11 @@ chosen) of the preprocessed spectra in the training set:
 
 ```{r}
 # principal component analysis using 5 components
-five_pcs_training <- ortho_projection(Xr = training$spc_p,
-                                      pc_selection = list("manual", 5),
-                                      method = "pca")
+five_pcs_tr <- ortho_projection(Xr = training$spc_p,
+                                pc_selection = list("manual", 5),
+                                method = "pca")
 
-five_pcs_training
+five_pcs_tr
 ```
 
 The results above show that four components only are sufficient to explain nearly 95% of the variance of the original dataset. For the example, we may also want to use a user-defined amount of cumulative variance explained that needs to be retained. Usually, we expect the PCA to explain at least 90% of the variance of the original data. For complex datasets, this means that we may end up for more than simply five components in total. 
