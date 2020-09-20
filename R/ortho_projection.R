@@ -164,8 +164,9 @@
 #'  onto a "pls" space. This object is only returned if the "pls" algorithm was
 #'  used.}
 #'  \item{\code{variance}}{ a matrix indicating the standard deviation of each
-#'  component (sd), the cumulative explained variance (cumulative_explained_var) and the
-#'  variance explained by each single component (explained_var). These values are
+#'  component (sd), the variance explained by each single component 
+#'  (explained_var) and the cumulative explained variance 
+#'  (cumulative_explained_var). These values are
 #'  computed based on the data used to create the projection matrices.
 #'  For example if the "pls" method was used, then these values are computed
 #'  based only on the data that contains information on \code{Yr} (i.e. the
@@ -437,11 +438,11 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     # Compute the percentage of explained variance for all the PCs
     ons <- (sv_decomposition$d)^2 / (nrow(X0) - 1)
     explained_v <- ons / sum(get_column_sds(X0)^2)
-    cummulative_v <- cumsum(explained_v)
+    cumulative_v <- cumsum(explained_v)
     variance <- rbind(
       sd = as.vector(sdPC),
-      cumulative_explained_var = cummulative_v,
-      explained_var = explained_v
+      explained_var = explained_v,
+      cumulative_explained_var = cumulative_v
     )
   }
 
@@ -462,8 +463,8 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     explained_v <- nipals_pca$pc_variance
     variance <- rbind(
       sd = explained_v[1, ],
-      cumulative_explained_var = explained_v[2, ],
-      explained_var = explained_v[3, ]
+      explained_var = explained_v[2, ],
+      cumulative_explained_var = explained_v[3, ],
     )
     colnames(variance) <- paste0("pc_", 1:ncol(variance))
   }
@@ -692,15 +693,15 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
   rownames(weights) <- rownames(X_loadings)
   colnames(weights) <- colnames(X_loadings)
   colnames(pls_variance) <- rownames(X_loadings)
-  rownames(pls_variance) <- c("sd", "cumulative_explained_var_X", "explained_var_X")
+  rownames(pls_variance) <- c("sd", "explained_var_X", "cumulative_explained_var_X")
 
   yex <- plsp$variance$y_var[, 1:max_comp, drop = FALSE]
 
   colnames(yex) <- rownames(Y_loadings)
   if (ny > 1) {
-    rownames(yex) <- paste0("explained_var_", colnames(Yr))
+    rownames(yex) <- paste0("cumulative_explained_var_", colnames(Yr))
   } else {
-    rownames(yex) <- "explained_var_Yr"
+    rownames(yex) <- "cumulative_explained_var_Yr"
   }
 
   if (sum(nas) > 0) {
