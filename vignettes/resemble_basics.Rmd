@@ -184,19 +184,31 @@ method `Yr` is required (i.e. the side information of the observations).
 We describe demo the above options case in the following subsections. 
 
 
-### Principal components analysis
-The standard method for dimensionality reduction is principal component analysis. In principal components analysis, the original variables are transformed into a (smaller) number of uncorrelated variables called principal components. The first principal component accounts for most of the variability in the data, and each succeeding component accounts for a sequentially decreasing amount of the remaining variability in the data. Thus with a few components we may be able to explain most of the variation in the spectra. With a lower dimension dataset we can perform outlier detection or select the spectra in which to perform laboratory-based chemical analysis so as to calibrate soil attribute predictive functions.
+### Principal components (PC) analysis
+This method has become the standard for dimensionality reduction. In this method, 
+the goal is to mimic the original variability across observations in the data 
+but with (a new set of) fewer and uncorrelated variables called called principal 
+components. PC analysis attempts to remove all the redundant variable information 
+in the data (i.e. collinearity) by projecting the original variables onto new 
+ones that summarize them. The first PC accounts for a large amount 
+of the variability in the original data, and each succeeding component accounts 
+for a sequentially decreasing amount of the remaining variability. Therefore, 
+most of the original variability can be captured in the first few components. 
+By removing collinearity and reducing dimensionality, the complexity of the data 
+is then reduced, which allows better performance in tasks such as outlier 
+detection, sample dissimilarity analysis, representative sample analysis etc. 
 
-For principal components analysis we can use the `ortho_projection()` function in `resemble`. Note that we use the method `"pca"` and the `pc_selection` argument to `"manual"`. Let use decide that we want 5 principal components. 
+In this package, the `ortho_projection()` function can be used for PC analysis. 
+Let's use the `ortho_projection()` function to compute the first 5 PCs (arbitrary 
+chosen) of the preprocessed spectra in the training set:
 
 ```{r}
 # principal component analysis using 5 components
-pc5_spectra <- ortho_projection(Xr = train_x,
-                             pc_selection = list("manual", 10),
-                             method = 'pca')
+five_pcs_training <- ortho_projection(Xr = training$spc_p,
+                                      pc_selection = list("manual", 5),
+                                      method = "pca")
 
-# display the information contained in the pc5_spectra object
-print(pc5_spectra)
+five_pcs_training
 ```
 
 The results above show that four components only are sufficient to explain nearly 95% of the variance of the original dataset. For the example, we may also want to use a user-defined amount of cumulative variance explained that needs to be retained. Usually, we expect the PCA to explain at least 90% of the variance of the original data. For complex datasets, this means that we may end up for more than simply five components in total. 
