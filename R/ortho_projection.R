@@ -436,8 +436,8 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     sdPC <- get_column_sds(pc_scores)
     # Compute the percentage of explained variance for all the PCs
     ons <- (sv_decomposition$d)^2 / (nrow(X0) - 1)
-    explained_v <- ons / sum(ons)
-    cummulative_v <- diffinv(explained_v[-1], xi = explained_v[1])
+    explained_v <- ons / sum(get_column_sds(X0)^2)
+    cummulative_v <- cumsum(explained_v)
     variance <- rbind(
       sd = as.vector(sdPC),
       cumulative_explained_var = cummulative_v,
