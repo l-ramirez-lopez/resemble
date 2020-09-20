@@ -3,7 +3,6 @@
 S3method("[",local_ortho_diss)
 S3method(plot,mbl)
 S3method(plot,ortho_projection)
-S3method(plot,rslocal)
 S3method(predict,ortho_projection)
 S3method(print,local_fit)
 S3method(print,local_ortho_diss)
