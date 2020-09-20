@@ -464,7 +464,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     variance <- rbind(
       sd = explained_v[1, ],
       explained_var = explained_v[2, ],
-      cumulative_explained_var = explained_v[3, ],
+      cumulative_explained_var = explained_v[3, ]
     )
     colnames(variance) <- paste0("pc_", 1:ncol(variance))
   }
@@ -507,12 +507,12 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   }
 
   if (pc_selection_method == "cumvar") {
-    selected_pcs <- variance[2, ] <= pc_selection_copy$value
+    selected_pcs <- variance[3, ] <= pc_selection_copy$value
     selected_pcs <- sum(selected_pcs)
   }
 
   if (pc_selection_method == "var") {
-    selected_pcs <- variance[3, ] >= pc_selection_copy$value
+    selected_pcs <- variance[2, ] >= pc_selection_copy$value
     selected_pcs <- sum(selected_pcs)
   }
 
