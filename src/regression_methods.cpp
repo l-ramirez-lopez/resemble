@@ -252,18 +252,19 @@ List opls_for_projection(arma::mat X,
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
     explained_var(0,i) = arma::var(scores.col(i));
-    explained_var(1,i) = sum(explained_var.row(0)) / xvar;
-    explained_var(2,i) = explained_var(0,i)/xvar;
+    explained_var(1,i) = explained_var(0,i) / xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
     
+
     ith_comp = ith_comp + 1;
     
     if (pcSelmethod != "manual") {
       if (pcSelmethod == "var" || pcSelmethod == "cumvar") {
         bool chk;
         if (pcSelmethod == "cumvar") {
-          chk = explained_var(1,i) > pcSelvalue;
+          chk = explained_var(2,i) > pcSelvalue;
         } else {
-          chk = explained_var(2,i) < pcSelvalue;
+          chk = explained_var(1,i) < pcSelvalue;
         }
         if (chk) {
           ncomp = ith_comp - 1;
@@ -281,9 +282,9 @@ List opls_for_projection(arma::mat X,
   if (pcSelmethod != "manual") {
     if (pcSelmethod == "var" || pcSelmethod == "cumvar") {
       if (pcSelmethod == "var") {
-        pc_indices = find(explained_var.row(2) >= pcSelvalue); 
+        pc_indices = find(explained_var.row(1) >= pcSelvalue); 
       } else {
-        pc_indices = find(explained_var.row(1) <= pcSelvalue && explained_var.row(1) > 0); 
+        pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
       }
       weights = weights.rows(pc_indices);
       coefficients = coefficients.cols(pc_indices);
@@ -490,8 +491,8 @@ List opls_get_all(arma::mat X,
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
     explained_var(0,i) = arma::var(scores.col(i));
-    explained_var(1,i) = sum(explained_var.row(0)) / xvar;
-    explained_var(2,i) = explained_var(0,i)/xvar;
+    explained_var(1,i) = explained_var(0,i)/xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
   }
   // convert this to standard deviation
   explained_var.row(0) = sqrt(explained_var.row(0));
@@ -1673,18 +1674,18 @@ List pca_nipals(arma::mat X,
     pc_scores.col(i) = tt.col(0);
     pc_loadings.col(i) = pp_std.col(0);
     explained_var(0,i) = arma::var(pc_scores.col(i));
-    explained_var(1,i) = sum(explained_var.row(0)) / xvar;
-    explained_var(2,i) = explained_var(0,i)/xvar;
+    explained_var(1,i) = explained_var(0,i) / xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
     
     ith_comp = ith_comp + 1;
     if(pcSelmethod == "var" || pcSelmethod == "cumvar")
     {
       bool chk;
       if(pcSelmethod == "cumvar"){
-        chk = explained_var(1,i) > pcSelvalue;
+        chk = explained_var(2,i) > pcSelvalue;
       }
       else{
-        chk = explained_var(2,i) < pcSelvalue;
+        chk = explained_var(1,i) < pcSelvalue;
       }
       if(chk)
       {
@@ -1702,7 +1703,7 @@ List pca_nipals(arma::mat X,
   arma::uvec pc_indices;
   if(pcSelmethod == "var") 
   {
-    pc_indices = find(explained_var.row(2) >= pcSelvalue); 
+    pc_indices = find(explained_var.row(1) >= pcSelvalue); 
     pc_scores = pc_scores.cols(pc_indices);
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
@@ -1710,7 +1711,7 @@ List pca_nipals(arma::mat X,
   
   if(pcSelmethod == "cumvar") 
   {
-    pc_indices = find(explained_var.row(1) <= pcSelvalue && explained_var.row(1) > 0); 
+    pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
     pc_scores = pc_scores.cols(pc_indices);
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
