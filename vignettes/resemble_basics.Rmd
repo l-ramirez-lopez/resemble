@@ -203,7 +203,8 @@ Let's use the `ortho_projection()` function to compute the first 5 PCs (arbitrar
 chosen) of the preprocessed spectra in the training set:
 
 ```{r}
-# principal component analysis using 5 components
+# principal component (pc) analysis with the default 
+# method (singular value decomposition) for 5 components
 five_pcs_tr <- ortho_projection(Xr = training$spc_p,
                                 pc_selection = list("manual", 5),
                                 method = "pca")
