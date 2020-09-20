@@ -152,11 +152,12 @@ pls_cv <- function(x, y, ncomp,
   if (min_allowed < ncomp) {
     ncomp <- min_allowed
   }
-  cv_samples <- sample_str(
+  cv_samples <- sample_stratified(
     y = y,
     p = p,
     number = number,
-    group = group
+    group = group, 
+    replacement = FALSE
   )
 
   if (method == "wapls" & retrieve & tune) {
@@ -814,11 +815,12 @@ gaussian_pr_cv <- function(x,
                            retrieve = c("final_model", "none")) {
 
   ## Create the resampling groups
-  cv_samples <- sample_str(
+  cv_samples <- sample_stratified(
     y = y,
     p = p,
     number = number,
-    group = group
+    group = group,
+    replacement = FALSE
   )
 
   cv_results <- gaussian_process_cv(
