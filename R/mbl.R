@@ -381,7 +381,7 @@
 #' data(NIRsoil)
 #'
 #' # Filter the data using the first derivative with Savitzky and Golay smoothing 
-#' filter and a window size of 11 spectral variables and a polynomial order of 4
+#' # filter and a window size of 11 spectral variables and a polynomial order of 4
 #' sg <- savitzkyGolay(NIRsoil$spc, m = 1, p = 4, w = 15)
 #'
 #' # Replace the original spectra with the filtered ones
