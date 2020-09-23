@@ -373,9 +373,12 @@ each local segment.
 library(prospectr)
 data(NIRsoil)
 
-# Filter the data using the first derivative with Savitzky and Golay smoothing 
-# filter and a window size of 11 spectral variables and a polynomial order of 4
-sg <- savitzkyGolay(NIRsoil$spc, m = 1, p = 4, w = 15)
+# Proprocess the data using detrend plus first derivative with Savitzky and 
+Golay smoothing filter
+sg <- savitzkyGolay(detrend(NIRsoil$spc, 
+                            wav = as.numeric(colnames(NIRsoil$spc)), 
+                            p = 1), 
+                    m = 1, p = 1, w = 7)
 
 # Replace the original spectra with the filtered ones
 NIRsoil$spc <- sg
@@ -408,6 +411,7 @@ sbl <- mbl(
   k = ks,
   method = local_fit_gpr(),
   control = my_control,
+  scale = TRUE
 )
 sbl
 plot(sbl)
@@ -419,7 +423,7 @@ sbl_2 <- mbl(
   Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
   k = ks,
   method = local_fit_gpr(),
-  control = my_control,
+  control = my_control
 )
 sbl_2
 plot(sbl_2)
