@@ -255,7 +255,7 @@ List opls_for_projection(arma::mat X,
     explained_var(1,i) = explained_var(0,i) / xvar;
     explained_var(2,i) = sum(explained_var.row(0)) / xvar;
     
-
+    
     ith_comp = ith_comp + 1;
     
     if (pcSelmethod != "manual") {
@@ -411,15 +411,16 @@ List opls_get_all(arma::mat X,
   arma::mat yex = arma::zeros(ny, ncomp);
   arma::mat Xscale;
   arma::mat x_scale_vec;
+  arma::mat x_center_vec;
   arma::mat Xz = X;
   
-  if(scale){
+  if (scale) {
     Xscale = arma::repmat(Rcpp::as<arma::mat>(get_column_sds(Xz)), Xz.n_rows, 1);
     Xz = Xz / Xscale;
     x_scale_vec =  Xscale.row(0);
   }
-  x_scale_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
-  Xz = Xz - arma::repmat(x_scale_vec, Xz.n_rows, 1);
+  x_center_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
+  Xz = Xz - arma::repmat(x_center_vec, Xz.n_rows, 1);
   
   arma::mat Xpls = Xz;
   arma::mat Ypls = Y;
@@ -585,7 +586,7 @@ List opls_get_all(arma::mat X,
       Rcpp::Named("y_var") = yex
     ),
     Rcpp::Named("transf") = Rcpp::List::create(
-      Rcpp::Named("Xcenter") = x_scale_vec,
+      Rcpp::Named("Xcenter") = x_center_vec,
       Rcpp::Named("Xscale") = x_scale_vec
     ),
     _["weights"] = weights
@@ -644,6 +645,7 @@ List opls(arma::mat X,
   arma::mat bo = arma::zeros(ny, ncomp);
   arma::mat Xscale;
   arma::mat x_scale_vec;
+  arma::mat x_center_vec;
   arma::mat Xz = X;
   
   if (scale) {
@@ -651,8 +653,8 @@ List opls(arma::mat X,
     Xz = Xz / Xscale;
     x_scale_vec =  Xscale.row(0);
   }
-  x_scale_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
-  Xz = Xz - arma::repmat(x_scale_vec, Xz.n_rows, 1);
+  x_center_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
+  Xz = Xz - arma::repmat(x_center_vec, Xz.n_rows, 1);
   
   // matrices to declare
   arma::mat Xpls = Xz;
@@ -749,7 +751,7 @@ List opls(arma::mat X,
     Rcpp::Named("projection_mat") = projection_matrix,
     Rcpp::Named("Y") = Y,
     Rcpp::Named("transf") = Rcpp::List::create(
-      Rcpp::Named("Xcenter") = x_scale_vec,
+      Rcpp::Named("Xcenter") = x_center_vec,
       Rcpp::Named("Xscale") = x_scale_vec
     ),
     _["weights"] = weights
@@ -939,14 +941,15 @@ Rcpp::NumericMatrix predict_opls(arma::mat bo,
                                  bool scale,
                                  arma::mat Xscale
 ){
-  arma::mat Xz; 
-  
+
   if (scale) {
-    Xz = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
-  } else {
-    Xz = newdata;
-  }
-  arma::mat predicted = (Xz * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), Xz.n_rows, 1);
+    newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
+  } 
+  
+  // Not Necessary to center since b0 is used
+  // Xz = Xz - arma::repmat(Xcenter, newdata.n_rows, 1);
+
+  arma::mat predicted = (newdata * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), newdata.n_rows, 1);
   return Rcpp::wrap(predicted);
 }
 
@@ -969,11 +972,11 @@ Rcpp::NumericMatrix predict_opls(arma::mat bo,
 //' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix project_opls(arma::mat projection_mat, 
-                               int ncomp, 
-                               arma::mat newdata,
-                               bool scale,
-                               arma::mat Xcenter,
-                               arma::mat Xscale
+                                 int ncomp, 
+                                 arma::mat newdata,
+                                 bool scale,
+                                 arma::mat Xcenter,
+                                 arma::mat Xscale
 ){
   
   if(scale){
@@ -1066,7 +1069,7 @@ Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat,
     arma::mat xrec = sc.cols(0,i) * xloadings.rows(0,i);
     xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
   }
-
+  
   arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
   arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
   arma::mat whgtn = pow(rmsb_x, -1);
@@ -1110,17 +1113,17 @@ Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat,
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List opls_cv_cpp(arma::mat X, 
-                arma::mat Y, 
-                bool scale,
-                String method,
-                arma::mat mindices,
-                arma::mat pindices,
-                int min_component,
-                int ncomp,
-                arma::mat new_x,
-                double maxiter, 
-                double tol,
-                arma::mat wapls_grid
+                 arma::mat Y, 
+                 bool scale,
+                 String method,
+                 arma::mat mindices,
+                 arma::mat pindices,
+                 int min_component,
+                 int ncomp,
+                 arma::mat new_x,
+                 double maxiter, 
+                 double tol,
+                 arma::mat wapls_grid
 ){
   arma::mat rmseseg;
   arma::mat strmseseg;
@@ -1171,10 +1174,10 @@ List opls_cv_cpp(arma::mat X,
       
       ypred = Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                fit["coefficients"], 
-                                               ncomp, 
-                                               pxmatslice,
-                                               scale,
-                                               transf["Xscale"]));
+                                                  ncomp, 
+                                                  pxmatslice,
+                                                  scale,
+                                                  transf["Xscale"]));
       
       arma::mat rdl = sqrt(get_column_means(pow(rpymatslice - ypred, 2)));
       rmseseg.col(i) = rdl;
@@ -1197,14 +1200,14 @@ List opls_cv_cpp(arma::mat X,
     
     compweights = arma::zeros(1, ncomp);
     compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
-                                                             cfit["X_loadings"],
-                                                                 cfit["coefficients"],
-                                                                     new_x,
-                                                                     min_component, 
-                                                                     ncomp, 
-                                                                     scale,
-                                                                     ctransf["Xcenter"],
-                                                                            ctransf["Xscale"]));
+                                                                      cfit["X_loadings"],
+                                                                          cfit["coefficients"],
+                                                                              new_x,
+                                                                              min_component, 
+                                                                              ncomp, 
+                                                                              scale,
+                                                                              ctransf["Xcenter"],
+                                                                                     ctransf["Xscale"]));
     
     arma::mat rcompweights = arma::repmat(compweights, pindices.n_rows, 1);
     
@@ -1244,10 +1247,10 @@ List opls_cv_cpp(arma::mat X,
       
       nypred = Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                 fit["coefficients"], 
-                                                ncomp, 
-                                                pxmatslice,
-                                                scale,
-                                                transf["Xscale"]));
+                                                   ncomp, 
+                                                   pxmatslice,
+                                                   scale,
+                                                   transf["Xscale"]));
       ypred = arma::sum(rcompweights % nypred, 1);
       
       arma::mat rdl = sqrt(get_column_means(pow(pymatslice - ypred, 2)));
@@ -1270,14 +1273,14 @@ List opls_cv_cpp(arma::mat X,
     
     compweights = arma::zeros(1, ncomp);
     compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
-                                                             cfit["X_loadings"],
-                                                                 cfit["coefficients"],
-                                                                     new_x,
-                                                                     min_component, 
-                                                                     ncomp, 
-                                                                     scale,
-                                                                     ctransf["Xcenter"],
-                                                                            ctransf["Xscale"]));
+                                                                      cfit["X_loadings"],
+                                                                          cfit["coefficients"],
+                                                                              new_x,
+                                                                              min_component, 
+                                                                              ncomp, 
+                                                                              scale,
+                                                                              ctransf["Xcenter"],
+                                                                                     ctransf["Xscale"]));
     
     crcompweights = arma::zeros(wapls_grid.n_rows, ncomp); 
     for(int i = 0; (unsigned)i < crcompweights.n_rows; i++){
@@ -1330,10 +1333,10 @@ List opls_cv_cpp(arma::mat X,
       
       nypred = (Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                  fit["coefficients"], 
-                                                 ncomp, 
-                                                 pxmatslice,
-                                                 scale,
-                                                 transf["Xscale"])));
+                                                    ncomp, 
+                                                    pxmatslice,
+                                                    scale,
+                                                    transf["Xscale"])));
       
       ypred = nypred * trans(crcompweights);
       
@@ -1386,9 +1389,9 @@ List opls_cv_cpp(arma::mat X,
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List gaussian_process(arma::mat X, 
-           arma::mat Y, 
-           float noisev = 0.001,
-           bool scale = true
+                      arma::mat Y, 
+                      float noisev = 0.001,
+                      bool scale = true
 ){
   
   // matrices to declare
@@ -1461,13 +1464,13 @@ List gaussian_process(arma::mat X,
 //' @useDynLib resemble
 // [[Rcpp::export]]
 NumericVector predict_gaussian_process(arma::mat Xz, 
-                        arma::mat alpha, 
-                        arma::mat newdata,
-                        bool scale,
-                        arma::mat Xcenter,
-                        arma::mat Xscale,
-                        arma::mat Ycenter,
-                        arma::mat Yscale
+                                       arma::mat alpha, 
+                                       arma::mat newdata,
+                                       bool scale,
+                                       arma::mat Xcenter,
+                                       arma::mat Xscale,
+                                       arma::mat Ycenter,
+                                       arma::mat Yscale
 ){
   
   arma::mat newdatatr = newdata;
@@ -1513,11 +1516,11 @@ NumericVector predict_gaussian_process(arma::mat Xz,
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List gaussian_process_cv(arma::mat X, 
-               arma::mat Y, 
-               arma::mat mindices,
-               arma::mat pindices,
-               float noisev = 0.001,
-               bool scale = true
+                         arma::mat Y, 
+                         arma::mat mindices,
+                         arma::mat pindices,
+                         float noisev = 0.001,
+                         bool scale = true
 ){
   
   arma::mat rmseseg = arma::zeros(1, mindices.n_cols);
