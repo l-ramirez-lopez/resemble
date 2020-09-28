@@ -374,7 +374,7 @@ library(prospectr)
 data(NIRsoil)
 
 # Proprocess the data using detrend plus first derivative with Savitzky and 
-Golay smoothing filter
+# Golay smoothing filter
 sg <- savitzkyGolay(detrend(NIRsoil$spc, 
                             wav = as.numeric(colnames(NIRsoil$spc)), 
                             p = 1), 
