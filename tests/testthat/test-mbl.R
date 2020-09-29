@@ -19,7 +19,6 @@ test_that("mbl works", {
   k_diss_test <- 0.1
   k_range_test <- c(15, 30)
   
-  
   ctrl_1 <- mbl_control(
     validation_type = c("NNv", "local_cv"),
     number = 4, p = 0.5,
@@ -98,10 +97,9 @@ test_that("mbl works", {
 test_that("mbl delivers expeted results", {
   skip_on_cran()
   skip_on_travis()
-  
-  
+  require(prospectr)
   nirdata <- data("NIRsoil", package = "prospectr")
-  NIRsoil$spc <- prospectr:::savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0)
+  NIRsoil$spc <- savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0)
   
   Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
   Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
