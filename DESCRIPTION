@@ -4,7 +4,7 @@ Title:
     Regression and Similarity Evaluation for Memory-Based Learning in
     Spectral Chemometrics
 Version: 2.0.0
-Date: 2020-08-07
+Date: 2020-29-09
 Authors@R:  
     c(person(given = "Leonardo",
              family = "Ramirez-Lopez",
