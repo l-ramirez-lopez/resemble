@@ -200,41 +200,64 @@ detection, sample dissimilarity analysis, representative sample analysis etc.
 
 In this package, the `ortho_projection()` function can be used for PC analysis. 
 Let's use the `ortho_projection()` function to compute the first 5 PCs (arbitrary 
-chosen) of the preprocessed spectra in the training set:
+chosen) of the preprocessed spectra in the training set using the default 
+method which is the singular value decomposition (SVD) algorithm:
 
 ```{r}
 # principal component (pc) analysis with the default 
-# method (singular value decomposition) for 5 components
-five_pcs_tr <- ortho_projection(Xr = training$spc_p,
-                                pc_selection = list("manual", 5),
-                                method = "pca")
+# method (singular value decomposition, SVD) for 5 components
+pcs_tr_manual <- ortho_projection(Xr = training$spc_p,
+                                  pc_selection = list("manual", 5),
+                                  method = "pca")
 
-five_pcs_tr
+pcs_tr_manual
 ```
 
-The results above show that four components only are sufficient to explain nearly 95% of the variance of the original dataset. For the example, we may also want to use a user-defined amount of cumulative variance explained that needs to be retained. Usually, we expect the PCA to explain at least 90% of the variance of the original data. For complex datasets, this means that we may end up for more than simply five components in total. 
-
-Principal component analysis using a user defined values of the cumulative variance to be explained. We need to set `"var"` in the argument `pc_selection`. The method argument remains the standard PCA `"pca"`. 
+The same results can be obtained by using the "non-linear iterative partial 
+least squares (nipals) algorithm:
 
 ```{r}
-# specify amount of cumulative variance that needs to be retained by the PCs. 
-# note that in most cases 0.99 is difficult to reach for very complex datasets
-maxexplvar <- 0.99
+# principal component (pc) analysis using pca nipals for 5 components
+five_pcs_tr_nipals <- ortho_projection(Xr = training$spc_p,
+                                       pc_selection = list("manual", 5),
+                                       method = "pca.nipals")
 
-# principal component analysis using 5 components
-pc099_spectra <- ortho_projection(Xr = train_x,
-                             pc_selection = list("cumvar", maxexplvar),
-                             method = 'pca')
-
-# display the information contained in the pc099_spectra object
-print(pc099_spectra)
+five_pcs_tr_nipals
 ```
-It shows that in this dataset, 16 components are required to explain 99% of the variance found in the spectral data.
-Let us plot the results using a screeplot: 
+
+The advantage of the nipals algorithm is that it can be faster than SVD when 
+only components are required.
+
+The results above also show that four components only are sufficient to explain 
+nearly 88% of the variance of the original dataset. For the example, we may also 
+want to use a user-defined amount of cumulative variance explained that needs 
+to be retained. Usually, we expect the PCs to explain at least 90% of the 
+variance of the original data. For spectral data with large variability, this 
+means that we may end up for more than simply five components in total. 
+
+Principal component analysis using a user defined values of the cumulative 
+variance to be explained. We need to set `"var"` in the argument `pc_selection`. 
+
+```{r}
+# specify amount of maximum cumulative variance that needs to be retained by 
+the PCs 
+threshold_expl_var <- 0.99
+
+pcs_tr_expl_var <- ortho_projection(Xr = train_x,
+                                    pc_selection = list("cumvar", threshold_expl_var),
+                                    method = "pca")
+pcs_tr_expl_var 
+
+```
+
 ```{r, fig.align='center', fig.width=8, fig.height=3, fig.cap = 'Cumulative explained variance of the principal components (left) and individual contribution the the explained variance for each of the components (right).'}
-par(mfrow=c(1,2))
-plot(pc099_spectra)
+plot(pcs_tr_expl_var)
+grid
 ```
+
+The code above shows that in this dataset, 15 components are required to explain 
+a maximum of 99% of the original variance found in the spectra.
+
 
 The screeplot above illustrates the cumulative amount of variance explained (left side) or the amount of variance in the spectra that is described by each component. It is always the case that the first component explains most of the variation. Each successive component decreasingly explains a little bit less of the variation. Here the first five components describe over 90% of the spectral variation. Alone the first component describes above 80%. We have reduced what was a very high dimensional spectral dataset down to just a few components.
 
