@@ -41,19 +41,19 @@ plot.ortho_projection <- function(x, ...) {
       ylab = ylab, pch = 1, col = col, ...
     )
   }
-  if (x$pc_selection$method == "cumvar") {
-    barplot(x_variance[grep("cumulative", rownames(x_variance)), ],
-      horiz = F,
-      names.arg = colnames(x_variance), ylim = c(0, 1),
-      ylab = "Explained variance (cummulative)", col = col, ...
-    )
-  }
   if (x$pc_selection$method %in% c("cumvar", "manual")) {
     x$variance
     barplot(x_variance[grep("^explained_var", rownames(x_variance)), ],
       horiz = F,
       names.arg = colnames(x_variance), ylim = c(0, 1),
       ylab = "Explained variance", col = col, ...
+    )
+  }
+  if (x$pc_selection$method == "cumvar") {
+    barplot(x_variance[grep("cumulative", rownames(x_variance)), ],
+            horiz = F,
+            names.arg = colnames(x_variance), ylim = c(0, 1),
+            ylab = "Explained variance (cumulative)", col = col, ...
     )
   }
 }
