@@ -498,8 +498,6 @@ local_algorithm_par <- mbl(
 )
 local_algorithm_par
 
-cor(test_y, unlist(get_predictions(local_algorithm_par)[, 6])) ^ 2
-
 registerDoSEQ()
 try(stopCluster(clust))
 

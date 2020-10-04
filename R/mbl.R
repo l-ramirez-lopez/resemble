@@ -505,8 +505,6 @@
 #' )
 #' local_algorithm_par
 #' 
-#' cor(test_y, unlist(get_predictions(local_algorithm_par)[, 6])) ^ 2
-#' 
 #' registerDoSEQ()
 #' try(stopCluster(clust))
 #' 
@@ -1272,7 +1270,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   
   iteration_order <- sapply(pred_obs,
                             FUN = function(x) x$results$o_index[1])
-
+  
   pred_obs <- pred_obs[order(iteration_order, decreasing = FALSE)]
   
   results_table <- do.call("rbind", lapply(pred_obs,
