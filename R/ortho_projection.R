@@ -221,11 +221,11 @@
 #' NIRsoil$spc_pr <- sg_det
 #' 
 #' # split into training and testing sets
-#' test_x <- NIRsoil$spc[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+#' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
 #' test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 #' 
 #' train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
-#' train_x <- NIRsoil$spc[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
+#' train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
 #'
 #' # A principal component analysis using 5 components
 #' pca_projected <- ortho_projection(train_x, pc_selection = list("manual", 5))
