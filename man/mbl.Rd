@@ -370,7 +370,7 @@ each local segment.
 }
 \examples{
 \dontrun{
-#' library(prospectr)
+library(prospectr)
 data(NIRsoil)
 
 # Proprocess the data using detrend plus first derivative with Savitzky and
@@ -382,6 +382,7 @@ sg_det <- savitzkyGolay(
   p = 1,
   w = 7
 )
+
 NIRsoil$spc_pr <- sg_det
 
 # split into training and testing sets
