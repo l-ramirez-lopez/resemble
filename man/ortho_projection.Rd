@@ -217,25 +217,32 @@ via OpenMP in Rcpp.
 library(prospectr)
 data(NIRsoil)
 
-Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
-Yu <- NIRsoil[!as.logical(NIRsoil$train), "CEC", drop = FALSE]
-Yr <- NIRsoil[as.logical(NIRsoil$train), "CEC", drop = FALSE]
-Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+# Proprocess the data using detrend plus first derivative with Savitzky and
+# Golay smoothing filter
+sg_det <- savitzkyGolay(
+  detrend(NIRsoil$spc,
+          wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1,
+  p = 1,
+  w = 7
+)
+NIRsoil$spc_pr <- sg_det
 
-Xu <- Xu[!is.na(Yu), ]
-Yu <- Yu[!is.na(Yu), , drop = FALSE]
+# split into training and testing sets
+test_x <- NIRsoil$spc[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
-Xr <- Xr[!is.na(Yr), ]
-Yr <- Yr[!is.na(Yr), , drop = FALSE]
+train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
+train_x <- NIRsoil$spc[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
 
 # A principal component analysis using 5 components
-pca_projected <- ortho_projection(Xr, pc_selection = list("manual", 5))
+pca_projected <- ortho_projection(train_x, pc_selection = list("manual", 5))
 pca_projected
 
 # A principal components projection using the "opc" method
 # for the selection of the optimal number of components
 pca_projected_2 <- ortho_projection(
-  Xr, Xu, Yr,
+  Xr = train_x, Xu = test_x, Yr,
   method = "pca",
   pc_selection = list("opc", 40)
 )
@@ -245,7 +252,7 @@ plot(pca_projected_2)
 # A partial least squares projection using the "opc" method
 # for the selection of the optimal number of components
 pls_projected <- ortho_projection(
-  Xr, Xu, Yr,
+  Xr = train_x, Xu = test_x, Yr,
   method = "pls",
   pc_selection = list("opc", 40)
 )
@@ -255,7 +262,7 @@ plot(pls_projected)
 # A partial least squares projection using the "cumvar" method
 # for the selection of the optimal number of components
 pls_projected_2 <- ortho_projection(
-  Xr = Xr, Yr = Yr, Xu = Xu,
+  Xr = train_x, Yr = train_y, Xu = test_x,
   method = "pls",
   pc_selection = list("cumvar", 0.99)
 )
