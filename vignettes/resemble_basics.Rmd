@@ -146,15 +146,40 @@ in the data, spectral similarities and differences, or detect spectral outliers,
 it is necessary to reduce the dimension of the spectra while retaining important 
 information. 
 
-Principal component (PC) analysis and Partial least squares (PLS) methods can be 
-considered as the standards for dimensionality reduction in many fields of 
-spectroscopic analysis. In both methods, the goal is to mimic the original 
-variability across observations in the data but with (a new set of) fewer and 
-uncorrelated variables. This is done by finding a projection matrix that projects
-or converts the original variables onto the new and less complex variable space. 
+Principal component (PC) analysis and Partial least squares (PLS) decomposition 
+methods assume that the meaningful structure the data intrinsically lies on 
+a lower dimensional space. Both methods attempt to find a projection matrix 
+that projects or converts the original variables onto a new and less complex 
+space represented by few variables. These new variables mimic the original 
+variability across observations. These two methods can be considered as the 
+standard ones for dimensionality reduction in many fields of spectroscopic 
+analysis. 
 
-The difference between PC and PLS is that the first projects the new variables in 
-the direction of their maximal variation while the latter projects the new 
+The difference between PC and PLS is that in the first the objective is to 
+find few new variables that capture as much of the original data variance 
+while in the latter the objective is to find few new variables that maximize 
+their variance with respect to a set of one or more external variables (e.g. 
+response variables or side information variables). 
+
+In both cases, the 
+
+
+Both methods assume that the meaningful structure the data intrinsically lies on 
+a lower dimensional space
+
+
+
+new variables 
+are projected to capture the variance of the original variables in a 
+
+maximize the variance 
+of the original variables
+
+projects the new variables in 
+the direction of their maximal variation 
+
+
+while the latter projects the new 
 variables in a way that maximizes the variance between the new variables and a 
 set consisting of one or more external variables (e.g. response variables or side 
 information variables).
