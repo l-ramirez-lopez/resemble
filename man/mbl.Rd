@@ -370,30 +370,26 @@ each local segment.
 }
 \examples{
 \dontrun{
-library(prospectr)
+#' library(prospectr)
 data(NIRsoil)
 
-# Proprocess the data using detrend plus first derivative with Savitzky and 
+# Proprocess the data using detrend plus first derivative with Savitzky and
 # Golay smoothing filter
-sg <- savitzkyGolay(detrend(NIRsoil$spc, 
-                            wav = as.numeric(colnames(NIRsoil$spc)), 
-                            p = 1), 
-                    m = 1, p = 1, w = 7)
+sg_det <- savitzkyGolay(
+  detrend(NIRsoil$spc,
+          wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1,
+  p = 1,
+  w = 7
+)
+NIRsoil$spc_pr <- sg_det
 
-# Replace the original spectra with the filtered ones
-NIRsoil$spc <- sg
+# split into training and testing sets
+test_x <- NIRsoil$spc[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
-Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
-Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-
-Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
-Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
-
-Xu <- Xu[!is.na(Yu), ]
-Xr <- Xr[!is.na(Yr), ]
-
-Yu <- Yu[!is.na(Yu)]
-Yr <- Yr[!is.na(Yr)]
+train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
+train_x <- NIRsoil$spc[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
 
 # Example 1
 # A mbl implemented in Ramirez-Lopez et al. (2013,
@@ -407,7 +403,9 @@ my_control <- mbl_control(validation_type = "NNv")
 ks <- seq(40, 140, by = 20)
 
 sbl <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
   k = ks,
   method = local_fit_gpr(),
   control = my_control,
@@ -420,7 +418,10 @@ get_predictions(sbl)
 # Example 1.2
 # If Yu is actually known...
 sbl_2 <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_gpr(),
   control = my_control
@@ -431,12 +432,15 @@ plot(sbl_2)
 # Example 2
 # the LOCAL algorithm (Shenk et al., 1997)
 local_algorithm <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "cor",
   diss_usage = "none",
-  control = my_control,
+  control = my_control
 )
 local_algorithm
 plot(local_algorithm)
@@ -446,15 +450,18 @@ plot(local_algorithm)
 # dissmilarity matrix) and dissimilarity matrix as source of
 # additional preditors
 local_algorithm_2 <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "pca",
   diss_usage = "predictors",
-  control = my_control,
+  control = my_control
 )
 local_algorithm_2
-plot(local_algorithm)
+plot(local_algorithm_2)
 
 # Example 4
 # Running the mbl function in parallel with example 2
@@ -478,14 +485,19 @@ if (.Platform$OS.type == "windows") {
 }
 
 local_algorithm_par <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "cor",
   diss_usage = "none",
-  control = my_control,
+  control = my_control
 )
 local_algorithm_par
+
+cor(test_y, unlist(get_predictions(local_algorithm_par)[, 6])) ^ 2
 
 registerDoSEQ()
 try(stopCluster(clust))
@@ -493,13 +505,17 @@ try(stopCluster(clust))
 # Example 5
 # Using local pls distances
 with_local_diss <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "pls",
   diss_usage = "predictors",
   control = my_control,
-  .local = TRUE, pre_k = 150,
+  .local = TRUE,
+  pre_k = 150,
 )
 with_local_diss
 plot(with_local_diss)
