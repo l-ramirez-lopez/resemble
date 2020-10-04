@@ -93,7 +93,7 @@ dim(NIRsoil)
 str(NIRsoil)
 ```
 
-#### Pre-processing of spectra
+# Spectra pre-processing
 This step aims at improving the signal quality of the spectra for quantitative
 analysis. In this respect, the following standard methods are applied: 
 
@@ -137,19 +137,48 @@ set (spectral data for validation/esting).
 * `Yu` stands for the response variable(s) in the unknown/test set (dependent 
 variable for calibration).
 
-## Dimensionality reduction
+# Dimensionality reduction
 When conducting exploratory analysis of spectral data, we are immediately 
 burdened with the issue of high dimensionality. It is such that we may be 
-dealing with (using NIR spectra data as an example) over 2000 individual 
-wavelengths for each spectrum. When one wants to investigate patterns in the 
-data, spectral similarities and differences, or detect spectral outliers, it is 
-necessary to reduce the dimension of the spectra while retaining important 
-information. A natural candidate of this job is principal component analysis (PCA). 
+dealing with (using NIR spectra data as an example) hundreds to thousands of 
+individual wavelengths for each spectrum. When one wants to investigate patterns 
+in the data, spectral similarities and differences, or detect spectral outliers, 
+it is necessary to reduce the dimension of the spectra while retaining important 
+information. 
+
+Principal component (PC) analysis and Partial least squares (PLS) methods can be 
+considered as the standards for dimensionality reduction in many fields of 
+spectroscopic analysis. In both methods, the goal is to mimic the original 
+variability across observations in the data but with (a new set of) fewer and 
+uncorrelated variables. This is done by finding a projection matrix that projects
+or converts the original variables onto the new and less complex variable space. 
+
+The difference between PC and PLS is that the first projects the new variables in 
+the direction of their maximal variation while the latter projects the new 
+variables in a way that maximizes the variance between the new variables and a 
+set consisting of one or more external variables (e.g. response variables or side 
+information variables).
+
+PC analysis attempts to remove all the redundant variable information 
+in the data (i.e. collinearity) by projecting the original variables onto new 
+ones that summarize them. The first PC accounts for a large amount 
+of the variability in the original data, and each succeeding component accounts 
+for a sequentially decreasing amount of the remaining variability. Therefore, 
+most of the original variability can be captured in the first few components. 
+By removing collinearity and reducing dimensionality, the complexity of the data 
+is then reduced, which allows better performance in tasks such as outlier 
+detection, sample dissimilarity analysis, representative sample analysis etc. 
+
+
+
+
+
 
 Several functions are available in the `resemble` package for dimensionality 
 reduction. The master function `ortho_projection()` is a wrapper for two other 
 functions: `pc_projection()` and `pls_projection()`. The function offer several 
-options for dimensionality reduction using different methods for projecting the data:
+options for dimensionality reduction using different methods for projecting the 
+data:
 
 * `"pca"`: the standard method for PCA based on the singular value decomposition 
 algorithm.
@@ -160,6 +189,18 @@ algorithm.
 * `"pls"`: partial least squares algorithm for projection, makes use of side 
 information which is indeed equivalent response variable information. In this
 case, the side information data must be passed to the `Yr` argument.
+
+
+
+
+
+
+
+
+
+
+
+
 
 The argument `pc_selection` of the `ortho_projection()` function helps in the 
 selection of the number of components/dimensions the spectra should be 
@@ -192,7 +233,7 @@ method `Yr` is required (i.e. the side information of the observations).
 We describe demo the above options case in the following subsections. 
 
 
-### Principal components (PC) analysis
+## Principal components (PC) analysis
 This method has become the standard for dimensionality reduction. In this method, 
 the goal is to mimic the original variability across observations in the data 
 but with (a new set of) fewer and uncorrelated variables called called principal 
@@ -255,7 +296,6 @@ pcs_tr_expl_var <- ortho_projection(Xr = training$spc_p,
                                     pc_selection = list("cumvar", threshold_expl_var),
                                     method = "pca")
 pcs_tr_expl_var 
-
 ```
 
 ```{r, fig.align='center', fig.width = 8, fig.height = 3, fig.cap = 'Cumulative explained variance of the principal components (left) and individual contribution the the explained variance for each of the components (right).'}
@@ -268,7 +308,7 @@ par(mfrow = o_mfrow)
 The code above shows that in this dataset, 15 components are required to explain 
 a maximum of 99% of the original variance found in the spectra.
 
-Another 
+A more sophisticated option to optimize the number is also a
 
 
 ## References
