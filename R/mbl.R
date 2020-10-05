@@ -123,7 +123,7 @@
 #' components) and \code{value} (a numerical value that complements the selected
 #' method). The methods available are:
 #' \itemize{
-#'        \item{\code{"opc"}:} {optimized principal component selection based on
+#'        \item{\code{"opc"}:} { optimized principal component selection based on
 #'        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
 #'        (of set of observations) is the one for which its distance matrix
 #'        minimizes the differences between the \code{Yr} value of each
@@ -133,17 +133,17 @@
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
 #'
-#'        \item{\code{"cumvar"}:}{selection of the principal components based
+#'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the maximum amount of cumulative variance that the
-#'        retained components should explain.}
+#'        indicating the minimum amount of cumulative variance that the 
+#'        combination of retained components should explain.}
 #'
-#'        \item{\code{"var"}:}{selection of the principal components based
+#'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a component should
-#'        explain in order to be retained.}
+#'        indicating the minimum amount of variance that a single component 
+#'        should explain in order to be retained.}
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
