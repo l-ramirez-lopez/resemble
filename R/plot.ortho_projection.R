@@ -18,13 +18,13 @@ plot.ortho_projection <- function(x, ...) {
   if (is.null(in.call$col)) {
     col <- "dodgerblue"
   }
-
+  
   if (x$method == "pls") {
     x_variance <- x$variance$x_var
   } else {
     x_variance <- x$variance
   }
-
+  
   if (x$pc_selection$method == "opc") {
     tpl <- x$opc_evaluation[, c(1, ncol(x$opc_evaluation))]
     if ("mean_standardized_rmsd" %in% colnames(tpl)) {
@@ -37,23 +37,22 @@ plot.ortho_projection <- function(x, ...) {
       ylab <- "kappa index"
     }
     plot(tpl,
-      type = "b",
-      ylab = ylab, pch = 1, col = col, ...
+         type = "b",
+         ylab = ylab, pch = 1, col = col, ...
     )
-  }
-  if (x$pc_selection$method %in% c("cumvar", "manual")) {
-    x$variance
+  } else{
+    o_mfrow <- par()$mfrow
+    par(mfrow = c(1, 2))
     barplot(x_variance[grep("^explained_var", rownames(x_variance)), ],
-      horiz = F,
-      names.arg = colnames(x_variance), ylim = c(0, 1),
-      ylab = "Explained variance", col = col, ...
+            horiz = F,
+            names.arg = colnames(x_variance), ylim = c(0, 1),
+            ylab = "Explained variance", col = col, ...
     )
-  }
-  if (x$pc_selection$method == "cumvar") {
     barplot(x_variance[grep("cumulative", rownames(x_variance)), ],
             horiz = F,
             names.arg = colnames(x_variance), ylim = c(0, 1),
             ylab = "Explained variance (cumulative)", col = col, ...
     )
+    par(mfrow = o_mfrow)
   }
 }
