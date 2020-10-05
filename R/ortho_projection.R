@@ -514,8 +514,11 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   }
 
   if (pc_selection_method == "cumvar") {
-    selected_pcs <- variance[3, ] <= pc_selection_copy$value
-    selected_pcs <- sum(selected_pcs)
+    selected_pcs <- variance[3, ] < pc_selection_copy$value
+    selected_pcs <- sum(selected_pcs) + 1
+    if (selected_pcs > ncol(Xr)) {
+      selected_pcs <- ncol(Xr)
+    }
   }
 
   if (pc_selection_method == "var") {

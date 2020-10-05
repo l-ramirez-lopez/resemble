@@ -273,13 +273,19 @@ List opls_for_projection(arma::mat X,
     }
   }
   
+  if (pcSelmethod == "cumvar") {
+    ncomp = ncomp + 1;
+  } 
+  
+    
   arma::uvec pc_indices;
   if (pcSelmethod != "manual") {
     if (pcSelmethod == "var" || pcSelmethod == "cumvar") {
       if (pcSelmethod == "var") {
         pc_indices = find(explained_var.row(1) >= pcSelvalue); 
       } else {
-        pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
+        //pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0);
+        pc_indices = find(explained_var.row(2) > 0); 
       }
       weights = weights.rows(pc_indices);
       coefficients = coefficients.cols(pc_indices);
@@ -1697,7 +1703,8 @@ List pca_nipals(arma::mat X,
   
   if(pcSelmethod == "cumvar") 
   {
-    pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
+    //pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
+    pc_indices = find(explained_var.row(2) > 0); 
     pc_scores = pc_scores.cols(pc_indices);
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
