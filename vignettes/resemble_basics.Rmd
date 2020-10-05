@@ -7,11 +7,14 @@ date: "`r Sys.Date()`"
 bibliography: ["one.bib"]
 biblio-style: "apalike"
 link-citations: true
-output: knitr:::html_vignette
+output: 
+  rmarkdown::html_vignette
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Modelling complex spectral data with the resemble package}
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{Bulding highly accurate local models with the resemble package}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
 ---
 
 ```{r setup, include = FALSE}
@@ -57,25 +60,25 @@ The core functionalities of the package include:
 # Example dataset
 
 This vignette uses a soil spectroscopic dataset provided in the `prospectr`
-package. It is a soil spectral library used in the \sQuote{Chimiometrie 2006} 
-challenge by @pierna2008soil. The library contains absorbance spectra of dried 
-and sieved 825 soil observations/samples. These samples originate from agricultural 
-fields collected from all over the Walloon region in Belgium. The dataset is 
-in a data frame which is organized as follows:
+package [@stevens2020introduction]. It is a soil spectral library used in the 
+\sQuote{Chimiometrie 2006} challenge by @pierna2008soil. The library contains 
+absorbance spectra of dried and sieved 825 soil observations/samples. These 
+samples originate from agricultural fields collected from all over the Walloon 
+region in Belgium. The dataset is in a data frame which is organized as follows:
  
-* Response variables: 
-  * Nt (Total Nitrogen in g/Kg of dry soil): A numerical variable (values 
+* __Response variables__: 
+  * ___Nt___ (Total Nitrogen in g/Kg of dry soil): A numerical variable (values 
       are available for 645 samples and missing for 180 samples).
-  * Ciso (Carbon in g/100 g of dry soil): A numerical 
+  * ___Ciso___ (Carbon in g/100 g of dry soil): A numerical 
       variable (values are available for 732 and missing for 93 samples).
-  * CEC (Cation Exchange Capacity in meq/100 g of dry soil): A numerical 
+  * ___CEC___ (Cation Exchange Capacity in meq/100 g of dry soil): A numerical 
       variable (values are available for 447 and missing for 378 samples).
-* Predictor variables: The predictor variables are in a matrix embedded in the
+* __Predictor variables__: The predictor variables are in a matrix embedded in the
 data frame, which can be accessed via `NIRSoil$spc`. These variables contain the
 absorbance Near-Infrared (NIR) spectra of the samples recorded between the 
 1100 nm and 2498 nm of the electromagnetic spectrum at 2 nm interval. Each 
 column name in the matrix of spectra represent a specific wavelength (in nm).
-* Set: this is a "binary" variable that indicates the 618 samples belong to the 
+* __Set__: this is a "binary" variable that indicates the 618 samples belong to the 
 training subset (represented by 1) and the 207 samples that belong to the test 
 subset (represented by 0). 
 
@@ -87,7 +90,7 @@ library(magrittr)
 ```
 
 The dataset can be loaded into R as follows: 
-```{r, tidy = FALSE, message = FALSE}
+```{r, tidy = FALSE, message = FALSE, results = 'hide'}
 data(NIRsoil)
 dim(NIRsoil)
 str(NIRsoil)
@@ -95,12 +98,12 @@ str(NIRsoil)
 
 # Spectra pre-processing
 This step aims at improving the signal quality of the spectra for quantitative
-analysis. In this respect, the following standard methods are applied: 
+analysis. In this respect, the following standard methods are applied using the 
+package `prospectr` [@stevens2020introduction]: 
 
 1. Scatter correction using the standard normal variate method
-[@barnes1989standard] implemented in the `prospectr` package.
-2. First derivative using Savitsky-Golay [@Savitzky1964] filtering also 
-implemented in the `prospectr` package. 
+[@barnes1989standard].
+2. First derivative using Savitsky-Golay filtering [@Savitzky1964]. 
 
 ```{r NIRsoil, tidy = FALSE, message = FALSE}
 # obtain a numeric vector of the wavelengths at which spectra is recorded 
@@ -128,13 +131,27 @@ testing  <- NIRsoil[NIRsoil$train == 0, ]
 Note that in the resemble package we follow the notation provided by 
 @ramirez2013spectrum, i.e.: 
 
-* `Xr` stands for the matrix of predictor variables in the reference/training 
+* __Training observations__:
+
+  * `Xr` stands for the matrix of predictor variables in the reference/training 
 set (spectral data for calibration).
-* `Yr` stands for the response variable(s) in the reference/training set 
-(dependent variable for calibration).
-* `Xu` stands for the matrix of predictor variables in the unknown/test 
+
+  * `Yr` stands for the response variable(s) in the reference/training set 
+(dependent variable for calibration).In the context of this package, `Yr` is 
+also referred as to "___side information___", which is a variable or set of 
+variables that are associated to the training observations that can also be used 
+to support or guide optimization during modeling but that not necessarily are 
+part of the input of such models. For example, we will see in latter sections 
+that `Yr` can be used in Principal Component Analysis to help to decide how 
+many components are optimal.
+
+
+* __Testing observations__:
+
+  * `Xu` stands for the matrix of predictor variables in the unknown/test 
 set (spectral data for validation/esting).
-* `Yu` stands for the response variable(s) in the unknown/test set (dependent 
+
+  * `Yu` stands for the response variable(s) in the unknown/test set (dependent 
 variable for calibration).
 
 # Dimensionality reduction
@@ -146,7 +163,7 @@ in the data, spectral similarities and differences, or detect spectral outliers,
 it is necessary to reduce the dimension of the spectra while retaining important 
 information. 
 
-Principal component (PC) analysis and Partial least squares (PLS) decomposition 
+Principal component (PC) analysis and Partial Least Squares (PLS) decomposition 
 methods assume that the meaningful structure the data intrinsically lies on 
 a lower dimensional space. Both methods attempt to find a projection matrix 
 that projects or converts the original variables onto a new and less complex 
@@ -156,65 +173,104 @@ standard ones for dimensionality reduction in many fields of spectroscopic
 analysis. 
 
 The difference between PC and PLS is that in the first the objective is to 
-find few new variables that capture as much of the original data variance 
-while in the latter the objective is to find few new variables that maximize 
-their variance with respect to a set of one or more external variables (e.g. 
-response variables or side information variables). 
+find few new variables (which are orthogonal) that capture as much of the 
+original data variance while in the latter the objective is to find few new 
+variables that maximize their variance with respect to a set of one or more 
+external variables (e.g. response variables or side information variables). 
 
-In both cases, the 
+In the `resemble` package PC analysis and PLS decomposition are available 
+through the `ortho_projection()` function which offers the following algorithms:
+
+* `"pca"`: the standard method for PC analysis based on the singular value 
+decomposition algorithm.
+
+* `"pca.nipals"`: this algorithm uses the non-linear iterative partial 
+least squares algorithm [NIPALS, @wold1975soft] for the purpose of PC analysis.
+
+* `"pls"`: Here, PLS decomposition also uses the NIPALS algorithm, but in this 
+case it makes use of ___side information___, which can be a variable or set of 
+variables that are associated to the training observations and that are used to
+project the data. In this case, the variance between the projected variables and 
+the ___side information___ variable(s) is maximized. 
+
+The PC analysis of the training spectra can be executed as follows:
+```{r, results = 'hide'}
+# principal component (pc) analysis with the default 
+# method (singular value decomposition, SVD) for 5 components
+# principal component (pc) analysis with the default 
+# method (singular value decomposition) 
+pca_tr <- ortho_projection(Xr = training$spc_p,
+                           method = "pca")
+
+pca_tr
+```
+
+plot the `ortho_projection` object:
+
+```{r fig.cap = "Cumulative explained variance of the principal components (left) and individual contribution the the explained variance for each of the components (right).", fig.id = "plot_pcs", fig.cap.style = "Image Caption", fig.align = "center", fig.width = 8, fig.height = 3}
+plot(pca_tr)
+```
+
+The code above shows that in this dataset, `r pca_tr$n_components` components 
+are required to explain around `r round(100 * sum(pca_tr$variance[2,]), 0)`% of 
+the original variance found in the spectra.
+
+Equivalent results can be obtained by using the NIPALS algorithm:
+```{r, results = 'hide'}
+# principal component (pc) analysis with the default 
+# method (singular value decomposition) 
+pca_nipals_tr <- ortho_projection(Xr = training$spc_p,
+                                  method = "pca.nipals")
+
+pca_nipals_tr
+```
+
+The advantage of the NIPALS algorithm is that it can be faster than SVD when 
+only few components are required.
+
+For a PLS decomposition the `method` argument is set to `"pls"`. In this case, 
+side information (`Yr`) is required. In the following example, the side 
+information used is the Total Carbon (`Ciso`):
+```{r, results = 'hide', eval = FALSE}
+# Partial Least Squares decomposition using 
+# Total carbon as side information
+# (this might take some seconds)
+pls_tr <- ortho_projection(Xr = training$spc_p[!is.na(training$Ciso),],
+                           Yr = training$Ciso[!is.na(training$Ciso)],
+                           method = "pls")
+pls_tr
+```
+
+In the above code, the PLS method retrieves more components than the PC methods.
+This is due to the default optimization of the number of components in the 
+function. By default in `ortho_projection` the retained components should 
+account for at least 99% of the original variance of data. 
 
 
-Both methods assume that the meaningful structure the data intrinsically lies on 
-a lower dimensional space
-
-
-
-new variables 
-are projected to capture the variance of the original variables in a 
-
-maximize the variance 
-of the original variables
-
-projects the new variables in 
-the direction of their maximal variation 
-
-
-while the latter projects the new 
-variables in a way that maximizes the variance between the new variables and a 
-set consisting of one or more external variables (e.g. response variables or side 
-information variables).
-
-PC analysis attempts to remove all the redundant variable information 
-in the data (i.e. collinearity) by projecting the original variables onto new 
-ones that summarize them. The first PC accounts for a large amount 
-of the variability in the original data, and each succeeding component accounts 
-for a sequentially decreasing amount of the remaining variability. Therefore, 
-most of the original variability can be captured in the first few components. 
-By removing collinearity and reducing dimensionality, the complexity of the data 
-is then reduced, which allows better performance in tasks such as outlier 
-detection, sample dissimilarity analysis, representative sample analysis etc. 
+##################
+MODIFY THE CODE SO THAT method = "cumvar" ACCOUNTS FOR AT LEAST AND NOT FOR MAXIMUM???
 
 
 
 
 
 
-Several functions are available in the `resemble` package for dimensionality 
-reduction. The master function `ortho_projection()` is a wrapper for two other 
-functions: `pc_projection()` and `pls_projection()`. The function offer several 
-options for dimensionality reduction using different methods for projecting the 
-data:
+based on the total 
+amount of 99% of original variance that the retained components should account for. 
 
-* `"pca"`: the standard method for PCA based on the singular value decomposition 
-algorithm.
+components that account for a cumulative explained variance of 99%
 
-* `"pca.nipals"`: PCA based on the non-linear iterative partial least squares 
-algorithm.
 
-* `"pls"`: partial least squares algorithm for projection, makes use of side 
-information which is indeed equivalent response variable information. In this
-case, the side information data must be passed to the `Yr` argument.
 
+The results above also show that four components only are sufficient to explain 
+nearly 88% of the variance of the original dataset. For the example, we may also 
+want to use a user-defined amount of cumulative variance explained that needs 
+to be retained. Usually, we expect the PCs to explain at least 90% of the 
+variance of the original data. For spectral data with large variability, this 
+means that we may end up for more than simply five components in total. 
+
+Principal component analysis using a user defined values of the cumulative 
+variance to be explained. We need to set `"var"` in the argument `pc_selection`. 
 
 
 
@@ -277,40 +333,15 @@ Let's use the `ortho_projection()` function to compute the first 5 PCs (arbitrar
 chosen) of the preprocessed spectra in the training set using the default 
 method which is the singular value decomposition (SVD) algorithm:
 
-```{r}
-# principal component (pc) analysis with the default 
-# method (singular value decomposition, SVD) for 5 components
-pcs_tr_manual <- ortho_projection(Xr = training$spc_p,
-                                  pc_selection = list("manual", 5),
-                                  method = "pca")
 
-pcs_tr_manual
-```
 
-The same results can be obtained by using the "non-linear iterative partial 
-least squares (nipals) algorithm:
 
-```{r}
-# principal component (pc) analysis using pca nipals for 5 components
-five_pcs_tr_nipals <- ortho_projection(Xr = training$spc_p,
-                                       pc_selection = list("manual", 5),
-                                       method = "pca.nipals")
 
-five_pcs_tr_nipals
-```
 
-The advantage of the nipals algorithm is that it can be faster than SVD when 
-only components are required.
 
-The results above also show that four components only are sufficient to explain 
-nearly 88% of the variance of the original dataset. For the example, we may also 
-want to use a user-defined amount of cumulative variance explained that needs 
-to be retained. Usually, we expect the PCs to explain at least 90% of the 
-variance of the original data. For spectral data with large variability, this 
-means that we may end up for more than simply five components in total. 
 
-Principal component analysis using a user defined values of the cumulative 
-variance to be explained. We need to set `"var"` in the argument `pc_selection`. 
+
+
 
 ```{r}
 # specify amount of maximum cumulative variance that needs to be retained by 
@@ -323,15 +354,12 @@ pcs_tr_expl_var <- ortho_projection(Xr = training$spc_p,
 pcs_tr_expl_var 
 ```
 
-```{r, fig.align='center', fig.width = 8, fig.height = 3, fig.cap = 'Cumulative explained variance of the principal components (left) and individual contribution the the explained variance for each of the components (right).'}
-o_mfrow <- par()$mfrow
-par(mfrow = c(1, 2))
-plot(pcs_tr_expl_var)
-par(mfrow = o_mfrow)
-```
 
-The code above shows that in this dataset, 15 components are required to explain 
-a maximum of 99% of the original variance found in the spectra.
+
+
+
+
+
 
 A more sophisticated option to optimize the number is also a
 
