@@ -54,12 +54,16 @@ is used for assessing the similarity between the observations and their
 corresponding most similar observations in terms of the side information
 provided. It is computed as follows:
 
-\mjdeqn{RMSD = \sqrt{\frac{1}{n} \sum_{i=1}^n {(y_i - \ddot{y}_i)^2}}}{RMSD = \sqrt{1/n sum_{i=1}^n (y_i - ddot y_i)^2}}
+\mjdeqn{j(i) = NN(xr_i, Xr^{\{-i\}})}{j(i) = NN(xr_i, Xr^{\{-i\}})}
+\mjdeqn{RMSD = \sqrt{\frac{1}{m} \sum_{i=1}^n {(y_i - y_{j(i)})^2}}}{RMSD = \sqrt{1/n sum_{i=1}^m (y_i - y_{j(i)})^2}}
 
-where \mjeqn{y_{i}}{y_i} is the value of the side variable of the \mjeqn{i}{i}th
-observation, \mjeqn{\ddot{y}_i}{ddot y_i} is the value of the side variable
-of the nearest neighbor of the \mjeqn{i}{i}th observation and \mjeqn{n}{n}
-is the total number of observations.
+where \mjeqn{NN(xr_i, Xr^{-i})}{NN(xr_i, Xr^{-i})} represents a function to 
+obtain the index  of the nearest neighbor observation found in \mjeqn{Xr}{Xr} 
+(excluding the \mjeqn{i}{i}th observation) for \mjeqn{xr_i}{xr_i}, 
+\mjeqn{y_{i}}{y_i} is the value of the side variable of the \mjeqn{i}{i}th 
+observation, \mjeqn{y_{j(i)}}{y_{j(i)}} is the value of the side variable of 
+the nearest neighbor of the \mjeqn{i}{i}th observation and \mjeqn{m}{m} is 
+the total number of observations.
 
 If \code{side_info} is a factor the kappa index (\mjeqn{\kappa}{kappa}) is
 used instead the RMSD. It is computed as follows:

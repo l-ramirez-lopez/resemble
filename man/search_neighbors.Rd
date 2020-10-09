@@ -8,7 +8,7 @@ another given set of observations (search_neighbors)}
 search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "cor",
                                          "euclid", "cosine", "sid"),
                  Yr = NULL, k, k_diss, k_range, spike = NULL,
-                 pc_selection = list("cumvar", 0.99),
+                 pc_selection = list("var", 0.01),
                  return_projection = FALSE, return_dissimilarity = FALSE,
                  ws = NULL,
                  center = TRUE, scale = FALSE,
@@ -118,12 +118,12 @@ method). The methods available are:
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+The default list passed is \code{list(method = "var", value = 0.01)}.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
 \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 \code{"value"} is set to 0.01.}
 
 \item{return_projection}{a logical indicating if the projection(s) must be

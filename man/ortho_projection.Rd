@@ -11,11 +11,11 @@ least squares}
 ortho_projection(Xr, Xu = NULL,
                  Yr = NULL,
                  method = "pca",
-                 pc_selection = list(method = "cumvar", value = 0.99),
+                 pc_selection = list(method = "var", value = 0.01),
                  center = TRUE, scale = FALSE, ...)
 
 pc_projection(Xr, Xu = NULL, Yr = NULL,
-              pc_selection = list(method = "cumvar", value = 0.99),
+              pc_selection = list(method = "var", value = 0.01),
               center = TRUE, scale = FALSE,
               method = "pca",
               tol = 1e-6, max_iter = 1000, ...)
@@ -82,12 +82,12 @@ method). The methods available are:
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+The default list passed is \code{list(method = "var", value = 0.01)}.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
 \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 \code{"value"} is set to 0.01.}
 
 \item{center}{a logical indicating if the data \code{Xr} (and \code{Xu} if

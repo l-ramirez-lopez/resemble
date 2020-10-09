@@ -7,7 +7,7 @@
 dissimilarity(Xr, Xu = NULL,
               diss_method = c("pca", "pca.nipals", "pls",
                               "cor", "euclid", "cosine", "sid"),
-              Yr = NULL, gh = FALSE, pc_selection = list("cumvar", 0.99),
+              Yr = NULL, gh = FALSE, pc_selection = list("var", 0.01),
               return_projection = FALSE, ws = NULL,
               center = TRUE, scale = FALSE, documentation = character(),
               ...)
@@ -22,33 +22,33 @@ with `p` variables/columns.}
 \item{diss_method}{a character string indicating the method to be used to
 compute the dissimilarities between observations. Options are:
 \itemize{
-       \item{\code{"pca"}:}{  Mahalanobis distance
+       \item{\code{"pca"}:}{ Mahalanobis distance
        computed on the matrix of scores of a Principal Component (PC)
        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
-       done using the singlar value decomposition (SVD) algorithm.
+       done using the singular value decomposition (SVD) algorithm.
        See \code{\link{ortho_diss}} function.}
 
-       \item{\code{"pca.nipals"}}{ Mahalanobis distance
+       \item{\code{"pca.nipals"}:}{ Mahalanobis distance
        computed on the matrix of scores of a Principal Component (PC)
        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
        done using the non-linear iterative partial least squares (niapls)
        algorithm. See \code{\link{ortho_diss}} function.}
 
-       \item{\code{"pls"}}{ Mahalanobis distance
+       \item{\code{"pls"}}:{ Mahalanobis distance
        computed on the matrix of scores of a partial least squares projection
        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
        always required. See \code{\link{ortho_diss}} function.}
 
-       \item{\code{"cor"}}{ correlation coefficient
+       \item{\code{"cor"}:}{ based on the correlation coefficient
        between observations. See \code{\link{cor_diss}} function.}
 
-       \item{\code{"euclid"}}{ Euclidean distance
+       \item{\code{"euclid"}:}{ Euclidean distance
        between observations. See \code{\link{f_diss}} function.}
 
-       \item{\code{"cosine"}}{ Cosine distance
+       \item{\code{"cosine"}:}{ Cosine distance
        between observations. See \code{\link{f_diss}} function.}
 
-       \item{\code{"sid"}}{ spectral information divergence between
+       \item{\code{"sid"}:}{ spectral information divergence between
        observations. See \code{\link{sid}} function.}
        }}
 
@@ -104,12 +104,12 @@ method). The methods available are:
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+The default list passed is \code{list(method = "var", value = 0.01)}.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
 \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 \code{"value"} is set to 0.01.}
 
 \item{return_projection}{a logical indicating if the projection(s) must be
