@@ -93,8 +93,8 @@ NumericVector get_column_sums(arma::mat X){
 //' @usage 
 //' opls_for_projection(X, Y, ncomp, scale,
 //'                     maxiter, tol,
-//'                     pcSelmethod = "cumvar",
-//'                     pcSelvalue = 0.99)
+//'                     pcSelmethod = "var",
+//'                     pcSelvalue = 0.01)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
@@ -145,8 +145,8 @@ List opls_for_projection(arma::mat X,
                          bool scale,            
                          double maxiter,
                          double tol,
-                         String pcSelmethod = "cumvar",
-                         double pcSelvalue = 0.99
+                         String pcSelmethod = "var",
+                         double pcSelvalue = 0.01
 ){
   
   int ny = Y.n_cols;
@@ -267,15 +267,16 @@ List opls_for_projection(arma::mat X,
           if(i == 0) {
             throw exception("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
           }
+          if (pcSelmethod == "cumvar") {
+            ncomp = ncomp + 1;
+          }
           break;
         }
       } 
     }
   }
   
-  if (pcSelmethod == "cumvar") {
-    ncomp = ncomp + 1;
-  } 
+ 
   
     
   arma::uvec pc_indices;
@@ -1572,8 +1573,8 @@ List gaussian_process_cv(arma::mat X,
 //' @usage 
 //' pca_nipals(X, ncomp, center, scale,
 //'            maxiter, tol,
-//'            pcSelmethod = "cumvar",
-//'            pcSelvalue = 0.99)
+//'            pcSelmethod = "var",
+//'            pcSelvalue = 0.01)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
@@ -1583,13 +1584,13 @@ List gaussian_process_cv(arma::mat X,
 //' @param pcSelmethod the method for selecting the number of components. 
 //' Options are: \code{'cumvar'} (for selecting the number of principal components based on a given 
 //' cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
-//' components based on a given amount of explained variance). Default is \code{'cumvar'}
+//' components based on a given amount of explained variance). Default is \code{'var'}
 //' @param pcSelvalue a numerical value that complements the selected method (\code{pcSelmethod}). 
 //' If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum 
 //' amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
 //' it must be a value (larger than 0 and below 1) indicating that components that explain (individually) 
 //' a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
-//' specifying the desired number of principal components to retain. Default is 0.99.
+//' specifying the desired number of principal components to retain. Default is 0.01.
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{pc_scores}}{ a matrix of principal component scores.}
@@ -1709,7 +1710,8 @@ List pca_nipals(arma::mat X,
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
   }
-  
+  // convert this to standard deviation
+  explained_var.row(0) = sqrt(explained_var.row(0));
   
   return Rcpp::List::create(
     Rcpp::Named("pc_indices") = pc_indices,
