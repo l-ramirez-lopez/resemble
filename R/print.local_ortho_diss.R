@@ -1,7 +1,7 @@
 #' @title Print method for an object of class \code{ortho_diss}
 #' @description Prints the content of an object of class \code{ortho_diss}
 #' @usage \method{print}{local_ortho_diss}(x, ...)
-#' @param x an object of class \code{localortho_diss} (returned by
+#' @param x an object of class \code{local_ortho_diss} (returned by
 #' \code{ortho_diss} when it uses \code{.local = TRUE}).
 #' @param ... arguments to be passed to methods (not yet functional).
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
@@ -54,7 +54,7 @@ print.local_ortho_diss <- function(x, ...) {
 #' @param columns the indices of the columns
 #' @param drop drop argument
 #' @param ... not used
-#' @description prints the subsets of localortho_diss objects
+#' @description prints the subsets of local_ortho_diss objects
 #' @keywords internal
 #' @export
 "[.local_ortho_diss" <- function(x, rows, columns, drop = FALSE, ...) {
@@ -65,7 +65,7 @@ print.local_ortho_diss <- function(x, ...) {
   class(object) <- NULL
   obj <- object[rows, columns, drop = drop]
   if (!drop) {
-    class(obj) <- "localortho_diss"
+    class(obj) <- "local_ortho_diss"
   }
   return(obj)
 }
