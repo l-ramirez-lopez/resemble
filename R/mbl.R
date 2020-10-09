@@ -151,12 +151,12 @@
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+#' The default list passed is \code{list(method = "opc", value = min(dim(Xr), 40))}.
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such a case the default \code{"value"} when either \code{"opc"} or
 #' \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-#' \code{"value"} is set to 0.99 and when \code{"var"} is used the default
+#' \code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 #' \code{"value"} is set to 0.01.
 #' @param group an optional factor (or character vector vector
 #' that can be coerced to \code{\link[base]{factor}} by \code{as.factor}) that
@@ -1074,7 +1074,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     additional_results <- NULL
     ith_pred_results$o_index[] <- i
     if (".local" %in% names(input_dots) & diss_method %in% ortho_diss_methods) {
-      ith_observation <- get_ith_local_neighbors(
+      ith_observation <- get_ith_local_neighbors2(
         ith_xr = ith_observation$ith_xr,
         ith_xu = ith_observation$ith_xu,
         ith_yr = ith_observation$ith_yr,
@@ -1106,7 +1106,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       if (!is.null(spike)) {
         ith_diss[1:length(spike)] <- 0
       }
-      
+      browser()
       ith_pred_results$k_original <- sapply(k_diss, FUN = function(x, d) sum(d < x), d = ith_diss)
       ith_pred_results$k <- ith_pred_results$k_original
       ith_pred_results$k[ith_pred_results$k_original < min(k_range)] <- min(k_range)
@@ -1290,7 +1290,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
              m = matrix(NA, nrow(Xr), 1)
       )
     )
-    class(diss_xr_xu) <- c("localortho_diss", "matrix")
+    class(diss_xr_xu) <- c("local_ortho_diss", "matrix")
     dimnames(diss_xr_xu) <- list(
       paste0("Xr_", 1:nrow(diss_xr_xu)),
       paste0("Xu_", 1:ncol(diss_xr_xu))
@@ -1414,7 +1414,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     pred_res <- NULL
   }
   
-  if ("localortho_diss" %in% class(diss_xr_xu)) {
+  if ("local_ortho_diss" %in% class(diss_xr_xu)) {
     diss_method <- paste0(diss_method, " (locally computed)")
   }
   
