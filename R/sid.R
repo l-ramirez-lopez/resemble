@@ -5,7 +5,7 @@
 #' \lifecycle{experimental}
 #'
 #' \loadmathjax
-#' This function computes the spectral information divergence (distance) between
+#' This function computes the spectral information divergence/dissimilarity between
 #' spectra based on the kullback-leibler divergence algorithm (see details).
 #' @usage
 #' sid(Xr, Xu = NULL,
