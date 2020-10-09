@@ -12,11 +12,11 @@
 #' ortho_projection(Xr, Xu = NULL,
 #'                  Yr = NULL,
 #'                  method = "pca",
-#'                  pc_selection = list(method = "cumvar", value = 0.99),
+#'                  pc_selection = list(method = "var", value = 0.01),
 #'                  center = TRUE, scale = FALSE, ...)
 #'
 #' pc_projection(Xr, Xu = NULL, Yr = NULL,
-#'               pc_selection = list(method = "cumvar", value = 0.99),
+#'               pc_selection = list(method = "var", value = 0.01),
 #'               center = TRUE, scale = FALSE,
 #'               method = "pca",
 #'               tol = 1e-6, max_iter = 1000, ...)
@@ -78,12 +78,12 @@
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+#' The default list passed is \code{list(method = "var", value = 0.01)}.
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such a case the default \code{"value"} when either \code{"opc"} or
 #' \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-#' \code{"value"} is set to 0.99 and when \code{"var"} is used the default
+#' \code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 #' \code{"value"} is set to 0.01.
 #' @param center a logical indicating if the data \code{Xr} (and \code{Xu} if
 #' specified) must be centered. If \code{Xu} is specified the data is centered
@@ -326,11 +326,14 @@
 ortho_projection <- function(Xr, Xu = NULL,
                              Yr = NULL,
                              method = "pca",
-                             pc_selection = list(method = "cumvar", value = 0.99),
+                             pc_selection = list(method = "var", value = 0.01),
                              center = TRUE, scale = FALSE, ...) {
   method <- match.arg(method, c("pls", "pca", "pca.nipals"))
 
   if (method == "pls") {
+    if (missing(Yr)) {
+      stop("'Yr' is missing for pls method")
+    }
     if (!is.numeric(as.matrix(Yr))) {
       stop("When pls projection is used, 'Yr' must be numeric")
     }
@@ -361,7 +364,7 @@ ortho_projection <- function(Xr, Xu = NULL,
 #' @importFrom stats quantile complete.cases diffinv
 #' @export pc_projection
 pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
-                          pc_selection = list(method = "cumvar", value = 0.99),
+                          pc_selection = list(method = "var", value = 0.01),
                           center = TRUE, scale = FALSE,
                           method = "pca",
                           tol = 1e-6, max_iter = 1000, ...) {
@@ -696,7 +699,7 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
   plsp$projection_mat <- plsp$projection_mat[, 1:max_comp, drop = FALSE]
 
   # Give some names...
-  colnames(X_loadings) <- colnames(X0)
+  rownames(plsp$projection_mat) <- colnames(X_loadings) <- colnames(X0)
   rownames(X_loadings) <- colnames(plsp$projection_mat) <- paste0("pls_", 1:max_comp)
   rownames(Y_loadings) <- rownames(X_loadings)
   colnames(Y_loadings) <- paste0("Y_pls", 1:ny)
