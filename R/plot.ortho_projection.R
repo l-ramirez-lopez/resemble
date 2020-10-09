@@ -27,7 +27,7 @@ plot.ortho_projection <- function(x, ...) {
   
   if (x$pc_selection$method == "opc") {
     tpl <- x$opc_evaluation[, c(1, ncol(x$opc_evaluation))]
-    if ("mean_standardized_rmsd" %in% colnames(tpl)) {
+    if ("mean_standardized_rmsd_Yr" %in% colnames(tpl)) {
       ylab <- "mean of the standardized RMSD of all Y variables"
     }
     if (colnames(tpl)[2] %in% c("rmsd_Yr", "rmsd")) {
@@ -37,9 +37,11 @@ plot.ortho_projection <- function(x, ...) {
       ylab <- "kappa index"
     }
     plot(tpl,
-         type = "b",
+         type = "p",
          ylab = ylab, pch = 1, col = col, ...
     )
+    grid()
+    segments(tpl[,1], 0, tpl[,1], tpl[,2], col = col)
   } else{
     o_mfrow <- par()$mfrow
     par(mfrow = c(1, 2))
