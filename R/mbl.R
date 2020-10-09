@@ -1106,7 +1106,6 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       if (!is.null(spike)) {
         ith_diss[1:length(spike)] <- 0
       }
-      browser()
       ith_pred_results$k_original <- sapply(k_diss, FUN = function(x, d) sum(d < x), d = ith_diss)
       ith_pred_results$k <- ith_pred_results$k_original
       ith_pred_results$k[ith_pred_results$k_original < min(k_range)] <- min(k_range)
