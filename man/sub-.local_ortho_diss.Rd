@@ -18,6 +18,6 @@
 \item{...}{not used}
 }
 \description{
-prints the subsets of localortho_diss objects
+prints the subsets of local_ortho_diss objects
 }
 \keyword{internal}
