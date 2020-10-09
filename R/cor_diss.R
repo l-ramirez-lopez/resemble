@@ -31,7 +31,7 @@
 #' dissimilarity \mjeqn{mcd}{mcd} between two observations \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j}
 #' is computed as follows:
 #'
-#' \mjdeqn{mcd(x_i, x_j) = \frac{1}{2 ws}\sum_{k=1}^{p-ws}(1 - cor(x_{i,(k:k+ws)}, x_{j,(k:k+ws)}))}{mcd(x_i, x_j) = 1/(2 ws)\sum_(k=1)^{p-ws}(1 - cor(x_(i,k:k+ws), x_(j,k:k+ws)))}
+#' \mjdeqn{cd(x_i, x_j; ws) = \frac{1}{2 ws}\sum_{k=1}^{p-ws}1 - cor(x_{i,(k:k+ws)}, x_{j,(k:k+ws)})}{mcd(x_i, x_j) = 1/(2 ws)\sum_(k=1)^{p-ws}(1 - cor(x_(i,k:k+ws), x_(j,k:k+ws)))}
 #'
 #' where \mjeqn{ws}{ws} represents a given window size which rolls sequentially
 #' from 1 up to \mjeqn{p - ws}{p - ws} and  \mjeqn{p}{p} is the number of
