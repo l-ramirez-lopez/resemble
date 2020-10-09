@@ -317,26 +317,23 @@ plot(pcopc_pca_spectra)
 This figure shows that 17 components is the optimal number, but that using 8 components only (e.g. to save computation time) would not result in a substantial difference in terms of side information variability explained. 
 
 ## Dissimilarity measures
-Dissimilarity or distance measures are useful for a number of applications, for example for outlier detection or dissimilarity search in spectral database. In the `resemble` package, we use dissimilarity measures to determine spectra which spectra are close to a reference spectrum, so as to select a subset of similar (in terms of spectral characteristics) spectra from a large dataset. To assess dissimilarity, we usually compare two spectra wavelength by wavelength and compute the distance between them. The distance between the two spectra is averaged into a single dissimilarity metric. It is assumed that the closer two spectra are one to another, the higher is the dissimilarity between the soil properties that they characterize. These measures are based on distances computed directly on the spectra, or indirectly from derived information from the spectra (e.g. after a PCA). Computing these dissimilarity measures is the basis of the `mbl` function. 
 
-The dissimilarity measures implemented in the `resemble` packages are:
-
-* Correlation dissimilarity - `dissimilarity` or `cor_diss`
-* Euclidean distance - `dissimilarity` or `f_diss`
-* Mahalanobis distance - `dissimilarity` or `f_diss`
-* Spectral angle mapper - `dissimilarity` or `f_diss`
-* Spectra information divergence - `dissimilarity` or `sid`
-
-Note that all these measures are implemented into a single function `dissimilarity`, but that several other functions are implemented each of the measures. The wrap-up function `dissimilarity` provide in addition the opportunity to compute the Mahalanobis distance on the principal components, using either the standard PCA, the PLS or the PCA using the nipals algorithm. 
-
-The examples in this vignette will compute the distance between the spectra in the training spectral data `train_x` and the spectra in the testing spectral data `test_x`. No side information is used expect for computing the principal components when needed (e.g. for the PLS method).
 
 ### Correlation dissimilarity 
-Correlation dissimilarity is based on the Pearson's *r* correlation coefficient between spectra. The Pearson's *r* is not a distance metric and while two spectra can be strongly correlated, they can have very different reflectance or absorbance values. The value of Pearson's *r* varies between -1 and 1. A correlation of 1 indicates that the two spectra under study have identical characteristics (i.e. they are similar). A values of -1, conversely, indicates that the two spectra are strongly negatively correlated, which in spectroscopy implies that the two spectra are dissimilar. The correlation dissimilarity  scales the values between 0 and 1, where the higher the values, the more dissimilar the two spectra are. The correlation dissimilarity ($cd$) between two spectra $\mathbf{x}_{a}$ and $\mathbf{x}_{b}$ is thus described by:
-                                                                                                                                                                                                                                        \begin{equation}
-                                                                                                                                                                                                                                      cd(\mathbf{x}_{a}, \mathbf{x}_{b}) = \frac{1-r(\mathbf{x}_{a}, \mathbf{x}_{b})}{2}.
-                                                                                                                                                                                                                                      \end{equation}
-                                                                                                                                                                                                                                      
+Correlation dissimilarity is based on the Pearson's *r* correlation coefficient 
+between observations. The value of Pearson's *r* varies between -1 and 1. A 
+correlation of 1 indicates between two observations would indicate that they 
+might have identical characteristics (i.e. they are can be considered as highly 
+similar). A value of -1, conversely, would indicate that the two observations 
+are strongly negatively correlated (i.e. the two observations are highly 
+dissimilar). The correlation dissimilarity ($cd$) implemented in the package 
+scales the values between 0 (highest dissimilarity) and 1 (highest similarity). 
+The $cd$ between two observations $\mathbf{x}_{i}$ and $\mathbf{x}_{j}$ is 
+thus described by:
+\begin{equation}
+cd(\mathbf{x}_{i}, \mathbf{x}_{j}) = \frac{1 - r(\mathbf{x}_{i}, \mathbf{x}_{j})}{2}.
+\end{equation}
+                                                                                                                                                                                                                   does not satisfy the axiom of identity of indiscernibles                     
                                                                                                                                                                                                                                       We use the `dissimilarity` function and set the argument `diss_method = "cor"`.
                                                                                                                                                                                                                                       
                                                                                                                                                                                                                                       ```{r}
