@@ -110,8 +110,8 @@ get_column_sums <- function(X) {
 #' @usage 
 #' opls_for_projection(X, Y, ncomp, scale,
 #'                     maxiter, tol,
-#'                     pcSelmethod = "cumvar",
-#'                     pcSelvalue = 0.99)
+#'                     pcSelmethod = "var",
+#'                     pcSelvalue = 0.01)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
 #' @param ncomp the number of pls components.
@@ -155,7 +155,7 @@ get_column_sums <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = "cumvar", pcSelvalue = 0.99) {
+opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01) {
     .Call('_resemble_opls_for_projection', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue)
 }
 
@@ -461,8 +461,8 @@ gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale 
 #' @usage 
 #' pca_nipals(X, ncomp, center, scale,
 #'            maxiter, tol,
-#'            pcSelmethod = "cumvar",
-#'            pcSelvalue = 0.99)
+#'            pcSelmethod = "var",
+#'            pcSelvalue = 0.01)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
 #' @param ncomp the number of pls components.
@@ -472,13 +472,13 @@ gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale 
 #' @param pcSelmethod the method for selecting the number of components. 
 #' Options are: \code{'cumvar'} (for selecting the number of principal components based on a given 
 #' cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
-#' components based on a given amount of explained variance). Default is \code{'cumvar'}
+#' components based on a given amount of explained variance). Default is \code{'var'}
 #' @param pcSelvalue a numerical value that complements the selected method (\code{pcSelmethod}). 
 #' If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum 
 #' amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
 #' it must be a value (larger than 0 and below 1) indicating that components that explain (individually) 
 #' a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
-#' specifying the desired number of principal components to retain. Default is 0.99.
+#' specifying the desired number of principal components to retain. Default is 0.01.
 #' @return a list containing the following elements:
 #' \itemize{
 #' \item{\code{pc_scores}}{ a matrix of principal component scores.}
