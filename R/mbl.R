@@ -1074,7 +1074,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     additional_results <- NULL
     ith_pred_results$o_index[] <- i
     if (".local" %in% names(input_dots) & diss_method %in% ortho_diss_methods) {
-      ith_observation <- get_ith_local_neighbors2(
+      ith_observation <- get_ith_local_neighbors(
         ith_xr = ith_observation$ith_xr,
         ith_xu = ith_observation$ith_xu,
         ith_yr = ith_observation$ith_yr,
@@ -1398,9 +1398,9 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       results_table[[i]]$yu_obs <- Yu
     }
     yu_stats <- function(x) {
-      yu_rmse <- (mean((x$yu_obs - x$pred)^2))^0.5
-      yu_st_rmse <- yu_rmse / diff(range(x$yu_obs))
-      yu_rsq <- (cor(x$yu_obs, x$pred))^2
+      yu_rmse <- mean((x$yu_obs - x$pred)^2, na.rm = TRUE)^0.5
+      yu_st_rmse <- yu_rmse / diff(range(x$yu_obs, na.rm = TRUE))
+      yu_rsq <- cor(x$yu_obs, x$pred, use = "complete.obs")^2
       c(yu_rmse = yu_rmse, yu_st_rmse = yu_st_rmse, yu_rsq = yu_rsq)
     }
     pred_res <- do.call("rbind", lapply(results_table, yu_stats))
