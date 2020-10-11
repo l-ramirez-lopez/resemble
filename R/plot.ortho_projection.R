@@ -5,8 +5,9 @@
 #'
 #' Plots objects of class \code{ortho_projection}
 #' @aliases plot.ortho_projection
-#' @usage \method{plot}{ortho_projection}(x, ...)
+#' @usage \method{plot}{ortho_projection}(x, col = "dodgerblue", ...)
 #' @param x an object of class \code{ortho_projection} (as returned by \code{ortho_projection}).
+#' @param col the color of the plots (default is "dodgerblue")
 #' @param ... arguments to be passed to methods.
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @seealso \code{\link{ortho_projection}}
