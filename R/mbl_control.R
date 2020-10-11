@@ -57,7 +57,7 @@
 #'  the group of neighbors of each observation to be predicted, the nearest observation
 #'  (i.e. the most similar observation) is excluded and then a local model is fitted
 #'  using the remaining neighbors. This model is then used to predict the value
-#'  of the target response variable of the nearest observation. These predicted
+#'  of the response variable of the nearest observation. These predicted
 #'  values are finally cross validated with the actual values (See Ramirez-Lopez
 #'  et al. (2013a) for additional details). This method is faster than
 #'  \code{"local_cv"}.}
@@ -71,14 +71,14 @@
 #'  the sampling is conducted for selecting the validation samples, and when 
 #'  \code{p} < 0.5 the sampling is conducted for selecting the calibration 
 #'  samples (samples used for model fitting). The model fitted with the selected 
-#'  calibration samples is used to predict the target response variable values 
-#'  of the local validation samples and the local root mean square error is 
-#'  computed. This process is repeated \mjeqn{m}{m} number of times and the final local 
-#'  error is computed as the average of the local root mean square error of all 
-#'  the \mjeqn{m}{m} iterations. In the \code{mbl} function \mjeqn{m}{m} is 
-#'  controlled by the \code{number} argument and the size of the subsets is 
-#'  controlled by the \code{p} argument which indicates the percentage of 
-#'  observations to be selected from the subset of nearest neighbours.
+#'  calibration samples is used to predict the response values of the local 
+#'  validation samples and the local root mean square error is computed. 
+#'  This process is repeated \mjeqn{m}{m} times and the final local 
+#'  error is computed as the average of the local root mean square errors 
+#'  obtained for all the \mjeqn{m}{m} iterations. In the \code{mbl_control} function 
+#'  \mjeqn{m}{m} is controlled by the \code{number} argument and the size of the 
+#'  subsets is controlled by the \code{p} argument which indicates the 
+#'  percentage of observations to be selected from the subset of nearest neighbors.
 #'  The global error of the predictions is computed as the average of the local
 #'  root mean square errors.}
 #'  \item{No validation (\code{"none"}):}{ No validation is carried out.
