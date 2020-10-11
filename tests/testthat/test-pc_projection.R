@@ -27,7 +27,8 @@ test_that("pc_projection works", {
                                     method = "pca")
   
   expect_true(ncol(one_input_matrix$scores) == one_input_matrix$n_components)
-  expect_true(all(one_input_matrix$variance[2,] < cumvar_value))
+  test_ncomp <- one_input_matrix$n_components - 1
+  expect_true(all(one_input_matrix$variance[3, 1:test_ncomp] < cumvar_value))
   
   two_input_matrices <- pc_projection(Xr, Xu,
                                       pc_selection = list(method = "cumvar", value = cumvar_value),
@@ -41,7 +42,8 @@ test_that("pc_projection works", {
   
   
   expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  expect_true(all(two_input_matrices$variance[2,] < cumvar_value))
+  two_test_ncomp <- two_input_matrices$n_components - 1
+  expect_true(all(two_input_matrices$variance[3, 1:two_test_ncomp] < cumvar_value))
   
   preds <- sum(abs(predict(two_input_matrices)[1:nrow(Xr), ] - predict(two_input_matrices, Xr)))
   expect_true(preds < tol)
@@ -72,13 +74,14 @@ test_that("pc_projection works", {
   # check that the number of components for method = "cumvar" is properly 
   # obtained, this can be done with the results of opc_method as it selects more 
   # components than in the "cumvar" test
-  expect_true(sum(opc_method$variance[3,] < cumvar_value) ==  two_input_matrices$n_components)
+  expect_true(sum(opc_method$variance[3, ] < cumvar_value) ==  two_input_matrices$n_components - 1)
   # do the same for method = "var"
   expect_true(sum(opc_method$variance[2,] > (1 - cumvar_value)) ==  two_input_matrices_var$n_components)
   
   
   expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  expect_true(all(two_input_matrices$variance[3,] < cumvar_value))
+  test_ncomp <- two_input_matrices$n_components - 1
+  expect_true(all(two_input_matrices$variance[3, 1:test_ncomp] < cumvar_value))
   
   
   bb <- cbind(name_test_yr = Yr, Yr_2)
