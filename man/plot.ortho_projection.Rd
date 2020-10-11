@@ -4,10 +4,12 @@
 \alias{plot.ortho_projection}
 \title{Plot method for an object of class \code{ortho_projection}}
 \usage{
-\method{plot}{ortho_projection}(x, ...)
+\method{plot}{ortho_projection}(x, col = "dodgerblue", ...)
 }
 \arguments{
 \item{x}{an object of class \code{ortho_projection} (as returned by \code{ortho_projection}).}
+
+\item{col}{the color of the plots (default is "dodgerblue")}
 
 \item{...}{arguments to be passed to methods.}
 }
