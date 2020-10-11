@@ -489,7 +489,7 @@ gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-pca_nipals <- function(X, ncomp, center, scale, maxiter, tol, pcSelmethod = "cumvar", pcSelvalue = 0.99) {
+pca_nipals <- function(X, ncomp, center, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01) {
     .Call('_resemble_pca_nipals', PACKAGE = 'resemble', X, ncomp, center, scale, maxiter, tol, pcSelmethod, pcSelvalue)
 }
 
