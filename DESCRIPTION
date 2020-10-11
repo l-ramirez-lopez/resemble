@@ -64,13 +64,18 @@ Suggests:
     prospectr, 
     parallel, 
     doParallel,
-    testthat
+    testthat,
+    formatR,
+    bookdown, 
+    rmarkdown,
+    knitr
 LinkingTo: 
     Rcpp, 
     RcppArmadillo
 RdMacros: 
     mathjaxr,
     lifecycle
+VignetteBuilder: knitr
 NeedsCompilation: yes
 LazyData: true
 Repository: CRAN
