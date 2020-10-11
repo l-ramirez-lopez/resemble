@@ -1608,8 +1608,8 @@ List pca_nipals(arma::mat X,
                 bool scale,            
                 double maxiter,
                 double tol,
-                String pcSelmethod = "cumvar",
-                double pcSelvalue = 0.99
+                String pcSelmethod = "var",
+                double pcSelvalue = 0.01
 ){
   
   arma::mat Xscale;
