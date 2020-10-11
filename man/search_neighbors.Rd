@@ -211,11 +211,11 @@ used to reduce the size of the reference set before before  running the
 \code{\link{mbl}} function.
 
 This function uses the \code{\link{dissimilarity}} fucntion to compute the
-dissimilarities between code{Xr} and \code{Xu}. Arguments to
+dissimilarities between \code{Xr} and \code{Xu}. Arguments to
 \code{\link{dissimilarity}} as well as further arguments to the functions
 used inside \code{\link{dissimilarity}} (i.e. \code{\link{ortho_diss}}
 \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}) can be passed to
-those functions by using \code{...}.
+those functions as additional arguments (i.e. \code{...}).
 }
 \examples{
 \dontrun{
