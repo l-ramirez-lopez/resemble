@@ -13,12 +13,7 @@
 #' @importFrom graphics barplot
 #' @export
 
-plot.ortho_projection <- function(x, ...) {
-  in.call <- match.call()$col
-  if (is.null(in.call$col)) {
-    col <- "dodgerblue"
-  }
-  
+plot.ortho_projection <- function(x, col = "dodgerblue", ...) {
   if (x$method == "pls") {
     x_variance <- x$variance$x_var
   } else {
