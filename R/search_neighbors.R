@@ -11,7 +11,7 @@
 #' search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "cor",
 #'                                          "euclid", "cosine", "sid"),
 #'                  Yr = NULL, k, k_diss, k_range, spike = NULL,
-#'                  pc_selection = list("cumvar", 0.99),
+#'                  pc_selection = list("var", 0.01),
 #'                  return_projection = FALSE, return_dissimilarity = FALSE,
 #'                  ws = NULL,
 #'                  center = TRUE, scale = FALSE,
@@ -84,7 +84,7 @@
 #' components) and \code{value} (a numerical value that complements the selected
 #' method). The methods available are:
 #' \itemize{
-#'        \item{\code{"opc"}:} {optimized principal component selection based on
+#'        \item{\code{"opc"}:} { optimized principal component selection based on
 #'        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
 #'        (of set of observations) is the one for which its distance matrix
 #'        minimizes the differences between the \code{Yr} value of each
@@ -94,17 +94,17 @@
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
 #'
-#'        \item{\code{"cumvar"}:}{selection of the principal components based
+#'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the maximum amount of cumulative variance that the
-#'        retained components should explain.}
+#'        indicating the minimum amount of cumulative variance that the 
+#'        combination of retained components should explain.}
 #'
-#'        \item{\code{"var"}:}{selection of the principal components based
+#'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a component should
-#'        explain in order to be retained.}
+#'        indicating the minimum amount of variance that a single component 
+#'        should explain in order to be retained.}
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
@@ -112,12 +112,12 @@
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+#' The default list passed is \code{list(method = "var", value = 0.01)}.
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such a case the default \code{"value"} when either \code{"opc"} or
 #' \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-#' \code{"value"} is set to 0.99 and when \code{"var"} is used the default
+#' \code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 #' \code{"value"} is set to 0.01.
 #' @param return_projection a logical indicating if the projection(s) must be
 #' returned. Projections are used if the \code{\link{ortho_diss}} methods are
@@ -155,11 +155,11 @@
 #' \code{\link{mbl}} function.
 #'
 #' This function uses the \code{\link{dissimilarity}} fucntion to compute the
-#' dissimilarities between code{Xr} and \code{Xu}. Arguments to
+#' dissimilarities between \code{Xr} and \code{Xu}. Arguments to
 #' \code{\link{dissimilarity}} as well as further arguments to the functions
 #' used inside \code{\link{dissimilarity}} (i.e. \code{\link{ortho_diss}}
 #' \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}) can be passed to
-#' those functions by using \code{...}.
+#' those functions as additional arguments (i.e. \code{...}).
 #' @return a \code{list} containing the following elements:
 #' \itemize{
 #'  \item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity socres
@@ -193,7 +193,7 @@
 #'        neighborhoods (see \code{\link{ortho_diss}} function for further
 #'        details).}
 #'  }
-#' @author Leonardo Ramirez-Lopez
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @references
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 #' Scholten, T. 2013a. The spectrum-based learner: A new local approach for
@@ -293,26 +293,24 @@
 ##                    - scaled renamed to scale
 ##                    - pcMethod and cores are deprecated
 
-search_neighbors <- function(Xr, Xu, diss_method = c(
-                               "pca",
-                               "pca.nipals",
-                               "pls",
-                               "cor",
-                               "euclid",
-                               "cosine",
-                               "sid"
-                             ),
+search_neighbors <- function(Xr, Xu, diss_method = c("pca",
+                                                     "pca.nipals",
+                                                     "pls",
+                                                     "cor",
+                                                     "euclid",
+                                                     "cosine",
+                                                     "sid"),
                              Yr = NULL,
                              k, k_diss, k_range,
                              spike = NULL,
-                             pc_selection = list("cumvar", 0.99),
+                             pc_selection = list("var", 0.01),
                              return_projection = FALSE,
                              return_dissimilarity = FALSE,
                              ws = NULL,
                              center = TRUE, scale = FALSE,
                              documentation = character(), ...) {
-
-
+  
+  
   # Sanity checks
   match.arg(diss_method, c(
     "pca",
@@ -323,27 +321,27 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
     "cosine",
     "sid"
   ))
-
+  
   if (missing(k)) {
     k <- NULL
   }
-
+  
   if (missing(k_diss)) {
     k_diss <- NULL
   }
-
+  
   if (missing(k_range)) {
     k_range <- NULL
   }
-
+  
   if (!is.logical(center)) {
     stop("'center' argument must be logical")
   }
-
+  
   if (!is.logical(scale)) {
     stop("'scale' argument must be logical")
   }
-
+  
   if (diss_method == "cor") {
     if (!is.null(ws)) {
       if (ws < 3 | ws > (ncol(Xr) - 1) | length(ws) != 1 | (ws %% 2) == 0) {
@@ -354,18 +352,18 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
       }
     }
   }
-
+  
   if (!is.null(k) & !is.null(k_diss)) {
     # if k and k_diss are not called here, errors are thrown during checks
     k
     k_diss
     stop("Only one of k or k_diss can be specified")
   }
-
+  
   if (is.null(k) & is.null(k_diss)) {
     stop("Either k or k_diss must be specified")
   }
-
+  
   if (!is.null(k)) {
     k <- as.integer(k)
     if (k < 1) {
@@ -379,7 +377,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
     }
     kk <- k
   }
-
+  
   if (!is.null(k_diss)) {
     # if k_diss is not called here, errors are thrown during checks
     k_diss
@@ -425,7 +423,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
       }
     }
   }
-
+  
   if (!is.null(spike)) {
     if (!is.vector(spike)) {
       stop("spike must be a vector of integers")
@@ -453,19 +451,19 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
     scale = scale,
     ...
   )
-
+  
   results <- diss_to_neighbors(dsm$dissimilarity,
-    k = k, k_diss = k_diss, k_range = k_range,
-    spike = spike,
-    return_dissimilarity = return_dissimilarity
+                               k = k, k_diss = k_diss, k_range = k_range,
+                               spike = spike,
+                               return_dissimilarity = return_dissimilarity
   )
-
+  
   if (return_projection & diss_method %in% c("pca", "pca.nipals", "pls")) {
     results$projection <- dsm$projection
   }
   if ("gh" %in% names(input_dots)) {
     results$gh <- dsm$gh
   }
-
+  
   results
 }

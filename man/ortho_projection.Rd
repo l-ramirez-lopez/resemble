@@ -11,11 +11,11 @@ least squares}
 ortho_projection(Xr, Xu = NULL,
                  Yr = NULL,
                  method = "pca",
-                 pc_selection = list(method = "cumvar", value = 0.99),
+                 pc_selection = list(method = "var", value = 0.01),
                  center = TRUE, scale = FALSE, ...)
 
 pc_projection(Xr, Xu = NULL, Yr = NULL,
-              pc_selection = list(method = "cumvar", value = 0.99),
+              pc_selection = list(method = "var", value = 0.01),
               center = TRUE, scale = FALSE,
               method = "pca",
               tol = 1e-6, max_iter = 1000, ...)
@@ -67,13 +67,13 @@ method). The methods available are:
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the maximum amount of cumulative variance that the
-       retained components should explain.}
+       indicating the minimum amount of cumulative variance that the 
+       combination of retained components should explain.}
 
        \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a component should
+       indicating the minimum amount of variance that a single component should
        explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
@@ -82,12 +82,12 @@ method). The methods available are:
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+The default list passed is \code{list(method = "var", value = 0.01)}.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
 \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 \code{"value"} is set to 0.01.}
 
 \item{center}{a logical indicating if the data \code{Xr} (and \code{Xu} if
@@ -139,8 +139,9 @@ components:
  onto a "pls" space. This object is only returned if the "pls" algorithm was
  used.}
  \item{\code{variance}}{ a matrix indicating the standard deviation of each
- component (sd), the cumulative explained variance (cumulative_explained_var) and the
- variance explained by each single component (explained_var). These values are
+ component (sd), the variance explained by each single component 
+ (explained_var) and the cumulative explained variance 
+ (cumulative_explained_var). These values are
  computed based on the data used to create the projection matrices.
  For example if the "pls" method was used, then these values are computed
  based only on the data that contains information on \code{Yr} (i.e. the
@@ -216,25 +217,32 @@ via OpenMP in Rcpp.
 library(prospectr)
 data(NIRsoil)
 
-Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
-Yu <- NIRsoil[!as.logical(NIRsoil$train), "CEC", drop = FALSE]
-Yr <- NIRsoil[as.logical(NIRsoil$train), "CEC", drop = FALSE]
-Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+# Proprocess the data using detrend plus first derivative with Savitzky and
+# Golay smoothing filter
+sg_det <- savitzkyGolay(
+  detrend(NIRsoil$spc,
+          wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1,
+  p = 1,
+  w = 7
+)
+NIRsoil$spc_pr <- sg_det
 
-Xu <- Xu[!is.na(Yu), ]
-Yu <- Yu[!is.na(Yu), , drop = FALSE]
+# split into training and testing sets
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
-Xr <- Xr[!is.na(Yr), ]
-Yr <- Yr[!is.na(Yr), , drop = FALSE]
+train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
 
 # A principal component analysis using 5 components
-pca_projected <- ortho_projection(Xr, pc_selection = list("manual", 5))
+pca_projected <- ortho_projection(train_x, pc_selection = list("manual", 5))
 pca_projected
 
 # A principal components projection using the "opc" method
 # for the selection of the optimal number of components
 pca_projected_2 <- ortho_projection(
-  Xr, Xu, Yr,
+  Xr = train_x, Xu = test_x, Yr,
   method = "pca",
   pc_selection = list("opc", 40)
 )
@@ -244,7 +252,7 @@ plot(pca_projected_2)
 # A partial least squares projection using the "opc" method
 # for the selection of the optimal number of components
 pls_projected <- ortho_projection(
-  Xr, Xu, Yr,
+  Xr = train_x, Xu = test_x, Yr,
   method = "pls",
   pc_selection = list("opc", 40)
 )
@@ -254,7 +262,7 @@ plot(pls_projected)
 # A partial least squares projection using the "cumvar" method
 # for the selection of the optimal number of components
 pls_projected_2 <- ortho_projection(
-  Xr = Xr, Yr = Yr, Xu = Xu,
+  Xr = train_x, Yr = train_y, Xu = test_x,
   method = "pls",
   pc_selection = list("cumvar", 0.99)
 )
@@ -275,5 +283,5 @@ with soil vis-NIR spectra. Geoderma 199, 43-53.
 \code{\link{ortho_diss}}, \code{\link{sim_eval}}, \code{\link{mbl}}
 }
 \author{
-Leonardo Ramirez-Lopez
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 }

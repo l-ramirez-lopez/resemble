@@ -65,7 +65,7 @@ NumericVector fast_diss_vector(NumericVector X){
   int n = ((nX*nX)-nX)/2;
   NumericVector output(n);  
 #if defined(_OPENMP) 
-  #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 #endif
   for(int i = 0; i < nX-1; i++)
     for(int j = i+1; j < nX; j++){
@@ -149,7 +149,7 @@ NumericVector minDissV(NumericVector X){
   arma::uvec vindex(len); 
   int i,j;
 #if defined(_OPENMP) 
-  #pragma omp parallel for private(i,j) schedule(dynamic)
+#pragma omp parallel for private(i,j) schedule(dynamic)
 #endif
   for(int i = 0; i < nX - 1; i++)
     for(int j = i + 1; j < nX; j++){

@@ -16,7 +16,6 @@ using namespace Rcpp;
 //' @usage get_col_largest_sd(X)
 //' @param X a matrix.
 //' @return a value indicating the index of the column with the largest standard deviation. 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -48,7 +47,6 @@ NumericVector get_col_largest_sd(arma::mat X){
 //' @usage get_column_sds(X)
 //' @param X a a matrix.
 //' @return a vector of standard deviation values. 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -63,7 +61,6 @@ NumericVector get_column_sds(arma::mat X){
 //' @usage get_column_means(X)
 //' @param X a a matrix.
 //' @return a vector of mean values. 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -78,7 +75,6 @@ NumericVector get_column_means(arma::mat X){
 //' @usage get_column_sums(X)
 //' @param X a matrix.
 //' @return a vector of standard deviation values. 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -97,8 +93,8 @@ NumericVector get_column_sums(arma::mat X){
 //' @usage 
 //' opls_for_projection(X, Y, ncomp, scale,
 //'                     maxiter, tol,
-//'                     pcSelmethod = "cumvar",
-//'                     pcSelvalue = 0.99)
+//'                     pcSelmethod = "var",
+//'                     pcSelvalue = 0.01)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
@@ -139,7 +135,6 @@ NumericVector get_column_sums(arma::mat X){
 //' and \code{Xscale}}. 
 //' \item{\code{weights}}{ the matrix of wheights.}
 //' }
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -150,8 +145,8 @@ List opls_for_projection(arma::mat X,
                          bool scale,            
                          double maxiter,
                          double tol,
-                         String pcSelmethod = "cumvar",
-                         double pcSelvalue = 0.99
+                         String pcSelmethod = "var",
+                         double pcSelvalue = 0.01
 ){
   
   int ny = Y.n_cols;
@@ -252,8 +247,9 @@ List opls_for_projection(arma::mat X,
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
     explained_var(0,i) = arma::var(scores.col(i));
-    explained_var(1,i) = sum(explained_var.row(0)) / xvar;
-    explained_var(2,i) = explained_var(0,i)/xvar;
+    explained_var(1,i) = explained_var(0,i) / xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
+    
     
     ith_comp = ith_comp + 1;
     
@@ -261,9 +257,9 @@ List opls_for_projection(arma::mat X,
       if (pcSelmethod == "var" || pcSelmethod == "cumvar") {
         bool chk;
         if (pcSelmethod == "cumvar") {
-          chk = explained_var(1,i) > pcSelvalue;
+          chk = explained_var(2,i) > pcSelvalue;
         } else {
-          chk = explained_var(2,i) < pcSelvalue;
+          chk = explained_var(1,i) < pcSelvalue;
         }
         if (chk) {
           ncomp = ith_comp - 1;
@@ -271,19 +267,26 @@ List opls_for_projection(arma::mat X,
           if(i == 0) {
             throw exception("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
           }
+          if (pcSelmethod == "cumvar") {
+            ncomp = ncomp + 1;
+          }
           break;
         }
       } 
     }
   }
   
+ 
+  
+    
   arma::uvec pc_indices;
   if (pcSelmethod != "manual") {
     if (pcSelmethod == "var" || pcSelmethod == "cumvar") {
       if (pcSelmethod == "var") {
-        pc_indices = find(explained_var.row(2) >= pcSelvalue); 
+        pc_indices = find(explained_var.row(1) >= pcSelvalue); 
       } else {
-        pc_indices = find(explained_var.row(1) <= pcSelvalue && explained_var.row(1) > 0); 
+        //pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0);
+        pc_indices = find(explained_var.row(2) > 0); 
       }
       weights = weights.rows(pc_indices);
       coefficients = coefficients.cols(pc_indices);
@@ -385,7 +388,6 @@ List opls_for_projection(arma::mat X,
 //' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
 //' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 //' \item{\code{weights}}{ the matrix of wheights.}} 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -410,15 +412,16 @@ List opls_get_all(arma::mat X,
   arma::mat yex = arma::zeros(ny, ncomp);
   arma::mat Xscale;
   arma::mat x_scale_vec;
+  arma::mat x_center_vec;
   arma::mat Xz = X;
   
-  if(scale){
+  if (scale) {
     Xscale = arma::repmat(Rcpp::as<arma::mat>(get_column_sds(Xz)), Xz.n_rows, 1);
     Xz = Xz / Xscale;
     x_scale_vec =  Xscale.row(0);
   }
-  x_scale_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
-  Xz = Xz - arma::repmat(x_scale_vec, Xz.n_rows, 1);
+  x_center_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
+  Xz = Xz - arma::repmat(x_center_vec, Xz.n_rows, 1);
   
   arma::mat Xpls = Xz;
   arma::mat Ypls = Y;
@@ -490,8 +493,8 @@ List opls_get_all(arma::mat X,
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
     explained_var(0,i) = arma::var(scores.col(i));
-    explained_var(1,i) = sum(explained_var.row(0)) / xvar;
-    explained_var(2,i) = explained_var(0,i)/xvar;
+    explained_var(1,i) = explained_var(0,i)/xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
   }
   // convert this to standard deviation
   explained_var.row(0) = sqrt(explained_var.row(0));
@@ -542,7 +545,7 @@ List opls_get_all(arma::mat X,
       expvar = arma::var(expvar, 0, 0);
       sratio.row(j) = expvar/resvar ;
       // compute the intercept
-      y_hat_mean = x_scale_vec * coefficients.col(idx);
+      y_hat_mean = x_center_vec * coefficients.col(idx);
       y_hat_mean_vec = arma::vectorise(y_hat_mean);
       bo(k, j) = ymean_vec(k) - y_hat_mean_vec(0);
       idx = idx + 1;
@@ -584,7 +587,7 @@ List opls_get_all(arma::mat X,
       Rcpp::Named("y_var") = yex
     ),
     Rcpp::Named("transf") = Rcpp::List::create(
-      Rcpp::Named("Xcenter") = x_scale_vec,
+      Rcpp::Named("Xcenter") = x_center_vec,
       Rcpp::Named("Xscale") = x_scale_vec
     ),
     _["weights"] = weights
@@ -620,7 +623,6 @@ List opls_get_all(arma::mat X,
 //' \item{\code{Y}}{ the \code{Y} input.}
 //' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 //' \item{\code{weights}}{ the matrix of wheights.}} 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -643,6 +645,7 @@ List opls(arma::mat X,
   arma::mat bo = arma::zeros(ny, ncomp);
   arma::mat Xscale;
   arma::mat x_scale_vec;
+  arma::mat x_center_vec;
   arma::mat Xz = X;
   
   if (scale) {
@@ -650,8 +653,8 @@ List opls(arma::mat X,
     Xz = Xz / Xscale;
     x_scale_vec =  Xscale.row(0);
   }
-  x_scale_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
-  Xz = Xz - arma::repmat(x_scale_vec, Xz.n_rows, 1);
+  x_center_vec = Rcpp::as<arma::mat>(get_column_means(Xz));
+  Xz = Xz - arma::repmat(x_center_vec, Xz.n_rows, 1);
   
   // matrices to declare
   arma::mat Xpls = Xz;
@@ -731,7 +734,7 @@ List opls(arma::mat X,
     arma::mat jth_loading = Yloadings.col(k);
     for (int j = 0; j < ncomp; j++) {
       coefficients.col(idx) = projection_matrix.cols(0, j) * jth_loading.rows(0, j);
-      y_hat_mean = x_scale_vec * coefficients.col(idx);
+      y_hat_mean = x_center_vec * coefficients.col(idx);
       y_hat_mean_vec = arma::vectorise(y_hat_mean);
       bo(k, j) = ymean_vec(k) - y_hat_mean_vec(0);
       idx = idx + 1;
@@ -748,7 +751,7 @@ List opls(arma::mat X,
     Rcpp::Named("projection_mat") = projection_matrix,
     Rcpp::Named("Y") = Y,
     Rcpp::Named("transf") = Rcpp::List::create(
-      Rcpp::Named("Xcenter") = x_scale_vec,
+      Rcpp::Named("Xcenter") = x_center_vec,
       Rcpp::Named("Xscale") = x_scale_vec
     ),
     _["weights"] = weights
@@ -778,7 +781,6 @@ List opls(arma::mat X,
 //' \item{\code{projection_mat}}{ the projection matrix.}
 //' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 //' } 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -926,7 +928,6 @@ List opls_get_basics(arma::mat X,
 //' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
 //' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
 //' @return a matrix of predicted values.
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -938,14 +939,15 @@ Rcpp::NumericMatrix predict_opls(arma::mat bo,
                                  bool scale,
                                  arma::mat Xscale
 ){
-  arma::mat Xz; 
-  
+
   if (scale) {
-    Xz = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
-  } else {
-    Xz = newdata;
-  }
-  arma::mat predicted = (Xz * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), Xz.n_rows, 1);
+    newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
+  } 
+  
+  // Not Necessary to center since b0 is used
+  // Xz = Xz - arma::repmat(Xcenter, newdata.n_rows, 1);
+
+  arma::mat predicted = (newdata * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), newdata.n_rows, 1);
   return Rcpp::wrap(predicted);
 }
 
@@ -962,17 +964,16 @@ Rcpp::NumericMatrix predict_opls(arma::mat bo,
 //' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
 //' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
 //' @return a matrix corresponding to the new spectra projected onto the PLS space 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix project_opls(arma::mat projection_mat, 
-                               int ncomp, 
-                               arma::mat newdata,
-                               bool scale,
-                               arma::mat Xcenter,
-                               arma::mat Xscale
+                                 int ncomp, 
+                                 arma::mat newdata,
+                                 bool scale,
+                                 arma::mat Xcenter,
+                                 arma::mat Xscale
 ){
   
   if(scale){
@@ -994,7 +995,6 @@ Rcpp::NumericMatrix project_opls(arma::mat projection_mat,
 //' @param projection_mat the projection matrix generated by the \code{opls_get_basics} function.
 //' @param xloadings the loadings matrix generated by the \code{opls_get_basics} function.
 //' @return a matrix of 1 row and 1 column.
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -1033,7 +1033,6 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
 //' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
 //' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
 //' @return a matrix of one row with the weights for each component between the max. and min. specified. 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -1065,7 +1064,7 @@ Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat,
     arma::mat xrec = sc.cols(0,i) * xloadings.rows(0,i);
     xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
   }
-
+  
   arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
   arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
   arma::mat whgtn = pow(rmsb_x, -1);
@@ -1103,23 +1102,22 @@ Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat,
 //' \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
 //' \item{\code{rsq_seg}}{ the coefficients of determination.}
 //' } 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List opls_cv_cpp(arma::mat X, 
-                arma::mat Y, 
-                bool scale,
-                String method,
-                arma::mat mindices,
-                arma::mat pindices,
-                int min_component,
-                int ncomp,
-                arma::mat new_x,
-                double maxiter, 
-                double tol,
-                arma::mat wapls_grid
+                 arma::mat Y, 
+                 bool scale,
+                 String method,
+                 arma::mat mindices,
+                 arma::mat pindices,
+                 int min_component,
+                 int ncomp,
+                 arma::mat new_x,
+                 double maxiter, 
+                 double tol,
+                 arma::mat wapls_grid
 ){
   arma::mat rmseseg;
   arma::mat strmseseg;
@@ -1170,10 +1168,10 @@ List opls_cv_cpp(arma::mat X,
       
       ypred = Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                fit["coefficients"], 
-                                               ncomp, 
-                                               pxmatslice,
-                                               scale,
-                                               transf["Xscale"]));
+                                                  ncomp, 
+                                                  pxmatslice,
+                                                  scale,
+                                                  transf["Xscale"]));
       
       arma::mat rdl = sqrt(get_column_means(pow(rpymatslice - ypred, 2)));
       rmseseg.col(i) = rdl;
@@ -1196,14 +1194,14 @@ List opls_cv_cpp(arma::mat X,
     
     compweights = arma::zeros(1, ncomp);
     compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
-                                                             cfit["X_loadings"],
-                                                                 cfit["coefficients"],
-                                                                     new_x,
-                                                                     min_component, 
-                                                                     ncomp, 
-                                                                     scale,
-                                                                     ctransf["Xcenter"],
-                                                                            ctransf["Xscale"]));
+                                                                      cfit["X_loadings"],
+                                                                          cfit["coefficients"],
+                                                                              new_x,
+                                                                              min_component, 
+                                                                              ncomp, 
+                                                                              scale,
+                                                                              ctransf["Xcenter"],
+                                                                                     ctransf["Xscale"]));
     
     arma::mat rcompweights = arma::repmat(compweights, pindices.n_rows, 1);
     
@@ -1243,10 +1241,10 @@ List opls_cv_cpp(arma::mat X,
       
       nypred = Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                 fit["coefficients"], 
-                                                ncomp, 
-                                                pxmatslice,
-                                                scale,
-                                                transf["Xscale"]));
+                                                   ncomp, 
+                                                   pxmatslice,
+                                                   scale,
+                                                   transf["Xscale"]));
       ypred = arma::sum(rcompweights % nypred, 1);
       
       arma::mat rdl = sqrt(get_column_means(pow(pymatslice - ypred, 2)));
@@ -1269,14 +1267,14 @@ List opls_cv_cpp(arma::mat X,
     
     compweights = arma::zeros(1, ncomp);
     compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
-                                                             cfit["X_loadings"],
-                                                                 cfit["coefficients"],
-                                                                     new_x,
-                                                                     min_component, 
-                                                                     ncomp, 
-                                                                     scale,
-                                                                     ctransf["Xcenter"],
-                                                                            ctransf["Xscale"]));
+                                                                      cfit["X_loadings"],
+                                                                          cfit["coefficients"],
+                                                                              new_x,
+                                                                              min_component, 
+                                                                              ncomp, 
+                                                                              scale,
+                                                                              ctransf["Xcenter"],
+                                                                                     ctransf["Xscale"]));
     
     crcompweights = arma::zeros(wapls_grid.n_rows, ncomp); 
     for(int i = 0; (unsigned)i < crcompweights.n_rows; i++){
@@ -1329,10 +1327,10 @@ List opls_cv_cpp(arma::mat X,
       
       nypred = (Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                  fit["coefficients"], 
-                                                 ncomp, 
-                                                 pxmatslice,
-                                                 scale,
-                                                 transf["Xscale"])));
+                                                    ncomp, 
+                                                    pxmatslice,
+                                                    scale,
+                                                    transf["Xscale"])));
       
       ypred = nypred * trans(crcompweights);
       
@@ -1379,15 +1377,14 @@ List opls_cv_cpp(arma::mat X,
 //' \item{\code{Ycenter}}{ if matrix of predictors was scaled, the centering vector used for \code{Y}.}
 //' \item{\code{Yscale}}{ if matrix of predictors was scaled, the scaling vector used for \code{Y}.}
 //' }
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List gaussian_process(arma::mat X, 
-           arma::mat Y, 
-           float noisev = 0.001,
-           bool scale = true
+                      arma::mat Y, 
+                      float noisev = 0.001,
+                      bool scale = true
 ){
   
   // matrices to declare
@@ -1454,19 +1451,18 @@ List gaussian_process(arma::mat X,
 //' @param Ycenter if \code{center = TRUE} a matrix of one row with the values that must be used for accounting for the centering of the response variable.
 //' @param Yscale if \code{scale = TRUE} a matrix of one row with the values that must be used  for accounting for the scaling of the response variable.
 //' @return a matrix of predicted values
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
 NumericVector predict_gaussian_process(arma::mat Xz, 
-                        arma::mat alpha, 
-                        arma::mat newdata,
-                        bool scale,
-                        arma::mat Xcenter,
-                        arma::mat Xscale,
-                        arma::mat Ycenter,
-                        arma::mat Yscale
+                                       arma::mat alpha, 
+                                       arma::mat newdata,
+                                       bool scale,
+                                       arma::mat Xcenter,
+                                       arma::mat Xscale,
+                                       arma::mat Ycenter,
+                                       arma::mat Yscale
 ){
   
   arma::mat newdatatr = newdata;
@@ -1506,17 +1502,16 @@ NumericVector predict_gaussian_process(arma::mat Xz,
 //' \item{\code{st.rmse.seg}}{ the standardized RMSEs.}
 //' \item{\code{rsq.seg}}{ the coefficients of determination.}
 //' } 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List gaussian_process_cv(arma::mat X, 
-               arma::mat Y, 
-               arma::mat mindices,
-               arma::mat pindices,
-               float noisev = 0.001,
-               bool scale = true
+                         arma::mat Y, 
+                         arma::mat mindices,
+                         arma::mat pindices,
+                         float noisev = 0.001,
+                         bool scale = true
 ){
   
   arma::mat rmseseg = arma::zeros(1, mindices.n_cols);
@@ -1578,8 +1573,8 @@ List gaussian_process_cv(arma::mat X,
 //' @usage 
 //' pca_nipals(X, ncomp, center, scale,
 //'            maxiter, tol,
-//'            pcSelmethod = "cumvar",
-//'            pcSelvalue = 0.99)
+//'            pcSelmethod = "var",
+//'            pcSelvalue = 0.01)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
@@ -1589,13 +1584,13 @@ List gaussian_process_cv(arma::mat X,
 //' @param pcSelmethod the method for selecting the number of components. 
 //' Options are: \code{'cumvar'} (for selecting the number of principal components based on a given 
 //' cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
-//' components based on a given amount of explained variance). Default is \code{'cumvar'}
+//' components based on a given amount of explained variance). Default is \code{'var'}
 //' @param pcSelvalue a numerical value that complements the selected method (\code{pcSelmethod}). 
 //' If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum 
 //' amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
 //' it must be a value (larger than 0 and below 1) indicating that components that explain (individually) 
 //' a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
-//' specifying the desired number of principal components to retain. Default is 0.99.
+//' specifying the desired number of principal components to retain. Default is 0.01.
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{pc_scores}}{ a matrix of principal component scores.}
@@ -1603,7 +1598,6 @@ List gaussian_process_cv(arma::mat X,
 //' \item{\code{variance}}{ a matrix of the variance of the principal components.} 
 //' \item{\code{scale}}{ a \code{list} conating two objects: \code{center} and \code{scale}, which correspond to the vectors used to center and scale the input matrix.} 
 //' } 
-//' @useDynLib resemble
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -1614,8 +1608,8 @@ List pca_nipals(arma::mat X,
                 bool scale,            
                 double maxiter,
                 double tol,
-                String pcSelmethod = "cumvar",
-                double pcSelvalue = 0.99
+                String pcSelmethod = "var",
+                double pcSelvalue = 0.01
 ){
   
   arma::mat Xscale;
@@ -1673,18 +1667,18 @@ List pca_nipals(arma::mat X,
     pc_scores.col(i) = tt.col(0);
     pc_loadings.col(i) = pp_std.col(0);
     explained_var(0,i) = arma::var(pc_scores.col(i));
-    explained_var(1,i) = sum(explained_var.row(0)) / xvar;
-    explained_var(2,i) = explained_var(0,i)/xvar;
+    explained_var(1,i) = explained_var(0,i) / xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
     
     ith_comp = ith_comp + 1;
     if(pcSelmethod == "var" || pcSelmethod == "cumvar")
     {
       bool chk;
       if(pcSelmethod == "cumvar"){
-        chk = explained_var(1,i) > pcSelvalue;
+        chk = explained_var(2,i) > pcSelvalue;
       }
       else{
-        chk = explained_var(2,i) < pcSelvalue;
+        chk = explained_var(1,i) < pcSelvalue;
       }
       if(chk)
       {
@@ -1702,7 +1696,7 @@ List pca_nipals(arma::mat X,
   arma::uvec pc_indices;
   if(pcSelmethod == "var") 
   {
-    pc_indices = find(explained_var.row(2) >= pcSelvalue); 
+    pc_indices = find(explained_var.row(1) >= pcSelvalue); 
     pc_scores = pc_scores.cols(pc_indices);
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
@@ -1710,12 +1704,14 @@ List pca_nipals(arma::mat X,
   
   if(pcSelmethod == "cumvar") 
   {
-    pc_indices = find(explained_var.row(1) <= pcSelvalue && explained_var.row(1) > 0); 
+    //pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
+    pc_indices = find(explained_var.row(2) > 0); 
     pc_scores = pc_scores.cols(pc_indices);
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
   }
-  
+  // convert this to standard deviation
+  explained_var.row(0) = sqrt(explained_var.row(0));
   
   return Rcpp::List::create(
     Rcpp::Named("pc_indices") = pc_indices,

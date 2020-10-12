@@ -7,7 +7,7 @@ projections (ortho_diss)}
 \usage{
 ortho_diss(Xr, Xu = NULL,
            Yr = NULL,
-           pc_selection = list(method = "cumvar", value = 0.99),
+           pc_selection = list(method = "var", value = 0.01),
            diss_method = "pca",
            .local = FALSE,
            pre_k,
@@ -60,14 +60,14 @@ method). The methods available are:
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the maximum amount of cumulative variance that the
-       retained components should explain.}
+       indicating the minimum amount of cumulative variance that the 
+       combination of retained components should explain.}
 
        \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a component should
-       explain in order to be retained.}
+       indicating the minimum amount of variance that a single component 
+       should explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
@@ -75,12 +75,12 @@ method). The methods available are:
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+The default list passed is \code{list(method = "var", value = 0.01)}.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such case, the default \code{"value"} when either \code{"opc"} or
 \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 \code{"value"} is set to 0.01.}
 
 \item{diss_method}{a character value indicating the type of projection on which
@@ -149,7 +149,7 @@ a \code{list} of class \code{ortho_diss} with the following elements:
  between each target observation and its neighbor observations.}
  \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If
  \code{.local = FALSE} a distance matrix. If \code{.local = TRUE} a matrix of
- class \code{localortho_diss}. In this case, each column represent the dissimilarity
+ class \code{local_ortho_diss}. In this case, each column represent the dissimilarity
  between a target observation and its neighbor observations.}
  \item{\code{projection}}{if \code{return_projection = TRUE},
  an \code{ortho_projection} object.}
@@ -172,7 +172,7 @@ observation, a given set of nearest neighbors (\code{pre_k}) are identified.
 These neighbors (together with the target observation) are projected
 (from the original data space) onto a (local) orthogonal space (using the
 same parameters specified in the function). In this projected space the
-Mahalanobis distance between the target observation and the neighbors is
+Mahalanobis distance between the target observation and its neighbors is
 recomputed. A missing value is assigned to the observations that do not belong to
 this set of neighbors (non-neighbor observations).
 In this case the dissimilarity matrix cannot be considered as a distance
@@ -245,5 +245,5 @@ with soil vis-NIR spectra. Geoderma 199, 43-53.
 \code{\link{ortho_projection}}, \code{\link{sim_eval}}
 }
 \author{
-Leonardo Ramirez-Lopez
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 }

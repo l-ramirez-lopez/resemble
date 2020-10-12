@@ -21,5 +21,5 @@ Extract predictions from an object of class \code{mbl}
 \code{\link{mbl}}
 }
 \author{
-Leonardo Ramirez-Lopez and Antoine Stevens
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and Antoine Stevens
 }

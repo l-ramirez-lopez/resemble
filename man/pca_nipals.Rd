@@ -6,8 +6,8 @@
 \usage{
 pca_nipals(X, ncomp, center, scale,
            maxiter, tol,
-           pcSelmethod = "cumvar",
-           pcSelvalue = 0.99)
+           pcSelmethod = "var",
+           pcSelvalue = 0.01)
 }
 \arguments{
 \item{X}{a matrix of predictor variables.}
@@ -23,14 +23,14 @@ pca_nipals(X, ncomp, center, scale,
 \item{pcSelmethod}{the method for selecting the number of components. 
 Options are: \code{'cumvar'} (for selecting the number of principal components based on a given 
 cumulative amount of explained variance) and \code{"var"} (for selecting the number of principal 
-components based on a given amount of explained variance). Default is \code{'cumvar'}}
+components based on a given amount of explained variance). Default is \code{'var'}}
 
 \item{pcSelvalue}{a numerical value that complements the selected method (\code{pcSelmethod}). 
 If \code{"cumvar"} is chosen, it must be a value (larger than 0 and below 1) indicating the maximum 
 amount of cumulative variance that the retained components should explain. If \code{"var"} is chosen, 
 it must be a value (larger than 0 and below 1) indicating that components that explain (individually) 
 a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value 
-specifying the desired number of principal components to retain. Default is 0.99.}
+specifying the desired number of principal components to retain. Default is 0.01.}
 
 \item{Y}{a matrix of either a single or multiple response variables.}
 }

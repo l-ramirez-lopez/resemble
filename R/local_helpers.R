@@ -46,7 +46,7 @@ get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
     k_diss_max <- k_range <- k_diss <- NULL
   }
 
-  if_else(is_local, return_diss <- FALSE, return_diss <- return_dissimilarity)
+  ifelse(is_local, return_diss <- FALSE, return_diss <- return_dissimilarity)
   # use do.call to be able to change local to FALSE in ... (if provided)
   info_neighbors <- do.call(
     search_neighbors,
@@ -132,174 +132,6 @@ get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
   info_neighbors
 }
 
-#' @title A function to create the sample sets for calibration/validation in
-#' cross-validation.
-#' @description for internal use only! This is stratified sampling based on the
-#' values of a continous response variable (y). If group is provided, the
-#' sampling is done based on the groups and the average of y per group. This
-#' function is used to create groups forleave-group-out cross-validations (or
-#' leave-group-of-groups-out cross-validation if group argument is provided).
-#' @param y a matrix of one column with the response variable.
-#' @param p the percentage of samples (or groups if group argument is used) to
-#' retain in the hold_in set
-#' @param number the number of sample groups to be crated
-#' @param group the labels for each sample in \code{y} indicating the group each
-#' observation belongs to.
-#' @return a list with two matrices (\code{hold_in} and \code{hold_out}) giving
-#' the indices of the observations in each column. The number of colums represents
-#' the number of sampling repetitions.
-#' @keywords internal
-sample_str <- function(y, p, number, group = NULL) {
-  if (is.null(group)) {
-    nv <- floor((1 - p) * nrow(y))
-    nv <- ifelse(nv < 1, 1, nv)
-    y_strata <- unique(quantile(y,
-      probs = seq(0, 1, length = (nv + 1)),
-      names = FALSE
-    ))
-    y_cuts <- cut(y,
-      breaks = y_strata,
-      labels = 1:(length(y_strata) - 1),
-      include.lowest = TRUE
-    )
-    strata_category <- data.table(
-      original_order = 1:length(y),
-      strata = y_cuts
-    )
-
-    hold_out <- matrix(NA, nv, number)
-    hold_in <- matrix(NA, nrow(y) - nv, number)
-    colnames(hold_out) <- colnames(hold_in) <- paste0(
-      "Resample_",
-      seq(1:number)
-    )
-    rownames(hold_out) <- paste0("index_", seq(1:nv))
-    rownames(hold_in) <- paste0("index_", seq(1:nrow(hold_in)))
-
-    indcs <- 1:nrow(y)
-
-    for (jj in 1:number) {
-      strata_samples <- sort(tapply(
-        X = strata_category$original_order,
-        FUN = function(x) {
-          if (length(x) == 1) {
-            # this is required to keep the name of the
-            # strata, otherwise it fails
-            x <- c(x, x)
-          }
-          sample(x, size = 1)
-        },
-        INDEX = strata_category$strata
-      ))
-      if (length(strata_samples) < nv) {
-        adds <- sample(
-          (1:length(y))[-strata_samples],
-          nv - length(strata_samples)
-        )
-        strata_samples <- c(strata_samples, adds)
-      }
-      hold_out[, jj] <- strata_samples
-      hold_in[, jj] <- indcs[!indcs %in% strata_samples]
-    }
-  } else {
-    y_groups <- data.table(
-      y = y,
-      group = factor(group),
-      original_order = 1:length(y)
-    )
-    gr_levels <- levels(y_groups$group)
-    n_levels <- nlevels(y_groups$group)
-    # Compute means per group and make the stratified sampling based on that
-    # vector of means
-    aggregated_y <- tapply(
-      X = y_groups$y,
-      INDEX = y_groups$group,
-      FUN = mean
-    )
-
-    nv <- floor((1 - p) * n_levels)
-    nv <- ifelse(nv < 1, 1, nv)
-    y_strata <- quantile(aggregated_y,
-      probs = seq(0, 1, length = (nv + 1)),
-      names = FALSE
-    )
-    y_cuts <- cut(aggregated_y,
-      breaks = unique(y_strata),
-      labels = paste0("l_", 1:(length(y_strata) - 1)),
-      include.lowest = TRUE
-    )
-    strata_category <- data.table(
-      original_order = 1:length(aggregated_y),
-      strata = factor(y_cuts)
-    )
-
-    hold_out <- matrix(0, nv, number)
-    colnames(hold_out) <- paste0("Resample_", seq(1:number))
-    rownames(hold_out) <- paste0("index_", seq(1:nv))
-
-    list_hold_out <- list_hold_in <- NULL
-    for (jj in 1:number) {
-      strata_samples <- tapply(strata_category$original_order,
-        FUN = function(x) {
-          if (length(x) == 1) {
-            # this is required to keep the name of the
-            # strata, otherwise it fails
-            x <- c(x, x)
-          }
-          sample(x, size = 1)
-        },
-        INDEX = strata_category$strata
-      )
-
-      if (length(strata_samples) < nv) {
-        adds <- sample(
-          (1:nrow(strata_category))[-strata_samples],
-          nv - length(strata_samples)
-        )
-        strata_samples <- c(strata_samples, adds)
-      }
-
-      strata_samples <- gr_levels[strata_samples]
-
-      list_hold_out[[jj]] <- y_groups$original_order[y_groups$group %in% strata_samples]
-      list_hold_in[[jj]] <- y_groups$original_order[!y_groups$group %in% strata_samples]
-    }
-
-    lengths_list_hold_out <- lengths(list_hold_out)
-    lengths_list_hold_in <- lengths(list_hold_in)
-    hold_out <- matrix(NA, max(lengths_list_hold_out), number)
-    hold_in <- matrix(NA, max(lengths_list_hold_in), number)
-    colnames(hold_out) <- colnames(hold_in) <- paste0(
-      "Resample_",
-      seq(1:number)
-    )
-    rownames(hold_out) <- paste0("index_", 1:nrow(hold_out))
-    rownames(hold_in) <- paste0("index_", 1:nrow(hold_in))
-    indcs <- 1:nrow(y)
-    for (jj in 1:number) {
-      ## ramdomly select the replacements for the missing indexes
-      ## replacements are necessary!
-      jj_add_list_hold_out <- sample(list_hold_out[[jj]],
-        size = max(lengths_list_hold_out) - lengths_list_hold_out[jj],
-        replace = TRUE
-      )
-      jj_add_list_hold_in <- sample(list_hold_in[[jj]],
-        size = max(lengths_list_hold_in) - lengths_list_hold_in[jj],
-        replace = TRUE
-      )
-
-      hold_out[1:lengths_list_hold_out[jj], jj] <- list_hold_out[[jj]]
-      hold_in[1:lengths_list_hold_in[jj], jj] <- list_hold_in[[jj]]
-      hold_out[-(1:lengths_list_hold_out[jj]), jj] <- jj_add_list_hold_out
-      hold_in[-(1:lengths_list_hold_in[jj]), jj] <- jj_add_list_hold_in
-    }
-  }
-  list(
-    hold_out = hold_out,
-    hold_in = hold_in
-  )
-}
-
 #' @title Cross validation for PLS regression
 #' @description for internal use only!
 #' @keywords internal
@@ -320,11 +152,12 @@ pls_cv <- function(x, y, ncomp,
   if (min_allowed < ncomp) {
     ncomp <- min_allowed
   }
-  cv_samples <- sample_str(
+  cv_samples <- sample_stratified(
     y = y,
     p = p,
     number = number,
-    group = group
+    group = group, 
+    replacement = FALSE
   )
 
   if (method == "wapls" & retrieve & tune) {
@@ -515,7 +348,7 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
     new_x = new_x,
     min_component = min_component,
     max_component = max_component,
-    scale = if_else(nrow(pls_model$transf$Xscale) == 1, TRUE, FALSE),
+    scale = ifelse(nrow(pls_model$transf$Xscale) == 1, TRUE, FALSE),
     Xcenter = pls_model$transf$Xcenter,
     Xscale = pls_model$transf$Xscale
   )[1, ]
@@ -982,11 +815,12 @@ gaussian_pr_cv <- function(x,
                            retrieve = c("final_model", "none")) {
 
   ## Create the resampling groups
-  cv_samples <- sample_str(
+  cv_samples <- sample_stratified(
     y = y,
     p = p,
     number = number,
-    group = group
+    group = group,
+    replacement = FALSE
   )
 
   cv_results <- gaussian_process_cv(

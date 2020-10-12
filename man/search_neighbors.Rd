@@ -8,7 +8,7 @@ another given set of observations (search_neighbors)}
 search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "cor",
                                          "euclid", "cosine", "sid"),
                  Yr = NULL, k, k_diss, k_range, spike = NULL,
-                 pc_selection = list("cumvar", 0.99),
+                 pc_selection = list("var", 0.01),
                  return_projection = FALSE, return_dissimilarity = FALSE,
                  ws = NULL,
                  center = TRUE, scale = FALSE,
@@ -90,7 +90,7 @@ to be retained. This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} {optimized principal component selection based on
+       \item{\code{"opc"}:} { optimized principal component selection based on
        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
        (of set of observations) is the one for which its distance matrix
        minimizes the differences between the \code{Yr} value of each
@@ -100,17 +100,17 @@ method). The methods available are:
        number of principal components to be tested. See the
        \code{\link{ortho_projection}} function for more details.}
 
-       \item{\code{"cumvar"}:}{selection of the principal components based
+       \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the maximum amount of cumulative variance that the
-       retained components should explain.}
+       indicating the minimum amount of cumulative variance that the 
+       combination of retained components should explain.}
 
-       \item{\code{"var"}:}{selection of the principal components based
+       \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a component should
-       explain in order to be retained.}
+       indicating the minimum amount of variance that a single component 
+       should explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
@@ -118,12 +118,12 @@ method). The methods available are:
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+The default list passed is \code{list(method = "var", value = 0.01)}.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
 \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 \code{"value"} is set to 0.01.}
 
 \item{return_projection}{a logical indicating if the projection(s) must be
@@ -211,11 +211,11 @@ used to reduce the size of the reference set before before  running the
 \code{\link{mbl}} function.
 
 This function uses the \code{\link{dissimilarity}} fucntion to compute the
-dissimilarities between code{Xr} and \code{Xu}. Arguments to
+dissimilarities between \code{Xr} and \code{Xu}. Arguments to
 \code{\link{dissimilarity}} as well as further arguments to the functions
 used inside \code{\link{dissimilarity}} (i.e. \code{\link{ortho_diss}}
 \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}) can be passed to
-those functions by using \code{...}.
+those functions as additional arguments (i.e. \code{...}).
 }
 \examples{
 \dontrun{
@@ -297,5 +297,5 @@ metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
  \code{\link{mbl}}
 }
 \author{
-Leonardo Ramirez-Lopez
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 }

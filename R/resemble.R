@@ -10,7 +10,7 @@
 #' @importFrom lifecycle deprecate_soft
 ## usethis namespace: end
 #' @importFrom magrittr %>%
-#' @importFrom dplyr mutate rename if_else select
+#' @importFrom dplyr if_else select
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats model.frame model.matrix model.extract na.fail sd reshape
 #' @description
@@ -27,7 +27,10 @@
 #' modeling complex spectral spectra (e.g. NIR, IR).
 #' The package includes functions for dimensionality reduction,
 #' computing spectral dissimilarity matrices, nearest neighbor search,
-#' and modeling spectral data using memory-based learning.
+#' and modeling spectral data using memory-based learning. 
+#' 
+#' Development versions can be found in the github repository of the package 
+#' at \href{https://github.com/l-ramirez-lopez/resemble}{https://github.com/l-ramirez-lopez/resemble}.
 #'
 #' The functions available for dimensionality reduction are:
 #' \itemize{
@@ -66,18 +69,19 @@
 #' @name resemble-package
 #' @aliases resemble-package resemble
 #' @title Overview of the functions in the resemble package
-#' @author
-#' Leonardo Ramirez-Lopez  
+#' @author 
 #' 
-#' Antoine Stevens 
+#' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} <ramirez.lopez.leo@@gmail.com> [aut, cre]
 #' 
-#' Raphael Viscarra Rossel 
+#' \href{https://orcid.org/0000-0002-1588-7519}{Antoine Stevens} [ctb] 
 #' 
-#' Craig Lobsey 
+#' \href{https://orcid.org/0000-0003-1540-4748}{Raphael Viscarra Rossel} [ctb] 
 #' 
-#' Alex Wadoux 
+#' \href{https://orcid.org/0000-0001-5416-8640}{Craig Lobsey} [ctb] 
 #' 
-#' Timo Breure 
+#' \href{https://orcid.org/0000-0001-7325-9716}{Alex Wadoux} [ctb] 
+#' 
+#' \href{https://orcid.org/0000-0001-5695-8064}{Timo Breure} [ctb] 
 ######################################################################
 # resemble
 # Copyright (C) 2020 Leonardo Ramirez-Lopez
@@ -92,6 +96,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 ######################################################################
-
-
 NULL

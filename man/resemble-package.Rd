@@ -17,7 +17,10 @@ implements a number of \code{R} functions useful for
 modeling complex spectral spectra (e.g. NIR, IR).
 The package includes functions for dimensionality reduction,
 computing spectral dissimilarity matrices, nearest neighbor search,
-and modeling spectral data using memory-based learning.
+and modeling spectral data using memory-based learning. 
+
+Development versions can be found in the github repository of the package 
+at \href{https://github.com/l-ramirez-lopez/resemble}{https://github.com/l-ramirez-lopez/resemble}.
 
 The functions available for dimensionality reduction are:
 \itemize{
@@ -54,15 +57,15 @@ Other supplementary functions:
   }
 }
 \author{
-Leonardo Ramirez-Lopez  
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} <ramirez.lopez.leo@gmail.com> [aut, cre]
 
-Antoine Stevens 
+\href{https://orcid.org/0000-0002-1588-7519}{Antoine Stevens} [ctb] 
 
-Raphael Viscarra Rossel 
+\href{https://orcid.org/0000-0003-1540-4748}{Raphael Viscarra Rossel} [ctb] 
 
-Craig Lobsey 
+\href{https://orcid.org/0000-0001-5416-8640}{Craig Lobsey} [ctb] 
 
-Alex Wadoux 
+\href{https://orcid.org/0000-0001-7325-9716}{Alex Wadoux} [ctb] 
 
-Timo Breure
+\href{https://orcid.org/0000-0001-5695-8064}{Timo Breure} [ctb]
 }

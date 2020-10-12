@@ -121,7 +121,7 @@ This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} {optimized principal component selection based on
+       \item{\code{"opc"}:} { optimized principal component selection based on
        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
        (of set of observations) is the one for which its distance matrix
        minimizes the differences between the \code{Yr} value of each
@@ -131,17 +131,17 @@ method). The methods available are:
        number of principal components to be tested. See the
        \code{\link{ortho_projection}} function for more details.}
 
-       \item{\code{"cumvar"}:}{selection of the principal components based
+       \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the maximum amount of cumulative variance that the
-       retained components should explain.}
+       indicating the minimum amount of cumulative variance that the 
+       combination of retained components should explain.}
 
-       \item{\code{"var"}:}{selection of the principal components based
+       \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a component should
-       explain in order to be retained.}
+       indicating the minimum amount of variance that a single component 
+       should explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
@@ -149,12 +149,12 @@ method). The methods available are:
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+The default list passed is \code{list(method = "opc", value = min(dim(Xr), 40))}.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
 \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used the default
+\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 \code{"value"} is set to 0.01.}
 
 \item{control}{a list created with the \code{\link{mbl_control}} function
@@ -373,25 +373,24 @@ each local segment.
 library(prospectr)
 data(NIRsoil)
 
-# Filter the data using the Savitzky and Golay smoothing filter with
-# a window size of 11 spectral variables and a polynomial order of 3
-# (no differentiation).
-sg <- savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0)
+# Proprocess the data using detrend plus first derivative with Savitzky and
+# Golay smoothing filter
+sg_det <- savitzkyGolay(
+  detrend(NIRsoil$spc,
+          wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1,
+  p = 1,
+  w = 7
+)
 
-# Replace the original spectra with the filtered ones
-NIRsoil$spc <- sg
+NIRsoil$spc_pr <- sg_det
 
-Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
-Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
+# split into training and testing sets
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
-Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
-Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
-
-Xu <- Xu[!is.na(Yu), ]
-Xr <- Xr[!is.na(Yr), ]
-
-Yu <- Yu[!is.na(Yu)]
-Yr <- Yr[!is.na(Yr)]
+train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
 
 # Example 1
 # A mbl implemented in Ramirez-Lopez et al. (2013,
@@ -405,10 +404,13 @@ my_control <- mbl_control(validation_type = "NNv")
 ks <- seq(40, 140, by = 20)
 
 sbl <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
   k = ks,
   method = local_fit_gpr(),
   control = my_control,
+  scale = TRUE
 )
 sbl
 plot(sbl)
@@ -417,10 +419,13 @@ get_predictions(sbl)
 # Example 1.2
 # If Yu is actually known...
 sbl_2 <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_gpr(),
-  control = my_control,
+  control = my_control
 )
 sbl_2
 plot(sbl_2)
@@ -428,12 +433,15 @@ plot(sbl_2)
 # Example 2
 # the LOCAL algorithm (Shenk et al., 1997)
 local_algorithm <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "cor",
   diss_usage = "none",
-  control = my_control,
+  control = my_control
 )
 local_algorithm
 plot(local_algorithm)
@@ -443,44 +451,46 @@ plot(local_algorithm)
 # dissmilarity matrix) and dissimilarity matrix as source of
 # additional preditors
 local_algorithm_2 <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "pca",
   diss_usage = "predictors",
-  control = my_control,
+  control = my_control
 )
 local_algorithm_2
-plot(local_algorithm)
+plot(local_algorithm_2)
 
 # Example 4
 # Running the mbl function in parallel with example 2
-library(future)
-
-n_cores <- availableCores() - 1
+n_cores <- parallel::detectCores() - 1
 if (n_cores == 0) {
   n_cores <- 1
 }
 
-# Set the number of cores according to the OS
-if (.Platform$OS.type == "windows") {
-  library(doParallel)
-  clust <- makeCluster(n_cores)
-  registerDoParallel(clust)
-} else {
-  library(doSNOW)
-  clust <- makeCluster(n_cores, type = "SOCK")
-  registerDoSNOW(clust)
-  getDoParWorkers()
-}
+library(doParallel)
+clust <- makeCluster(n_cores)
+registerDoParallel(clust)
+
+# Alernatively:
+# library(doSNOW)
+# clust <- makeCluster(n_cores, type = "SOCK")
+# registerDoSNOW(clust)
+# getDoParWorkers()
 
 local_algorithm_par <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "cor",
   diss_usage = "none",
-  control = my_control,
+  control = my_control
 )
 local_algorithm_par
 
@@ -490,13 +500,17 @@ try(stopCluster(clust))
 # Example 5
 # Using local pls distances
 with_local_diss <- mbl(
-  Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
   k = ks,
   method = local_fit_wapls(min_pls_c = 3, max_pls_c = 15),
   diss_method = "pls",
   diss_usage = "predictors",
   control = my_control,
-  .local = TRUE, pre_k = 150,
+  .local = TRUE,
+  pre_k = 150,
 )
 with_local_diss
 plot(with_local_diss)
@@ -536,5 +550,5 @@ Infrared Spectroscopy, 5, 223-232.
 \code{\link{search_neighbors}}
 }
 \author{
-Leonardo Ramirez-Lopez and Antoine Stevens
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and Antoine Stevens
 }

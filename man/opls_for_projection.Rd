@@ -6,8 +6,8 @@
 \usage{
 opls_for_projection(X, Y, ncomp, scale,
                     maxiter, tol,
-                    pcSelmethod = "cumvar",
-                    pcSelvalue = 0.99)
+                    pcSelmethod = "var",
+                    pcSelvalue = 0.01)
 }
 \arguments{
 \item{X}{a matrix of predictor variables.}
