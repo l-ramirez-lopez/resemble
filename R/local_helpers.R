@@ -46,7 +46,7 @@ get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
     k_diss_max <- k_range <- k_diss <- NULL
   }
 
-  if_else(is_local, return_diss <- FALSE, return_diss <- return_dissimilarity)
+  ifelse(is_local, return_diss <- FALSE, return_diss <- return_dissimilarity)
   # use do.call to be able to change local to FALSE in ... (if provided)
   info_neighbors <- do.call(
     search_neighbors,
@@ -348,7 +348,7 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
     new_x = new_x,
     min_component = min_component,
     max_component = max_component,
-    scale = if_else(nrow(pls_model$transf$Xscale) == 1, TRUE, FALSE),
+    scale = ifelse(nrow(pls_model$transf$Xscale) == 1, TRUE, FALSE),
     Xcenter = pls_model$transf$Xcenter,
     Xscale = pls_model$transf$Xscale
   )[1, ]
