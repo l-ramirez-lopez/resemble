@@ -473,24 +473,20 @@
 #' 
 #' # Example 4
 #' # Running the mbl function in parallel with example 2
-#' library(future)
-#' 
-#' n_cores <- availableCores() - 1
+#' n_cores <- parallel::detectCores() - 1
 #' if (n_cores == 0) {
 #'   n_cores <- 1
 #' }
 #' 
-#' # Set the number of cores according to the OS
-#' if (.Platform$OS.type == "windows") {
-#'   library(doParallel)
-#'   clust <- makeCluster(n_cores)
-#'   registerDoParallel(clust)
-#' } else {
-#'   library(doSNOW)
-#'   clust <- makeCluster(n_cores, type = "SOCK")
-#'   registerDoSNOW(clust)
-#'   getDoParWorkers()
-#' }
+#' library(doParallel)
+#' clust <- makeCluster(n_cores)
+#' registerDoParallel(clust)
+#'
+#' # Alernatively:
+#' # library(doSNOW)
+#' # clust <- makeCluster(n_cores, type = "SOCK")
+#' # registerDoSNOW(clust)
+#' # getDoParWorkers()
 #' 
 #' local_algorithm_par <- mbl(
 #'   Xr = train_x,
