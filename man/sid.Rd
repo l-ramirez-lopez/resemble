@@ -104,9 +104,9 @@ Kullback-Leibler divergence (\mjeqn{KL}{KL}) or relative entropy
 by each spectrum. The SID between two spectra (\mjeqn{x_{i}}{x_i} and
 \mjeqn{x_{j}}{x_j}) is computed as follows:
 
-\mjdeqn{SID(x_{i},x_{j}) = KL(x_{i} \left |\right | x_{j}) + KL(x_{j} \left |\right | x_{i})}{SID(x_i,x_j) = KL(x_i  |\ | x_j) + KL(x_j  |\ | x_i)}
+\mjdeqn{sid(x_{i},x_{j}) = KL(x_{i} \left |\right | x_{j}) + KL(x_{j} \left |\right | x_{i})}{sid(x_i,x_j) = KL(x_i  |\ | x_j) + KL(x_j  |\ | x_i)}
 
-\mjdeqn{SID(x_{i},x_{j}) = \sum_{l=1}^{k} p_l \ log(\frac{p_l}{q_l}) + \sum_{l=1}^{k} q_l \ log(\frac{q_l}{p_l})}{SID(x_i,x_j) = \sum_{l=1}^{k} p_l \ log(p_l/q_l) + \sum_{l=1}^{k} q_l \ log(q_l/p_l)}
+\mjdeqn{sid(x_{i},x_{j}) = \sum_{l=1}^{k} p_l \ log(\frac{p_l}{q_l}) + \sum_{l=1}^{k} q_l \ log(\frac{q_l}{p_l})}{sid(x_i,x_j) = \sum_{l=1}^{k} p_l \ log(p_l/q_l) + \sum_{l=1}^{k} q_l \ log(q_l/p_l)}
 
 where \mjeqn{k}{k} represents the number of variables or spectral features,
 \mjeqn{p}{p} and \mjeqn{q}{q} are the probability vectors of \mjeqn{x_{i}}{x_i} and

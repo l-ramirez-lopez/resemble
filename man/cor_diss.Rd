@@ -36,17 +36,19 @@ a matrix of the computed dissimilarities.
 Computes correlation and moving correlation dissimilarity matrices.
 }
 \details{
-The correlation dissimilarity \mjeqn{cd}{cd} between two observations
-\mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is computed as follows:
+The correlation dissimilarity \mjeqn{d}{d} between two observations
+\mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's 
+correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as 
+follows:
 
-\mjdeqn{cd(x_i, x_j) = \frac{1}{2}(1 - cor(x_i, x_j))}{cd(x_i, x_j) = 1/2 (1 - cor (x_i, x_j))}
+\mjdeqn{d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))}{d(x_i, x_j) = 1/2 (1 - \rho(x_i, x_j))}
 
-The avobe formlula is used when \code{ws = NULL}.
+The above formula is used when \code{ws = NULL}.
 On the other hand (when \code{ws != NULL}) the moving correlation
-dissimilarity \mjeqn{mcd}{mcd} between two observations \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j}
+dissimilarity between two observations \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j}
 is computed as follows:
 
-\mjdeqn{cd(x_i, x_j; ws) = \frac{1}{2 ws}\sum_{k=1}^{p-ws}1 - cor(x_{i,(k:k+ws)}, x_{j,(k:k+ws)})}{mcd(x_i, x_j) = 1/(2 ws)\sum_(k=1)^{p-ws}(1 - cor(x_(i,k:k+ws), x_(j,k:k+ws)))}
+\mjdeqn{d(x_i, x_j; ws) = \frac{1}{2 ws}\sum_{k=1}^{p-ws}1 - \rho(x_{i,(k:k+ws)}, x_{j,(k:k+ws)})}{d(x_i, x_j) = 1/(2 ws)\sum_(k=1)^{p-ws}(1 - \rho(x_(i,k:k+ws), x_(j,k:k+ws)))}
 
 where \mjeqn{ws}{ws} represents a given window size which rolls sequentially
 from 1 up to \mjeqn{p - ws}{p - ws} and  \mjeqn{p}{p} is the number of

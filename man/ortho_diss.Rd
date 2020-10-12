@@ -245,5 +245,5 @@ with soil vis-NIR spectra. Geoderma 199, 43-53.
 \code{\link{ortho_projection}}, \code{\link{sim_eval}}
 }
 \author{
-Leonardo Ramirez-Lopez
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 }
