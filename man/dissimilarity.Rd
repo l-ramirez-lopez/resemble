@@ -217,5 +217,5 @@ dsm_pca <- dissimilarity(
 \code{\link{sid}}.
 }
 \author{
-Leonardo Ramirez-Lopez
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 }

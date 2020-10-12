@@ -122,5 +122,5 @@ use with soil vis-NIR spectra. Geoderma 199, 43-53.
 \code{\link{ortho_diss}}, \code{\link{mbl}}
 }
 \author{
-Leonardo Ramirez-Lopez and Antoine Stevens
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and Antoine Stevens
 }
