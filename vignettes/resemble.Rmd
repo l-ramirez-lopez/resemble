@@ -67,7 +67,8 @@ The core functionalities of the package include:
 
 # Example dataset
 
-This vignette uses a soil spectroscopic dataset provided in the `prospectr`
+This vignette uses a soil spectroscopic dataset provided in the 
+[package `prospectr`](https://CRAN.R-project.org/package=prospectr)
 package [@stevens2020introduction]. It is a soil spectral library used in the 
 \sQuote{Chimiometrie 2006} challenge by @pierna2008soil. The library contains 
 absorbance spectra of dried and sieved 825 soil observations/samples. These 
@@ -348,7 +349,7 @@ j(i) = NN(xr_i, Xr^{\{-i\}})
 \end{equation}
 
 \begin{equation}
-RMSD = \sqrt{\frac{1}{m} \sum_{i=1}^n {(y_i - y_{j(i)})^2}}
+RMSD = \sqrt{\frac{1}{m} \sum_{i=1}^m {(y_i - y_{j(i)})^2}}
 \end{equation}
 
 where $j(i) = NN(xr_i, Xr^{\{-i\}})$ represents a function to obtain the index 
@@ -396,9 +397,9 @@ rmsd
 # the RSMD for all the components is already available in 
 # ...$opc_evaluation
 pca_tr_opc$opc_evaluation[pca_tr_opc$n_components, , drop = FALSE]
-plot(training$Ciso, 
-     training$Ciso[nearest_n], 
-     xlab = "Ciso, %", ylab = "Ciso of the nearest neighbor, %",
+plot(training$Ciso[nearest_n], 
+     training$Ciso, 
+     ylab = "Ciso of the nearest neighbor, %", xlab = "Ciso, %",
      col = "#D19C17CC", pch = 16)
 grid()
 ```
@@ -593,8 +594,8 @@ To measure the dissimilarity between observations ($x_i$ and $x_j$), the
 Mahalanobis distance is computed on their corresponding projected score vectors 
 ($t_i$ and $t_j$) found in the matrix of scores ($\mathrm T$):
 
-$$D(x_i,x_j) = D(t_i,t_j) = \sqrt{\frac{1}{p}(t_i - t_j) C^{-1}(t_i - t_j)'}$$
-where $p$ is the number of components used, $C^{-1}$ is the inverse of the 
+$$d(x_i,x_j) = d(t_i,t_j) = \sqrt{\frac{1}{z}\sum(t_i - t_j) C^{-1}(t_i - t_j)'}$$
+where $z$ is the number of components used, $C^{-1}$ is the inverse of the 
 covariance matrix computed from the matrix of projected variables for all 
 the observations $\mathrm T$. Since the projected variables are 
 orthogonal to each other, the resulting $C^{-1}$ would be equivalent to a
@@ -716,20 +717,20 @@ local_plsd_tr_ts$dissimilarity[1:10, 1:2]
 ```
 
 ## Correlation dissimilarity 
-Correlation dissimilarity is based on the Pearson's *r* correlation coefficient 
-between observations. The value of Pearson's *r* varies between -1 and 1. A 
+Correlation dissimilarity is based on the Pearson's $\rho$ correlation coefficient 
+between observations. The value of Pearson's $\rho$ varies between -1 and 1. A 
 correlation of 1 indicates between two observations would indicate that they 
 might have identical characteristics (i.e. they are can be considered as highly 
 similar). A value of -1, conversely, would indicate that the two observations 
 are strongly negatively correlated (i.e. the two observations are highly 
-dissimilar). The correlation dissimilarity ($cd$) implemented in the package 
+dissimilar). The correlation dissimilarity implemented in the package 
 scales the values between 0 (highest dissimilarity) and 1 (highest similarity). 
-The $cd$ between two observations $\mathbf{x}_{i}$ and $\mathbf{x}_{j}$ is 
-thus described by:
+To measure $d$ between two observations $\mathbf{x}_{i}$ and $\mathbf{x}_{j}$ 
+based on the correlation dissimilarity the following equation is applied:
 
-$$cd(\mathbf{x}_{i}, \mathbf{x}_{j}) = \frac{1}{2} 1 - r(\mathbf{x}_{i}, \mathbf{x}_{j})$$
+$$d(x_i, x_j) = \frac{1}{2} 1 - \rho(x_i, x_j)$$
 
-Note that $cd$ cannot be considered as a distance metric since it does not 
+Note that $d$ cannot be considered as a distance metric since it does not 
 satisfy the axiom of identity of indiscernibles. Therefore we prefer the use of 
 the term dissimilarity.
 
@@ -752,10 +753,10 @@ cd_tr_ts$dissimilarity
 ```
 
 Alternatively, the correlation dissimilarity can be computed using a moving 
-window. In this respect, a winow size term $w$ is introduced to the original 
-$cd$ equation:
+window. In this respect, a window size term $w$ is introduced to the original 
+$d$ equation:
 
-$$cd(x_i, x_j; w) = \frac{1}{2 w}\sum_{k=1}^{p-w}1 - cor(x_{i,\{k:k+w\}}, x_{j,\{k:k+w\}})$$
+$$d(x_i, x_j; w) = \frac{1}{2 w}\sum_{k=1}^{p-w}1 - \rho(x_{i,\{k:k+w\}}, x_{j,\{k:k+w\}})$$
 
 In this case, the correlation dissimilarity is computed by averaging 
 the moving window correlation measures. The introduction of the window term
@@ -782,9 +783,11 @@ significance. Hence, correlated variables which may represent irrelevant
 features, may have a disproportional influence on the final dissimilarity 
 measurement [brereton2003chemometrics]. Therefore, it is not recommended to 
 use this measure directly on the raw data. To compute the dissimilarity between 
-two obsverations $x_i$ and $x_j$ the package uses the following equation:
+two observations/vectors $x_i$ and $x_j$ the package uses the following equation:
 
-$$D(x_i,x_j) = \sqrt{\frac{1}{d}(x_i - x_j) (x_i - x_j)'}$$
+$$d(x_i,x_j) = \sqrt{\frac{1}{p} \sum(x_i - x_j) (x_i - x_j)'}$$
+where $p$ represents the number of variables. 
+
 With the `dissimilarity()` function the Euclidean dissimilarity can be computed
 as follows:
 ```{r, results = 'hide', eval = FALSE}
@@ -839,7 +842,7 @@ been extensively applied in remote sensing as a tool for unsupervised
 classification and spectral similarity analysis. The cosine dissimilarity
 between two observations ($x_i$ and $x_j$) is calculated as:
 
-$$D (x_i, x_j) = cos^{-1} \tfrac{\sum_{k=1}^{d} x_{i,k} x_{j,k} } {\sqrt{\sum_{k=1}^{d} x_{i,k}^2} \sqrt{\sum_{k=1}^{d} x_{j,k}^2}}$$
+$$d (x_i, x_j) = cos^{-1} \tfrac{\sum_{k=1}^{d} x_{i,k} x_{j,k} } {\sqrt{\sum_{k=1}^{d} x_{i,k}^2} \sqrt{\sum_{k=1}^{d} x_{j,k}^2}}$$
 where $d$ is the number of variables. 
 
 With the `dissimilarity()` function the Euclidean dissimilarity can be computed
@@ -861,7 +864,7 @@ account for the discrepancy between the distributions of two observations
 i.e. $kl (x_i, x_j) \neq kl(x_j, x_i)$, the dissimilarity between $x_i$ and 
 $x_j$ based on this method is computed as:
 
-$$D(x_i, x_j) = kl (x_i, x_j) + kl (x_j, x_i)$$
+$$d(x_i, x_j) = kl (x_i, x_j) + kl (x_j, x_i)$$
 
 The following code can be sued to compute the SID between the training and 
 testing observations:
@@ -1522,7 +1525,7 @@ local_ciso <- mbl(
 
 Now let's explore the `local_ciso` object:
 
-```{r localresultsciso, fig.cap = "MBL results for Total Carbon predictions using the LOCAL algorithm. NNv: nearest-neighbor cross-validation.", fig.align = "center", fig.width = 8, fig.height = 4}
+```{r localresultsciso, fig.cap = "MBL results for Total Carbon predictions using the LOCAL algorithm. NNv: nearest-neighbor cross-validation.", fig.align = "center", fig.width = 8, fig.height = 4.5}
 plot(local_ciso, main = "")
 local_ciso 
 ```
@@ -1836,6 +1839,69 @@ p <- sapply(colnames(preds),
             cols = my_cols,
             rsq = r2s,
             rmse = rmses)
+```
+## Supported parallelism 
+The `mbl()` function uses the `foreach()` function of the [package `foreach`](https://CRAN.R-project.org/package=foreach) for iterating over every 
+row/observation passed to the argument `Xu`. In the following example, 
+we use the [package `doParallel`](https://CRAN.R-project.org/package=doParallel) 
+to set up the cores to be used. Alternatively the  [package `doSNOW`](https://CRAN.R-project.org/package=doSNOW) can also be used. In the 
+following example we use parallel processing to predict Total Nitrogen:
+
+```{r, eval = FALSE}
+# Running the mbl function using multiple cores
+n_cores <- parallel::detectCores() - 1
+if (n_cores == 0) {
+  n_cores <- 1
+}
+
+# Set the number of cores 
+library(doParallel)
+clust <- makeCluster(n_cores)
+registerDoParallel(clust)
+
+# Alternatively:
+# library(doSNOW)
+# clust <- makeCluster(n_cores, type = "SOCK")
+# registerDoSNOW(clust)
+# getDoParWorkers()
+
+pc_pred_nt <- mbl(
+  Xr = training$spc_p[!is.na(training$Nt),],
+  Yr = training$Nt[!is.na(training$Nt)],
+  Xu = testing$spc_p,
+  k = seq(40, 100, by = 10),
+  diss_usage = "none",
+  control = mbl_control(validation_type = "NNv"),
+  scale = TRUE
+)
+
+# go back to sequential processing
+registerDoSEQ()
+try(stopCluster(clust))
+
+pc_pred_nt
+```
+
+## Using `Yu` argument
+If information of the response values in the prediction set is available, then, 
+the `Yu` argument can be used to directly validate the predictions done by 
+`mbl()`. It is not taken into accound for any optimization or modeling step.
+It can be used as follows:
+
+```{r, eval = FALSE}
+# use Yu argument to validate the predictions
+pc_pred_nt_yu <- mbl(
+  Xr = training$spc_p[!is.na(training$Nt),],
+  Yr = training$Nt[!is.na(training$Nt)],
+  Xu = testing$spc_p,
+  Yu = testing$Nt,
+  k = seq(40, 100, by = 10),
+  diss_usage = "none",
+  control = mbl_control(validation_type = "NNv"),
+  scale = TRUE
+)
+
+pc_pred_nt_yu
 ```
 
 # References
