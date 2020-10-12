@@ -15,6 +15,7 @@ output:
     toc_float:
       collapsed: true
       smooth_scroll: false
+  citation_package: natbib
 vignette: >
   %\VignetteIndexEntry{Modelling complex spectral data with the resemble package}
   %\VignetteEncoding{UTF-8}
