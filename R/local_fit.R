@@ -81,7 +81,7 @@
 #'  }
 #'  }
 #' @return An object of class \code{local_fit} mirroring the input arguments.
-#' @author Leonardo Ramirez-Lopez
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @references
 #' Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
 #' calibration procedure for near infrared instruments. Journal of Near Infrared
