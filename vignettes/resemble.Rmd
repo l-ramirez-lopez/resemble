@@ -17,8 +17,8 @@ output:
       smooth_scroll: false
 vignette: >
   %\VignetteIndexEntry{Modelling complex spectral data with the resemble package}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 editor_options:
   chunk_output_type: console
 ---
