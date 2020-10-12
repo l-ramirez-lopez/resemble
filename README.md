@@ -69,8 +69,8 @@ just type the following line in your `R` console:
 install.packages('resemble')
 ```
 
-If you do not have the following packages installed, it might be good to install 
-them first
+If you do not have the following packages installed, it might be good to 
+update/install them first
 ```
 install.packages('Rcpp')
 install.packages('RcppArmadillo')
@@ -129,8 +129,9 @@ plot(sbl)
 get_predictions(sbl)
 
 ````
-<img src="./man/figures/mbl.png" width="80%" align="middle">
-
+<p align="center">
+<img src="./man/figures/mbl.png" width="80%">
+</p>
 Figure 1. Standard plot of the results of the __`mbl`__ function.
 
 [`resemble`](http://l-ramirez-lopez.github.io/resemble/) implements functions 
@@ -167,6 +168,20 @@ __`'gpr'`__:          Gaussian process with linear kernel.
 __`'pls'`__:          Partial least squares.     
 
 __`'wapls'`__:        Weighted average partial least squares (Shenk et al., 1997).
+
+Figure 2 illustrates the basic steps in MBL for a set of five observations.
+
+<p align="center">
+<img src="./vignettes/MBL.gif" width="50%">
+</p>
+Figure 2. Example of the main steps in memory-based learning for predicting a response variable in five different observations based on set of p-dimesnional variables.
+
+
+## Citing the package
+Simply type and you will get the info you need:
+```
+citation(package = "resemble")
+```
 
 ## News
 * 2020.04: [Tsakiridis et al. (2020)](https://www.sciencedirect.com/science/article/abs/pii/S0016706119308870?via%3Dihub), 
