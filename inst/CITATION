@@ -1,17 +1,22 @@
 citHeader("To cite package 'resemble' in publications use:")
      
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
-vers <- paste("R package version", meta$Version)
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", read.dcf(file = system.file("DESCRIPTION", package = "resemble"), fields = "Date"), perl = TRUE)
+vers <- paste("R package version", read.dcf(file = system.file("DESCRIPTION", package = "resemble"), fields = "Version"))
      
 citEntry(entry="Manual",
-  title = "resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics",
-  author = personList(as.person("Leornardo Ramirez-Lopez"),
-                      as.person("Antoine Stevens")),
+  title = "resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics. ",
+  author = personList(as.person("Leonardo Ramirez-Lopez"),
+           as.person("Antoine Stevens"),
+           as.person("Raphael Viscarra Rossel"),
+           as.person("Craig Lobsey"),
+           as.person("Alex Wadoux"),
+           as.person("Timo Breure")),
+  publication = "R package Vignette",
   year = year,
   note = vers,
 
   textVersion =
-  paste("Leornardo Ramirez-Lopez and Antoine Stevens (",
+  paste("Ramirez-Lopez, Leonardo and Stevens, Antoine and Viscarra Rossel, Raphael and Lobsey, Craig and Wadoux, Alex and Breure, Timo (",
         year,
-        "). resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics",
-        vers, ".", sep=""))
+        "). resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics. R package Vignette ",
+        vers, ".", sep = ""))
