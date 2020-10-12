@@ -192,7 +192,7 @@
 #'  }
 #'  \code{predict.ortho_projection}, returns a matrix of scores proprojected for
 #'  \code{newdtata}.
-#' @author Leonardo Ramirez-Lopez
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @references
 #' Martens, H. (1991). Multivariate calibration. John Wiley & Sons.
 #'

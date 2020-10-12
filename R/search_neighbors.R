@@ -193,7 +193,7 @@
 #'        neighborhoods (see \code{\link{ortho_diss}} function for further
 #'        details).}
 #'  }
-#' @author Leonardo Ramirez-Lopez
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @references
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 #' Scholten, T. 2013a. The spectrum-based learner: A new local approach for

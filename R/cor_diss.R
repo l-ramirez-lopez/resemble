@@ -40,7 +40,7 @@
 #' The function does not accept input data containing missing values.
 #' @return
 #' a matrix of the computed dissimilarities.
-#' @author Antoine Stevens and Leonardo Ramirez-Lopez
+#' @author Antoine Stevens and \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @examples
 #' \dontrun{
 #' library(prospectr)

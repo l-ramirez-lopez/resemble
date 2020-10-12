@@ -165,7 +165,7 @@
 #'        \item{\code{gh}:}{ a list containing the GH distances as well as the
 #'        pls projection used (\code{ortho_projection} object) to compute the GH.}
 #'        }
-#' @author Leonardo Ramirez-Lopez
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @examples
 #' \dontrun{
 #' library(prospectr)

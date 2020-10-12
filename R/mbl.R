@@ -343,7 +343,7 @@
 #' observations for which the neighbors selected by the given dissimilarity
 #' threshold were outside the boundaries specified in the \code{k_range}
 #' argument.
-#' @author Leonardo Ramirez-Lopez and Antoine Stevens
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and Antoine Stevens
 #' @references
 #' Cleveland, W. S., and Devlin, S. J. 1988. Locally weighted regression: an
 #' approach to regression analysis by local fitting. Journal of the American
