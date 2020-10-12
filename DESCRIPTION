@@ -32,12 +32,6 @@ Authors@R:
              role = "ctb",
              comment = c(ORCID = "0000-0001-5695-8064"))
       )
-Author: Leonardo Ramirez-Lopez [aut, cre], 
-    Antoine Stevens [ctb], 
-    Raphael Viscarra Rossel [ctb], 
-    Craig Lobsey [ctb], 
-    Alex Wadoux [ctb], 
-    Timo Breure [ctb]
 Maintainer: 
     Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: 
