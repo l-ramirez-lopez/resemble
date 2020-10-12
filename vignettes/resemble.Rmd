@@ -66,6 +66,13 @@ The core functionalities of the package include:
 * spectral neighbour search
 * fitting and predicting local spectroscopic models
 
+# Citing the package
+Simply type and you will get the info you need:
+```{r eval = TRUE}
+citation(package = "resemble")
+```
+
+
 # Example dataset
 
 This vignette uses a soil spectroscopic dataset provided in the 
