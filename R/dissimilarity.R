@@ -11,7 +11,7 @@
 #' dissimilarity(Xr, Xu = NULL,
 #'               diss_method = c("pca", "pca.nipals", "pls",
 #'                               "cor", "euclid", "cosine", "sid"),
-#'               Yr = NULL, gh = FALSE, pc_selection = list("cumvar", 0.99),
+#'               Yr = NULL, gh = FALSE, pc_selection = list("var", 0.01),
 #'               return_projection = FALSE, ws = NULL,
 #'               center = TRUE, scale = FALSE, documentation = character(),
 #'               ...)
@@ -22,33 +22,33 @@
 #' @param diss_method a character string indicating the method to be used to
 #' compute the dissimilarities between observations. Options are:
 #' \itemize{
-#'        \item{\code{"pca"}:}{  Mahalanobis distance
+#'        \item{\code{"pca"}:}{ Mahalanobis distance
 #'        computed on the matrix of scores of a Principal Component (PC)
 #'        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
-#'        done using the singlar value decomposition (SVD) algorithm.
+#'        done using the singular value decomposition (SVD) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
 #'
-#'        \item{\code{"pca.nipals"}}{ Mahalanobis distance
+#'        \item{\code{"pca.nipals"}:}{ Mahalanobis distance
 #'        computed on the matrix of scores of a Principal Component (PC)
 #'        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
 #'        done using the non-linear iterative partial least squares (niapls)
 #'        algorithm. See \code{\link{ortho_diss}} function.}
 #'
-#'        \item{\code{"pls"}}{ Mahalanobis distance
+#'        \item{\code{"pls"}}:{ Mahalanobis distance
 #'        computed on the matrix of scores of a partial least squares projection
 #'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 #'        always required. See \code{\link{ortho_diss}} function.}
 #'
-#'        \item{\code{"cor"}}{ correlation coefficient
+#'        \item{\code{"cor"}:}{ based on the correlation coefficient
 #'        between observations. See \code{\link{cor_diss}} function.}
 #'
-#'        \item{\code{"euclid"}}{ Euclidean distance
+#'        \item{\code{"euclid"}:}{ Euclidean distance
 #'        between observations. See \code{\link{f_diss}} function.}
 #'
-#'        \item{\code{"cosine"}}{ Cosine distance
+#'        \item{\code{"cosine"}:}{ Cosine distance
 #'        between observations. See \code{\link{f_diss}} function.}
 #'
-#'        \item{\code{"sid"}}{ spectral information divergence between
+#'        \item{\code{"sid"}:}{ spectral information divergence between
 #'        observations. See \code{\link{sid}} function.}
 #'        }
 #' @param Yr a numeric matrix of `n` observations used as side information of
@@ -73,7 +73,7 @@
 #' components) and \code{value} (a numerical value that complements the selected
 #' method). The methods available are:
 #' \itemize{
-#'        \item{\code{"opc"}:} {optimized principal component selection based on
+#'        \item{\code{"opc"}:} { optimized principal component selection based on
 #'        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
 #'        (of set of observations) is the one for which its distance matrix
 #'        minimizes the differences between the \code{Yr} value of each
@@ -83,17 +83,17 @@
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
 #'
-#'        \item{\code{"cumvar"}:}{selection of the principal components based
+#'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the maximum amount of cumulative variance that the
-#'        retained components should explain.}
+#'        indicating the minimum amount of cumulative variance that the 
+#'        combination of retained components should explain.}
 #'
-#'        \item{\code{"var"}:}{selection of the principal components based
+#'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a component should
-#'        explain in order to be retained.}
+#'        indicating the minimum amount of variance that a single component 
+#'        should explain in order to be retained.}
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
@@ -101,12 +101,12 @@
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "cumvar", value = 0.99)}.
+#' The default list passed is \code{list(method = "var", value = 0.01)}.
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such a case the default \code{"value"} when either \code{"opc"} or
 #' \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-#' \code{"value"} is set to 0.99 and when \code{"var"} is used the default
+#' \code{"value"} is set to 0.99 and when \code{"var"} is used, the default
 #' \code{"value"} is set to 0.01.
 #' @param return_projection a logical indicating if the projection(s) must be
 #' returned. Projections are used if the \code{\link{ortho_diss}} methods are
@@ -165,16 +165,15 @@
 #'        \item{\code{gh}:}{ a list containing the GH distances as well as the
 #'        pls projection used (\code{ortho_projection} object) to compute the GH.}
 #'        }
-#' @author Leonardo Ramirez-Lopez
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @examples
 #' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
-#' # Filter the data using the Savitzky and Golay smoothing filter with
-#' # a window size of 11 spectral variables and a polynomial order of 3
-#' # (no differentiation).
-#' sg <- savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0)
+#' # Filter the data using the first derivative with Savitzky and Golay smoothing 
+#' filter and a window size of 11 spectral variables and a polynomial order of 4
+#' sg <- savitzkyGolay(NIRsoil$spc, m = 1, p = 4, w = 15)
 #'
 #' # Replace the original spectra with the filtered ones
 #' NIRsoil$spc <- sg
@@ -218,7 +217,7 @@ dissimilarity <- function(Xr,
                           ),
                           Yr = NULL,
                           gh = FALSE,
-                          pc_selection = list("cumvar", 0.99),
+                          pc_selection = list("var", 0.01),
                           return_projection = FALSE,
                           ws = NULL,
                           center = TRUE,

@@ -2,14 +2,14 @@
 <!-- badges: start -->
 
 [![Travis-CI Build Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https://travis-ci.org/l-ramirez-lopez/resemble/)
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](http://cran.r-project.org/web/packages/resemble)
-[![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](http://cran.r-project.org/web/packages/resemble)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](https://CRAN.R-project.org/package=resemble)
+[![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](https://CRAN.R-project.org/package=resemble)
 
 <img align="right" src="./man/figures/logo.png" width="15%">
 
 <!-- badges: end -->
 
-_Last update: 12.09.2020_
+_Last update: 12.10.2020_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -17,6 +17,8 @@ _Last update: 12.09.2020_
 The `resemble` package provides high-performing functionality for 
 data-driven modeling (including local modeling), nearest neighbor search and 
 orthogonal projections in spectral data.
+
+Check the package vignette(s)!
 
 ## Core functionality 
 

@@ -4,7 +4,7 @@ Title:
     Regression and Similarity Evaluation for Memory-Based Learning in
     Spectral Chemometrics
 Version: 2.0.0
-Date: 2020-09-12
+Date: 2020-10-12
 Authors@R:  
     c(person(given = "Leonardo",
              family = "Ramirez-Lopez",
@@ -32,12 +32,6 @@ Authors@R:
              role = "ctb",
              comment = c(ORCID = "0000-0001-5695-8064"))
       )
-Author: Leonardo Ramirez-Lopez [aut, cre], 
-    Antoine Stevens [ctb], 
-    Raphael Viscarra Rossel [ctb], 
-    Craig Lobsey [ctb], 
-    Alex Wadoux [ctb], 
-    Timo Breure [ctb]
 Maintainer: 
     Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: 
@@ -64,14 +58,20 @@ Suggests:
     prospectr, 
     parallel, 
     doParallel,
-    testthat
+    testthat,
+    formatR,
+    bookdown, 
+    rmarkdown,
+    knitr
 LinkingTo: 
     Rcpp, 
     RcppArmadillo
 RdMacros: 
     mathjaxr,
     lifecycle
+VignetteBuilder: knitr
 NeedsCompilation: yes
+LazyData: true
 Repository: CRAN
 RoxygenNote: 7.1.1
 Encoding: UTF-8

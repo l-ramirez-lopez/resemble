@@ -13,14 +13,14 @@ print.ortho_projection <- function(x, ...) {
   cat("\n", "Method: ", x$method)
   cat("\n", "Number of components retained: ", x$n_components, "\n")
   cat(" Number of observations and number of original variables: ", c(nrow(x$scores), ncol(x$X_loadings)), "\n")
-  
+
   if (any(grepl("Xu", rownames(x$scores)))) {
     mss <- c("\n", "Explained variance in X {Xr; Xu}: \n")
   } else {
     mss <- c("\n", "Explained variance in Xr: \n")
   }
   
-  cat("\n", "Standard deviations, cumulative variance explained, individual variance explained:", "\n")
+  cat("\n", "Standard deviations, individual explained variance, cumulative explained variance:", "\n")
   if (x$method == "pls") {
     cat(mss)
     print(x$variance$x_var, digits = 3)
