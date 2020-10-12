@@ -72,5 +72,5 @@ cor_diss(Xr = Xr, Xu = Xu, ws = 41)
 }
 }
 \author{
-Antoine Stevens and Leonardo Ramirez-Lopez
+Antoine Stevens and \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 }
