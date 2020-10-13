@@ -57,6 +57,7 @@ and local spectroscopic modeling based on spectral dissimilarity concepts.
 The aim of the `resemble` package is to provide tools to efficiently and 
 accurately extract meaningful quantitative information from large and complex 
 spectral databases. The core functionalities of the package include: 
+==== 
 
 * dimensionality reduction
 * computation of dissimilarity measures
@@ -81,20 +82,25 @@ spectral dataset/library was used in the \sQuote{Chimiometrie 2006} challenge by
 825 soil observations/samples. These samples originate from agricultural fields collected from all over the Walloon region in Belgium. The data are in an `R` `data.frame` object which is organized as follows:
  
 * __Response variables__: 
-  * ___Nt___ (Total Nitrogen in g/Kg of dry soil): A numerical variable (values 
+  
+  * ___Nt___ (Total Nitrogen in g/kg of dry soil): a numerical variable (values 
       are available for 645 samples and missing for 180 samples).
-  * ___Ciso___ (Carbon in g/100 g of dry soil): A numerical 
+  
+  * ___Ciso___ (Carbon in g/100 g of dry soil): a numerical 
       variable (values are available for 732 and missing for 93 samples).
+  
   * ___CEC___ (Cation Exchange Capacity in meq/100 g of dry soil): A numerical 
       variable (values are available for 447 and missing for 378 samples).
-* __Predictor variables__: The predictor variables are in a matrix embedded in the
-data frame, which can be accessed via `NIRsoil$spc`. These variables contain the
-NIR absorbance spectra of the samples recorded between the 
-1100 nm and 2498 nm of the electromagnetic spectrum at 2 nm interval. Each 
-column name in the matrix of spectra represent a specific wavelength (in nm).
-* __Set__: this is a "binary" variable that indicates the 618 samples belong to the 
-training subset (represented by 1) and the 207 samples that belong to the test 
-subset (represented by 0). 
+      
+  * __Predictor variables__: the predictor variables are in a matrix embedded in 
+  the data frame, which can be accessed via `NIRsoil$spc`. These variables 
+  contain the NIR absorbance spectra of the samples recorded between the 
+  1100 nm and 2498 nm of the electromagnetic spectrum at 2 nm interval. Each 
+  column name in the matrix of spectra represents a specific wavelength (in nm).
+  
+  * __Set__: a binary variable that indicates whether the samples belong to the 
+  training subset (represented by 1, 618 samples) or to the test 
+  subset (represented by 0, 207 samples).
 
 Load the necessary packages and data: 
 ```{r libraries, tidy = TRUE, message = FALSE}
@@ -181,6 +187,7 @@ testing subsets:
 ```{r}
 # training dataset
 training  <- NIRsoil[NIRsoil$train == 1, ]
+# testing dataset
 testing  <- NIRsoil[NIRsoil$train == 0, ]
 ```
 
@@ -195,7 +202,7 @@ set (spectral data for calibration).
 (dependent variable for calibration). In the context of this package, `Yr` is 
 also referred as to "___side information___", which is a variable or set of 
 variables that are associated to the training observations that can also be used 
-to support or guide optimization during modeling but that not necessarily are 
+to support or guide optimization during modeling, but that not necessarily are 
 part of the input of such models. For example, we will see in latter sections 
 that `Yr` can be used in Principal Component Analysis to help on deciding how 
 many components are optimal.
@@ -207,18 +214,18 @@ many components are optimal.
 set (spectral data for validation/testing).
 
   * `Yu` stands for the response variable(s) in the unknown/test set (dependent 
-variable for calibration).
+variable for testing).
 
 # Dimensionality reduction
 When conducting exploratory analysis of spectral data, we are immediately 
 burdened with the issue of high dimensionality. It is such that we may be 
 dealing with (using NIR spectra data as an example) hundreds to thousands of 
-individual wavelengths for each spectrum. When one wants to investigate patterns 
+individual wavelengths for each spectrum. When one wants to find patterns 
 in the data, spectral similarities and differences, or detect spectral outliers, 
 it is necessary to reduce the dimension of the spectra while retaining important 
 information. 
 
-Principal component (PC) analysis and Partial Least Squares (PLS) decomposition 
+Principal Component (PC) analysis and Partial Least Squares (PLS) decomposition 
 methods assume that the meaningful structure the data intrinsically lies on 
 a lower dimensional space. Both methods attempt to find a projection matrix 
 that projects the original variables onto a less complex 
@@ -227,14 +234,14 @@ variability across observations. These two methods can be considered as the
 standard ones for dimensionality reduction in many fields of spectroscopic 
 analysis. 
 
-The difference between PC and PLS is that in the first the objective is to 
+The difference between PC and PLS is that in PC the objective is to 
 find few new variables (which are orthogonal) that capture as much of the 
 original data variance while in the latter the objective is to find few new 
 variables that maximize their variance with respect to a set of one or more 
 external variables (e.g. response variables or side information variables). 
 
 ## Methods
-In the `resemble` package PC analysis and PLS decomposition are available 
+In the `resemble` package, PC analysis and PLS decomposition are available 
 through the `ortho_projection()` function which offers the following algorithms:
 
 * `"pca"`: the standard method for PC analysis based on the singular value 
@@ -245,7 +252,7 @@ least squares algorithm [NIPALS, @wold1975soft] for the purpose of PC analysis.
 
 * `"pls"`: Here, PLS decomposition also uses the NIPALS algorithm, but in this 
 case it makes use of ___side information___, which can be a variable or set of 
-variables that are associated to the training observations and that are used to
+variables that are __associated to the training observations__ and that are used to
 project the data. In this case, the variance between the projected variables and 
 the ___side information___ variable(s) is maximized. 
 
@@ -258,9 +265,9 @@ pca_tr <- ortho_projection(Xr = training$spc_p, method = "pca")
 pca_tr
 ```
 
-plot the `ortho_projection` object:
+Plot the `ortho_projection` object:
 
-```{r plotpcsvariance, fig.cap = "Cumulative explained variance of the principal components (left) and individual contribution the the explained variance for each of the components (right).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 3}
+```{r plotpcsvariance, fig.cap = "Individual contribution to the explained variance for each component (left) and cumulative variance explained by the principal components (right).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 3}
 plot(pca_tr, col = "#D42B08CC")
 ```
 
@@ -268,10 +275,10 @@ The code above shows that in this dataset, `r pca_tr$n_components` components
 are required to explain around `r round(100 * sum(pca_tr$variance[2,]), 0)`% of 
 the original variance found in the spectra (Figure \@ref(fig:plotpcsvariance)).
 
-Equivalent results can be obtained by using the NIPALS algorithm:
+Equivalent results can be obtained with the NIPALS algorithm:
 ```{r, results = 'hide'}
 # principal component (pc) analysis with the default 
-# method (singular value decomposition) 
+# NIPALS algorithm
 pca_nipals_tr <- ortho_projection(Xr = training$spc_p,
                                   method = "pca.nipals")
 
@@ -315,7 +322,7 @@ Those components that alone explain more than a given amount of the original
 spectral variance are retained. Example:
 
 ```{r, results = 'hide', eval = FALSE}
-# This retains components that anlone explain at more than 5% of the original
+# This retains components that alone explain at least 5% of the original
 # variation in training$spc_p
 var_sel <-  list(method = "var", value = 0.05)
 pca_tr_minvar5 <- ortho_projection(Xr = training$spc_p,
@@ -330,21 +337,21 @@ pca_tr_minvar5
 Only the first components that together explain at least a given amount of the 
 original variance are retained. Example:
 ```{r, results = 'hide', eval = FALSE}
-# This retains components that together explain at least 95% of the original
+# This retains components that together explain at least 90% of the original
 # variation in training$spc_p
 cumvar_sel <-  list(method = "cumvar", value = 0.90)
 
-pca_tr_cumvar95 <- ortho_projection(Xr = training$spc_p,
+pca_tr_cumvar90 <- ortho_projection(Xr = training$spc_p,
                                     method = "pca", 
                                     pc_selection = cumvar_sel)
 
-pca_tr_cumvar95
+pca_tr_cumvar90
 ```
 
 ### _Optimal component selection_ `"opc"`: 
 This is a more sophisticated method in which the selection of the components is 
 based on the side information concept presented in @ramirez2013spectrum. First 
-let be $P$ a sequence of retained components (so that $P = 1, 2, ...,k$). At 
+let $P$ be a sequence of retained components (so that $P = 1, 2, ...,k$). At 
 each iteration, the function computes a dissimilarity matrix retaining $p_i$ 
 components. The values in this side information variable are compared against 
 the side information values of their most spectrally similar observations.
@@ -419,11 +426,13 @@ The user explicitly defines how many components to retrieve. Example:
 ```{r, results = 'hide'}
 # This uses manual component selection 
 manual_sel <-  list(method = "manual", value = 9)
+# PC
 pca_tr_manual <- ortho_projection(Xr = training$spc_p,
                                   method = "pca", 
                                   pc_selection = manual_sel)
 pca_tr_manual
 
+# PLS
 pls_tr_manual <- ortho_projection(Xr = training$spc_p,
                                   Yr = training$Ciso,
                                   method = "pls", 
@@ -442,6 +451,7 @@ used to project new data:
 
 ```{r, results = 'hide'}
 optimal_sel <-  list(method = "opc", value = 40)
+# PLS
 pls_tr_opc <- ortho_projection(Xr = training$spc_p,
                                Yr = training$Ciso,
                                method = "pls", 
@@ -452,6 +462,7 @@ pls_tr_opc$projection_mat
 
 pls_projected <- predict(pls_tr_opc, newdata = testing$spc_p)
 
+# PC
 pca_tr_opc <- ortho_projection(Xr = training$spc_p,
                                Yr = training$Ciso,
                                method = "pca", 
@@ -502,7 +513,7 @@ pls_tr_ts <- ortho_projection(Xr = training$spc_p,
                               pc_selection = optimal_sel,
                               scale = TRUE)
 
-# the same pls projection model can be obtained with:
+# the same PLS projection model can be obtained with:
 pls_tr_ts2 <- ortho_projection(Xr = training$spc_p[!is.na(training$Ciso),],
                                Yr = training$Ciso[!is.na(training$Ciso)],
                                method = "pls", 
@@ -552,7 +563,7 @@ search.
 
 The `dissimilarity()` function is the main function for measuring dissimilarities 
 between observations. It is basically a wrapper to other existing dissimilarity 
-functions wthin the package (see `f_diss()`, `cor_diss()`, `sid()` and 
+functions within the package (see `f_diss()`, `cor_diss()`, `sid()` and 
 `ortho_diss()`). It allows to compute dissimilarities between:
 
  * all the observations in a single matrix.
@@ -562,10 +573,10 @@ functions wthin the package (see `f_diss()`, `cor_diss()`, `sid()` and
 The dissimilarity methods available in `dissimilarity()` are as follows (see 
 `diss_method` argument):
 
-* `"pca"`: Mahalanobis distance computed on the matrix of scores of a Principal 
-Component (PC) projection of `Xr` (and `Xu` if provided). PC projection is done 
-using the singular value decomposition (SVD) algorithm. Type `help(ortho_diss)` 
-for more details on the function called by this method.
+* `"pca"`: Mahalanobis distance computed on the matrix of scores of a PC projection of 
+`Xr` (and `Xu` if provided). PC projection is done using the singular value 
+decomposition (SVD) algorithm. Type `help(ortho_diss)` for more details on the 
+function called by this method.
 
 * `"pca.nipals"`: Mahalanobis distance computed on the matrix of scores of a 
 PC projection of `Xr` (and `Xu` if provided). PC projection is done 
@@ -617,12 +628,12 @@ $\mathrm T$ [@de2000mahalanobis].
 To compute orthogonal dissimilarities in the `resemble` package, the 
 `dissimilarity()` function can be used as follows:
 ```{r, results = 'hide', eval = FALSE}
-# For PC dissimilarity using the default settings
+# for PC dissimilarity using the default settings
 pcd <- dissimilarity(Xr = training$spc_p,
                      diss_method = "pca")
 dim(pcd$dissimilarity)
 
-# For PC dissimilarity using the optimized component selection method
+# for PC dissimilarity using the optimized component selection method
 pcd2 <- dissimilarity(Xr = training$spc_p,
                       diss_method = "pca.nipals",
                       Yr = training$Ciso,
@@ -630,9 +641,9 @@ pcd2 <- dissimilarity(Xr = training$spc_p,
                       return_projection = TRUE)
 dim(pcd2$dissimilarity)
 pcd2$dissimilarity
-pcd2$projection # The projection used to compute the dissimilarity matrix
+pcd2$projection # the projection used to compute the dissimilarity matrix
 
-# For PLS dissimilarity
+# for PLS dissimilarity
 plsd <- dissimilarity(Xr = training$spc_p,
                       diss_method = "pls",
                       Yr = training$Ciso,
@@ -640,7 +651,7 @@ plsd <- dissimilarity(Xr = training$spc_p,
                       return_projection = TRUE)
 dim(plsd$dissimilarity)
 plsd$dissimilarity
-plsd$projection # The projection used to compute the dissimilarity matrix
+plsd$projection # the projection used to compute the dissimilarity matrix
 ```
 
 To compute the correlation dissimilarity between training and testing 
@@ -662,11 +673,11 @@ plsd_tr_ts <- dissimilarity(Xr = training$spc_p,
                             pc_selection = list("opc", 20))
 dim(plsd_tr_ts$dissimilarity)
 ```
-In this last two examples, matrices of `r nrow(plsd_tr_ts$dissimilarity)` rows 
-and `r ncol(plsd_tr_ts$dissimilarity)` columns are retrieved. The rows are the 
-same as the rows in the training dataset while the columns are the same as the 
-rows in the testing dataset. The dissimilarity between the $i$th observation in 
-the training dataset and the $j$th observation in the tetsing dataset is stored 
+In the last two examples, matrices of `r nrow(plsd_tr_ts$dissimilarity)` rows 
+and `r ncol(plsd_tr_ts$dissimilarity)` columns are retrieved. The number of rows 
+is the same as in the training dataset while the number of columns is the same as 
+in the testing dataset. The dissimilarity between the $i$th observation in 
+the training dataset and the $j$th observation in the testing dataset is stored 
 in the $i$th row and the $j$th column of the resulting dissimilarity matrices.
 
 
@@ -697,7 +708,7 @@ Here are two examples on how to perform localized dissimilarity
 computations: 
 
 ```{r localdiss, eval = TRUE}
-# For localized PC dissimilarity using the optimized component selection method
+# for localized PC dissimilarity using the optimized component selection method
 # set the number of neighbors to retain
 knn <- 200
 local_pcd_tr_ts <- dissimilarity(Xr = training$spc_p,
@@ -729,13 +740,13 @@ local_plsd_tr_ts$dissimilarity[1:10, 1:2]
 ## Correlation dissimilarity 
 Correlation dissimilarity is based on the Pearson's $\rho$ correlation coefficient 
 between observations. The value of Pearson's $\rho$ varies between -1 and 1. A 
-correlation of 1 indicates between two observations would indicate that they 
-might have identical characteristics (i.e. they are can be considered as highly 
-similar). A value of -1, conversely, would indicate that the two observations 
-are strongly negatively correlated (i.e. the two observations are highly 
-dissimilar). The correlation dissimilarity implemented in the package 
-scales the values between 0 (highest dissimilarity) and 1 (highest similarity). 
-To measure $d$ between two observations $x_i$ and $x_j$ 
+correlation of 1 between two observations would indicate that they are perfectly 
+correlated and might have identical characteristics (i.e. they are can be 
+considered as highly similar). A value of -1, conversely, would indicate that 
+the two observations are perfectly negatively correlated (i.e. the two 
+observations are highly dissimilar). The correlation dissimilarity implemented 
+in the package scales the values between 0 (highest dissimilarity) and 1 
+(highest similarity). To measure $d$ between two observations $x_i$ and $x_j$ 
 based on the correlation dissimilarity the following equation is applied:
 
 $$d(x_i, x_j) = \frac{1}{2} 1 - \rho(x_i, x_j)$$
@@ -744,7 +755,7 @@ Note that $d$ cannot be considered as a distance metric since it does not
 satisfy the axiom of identity of indiscernibles. Therefore we prefer the use of 
 the term dissimilarity.
 
-The following code demonstrates how to compute the coerrelation dissimilarity 
+The following code demonstrates how to compute the correlation dissimilarity 
 between all observations in the training dataset:
 ```{r, results = 'hide', eval = FALSE}
 cd_tr <- dissimilarity(Xr = training$spc_p, diss_method = "cor")
@@ -830,7 +841,7 @@ ed_resemble$dissimilarity[1:2, 1:3]
 ```
 In the above code it can be seen that the results of the `dist()` require 
 scaling based on the number of input variables. This means that, by default, 
-the results of the `dist()` tend to increase with the number of input 
+the values output by `dist()` increase with the number of input 
 variables. This is an effect that is already accounted for in the implementation 
 of the Euclidean (and also Mahalanobis) dissimilarity implementation
 of `resemble`.
@@ -877,7 +888,7 @@ $x_j$ based on this method is computed as:
 
 $$d(x_i, x_j) = kl (x_i, x_j) + kl (x_j, x_i)$$
 
-The following code can be sued to compute the SID between the training and 
+The following code can be used to compute the SID between the training and 
 testing observations:
 ```{r, results = 'hide', eval = FALSE}
 sid_tr_ts <- dissimilarity(Xr = training$spc_p,
@@ -977,13 +988,14 @@ fig_cap <- paste("Comparison between observations and their corresponding
                  "cd: Correlation dissimilarity;",  
                  "mcd: Moving window correlation dissimilarity;",  
                  "ed: Euclidean dissimilarity;",  
-                 "sinfd: Spectral information divergence/dissimilarity")
+                 "sinfd: Spectral information divergence/dissimilarity.")
 ```
 Table \@ref(tab:tcomparisons) and Figure \@ref(fig:pcomparisons) show the 
-results of the comparisons between the Total Carbon of the observations and the 
-Total Carbon of their most similar samples (1-NN) according to the dissimilarity 
-method used. In the example, the spectral dissimilarity matrices that best reflect the 
-compositions similarity are those built with the 
+results of the comparisons (for the training dataset) between the Total Carbon 
+of the observations and the Total Carbon of their most similar samples (1-NN) 
+according to the dissimilarity method used. In the example, the spectral 
+dissimilarity matrices that best reflect the compositions similarity are those 
+built with the 
 _pls with optimized component selection_ (`o_plsd`) and 
 _pca with optimized component selection_ (`o_pcad`).
 
@@ -1027,7 +1039,7 @@ knitr::kable(do.call("rbind", comparisons),
                              "for between the observations and their", 
                              "corrresponding closest observations", 
                              "retrieved with the different dissimilarity 
-                             methods"), 
+                             methods."), 
              format = "simple", digits = 2, align = "l", padding = 2)
 ```
 
@@ -1271,7 +1283,7 @@ dnn_pc$unique_neighbors
 ```
 
 In the code above, the size of the neighborhoods is not constant, the size 
-variability can be easily visualize with a histogram on 
+variability can be easily visualized with a histogram on 
 `dnn_pc$k_diss_info$n_k`. Figure \@ref(fig:knnhist), shows that many  
 neighborhoods were reset to a size of `r k_min` or to a size of `r k_max`. 
 
@@ -1285,7 +1297,7 @@ hist(dnn_pc$k_diss_info$final_n_k,
 ## _Spiking_ the neighborhoods
 In the package, _spiking_ refers to forcing specific observations to be included 
 in the neighborhoods. For example, if we are searching in the `training` set 
-the neighbors of the `tetsing` set, and if we want to force certain observations 
+the neighbors of the `testing` set, and if we want to force certain observations 
 in `training` to be included in the neighborhood of each observation in 
 `tetsing`, we can use the `spike` argument in `search_neighbors()`. For that, 
 in this argument we will need to pass the indices of `training` that we will 
@@ -1313,7 +1325,7 @@ The previous code shows that the indices specified in `forced_guests` are always
 selected as part of every neighborhood. 
 
 Spiking might be useful when there is a prior knowledge of the similarity 
-between certain obsevations that cannot be easily pick up by the data. 
+between certain observations that cannot be easily pick up by the data. 
 
 
 # Regression 
@@ -1331,16 +1343,16 @@ a set of $m$ observations from their explanatory variables $X$, a set of $m$
 functions are required to be fitted. This can be described as:
 
 $$\hat{y}_i = \hat{f}_i(x_i;\theta_i) + \varepsilon_{i} \; \forall \; i = \{1, ..., m\}$$
-where $\varepsilon_{i}$ represents a set particular of parameters required to 
-fit $\hat{f}_i$ (e.g. number of factors in a pls model), and $\varepsilon_{i}$ 
-the particular uncertainty for the $i$th neighborhood. Therefore, MBL in the 
-above example can be described broadly as:
+where $\theta_{i}$ represents a set of particular parameters required to 
+fit $\hat{f}_i$ (e.g. number of factors in a PLS model), and $\varepsilon_{i}$ 
+is a residual error term from the fitting of $\hat{y}_{i}$ in the $i$th 
+neighborhood. Therefore, MBL in the above example can be described broadly as:
 
 $$\hat{f} = \{\hat{f}_1,...,\hat{f}_m\}$$
 Figure \@ref(fig:mblgif) illustrates the basic steps in MBL for a set of five 
 observations ($m = 5$).
 
-```{r mblgif, fig.cap = "Example of the main steps in memory-based learning for predicting a response variable in five different observations based on set of p-dimesnional variables", echo = FALSE, out.width = '65%', fig.align = 'center'}
+```{r mblgif, fig.cap =  "Example of the main steps in memory-based learning for predicting a response variable in five different observations based on set of p-dimensional space.", echo = FALSE, out.width = '65%', fig.align = 'center'}
 knitr::include_graphics("MBL.gif")
 ```
 
@@ -1350,10 +1362,10 @@ must be defined for any MBL algorithm:
   1. ___A dissimilarity metric___: It is required for neighbor search. The 
   dissimilarity metric used must be capable also to reflect the dissimilarity in 
   terms of the response variable for which models are to be built. For example, 
-  in (Near-Infrared) spectral dissisimilarity of soil samples must be capable of 
-  reflecting the compositional dissisimilarity between them. Dissimilarity 
-  methods that poorly reflect this general sample dissimilarity are prone to 
-  lead to poor predictive performance. 
+  in soil NIR spectroscopy, the spectral dissisimilarity values of soil samples 
+  must be capable of reflecting the compositional dissisimilarity between them. 
+  Dissimilarity methods that poorly reflect this general sample dissimilarity 
+  are prone to lead to MBL models with poor predictive performance. 
   
   
   2. ___How many neighbors to look at?___: It is important to optimize the 
@@ -1363,10 +1375,10 @@ must be defined for any MBL algorithm:
   also lack of enough variance to properly capture the relationships between 
   the predictors and the response. On the other hand, large size neighborhoods 
   might introduce complex non-linear relationships between predictors and 
-  response which migth decrease the accuracy of the models.
+  response which might decrease the accuracy of the models.
   
   
-  3. ___How to use the dissimilarity information___: The dissimilarity information 
+  3. ___How to use the dissimilarity information?___: The dissimilarity information 
   can be:
       - _Ignored_, this means is only used to retrieve neighbors [e.g. the LOCAL 
       algorithm, @shenk1997investigation].
@@ -1380,7 +1392,7 @@ must be defined for any MBL algorithm:
       is also retrieved. This matrix of $k \times k$ dimensions is combined with 
       the $p$ predictor variables resulting in a final matrix of predictors 
       (for the neighborhood) of $k \times (k+p)$ dimensions. To predict the 
-      target observation, the preditors used are the $p$ spectral variables in 
+      target observation, the predictors used are the $p$ spectral variables in 
       combination to the vector of distances between the target observation and 
       its neighbors. In some cases, this approach might lead to an increase on 
       the predictive performance of the local models. This combined matrix of 
@@ -1396,9 +1408,9 @@ d_{k,1} &  d_{k,2} &  ... &  0_{k,k} &  x_{k,k+1} &  x_{k,k+2} &  ...& x_{k,k+p}
      where $d_{i,j}$ represents the dissimilarity score between the $i$th 
      neighbor and the $j$th neighbor.
      
-  4. ___How to fit with the local points?___: This is given by the regression 
+  4. ___How to fit the local points?___: This is given by the regression 
   method used which is usually a linear one, as the relationships between 
-  the explanatory variables and the response are usually assumed as linear 
+  the explanatory variables and the response are usually assumed linear 
   within the neighborhood. 
 
 In the literature MBL is sometimes referred to as local modeling, nevertheless 
@@ -1441,7 +1453,7 @@ of the MBL methods (which are described few paragraphs above):
   is passed, the dissimilarity information is used as source of additional
   predictors. 
 
-  4. _How to fit with the local points?_: This is controlled by the `method` 
+  4. _How to fit the local points?_: This is controlled by the `method` 
   argument. For this, a `local_fit` object (which carries the information of 
   the regression method and its parameters) is used. There are three methods 
   available: partial least squares (PLS) regression, weighted average partial 
@@ -1488,7 +1500,7 @@ validation and some optimization aspects of the `mbl()` function. In
  to be selected from the subset of nearest neighbors. The global error of the 
  predictions is computed as the average of the local root mean square errors.
 
-Let's see some examples on who to build objects for controlling the validation 
+Let's see some examples on how to build objects for controlling the validation 
 in `mbl`.
 
 ```{r, eval = TRUE}
@@ -1592,7 +1604,7 @@ cor(ciso_hat, testing$Ciso, use = "complete.obs")^2
 Similar results are obtained when the optimization of the neighbrhoods 
 is based on distance thresholds:
 ```{r, results = 'hide', eval = TRUE,  fig.show = 'hide'}
-# create a vector of diatnce threhsolds to evaluate
+# create a vector of dissimilarity thresholds to evaluate
 # since the correlation dissimilarity will be used
 # these thresholds need to be > 0 and <= 1 
 dths <- seq(0.025, 0.3, by = 0.025)
@@ -1686,7 +1698,7 @@ colnames(my_tab) <- c("Abreviation",
 knitr::kable(my_tab, 
              caption = paste("Basic description of the different MBL", 
                              "configurations in the examples to predict",
-                             "Cation Exhange Capacity (CEC)"), 
+                             "Cation Exhange Capacity (CEC)."), 
              format = "simple", align = "l", padding = 2)
 ```
 
