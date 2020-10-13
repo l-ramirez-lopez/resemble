@@ -46,19 +46,17 @@ compositional characteristics (chemical, physical or biological) of the matrix.
 Therefore, it is possible to develop empirical models that can accurately 
 quantify properties of different matrices. In this respect, quantitative 
 spectroscopy techniques are usually fast, non-destructive and cost-efficient in 
-comparison to conventional laboratory methods used in the analyses of these 
+comparison to conventional laboratory methods used in the analyses of such 
 matrices.  This has resulted in the development of comprehensive 
 spectral databases for several agricultural products comprising large amounts 
 of observations. The size of such databases increases *de facto* their 
 complexity. To analyze large and complex spectral data, one must then resort 
-numerical and statistical tools such as dimensionality reduction, and local 
-spectroscopic modelling based on spectral dissimilarity concepts.    
+numerical and statistical tools and methods such as dimensionality reduction, 
+and local spectroscopic modeling based on spectral dissimilarity concepts.    
 
 The aim of the `resemble` package is to provide tools to efficiently and 
 accurately extract meaningful quantitative information from large and complex 
-spectral databases. The package contains functions for dimensionality reduction, 
-spectral dissimilarity measurements, neighbour search, and local modeling. 
-The core functionalities of the package include: 
+spectral databases. The core functionalities of the package include: 
 
 * dimensionality reduction
 * computation of dissimilarity measures
@@ -75,13 +73,12 @@ citation(package = "resemble")
 
 # Example dataset
 
-This vignette uses a soil spectroscopic dataset provided in the 
+This vignette uses the soil Near-Infrared (NIR) spectral dataset provided in the 
 [package `prospectr`](https://CRAN.R-project.org/package=prospectr)
-package [@stevens2020introduction]. It is a soil spectral library used in the 
-\sQuote{Chimiometrie 2006} challenge by @pierna2008soil. The library contains 
-absorbance spectra of dried and sieved 825 soil observations/samples. These 
-samples originate from agricultural fields collected from all over the Walloon 
-region in Belgium. The dataset is in a data frame which is organized as follows:
+package [@stevens2020introduction]. The reason why we use this dataset is because 
+soils are one of the most complex matrices analyzed with NIR spectroscopy. This 
+spectral dataset/library was used in the \sQuote{Chimiometrie 2006} challenge by @pierna2008soil. The library contains NIR absorbance spectra of dried and sieved
+825 soil observations/samples. These samples originate from agricultural fields collected from all over the Walloon region in Belgium. The data are in an `R` `data.frame` object which is organized as follows:
  
 * __Response variables__: 
   * ___Nt___ (Total Nitrogen in g/Kg of dry soil): A numerical variable (values 
@@ -91,15 +88,15 @@ region in Belgium. The dataset is in a data frame which is organized as follows:
   * ___CEC___ (Cation Exchange Capacity in meq/100 g of dry soil): A numerical 
       variable (values are available for 447 and missing for 378 samples).
 * __Predictor variables__: The predictor variables are in a matrix embedded in the
-data frame, which can be accessed via `NIRSoil$spc`. These variables contain the
-absorbance Near-Infrared (NIR) spectra of the samples recorded between the 
+data frame, which can be accessed via `NIRsoil$spc`. These variables contain the
+NIR absorbance spectra of the samples recorded between the 
 1100 nm and 2498 nm of the electromagnetic spectrum at 2 nm interval. Each 
 column name in the matrix of spectra represent a specific wavelength (in nm).
 * __Set__: this is a "binary" variable that indicates the 618 samples belong to the 
 training subset (represented by 1) and the 207 samples that belong to the test 
 subset (represented by 0). 
 
-Load the necessary packages and data. 
+Load the necessary packages and data: 
 ```{r libraries, tidy = TRUE, message = FALSE}
 library(resemble)
 library(prospectr)
@@ -116,7 +113,7 @@ str(NIRsoil)
 # Spectra pre-processing
 This step aims at improving the signal quality of the spectra for quantitative
 analysis. In this respect, the following standard methods are applied using the 
-package `prospectr` [@stevens2020introduction]: 
+[package `prospectr`](https://CRAN.R-project.org/package=prospectr) [@stevens2020introduction]: 
 
 1. Resampling from a resolution of 2 nm to a resolution of 5 nm.
 2. First derivative using Savitsky-Golay filtering [@Savitzky1964]. 
@@ -139,7 +136,7 @@ NIRsoil$spc_p <- NIRsoil$spc %>%
 ```
 
 Both the raw absorbance spectra and the first derivative spectra are shown in 
-Figure \ref(fig:plotspectra). The first derivative spectra represents the 
+Figure \@ref(fig:plotspectra). The first derivative spectra represents the 
 explanatory variables that will be used for all the examples throughout this 
 document. 
 ```{r plotspectra, fig.cap = "Raw spectral absorbance data (top) and first derivative of the absorbance spectra (bottom).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 8, fig.height = 8, echo = FALSE}
@@ -178,7 +175,7 @@ matplot(x = new_wavs, y = t(NIRsoil$spc_p),
         type = "l", lty = 1, col = "#5177A133")
 ```
 
-For more explicit examples, the `NIRSoil` data is split into training and 
+For more explicit examples, the `NIRsoil` data is split into training and 
 testing subsets: 
 
 ```{r}
@@ -187,8 +184,7 @@ training  <- NIRsoil[NIRsoil$train == 1, ]
 testing  <- NIRsoil[NIRsoil$train == 0, ]
 ```
 
-Note that in the resemble package we follow the notation provided by 
-@ramirez2013spectrum, i.e.: 
+In the resemble package we use the following notation (@ramirez2013spectrum): 
 
 * __Training observations__:
 
@@ -196,19 +192,19 @@ Note that in the resemble package we follow the notation provided by
 set (spectral data for calibration).
 
   * `Yr` stands for the response variable(s) in the reference/training set 
-(dependent variable for calibration).In the context of this package, `Yr` is 
+(dependent variable for calibration). In the context of this package, `Yr` is 
 also referred as to "___side information___", which is a variable or set of 
 variables that are associated to the training observations that can also be used 
 to support or guide optimization during modeling but that not necessarily are 
 part of the input of such models. For example, we will see in latter sections 
-that `Yr` can be used in Principal Component Analysis to help to decide how 
+that `Yr` can be used in Principal Component Analysis to help on deciding how 
 many components are optimal.
 
 
 * __Testing observations__:
 
   * `Xu` stands for the matrix of predictor variables in the unknown/test 
-set (spectral data for validation/esting).
+set (spectral data for validation/testing).
 
   * `Yu` stands for the response variable(s) in the unknown/test set (dependent 
 variable for calibration).
@@ -225,8 +221,8 @@ information.
 Principal component (PC) analysis and Partial Least Squares (PLS) decomposition 
 methods assume that the meaningful structure the data intrinsically lies on 
 a lower dimensional space. Both methods attempt to find a projection matrix 
-that projects or converts the original variables onto a new and less complex 
-space represented by few variables. These new variables mimic the original 
+that projects the original variables onto a less complex 
+space represented by new few variables. These new variables mimic the original 
 variability across observations. These two methods can be considered as the 
 standard ones for dimensionality reduction in many fields of spectroscopic 
 analysis. 
@@ -292,11 +288,16 @@ information used is the Total Carbon (`Ciso`):
 # Partial Least Squares decomposition using 
 # Total carbon as side information
 # (this might take some seconds)
-pls_tr <- ortho_projection(Xr = training$spc_p[!is.na(training$Ciso),],
-                           Yr = training$Ciso[!is.na(training$Ciso)],
+pls_tr <- ortho_projection(Xr = training$spc_p,
+                           Yr = training$Ciso,
                            method = "pls")
 pls_tr
 ```
+
+Note that in the previous code, for PLS projection the observations with missing 
+`training$Ciso` are hold out, and then the projection takes place. The 
+missing observations are projected with the resulting projection matrix and
+pooled together with the initial results.
 
 By default the `ortho_projection()` function retains all the first components 
 that, alone, account for at least 1% of the original variance of data. In 
@@ -371,7 +372,7 @@ on how the RMSD and kappa are calculated in the function.
 
 The rationale behind the `"opc"` method is based on the assumption that the 
 closer two observations are in terms of their explanatory variables (`Xr`), the 
-closer they may be in terms of their side information (`Yr`).
+closer they may be in terms of their side information (`Yr`). 
 
 
 ```{r, results = 'hide'}
@@ -464,7 +465,7 @@ pca_projected <- predict(pca_tr_opc, newdata = testing$spc_p)
 
 ## Projecting two separate datasets in one single run
 
-The `ortho_projection` function allows to project two separate datasets in one 
+The `ortho_projection()`function allows to project two separate datasets in one 
 run. For example, training and testing data can be passed to the function as 
 follows:
 ```{r, results = 'hide', eval = FALSE}
@@ -478,13 +479,14 @@ pca_tr_ts <- ortho_projection(Xr = training$spc_p,
 plot(pca_tr_ts)
 ```
 In the above code for PC analyisis, `training` and `testing` datasets are pooled 
-together and then projected. For the `opc` selection method, the dissimilarity 
+together and then projected and split back for presenting the final results. 
+For the `opc` selection method, the dissimilarity 
 matrices are built only for the `training` data and for the observations with 
 available side information (Total Carbon). These dissimilarity matrices are used 
 only to find the optimal number of PCs. Note that `Xr` and `Yr` refer to the 
 same observations. Also note that the optimal number of PCs might not be the same 
 as when `testing` is not passed to the `Xu` argument since the PC projection 
-model is built from different number of observations.
+model is built from a different pool of observations.
 
 In the case of PLS, the observations used for projection necessarily have to 
 have side information available, therefore the missing values in `Yr` are hold 
@@ -511,7 +513,7 @@ identical(pls_tr_ts$projection_mat, pls_tr_ts2$projection_mat)
 ```
 
 ## Using more than one variable as side information
-The `ortho_projection` function allows to pass more than one variable to `Yr` 
+The `ortho_projection()`function allows to pass more than one variable to `Yr` 
 (side information):
 
 ```{r, results = 'hide', eval = FALSE}
@@ -526,10 +528,10 @@ plot(pls_multi_yr)
 ```
 
 In the above code for PLS projections using multivariate side information, the
-PLS2 method (based on the NIPALS algorithm) is used [See wold1983multivariate]. 
+PLS2 method (based on the NIPALS algorithm) is used [see @wold1983multivariate]. 
 The optimal component selection (`opc`) also uses the multiple variables passed 
 to `Yr`, the RMSD is computed for each of the variables. Each RMSD is then 
-standardized and the final RMSD used for optimization is an average of them. 
+standardized and the final RMSD used for optimization is their average. 
 For the example above, this data can be accessed as follows:
 
 ```{r, results = 'hide', eval = FALSE}
@@ -545,12 +547,12 @@ RMSD.
 Similarity/dissimilarity measures between objects are often estimated by means 
 of distance measurements, the closer two objects are to one another, the higher 
 the similarity between them. Dissimilarity or distance measures are useful for 
-a number of applications, for example for outlier detection or nearest neighbors 
+a number of applications, for example for outlier detection and nearest neighbors 
 search. 
 
 The `dissimilarity()` function is the main function for measuring dissimilarities 
 between observations. It is basically a wrapper to other existing dissimilarity 
-functions wthin the package (see `fdiss()`, `cor_diss()`, `sid()` and 
+functions wthin the package (see `f_diss()`, `cor_diss()`, `sid()` and 
 `ortho_diss()`). It allows to compute dissimilarities between:
 
  * all the observations in a single matrix.
@@ -688,10 +690,10 @@ $d(x_i, x_j) \neq d(x_j, x_i)$).
 For computing this type of localized dissimilarity matrix, two arguments need to 
 be passed to the `dissimilarity()` function: `.local` and `pre_k`. These are 
 not formal arguments of the function, however, they are passed to 
-the `ortho_diss` function which is used by the `dissimilarity()` function for 
+the `ortho_diss()`function which is used by the `dissimilarity()` function for 
 computing the dissimilarities in the orthogonal spaces. 
 
-Here are some two examples on how to perform localized dissimilarity 
+Here are two examples on how to perform localized dissimilarity 
 computations: 
 
 ```{r localdiss, eval = TRUE}
@@ -733,7 +735,7 @@ similar). A value of -1, conversely, would indicate that the two observations
 are strongly negatively correlated (i.e. the two observations are highly 
 dissimilar). The correlation dissimilarity implemented in the package 
 scales the values between 0 (highest dissimilarity) and 1 (highest similarity). 
-To measure $d$ between two observations $\mathbf{x}_{i}$ and $\mathbf{x}_{j}$ 
+To measure $d$ between two observations $x_i$ and $x_j$ 
 based on the correlation dissimilarity the following equation is applied:
 
 $$d(x_i, x_j) = \frac{1}{2} 1 - \rho(x_i, x_j)$$
@@ -762,7 +764,7 @@ cd_tr_ts$dissimilarity
 
 Alternatively, the correlation dissimilarity can be computed using a moving 
 window. In this respect, a window size term $w$ is introduced to the original 
-$d$ equation:
+equation:
 
 $$d(x_i, x_j; w) = \frac{1}{2 w}\sum_{k=1}^{p-w}1 - \rho(x_{i,\{k:k+w\}}, x_{j,\{k:k+w\}})$$
 
@@ -789,7 +791,7 @@ cd_mw$dissimilarity
 In the computation of the Euclidean dissimilarity, each feature has equal 
 significance. Hence, correlated variables which may represent irrelevant 
 features, may have a disproportional influence on the final dissimilarity 
-measurement [brereton2003chemometrics]. Therefore, it is not recommended to 
+measurement [@brereton2003chemometrics]. Therefore, it is not recommended to 
 use this measure directly on the raw data. To compute the dissimilarity between 
 two observations/vectors $x_i$ and $x_j$ the package uses the following equation:
 
@@ -804,7 +806,7 @@ ed <- dissimilarity(Xr = training$spc_p, diss_method = "euclid")
 ed$dissimilarity
 ```
 
-The `dist()` function in the `R``stats` package can also be used to compute 
+The `dist()` function in the `R` package `stats` can also be used to compute 
 Euclidean distances, however the `resemble` implementation tends to be faster 
 (especially for very large matrices):
 ```{r, results = 'hide', eval = FALSE}
@@ -830,6 +832,7 @@ In the above code it can be seen that the results of the `dist()` require
 scaling based on the number of input variables. This means that, by default, 
 the results of the `dist()` tend to increase with the number of input 
 variables. This is an effect that is already accounted for in the implementation 
+of the Euclidean (and also Mahalanobis) dissimilarity implementation
 of `resemble`.
 
 Another advantage of the Euclidean dissimilarity in `resemble` over the one in 
@@ -850,8 +853,8 @@ been extensively applied in remote sensing as a tool for unsupervised
 classification and spectral similarity analysis. The cosine dissimilarity
 between two observations ($x_i$ and $x_j$) is calculated as:
 
-$$d (x_i, x_j) = cos^{-1} \tfrac{\sum_{k=1}^{d} x_{i,k} x_{j,k} } {\sqrt{\sum_{k=1}^{d} x_{i,k}^2} \sqrt{\sum_{k=1}^{d} x_{j,k}^2}}$$
-where $d$ is the number of variables. 
+$$d (x_i, x_j) = cos^{-1} \tfrac{\sum_{k=1}^{p} x_{i,k} x_{j,k} } {\sqrt{\sum_{k=1}^{p} x_{i,k}^2} \sqrt{\sum_{k=1}^{p} x_{j,k}^2}}$$
+where $p$ is the number of variables. 
 
 With the `dissimilarity()` function the Euclidean dissimilarity can be computed
 as follows:
@@ -885,14 +888,20 @@ sid_tr_ts$dissimilarity
 ```
 See the `sid()` function in the `resemble` package for more details. 
 
-## Comparing the dissimilarity measures using the nearest neighbor method
+## How to know if a dissimilarity method is reliable?
 
-Here the different methods to measure dissimilarity between spectra are 
-compared in terms of their ability to retrieve observations (first nearest 
-neighbor or closest observation) with similar Total Carbon ("Ciso"). This 
-indicates how well the spectral similarity between observations reflect their 
-compositional similarity.
+Usually, dissimilarity assessment is disregarded and the decision on what method 
+to use is sometimes arbitrary. However, if the estimations of 
+similarity/dissimilarity between observations from its predictor/explanatory 
+variables fail to reflect the real or main similarity/dissimilarity, these 
+estimations can be seen as useless for further analyses.
 
+The package `resemble` offers functionality for assessing dissimilarity matrices.
+These assestments are based on first nearest neighbor search (1-NN). In this 
+section, the different methods to measure dissimilarity between spectra are 
+compared in terms of their ability to retrieve 1-NNs observations with 
+similar Total Carbon ("Ciso"). This indicates how well the spectral similarity 
+between observations reflect their compositional similarity.
 
 Compute a dissimilarty matrix for `training$spc_p` using the different methods:
 ```{r, results = 'hide', eval = TRUE}
@@ -937,7 +946,7 @@ sinfd <- dissimilarity(training$spc_p, diss_method = "sid", scale = TRUE)
 ```
 
 
-Use the `sim_eval` function with each dissimilarity matrix to find the closest 
+Use the `sim_eval()`function with each dissimilarity matrix to find the closest 
 observation  to each observation and compare them in terms of the `Ciso` 
 variable:
 
@@ -1074,11 +1083,11 @@ par(op)
 
 # k-Nearest Neighbors (k-NN) search
 In the package, the k-NN search aims at finding in a given reference set of 
-observations the most spectrally similar observations for another given set of 
+observations a group of spectrally similar observations for another given set of 
 observations. For an observation, its most similar observations are known as
 nearest neighbors and they are usually found by using dissimilairty metrics. 
 
-In the `resemble` package, the k-nearest neighbor search is implemented in the 
+In `resemble`, the k-nearest neighbor search is implemented in the 
 function `search_neighbors()`. This function uses the `dissimilarity()` function
 to compute the dissimilarity matrix that serves in the identification of the 
 neighbors. These neighbors can be retained in two ways: _i_. by providing a 
@@ -1093,11 +1102,11 @@ which serves as the  basis for the examples presented in this section.
 This means that the neighboring observations are retained regardless their 
 dissimilarity/distance to the target observation. Each target observation for 
 which its neighbors are to be found ends up with the same neighborhood size 
-($k$). The problem with this approach is that observations that are in fact 
+($k$). A drawback of this approach is that observations that are in fact 
 largely dissimilar to the target observation might end up in its neighborhood. 
 This is because the requirement for building the neighborhood is based on its 
 size and not on the similarity of the retained observations to the target one. 
-In the `dissimilarity()` function, the neighborhood size is controlled through 
+In the `dissimilarity()` function, the neighborhood size is controlled by
 the argument `k`. 
 
 Here is an example that demonstrates how `search_neighbors` can be used to 
@@ -1111,7 +1120,7 @@ knn_pc <- search_neighbors(Xr = training$spc_p,
 # matrix of neighbors
 knn_pc$neighbors
 
-# matrix of neighbor distances
+# matrix of neighbor distances (dissimilarity scores)
 knn_pc$neighbors_diss
 
 # the index (in the training set) of the first two closest neighbors found in 
@@ -1132,16 +1141,16 @@ neighbors found. This is a matrix of neighbor indices where every column
 represents an observarion in the testing set while every row represents the 
 neighbor index (in descending order). Every entry represents the index of the 
 neighbor observation in the training set. The `knn_pc$neighbors_diss` matrix
-shows the distances corresponding to the neighbors found. For example, for the 
-first observation in `testing` its closest observation found in `training` 
-corresponds to the one with index `r knn_pc$neighbors[1]` 
+shows the dissimilarity scores corresponding to the neighbors found. For example, 
+for the first observation in `testing` its closest observation found in 
+`training` corresponds to the one with index `r knn_pc$neighbors[1]` 
 (`knn_pc$neighbors[1]`) which has a dissimilarity score of 
-`r knn_pc$neighbors_diss[1]` (`knn_pc$neighbors_diss[1]`).
+`r round(knn_pc$neighbors_diss[1], 2)` (`knn_pc$neighbors_diss[1]`).
 
 Neighbor search can also be conducted with all the dissimilarity measures
 described in previous sections. The neighbors retrieved will then depend on the 
-approach used. Thus, it is recommended to evaluate carefully what dissimilarity 
-metric to use before neighbor search.
+dissimilarity method used. Thus, it is recommended to evaluate carefully what 
+dissimilarity metric to use before neighbor search.
 
 Here are other examples of neighbor search based on other dissimilarity 
 measures:
@@ -1214,7 +1223,7 @@ of a very small size or even empty, which constraints any type of analysis
 within such neighborhoods. On the other hand, some neighborhood might end up 
 with large sizes which might include either redundant observations or in some 
 other cases where $d_{th}$ is too large the complexity in the neighborhood might 
-be large. In the `dissimilarity()` function, $d_{th}$ is controlled through the 
+be large. In the `dissimilarity()` function, $d_{th}$ is controlled by the 
 argument `k_diss`. This argument is accompanied by the argument `k_range` which 
 is used to control the maximum and minimum neighborhood sizes. For example, if 
 a neighborhood size is below the minimum size $k_{min}$ specified in `k_range`, 
@@ -1273,8 +1282,8 @@ hist(dnn_pc$k_diss_info$final_n_k,
      main = "", col = "#EFBF47CC")
 ```
 
-## Spiking the neighborhoods
-In the package, spiking refers to forcing specific observations to be included 
+## _Spiking_ the neighborhoods
+In the package, _spiking_ refers to forcing specific observations to be included 
 in the neighborhoods. For example, if we are searching in the `training` set 
 the neighbors of the `tetsing` set, and if we want to force certain observations 
 in `training` to be included in the neighborhood of each observation in 
@@ -1314,10 +1323,10 @@ methods designed to deal with complex spectral datasets [@ramirez2013spectrum].
 In MBL, instead of deriving a general or global regression function, a specific 
 regression model is built for each observation requiring a prediction of a 
 response. Each model is fitted using the nearest neighbors of the target 
-observation found in a calibration or reference set. While a global  
-function may be very complex, MBL can describe the target function as a 
+observation found in a calibration or reference set [\@ref(fig:mblgif)]. While a 
+global function may be very complex, MBL can describe the target function as a 
 collection of less complex local (or locally stable) approximations 
-[mitchell1997machine]. For example, for predicting the response variable $Y$ of 
+[@mitchell1997machine]. For example, for predicting the response variable $Y$ of 
 a set of $m$ observations from their explanatory variables $X$, a set of $m$ 
 functions are required to be fitted. This can be described as:
 
@@ -1350,7 +1359,7 @@ must be defined for any MBL algorithm:
   2. ___How many neighbors to look at?___: It is important to optimize the 
   neighborhood size to be used for fitting the local models. Neighborhoods which 
   are too small might be too sensitive to noise and outliers affecting the 
-  robustness of the models[@ramirez2013spectrum]. Small neighborhoods might 
+  robustness of the models [@ramirez2013spectrum]. Small neighborhoods might 
   also lack of enough variance to properly capture the relationships between 
   the predictors and the response. On the other hand, large size neighborhoods 
   might introduce complex non-linear relationships between predictors and 
@@ -1359,14 +1368,14 @@ must be defined for any MBL algorithm:
   
   3. ___How to use the dissimilarity information___: The dissimilarity information 
   can be:
-      - Ignored, this means is only used to retrieve neighbors [e.g. the LOCAL 
+      - _Ignored_, this means is only used to retrieve neighbors [e.g. the LOCAL 
       algorithm, @shenk1997investigation].
       
-      - Used to weight the training observations according to their 
+      - _Used to weight the training observations_ according to their 
       dissimilarity to the target observation [e.g. as in locally weighted PLS 
       regression, @naes1990locally].
       
-      - Used as source of additional predictors [@ramirez2013spectrum]. In this 
+      - _Used as source of additional predictors_ [@ramirez2013spectrum]. In this 
       case, the pairwise dissimilarity matrix between all the $k$ neighbors 
       is also retrieved. This matrix of $k \times k$ dimensions is combined with 
       the $p$ predictor variables resulting in a final matrix of predictors 
@@ -1644,7 +1653,7 @@ abline(0, 1, col = "red")
 Here we provide few additional examples of some MBL configurations where we make 
 use of another response variable available in the dataset: soil cation exchange 
 capacity (CEC). This variable is perhaps more challenging to predict in 
-comparison to Total Carbon. Table \ref(tab:addexamples) provides a summary of 
+comparison to Total Carbon. Table \@ref(tab:addexamples) provides a summary of 
 the configurations tested in the following code examples.
 
 ```{r addexamples, eval = TRUE, echo = FALSE}
@@ -1783,7 +1792,7 @@ cor(testing$CEC, preds, use = "complete.obs")^2
 colMeans((preds - testing$CEC)^2, na.rm = TRUE)^0.5
 ```
 
-The scatter plots in \ref(fig:mblcomparisons) ilustrate the prediction results 
+The scatter plots in \@ref(fig:mblcomparisons) ilustrate the prediction results 
 obatined for CEC with each of the MBL configurations tested. 
 
 ```{r, eval = FALSE,  fig.show = 'hide'}
@@ -1848,6 +1857,30 @@ p <- sapply(colnames(preds),
             rsq = r2s,
             rmse = rmses)
 ```
+
+## Using `Yu` argument
+If information of the response values in the prediction set is available, then, 
+the `Yu` argument can be used to directly validate the predictions done by 
+`mbl()`. It is not taken into accound for any optimization or modeling step.
+It can be used as follows:
+
+```{r, eval = FALSE}
+# use Yu argument to validate the predictions
+pc_pred_nt_yu <- mbl(
+  Xr = training$spc_p[!is.na(training$Nt),],
+  Yr = training$Nt[!is.na(training$Nt)],
+  Xu = testing$spc_p,
+  Yu = testing$Nt,
+  k = seq(40, 100, by = 10),
+  diss_usage = "none",
+  control = mbl_control(validation_type = "NNv"),
+  scale = TRUE
+)
+
+pc_pred_nt_yu
+```
+
+
 ## Supported parallelism 
 The `mbl()` function uses the `foreach()` function of the [package `foreach`](https://CRAN.R-project.org/package=foreach) for iterating over every 
 row/observation passed to the argument `Xu`. In the following example, 
@@ -1890,27 +1923,6 @@ try(stopCluster(clust))
 pc_pred_nt
 ```
 
-## Using `Yu` argument
-If information of the response values in the prediction set is available, then, 
-the `Yu` argument can be used to directly validate the predictions done by 
-`mbl()`. It is not taken into accound for any optimization or modeling step.
-It can be used as follows:
-
-```{r, eval = FALSE}
-# use Yu argument to validate the predictions
-pc_pred_nt_yu <- mbl(
-  Xr = training$spc_p[!is.na(training$Nt),],
-  Yr = training$Nt[!is.na(training$Nt)],
-  Xu = testing$spc_p,
-  Yu = testing$Nt,
-  k = seq(40, 100, by = 10),
-  diss_usage = "none",
-  control = mbl_control(validation_type = "NNv"),
-  scale = TRUE
-)
-
-pc_pred_nt_yu
-```
 
 # References
 
