@@ -248,13 +248,13 @@ multivariate prediction of soil organic carbon by Vis-NIR spectra. Geoderma,
 comparison of different approaches to multi-product brix calibration in 
 near-infrared spectroscopy. In OCM 2017-Optical Characterization of Materials-conference proceedings (p. 129). KIT Scientific Publishing).
 
-* 2016-05: In [this recent scientific paper](http://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at 
+* 2016-05: In [this scientific paper](https://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at 
 national scale in France. (Clairotte, M., Grinand, C., Kouakoua, E., Thébault, A., 
 Saby, N. P., Bernoux, M., & Barthès, B. G. (2016). National calibration of soil 
 organic carbon concentration using diffuse infrared reflectance spectroscopy. 
 Geoderma, 276, 41-52).
 
-* 2016-04: [This paper](http://www.mdpi.com/2072-4292/8/4/341) shows some 
+* 2016-04: [This paper](https://www.mdpi.com/2072-4292/8/4/341) shows some 
 interesting results on applying memory-based learning to predict soil properties.
 
 * 2016-04: In some recent entries of [this blog](http://nir-quimiometria.blogspot.com/), 
@@ -288,7 +288,7 @@ prospectr package) is used.
 * 2014-03: The package released on CRAN!
 
 ## Other R'elated stuff
-* [Check our other project called `prospectr`.](http://github.com/l-ramirez-lopez/prospectr)
+* [Check our other project called `prospectr`.](https://github.com/l-ramirez-lopez/prospectr)
 * [Check this presentation in which we used the resemble package to predict soil attributes from large scale soil spectral libraries.](http://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
 
 ## Bug report and development version
