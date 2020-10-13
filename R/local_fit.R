@@ -5,9 +5,6 @@
 #' @aliases local_fit_wapls
 #' @aliases local_fit_gpr
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' These functions define the way in which each local fit/prediction is done
 #' within each iteration in the \code{\link{mbl}} function.

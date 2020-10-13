@@ -1,9 +1,6 @@
 #' @title A function for searching in a given reference set the neighbors of
 #' another given set of observations (search_neighbors)
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' This function searches in a reference set the neighbors of the observations
 #' provided  in another set.

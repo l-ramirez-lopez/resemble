@@ -1,8 +1,5 @@
 #' @title Plot method for an object of class \code{ortho_projection}
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' Plots objects of class \code{ortho_projection}
 #' @aliases plot.ortho_projection
 #' @usage \method{plot}{ortho_projection}(x, col = "dodgerblue", ...)

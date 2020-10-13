@@ -1,9 +1,8 @@
 #' @title Euclidean, Mahalanobis and cosine dissimilarity measurements
 #' @description
-#' \loadmathjax
-#'
-#' \lifecycle{stable}
-#'
+#' 
+#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
+#' 
 #' This function is used to compute the dissimilarity between observations
 #' based on Euclidean or Mahalanobis distance measures or on cosine
 #' dissimilarity measures (a.k.a spectral angle mapper).
@@ -24,7 +23,7 @@
 #' must be scaled. If \code{Xu} is provided the data is scaled on the basis
 #' of \mjeqn{Xr \cup Xu}{Xr U Xu}.
 #' @details
-#' 
+#' \loadmathjax
 #' The results obtained for Euclidean dissimilarity are equivalent to those
 #' returned by the [stats::dist()] function, but are scaled
 #' differently. However, \code{f_diss} is considerably faster (which can be

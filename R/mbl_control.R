@@ -1,9 +1,6 @@
 #' @title A function that controls some few aspects of the memory-based learning
 #' process in the \code{mbl} function
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' This function is used to further control some aspects of the memory-based
 #' learning process in the \code{mbl} function.

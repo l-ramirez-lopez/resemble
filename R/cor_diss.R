@@ -1,9 +1,8 @@
 #' @title Correlation and moving correlation dissimilarity measurements (cor_diss)
 #' @description
-#' \loadmathjax
-#'
-#' \lifecycle{stable}
-#'
+#' 
+#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
+#' 
 #' Computes correlation and moving correlation dissimilarity matrices.
 #' @usage
 #' cor_diss(Xr, Xu = NULL, ws = NULL,
@@ -21,6 +20,7 @@
 #' must be scaled. If \code{Xu} is provided the data is scaled on the basis
 #' of \mjeqn{Xr \cup Xu}{Xr U Xu}.
 #' @details
+#' \loadmathjax
 #' The correlation dissimilarity \mjeqn{d}{d} between two observations
 #' \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's 
 #' correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as 

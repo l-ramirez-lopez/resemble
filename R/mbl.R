@@ -1,8 +1,5 @@
 #' @title A function for memory-based learning (mbl)
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' This function is implemented for memory-based learning (a.k.a.
 #' instance-based learning or local regression) which is a non-linear lazy

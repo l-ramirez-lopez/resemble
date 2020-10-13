@@ -1,7 +1,7 @@
 #' @title Extract predictions from an object of class \code{mbl}
 #' @description
 #'
-#' \lifecycle{stable}
+#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 #'
 #' Extract predictions from an object of class \code{mbl}
 #' @usage

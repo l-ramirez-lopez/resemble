@@ -1,10 +1,9 @@
 #' @title A function for computing the spectral information divergence between
 #' spectra (sid)
 #' @description
-#'
-#' \lifecycle{experimental}
-#'
-#' \loadmathjax
+#' 
+#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#experimental'><img src='figures/lifecycle-experimental.svg' alt='Experimental lifecycle'></a>}}{\strong{Experimental}}
+#' 
 #' This function computes the spectral information divergence/dissimilarity between
 #' spectra based on the kullback-leibler divergence algorithm (see details).
 #' @usage
@@ -55,6 +54,7 @@
 #' @param ... additional arguments to be passed to the
 #' \code{\link[stats]{density}} function of the base package.
 #' @details
+#' \loadmathjax
 #' This function computes the spectral information divergence (distance)
 #' between spectra.
 #' When \code{mode = "density"}, the function first computes the probability

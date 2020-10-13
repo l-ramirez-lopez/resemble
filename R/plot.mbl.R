@@ -1,8 +1,5 @@
 #' @title Plot method for an object of class \code{mbl}
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' Plots the content of an object of class \code{mbl}
 #' @aliases plot.mbl
 #' @usage \method{plot}{mbl}(x, g = c("validation", "gh"), param = "rmse", pls_c = c(1,2), ...)

@@ -1,9 +1,6 @@
 #' @title A function for computing dissimilarity matrices from orthogonal
 #' projections (ortho_diss)
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' This function computes dissimilarities (in an orthogonal space) between
 #' either observations in a given set or between observations in two different
