@@ -83,13 +83,13 @@ a \code{list} with the following components:
  }
 }
 \description{
-\lifecycle{experimental}
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#experimental'><img src='figures/lifecycle-experimental.svg' alt='Experimental lifecycle'></a>}}{\strong{Experimental}}
 
-\loadmathjax
 This function computes the spectral information divergence/dissimilarity between
 spectra based on the kullback-leibler divergence algorithm (see details).
 }
 \details{
+\loadmathjax
 This function computes the spectral information divergence (distance)
 between spectra.
 When \code{mode = "density"}, the function first computes the probability

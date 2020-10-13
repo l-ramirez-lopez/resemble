@@ -33,7 +33,7 @@ variable, then the kappa index is used. See details.}
  }
 }
 \description{
-\lifecycle{stable}
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 This function searches for the most similar observation (closest neighbor) of
 each observation in a given data set based on a dissimilarity (e.g. distance

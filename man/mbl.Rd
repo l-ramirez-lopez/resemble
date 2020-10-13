@@ -287,8 +287,6 @@ threshold were outside the boundaries specified in the \code{k_range}
 argument.
 }
 \description{
-\lifecycle{maturing}
-
 \loadmathjax
 This function is implemented for memory-based learning (a.k.a.
 instance-based learning or local regression) which is a non-linear lazy

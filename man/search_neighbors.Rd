@@ -196,8 +196,6 @@ a \code{list} containing the following elements:
  }
 }
 \description{
-\lifecycle{maturing}
-
 \loadmathjax
 This function searches in a reference set the neighbors of the observations
 provided  in another set.

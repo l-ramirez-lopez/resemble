@@ -34,8 +34,6 @@ for Gaussian process local regressions (\code{local_fit_gpr}). Default is
 An object of class \code{local_fit} mirroring the input arguments.
 }
 \description{
-\lifecycle{maturing}
-
 \loadmathjax
 These functions define the way in which each local fit/prediction is done
 within each iteration in the \code{\link{mbl}} function.

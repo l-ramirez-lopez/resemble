@@ -168,8 +168,6 @@ A list with the following components:
 \description{
 \loadmathjax
 
-\lifecycle{maturing}
-
 This is a wrapper to integrate the different dissimilarity functions of the
 offered by package.It computes the dissimilarities between observations in
 numerical matrices by using an specifed dissmilarity measure.

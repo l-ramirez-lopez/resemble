@@ -13,7 +13,7 @@ get_predictions(object)
 a data.table of predicted values according to either \code{k} or \code{k_dist}
 }
 \description{
-\lifecycle{stable}
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 Extract predictions from an object of class \code{mbl}
 }

@@ -29,13 +29,12 @@ of \mjeqn{Xr \cup Xu}{Xr U Xu}.}
 a matrix of the computed dissimilarities.
 }
 \description{
-\loadmathjax
-
-\lifecycle{stable}
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 Computes correlation and moving correlation dissimilarity matrices.
 }
 \details{
+\loadmathjax
 The correlation dissimilarity \mjeqn{d}{d} between two observations
 \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's 
 correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as 

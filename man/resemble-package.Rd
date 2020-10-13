@@ -6,7 +6,7 @@
 \alias{resemble}
 \title{Overview of the functions in the resemble package}
 \description{
-\lifecycle{maturing}
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
 
 Functions for memory-based learning
 \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
@@ -56,16 +56,28 @@ Other supplementary functions:
   \item{\code{\link{plot.ortho_projection}}}
   }
 }
+\seealso{
+Useful links:
+\itemize{
+\item \url{https://github.com/l-ramirez-lopez/resemble}
+\item Report bugs at \url{https://github.com/l-ramirez-lopez/resemble/issues}
+}
+}
 \author{
-\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} <ramirez.lopez.leo@gmail.com> [aut, cre]
+\strong{Maintainer / Creator}: Leonardo Ramirez-Lopez \email{ramirez.lopez.leo@gmail.com}
 
-\href{https://orcid.org/0000-0002-1588-7519}{Antoine Stevens} [ctb] 
+Authors:
+\itemize{
+\item Leonardo Ramirez-Lopez (\href{https://orcid.org/0000-0002-5369-5120}{ORCID})
 
-\href{https://orcid.org/0000-0003-1540-4748}{Raphael Viscarra Rossel} [ctb] 
+\item Antoine Stevens (\href{https://orcid.org/0000-0002-1588-7519}{ORCID})
 
-\href{https://orcid.org/0000-0001-5416-8640}{Craig Lobsey} [ctb] 
+\item Raphael Viscarra Rossel (\href{https://orcid.org/0000-0003-1540-4748}{ORCID})
 
-\href{https://orcid.org/0000-0001-7325-9716}{Alex Wadoux} [ctb] 
+\item Craig Lobsey (\href{https://orcid.org/0000-0001-5416-8640}{ORCID})
 
-\href{https://orcid.org/0000-0001-5695-8064}{Timo Breure} [ctb]
+\item Alex Wadoux (\href{https://orcid.org/0000-0001-7325-9716}{ORCID})
+
+\item Timo Breure (\href{https://orcid.org/0000-0001-5695-8064}{ORCID})
+}
 }

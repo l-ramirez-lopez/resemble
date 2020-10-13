@@ -26,8 +26,6 @@ specified in the \code{g} argument.}
 \item{...}{some arguments to be passed to the plot methods.}
 }
 \description{
-\lifecycle{maturing}
-
 Plots the content of an object of class \code{mbl}
 }
 \details{

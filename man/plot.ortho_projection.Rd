@@ -14,8 +14,6 @@
 \item{...}{arguments to be passed to methods.}
 }
 \description{
-\lifecycle{maturing}
-
 Plots objects of class \code{ortho_projection}
 }
 \seealso{

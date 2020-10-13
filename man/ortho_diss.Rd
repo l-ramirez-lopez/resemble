@@ -156,8 +156,6 @@ a \code{list} of class \code{ortho_diss} with the following elements:
  }
 }
 \description{
-\lifecycle{maturing}
-
 \loadmathjax
 This function computes dissimilarities (in an orthogonal space) between
 either observations in a given set or between observations in two different
