@@ -50,7 +50,7 @@ comparison to conventional laboratory methods used in the analyses of such
 matrices.  This has resulted in the development of comprehensive 
 spectral databases for several agricultural products comprising large amounts 
 of observations. The size of such databases increases *de facto* their 
-complexity. To analyze large and complex spectral data, one must then resort 
+complexity. To analyze large and complex spectral data, one must then resort to
 numerical and statistical tools and methods such as dimensionality reduction, 
 and local spectroscopic modeling based on spectral dissimilarity concepts.    
 
@@ -78,8 +78,11 @@ This vignette uses the soil Near-Infrared (NIR) spectral dataset provided in the
 [package `prospectr`](https://CRAN.R-project.org/package=prospectr)
 package [@stevens2020introduction]. The reason why we use this dataset is because 
 soils are one of the most complex matrices analyzed with NIR spectroscopy. This 
-spectral dataset/library was used in the \sQuote{Chimiometrie 2006} challenge by @pierna2008soil. The library contains NIR absorbance spectra of dried and sieved
-825 soil observations/samples. These samples originate from agricultural fields collected from all over the Walloon region in Belgium. The data are in an `R` `data.frame` object which is organized as follows:
+spectral dataset/library was used in the \sQuote{Chimiometrie 2006} challenge by 
+@pierna2008soil. The library contains NIR absorbance spectra of dried and sieved
+825 soil observations/samples. These samples originate from agricultural fields 
+collected from all over the Walloon region in Belgium. The data are in an `R` 
+`data.frame` object which is organized as follows:
  
 * __Response variables__: 
   
