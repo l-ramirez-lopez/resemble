@@ -41,7 +41,7 @@ The correlation dissimilarity \mjeqn{d}{d} between two observations
 correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as 
 follows:
 
-\mjdeqn{d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))}{d(x_i, x_j) = 1/2 (1 - \rho(x_i, x_j))}
+\mjdeqn{d(x_i, x_j) = \frac{1}{2}((1 - \rho(x_i, x_j)))}{d(x_i, x_j) = 1/2 (1 - \rho(x_i, x_j))}
 
 The above formula is used when \code{ws = NULL}.
 On the other hand (when \code{ws != NULL}) the moving correlation

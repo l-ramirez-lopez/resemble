@@ -140,11 +140,6 @@ NIRsoil$spc_p <- NIRsoil$spc %>%
   resample(wav = wavs, new.wav = seq(min(wavs), max(wavs), by = new_res)) %>% 
   savitzkyGolay(p = poly_order, w = window, m = diff_order)
 ```
-
-Both the raw absorbance spectra and the first derivative spectra are shown in 
-Figure \@ref(fig:plotspectra). The first derivative spectra represents the 
-explanatory variables that will be used for all the examples throughout this 
-document. 
 ```{r plotspectra, fig.cap = "Raw spectral absorbance data (top) and first derivative of the absorbance spectra (bottom).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 8, fig.height = 8, echo = FALSE}
 op <- par()
 par(mfrow = c(2, 1), mar = c(4,4,1,4))
@@ -180,6 +175,11 @@ matplot(x = new_wavs, y = t(NIRsoil$spc_p),
         ylab = "1st derivative",
         type = "l", lty = 1, col = "#5177A133")
 ```
+
+Both the raw absorbance spectra and the first derivative spectra are shown in 
+Figure \@ref(fig:plotspectra). The first derivative spectra represents the 
+explanatory variables that will be used for all the examples throughout this 
+document. 
 
 For more explicit examples, the `NIRsoil` data is split into training and 
 testing subsets: 
@@ -217,13 +217,12 @@ set (spectral data for validation/testing).
 variable for testing).
 
 # Dimensionality reduction
-When conducting exploratory analysis of spectral data, we are immediately 
-burdened with the issue of high dimensionality. It is such that we may be 
-dealing with (using NIR spectra data as an example) hundreds to thousands of 
-individual wavelengths for each spectrum. When one wants to find patterns 
-in the data, spectral similarities and differences, or detect spectral outliers, 
-it is necessary to reduce the dimension of the spectra while retaining important 
-information. 
+When conducting exploratory analysis of spectral data, we face the curse of 
+dimensionality. It is such that we may be dealing with (using NIR spectra data 
+as an example) hundreds to thousands of individual wavelengths for each 
+spectrum. When one wants to find patterns in the data, spectral similarities and 
+differences, or detect spectral outliers, it is necessary to reduce the 
+dimension of the spectra while retaining important information. 
 
 Principal Component (PC) analysis and Partial Least Squares (PLS) decomposition 
 methods assume that the meaningful structure the data intrinsically lies on 
@@ -749,7 +748,7 @@ in the package scales the values between 0 (highest dissimilarity) and 1
 (highest similarity). To measure $d$ between two observations $x_i$ and $x_j$ 
 based on the correlation dissimilarity the following equation is applied:
 
-$$d(x_i, x_j) = \frac{1}{2} 1 - \rho(x_i, x_j)$$
+$$d(x_i, x_j) = \frac{1}{2} (1 - \rho(x_i, x_j))$$
 
 Note that $d$ cannot be considered as a distance metric since it does not 
 satisfy the axiom of identity of indiscernibles. Therefore we prefer the use of 
