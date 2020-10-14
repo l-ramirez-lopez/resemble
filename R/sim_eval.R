@@ -1,5 +1,6 @@
 #' @title A function for evaluating dissimilarity matrices (sim_eval)
 #' @description
+#' \loadmathjax
 #'
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 #'
@@ -24,7 +25,6 @@
 #' observations in terms of the side information provided. If it is a character
 #' variable, then the kappa index is used. See details.
 #' @details
-#' \loadmathjax
 #' For the evaluation of dissimilarity matrices this function uses side
 #' information (information about one variable which is available for a
 #' group of observations, Ramirez-Lopez et al., 2013). It is assumed that there

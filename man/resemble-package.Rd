@@ -9,6 +9,7 @@
 \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
 
 Functions for memory-based learning
+
 \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 }
 \details{

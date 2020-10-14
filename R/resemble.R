@@ -6,6 +6,7 @@
 #' @import data.table
 #' @import grDevices
 #' @import graphics
+#' @import mathjaxr
 ## usethis namespace: start
 #' @importFrom lifecycle deprecate_soft
 ## usethis namespace: end
@@ -14,10 +15,10 @@
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats model.frame model.matrix model.extract na.fail sd reshape
 #' @description
-#'
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
-#'
+#' 
 #' Functions for memory-based learning
+#' 
 #' \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 #'
 #' @details

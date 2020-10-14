@@ -33,6 +33,8 @@ variable, then the kappa index is used. See details.}
  }
 }
 \description{
+\loadmathjax
+
 \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 This function searches for the most similar observation (closest neighbor) of
@@ -43,7 +45,6 @@ square of differences and the correlation coefficient are used for continuous
 variables and for discrete variables the kappa index is used.
 }
 \details{
-\loadmathjax
 For the evaluation of dissimilarity matrices this function uses side
 information (information about one variable which is available for a
 group of observations, Ramirez-Lopez et al., 2013). It is assumed that there
