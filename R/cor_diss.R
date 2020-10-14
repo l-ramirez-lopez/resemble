@@ -2,7 +2,7 @@
 #' @description
 #' \loadmathjax
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
-#' 
+#'
 #' Computes correlation and moving correlation dissimilarity matrices.
 #' @usage
 #' cor_diss(Xr, Xu = NULL, ws = NULL,
@@ -21,8 +21,8 @@
 #' of \mjeqn{Xr \cup Xu}{Xr U Xu}.
 #' @details
 #' The correlation dissimilarity \mjeqn{d}{d} between two observations
-#' \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's 
-#' correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as 
+#' \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's
+#' correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as
 #' follows:
 #'
 #' \mjdeqn{d(x_i, x_j) = \frac{1}{2}((1 - \rho(x_i, x_j)))}{d(x_i, x_j) = 1/2 (1 - \rho(x_i, x_j))}

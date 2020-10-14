@@ -19,7 +19,7 @@ print.ortho_projection <- function(x, ...) {
   } else {
     mss <- c("\n", "Explained variance in Xr: \n")
   }
-  
+
   cat("\n", "Standard deviations, individual explained variance, cumulative explained variance:", "\n")
   if (x$method == "pls") {
     cat(mss)

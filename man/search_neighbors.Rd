@@ -103,13 +103,13 @@ method). The methods available are:
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of cumulative variance that the 
+       indicating the minimum amount of cumulative variance that the
        combination of retained components should explain.}
 
        \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a single component 
+       indicating the minimum amount of variance that a single component
        should explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of

@@ -3,7 +3,7 @@
 #' @description
 #' \loadmathjax
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#experimental'><img src='figures/lifecycle-experimental.svg' alt='Experimental lifecycle'></a>}}{\strong{Experimental}}
-#' 
+#'
 #' This function computes the spectral information divergence/dissimilarity between
 #' spectra based on the kullback-leibler divergence algorithm (see details).
 #' @usage

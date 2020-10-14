@@ -94,13 +94,13 @@
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of cumulative variance that the 
+#'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
 #'
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a single component 
+#'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
@@ -290,13 +290,15 @@
 ##                    - scaled renamed to scale
 ##                    - pcMethod and cores are deprecated
 
-search_neighbors <- function(Xr, Xu, diss_method = c("pca",
-                                                     "pca.nipals",
-                                                     "pls",
-                                                     "cor",
-                                                     "euclid",
-                                                     "cosine",
-                                                     "sid"),
+search_neighbors <- function(Xr, Xu, diss_method = c(
+                               "pca",
+                               "pca.nipals",
+                               "pls",
+                               "cor",
+                               "euclid",
+                               "cosine",
+                               "sid"
+                             ),
                              Yr = NULL,
                              k, k_diss, k_range,
                              spike = NULL,
@@ -306,8 +308,8 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
                              ws = NULL,
                              center = TRUE, scale = FALSE,
                              documentation = character(), ...) {
-  
-  
+
+
   # Sanity checks
   match.arg(diss_method, c(
     "pca",
@@ -318,27 +320,27 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
     "cosine",
     "sid"
   ))
-  
+
   if (missing(k)) {
     k <- NULL
   }
-  
+
   if (missing(k_diss)) {
     k_diss <- NULL
   }
-  
+
   if (missing(k_range)) {
     k_range <- NULL
   }
-  
+
   if (!is.logical(center)) {
     stop("'center' argument must be logical")
   }
-  
+
   if (!is.logical(scale)) {
     stop("'scale' argument must be logical")
   }
-  
+
   if (diss_method == "cor") {
     if (!is.null(ws)) {
       if (ws < 3 | ws > (ncol(Xr) - 1) | length(ws) != 1 | (ws %% 2) == 0) {
@@ -349,18 +351,18 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
       }
     }
   }
-  
+
   if (!is.null(k) & !is.null(k_diss)) {
     # if k and k_diss are not called here, errors are thrown during checks
     k
     k_diss
     stop("Only one of k or k_diss can be specified")
   }
-  
+
   if (is.null(k) & is.null(k_diss)) {
     stop("Either k or k_diss must be specified")
   }
-  
+
   if (!is.null(k)) {
     k <- as.integer(k)
     if (k < 1) {
@@ -374,7 +376,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
     }
     kk <- k
   }
-  
+
   if (!is.null(k_diss)) {
     # if k_diss is not called here, errors are thrown during checks
     k_diss
@@ -420,7 +422,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
       }
     }
   }
-  
+
   if (!is.null(spike)) {
     if (!is.vector(spike)) {
       stop("spike must be a vector of integers")
@@ -448,19 +450,19 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
     scale = scale,
     ...
   )
-  
+
   results <- diss_to_neighbors(dsm$dissimilarity,
-                               k = k, k_diss = k_diss, k_range = k_range,
-                               spike = spike,
-                               return_dissimilarity = return_dissimilarity
+    k = k, k_diss = k_diss, k_range = k_range,
+    spike = spike,
+    return_dissimilarity = return_dissimilarity
   )
-  
+
   if (return_projection & diss_method %in% c("pca", "pca.nipals", "pls")) {
     results$projection <- dsm$projection
   }
   if ("gh" %in% names(input_dots)) {
     results$gh <- dsm$gh
   }
-  
+
   results
 }

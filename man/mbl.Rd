@@ -134,13 +134,13 @@ method). The methods available are:
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of cumulative variance that the 
+       indicating the minimum amount of cumulative variance that the
        combination of retained components should explain.}
 
        \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a single component 
+       indicating the minimum amount of variance that a single component
        should explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
@@ -375,7 +375,8 @@ data(NIRsoil)
 # Golay smoothing filter
 sg_det <- savitzkyGolay(
   detrend(NIRsoil$spc,
-          wav = as.numeric(colnames(NIRsoil$spc))),
+    wav = as.numeric(colnames(NIRsoil$spc))
+  ),
   m = 1,
   p = 1,
   w = 7
@@ -384,11 +385,11 @@ sg_det <- savitzkyGolay(
 NIRsoil$spc_pr <- sg_det
 
 # split into training and testing sets
-test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
 test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
 train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
-train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
 
 # Example 1
 # A mbl implemented in Ramirez-Lopez et al. (2013,

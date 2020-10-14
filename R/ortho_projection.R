@@ -57,13 +57,13 @@
 #'        minimizes the differences between the \code{Yr} value of each
 #'        observation and the \code{Yr} value of its closest observation. In this
 #'        case \code{value} must be a value (larger than 0 and
-#'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating 
+#'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating
 #'        the maximum number of principal components to be tested. See details.}
 #'
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of cumulative variance that the 
+#'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
 #'
 #'        \item{\code{"var"}:}{ selection of the principal components based
@@ -109,9 +109,9 @@
 #' @details
 #' In the case of \code{method = "pca"}, the algrithm used is the singular value
 #' decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
-#'      
+#'
 #'  \mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}
-#'      
+#'
 #' where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right
 #' singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
 #' containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
@@ -164,8 +164,8 @@
 #'  onto a "pls" space. This object is only returned if the "pls" algorithm was
 #'  used.}
 #'  \item{\code{variance}}{ a matrix indicating the standard deviation of each
-#'  component (sd), the variance explained by each single component 
-#'  (explained_var) and the cumulative explained variance 
+#'  component (sd), the variance explained by each single component
+#'  (explained_var) and the cumulative explained variance
 #'  (cumulative_explained_var). These values are
 #'  computed based on the data used to create the projection matrices.
 #'  For example if the "pls" method was used, then these values are computed
@@ -208,24 +208,25 @@
 #' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
-#' 
+#'
 #' # Proprocess the data using detrend plus first derivative with Savitzky and
 #' # Golay smoothing filter
 #' sg_det <- savitzkyGolay(
 #'   detrend(NIRsoil$spc,
-#'           wav = as.numeric(colnames(NIRsoil$spc))),
+#'     wav = as.numeric(colnames(NIRsoil$spc))
+#'   ),
 #'   m = 1,
 #'   p = 1,
 #'   w = 7
 #' )
 #' NIRsoil$spc_pr <- sg_det
-#' 
+#'
 #' # split into training and testing sets
-#' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+#' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
 #' test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
-#' 
+#'
 #' train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
-#' train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
+#' train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
 #'
 #' # A principal component analysis using 5 components
 #' pca_projected <- ortho_projection(train_x, pc_selection = list("manual", 5))
@@ -393,7 +394,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
       ))
     }
   }
-  
+
   ny <- ncol(Yr)
 
   if (!is.null(Xu)) {

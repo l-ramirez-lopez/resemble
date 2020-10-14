@@ -18,9 +18,9 @@ implements a number of \code{R} functions useful for
 modeling complex spectral spectra (e.g. NIR, IR).
 The package includes functions for dimensionality reduction,
 computing spectral dissimilarity matrices, nearest neighbor search,
-and modeling spectral data using memory-based learning. 
+and modeling spectral data using memory-based learning.
 
-Development versions can be found in the github repository of the package 
+Development versions can be found in the github repository of the package
 at \href{https://github.com/l-ramirez-lopez/resemble}{https://github.com/l-ramirez-lopez/resemble}.
 
 The functions available for dimensionality reduction are:

@@ -89,13 +89,13 @@ method). The methods available are:
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of cumulative variance that the 
+       indicating the minimum amount of cumulative variance that the
        combination of retained components should explain.}
 
        \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a single component 
+       indicating the minimum amount of variance that a single component
        should explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
@@ -182,8 +182,9 @@ This function is a wrapper for \code{\link{ortho_diss}}, \code{\link{cor_diss}},
 library(prospectr)
 data(NIRsoil)
 
-# Filter the data using the first derivative with Savitzky and Golay smoothing 
-filter and a window size of 11 spectral variables and a polynomial order of 4
+# Filter the data using the first derivative with Savitzky and Golay
+# smoothing filter and a window size of 11 spectral variables and a
+# polynomial order of 4
 sg <- savitzkyGolay(NIRsoil$spc, m = 1, p = 4, w = 15)
 
 # Replace the original spectra with the filtered ones

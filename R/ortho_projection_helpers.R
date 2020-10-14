@@ -67,7 +67,7 @@ eval_multi_pc_diss <- function(scores,
     ith_result <- extract_sim_results(tmp)
     results[i, 1:n_cols_results] <- unlist(ith_result$result)
   }
-  
+
   colnames(results) <- ith_result$measure_names
   eval_pcs <- matrix(eval_pcs, dimnames = list(eval_pcs, method))
   results <- cbind(pc = eval_pcs, results)
