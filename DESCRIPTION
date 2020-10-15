@@ -66,9 +66,7 @@ Suggests:
 LinkingTo: 
     Rcpp, 
     RcppArmadillo
-RdMacros: 
-    mathjaxr,
-    lifecycle
+RdMacros: mathjaxr
 VignetteBuilder: knitr
 NeedsCompilation: yes
 LazyData: true
