@@ -81,8 +81,9 @@ method). The methods available are:
        (of set of observations) is the one for which its distance matrix
        minimizes the differences between the \code{Yr} value of each
        observation and the \code{Yr} value of its closest observation. In this
-       case \code{value} must be a value (larger than 0 and
-       below \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}) indicating the maximum
+       case \code{value} must be a value ((larger than 0 and
+       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} 
+       combined) indicating the maximum
        number of principal components to be tested. See the
        \code{\link{ortho_projection}} function for more details.}
 
@@ -100,11 +101,14 @@ method). The methods available are:
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
-       (larger than 0 and \code{min(nrow(Xr), nrow(Xu), ncol(Xr))}).
+       (larger than 0 and
+       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} 
+       combined).
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "var", value = 0.01)}.
+The default is \code{list(method = "var", value = 0.01)}.
+
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
@@ -155,6 +159,7 @@ A list with the following components:
        \item{\code{projection}:}{ an \code{ortho_projection} object. Only output
        if \code{return_projection = TRUE} and if \code{diss_method = "pca"},
        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
+       
        This object contains the projection used to compute
        the dissimilarity matrix. In case of local dissimilarity matrices,
        the projection corresponds to the global projection used to select the
@@ -162,7 +167,7 @@ A list with the following components:
        details).}
 
        \item{\code{gh}:}{ a list containing the GH distances as well as the
-       pls projection used (\code{ortho_projection} object) to compute the GH.}
+       pls projection used to compute the GH.}
        }
 }
 \description{

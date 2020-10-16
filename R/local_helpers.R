@@ -16,7 +16,6 @@ get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
                               diss_usage, allow_parallel = FALSE,
                               ...) {
   ortho_diss_methods <- c("pca", "pca.nipals", "pls")
-
   k_max <- NULL
   if (!is.null(k)) {
     k <- sort(k)

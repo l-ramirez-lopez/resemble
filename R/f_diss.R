@@ -12,7 +12,8 @@
 #' @param Xr a matrix containing the (reference) data.
 #' @param Xu an optional matrix containing data of a second set of observations
 #' (samples).
-#' @param diss_method the method for computing the dissimilarity matrix.
+#' @param diss_method the method for computing the dissimilarity between 
+#' observations.
 #' Options are \code{"euclid"} (Euclidean distance), \code{"mahalanobis"}
 #' (Mahalanobis distance) and \code{"cosine"} (cosine distance, a.k.a spectral
 #' angle mapper). See details.

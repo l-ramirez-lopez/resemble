@@ -13,7 +13,8 @@ f_diss(Xr, Xu = NULL, diss_method = "euclid",
 \item{Xu}{an optional matrix containing data of a second set of observations
 (samples).}
 
-\item{diss_method}{the method for computing the dissimilarity matrix.
+\item{diss_method}{the method for computing the dissimilarity between 
+observations.
 Options are \code{"euclid"} (Euclidean distance), \code{"mahalanobis"}
 (Mahalanobis distance) and \code{"cosine"} (cosine distance, a.k.a spectral
 angle mapper). See details.}

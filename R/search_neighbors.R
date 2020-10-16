@@ -56,7 +56,7 @@
 #' \itemize{
 #'        \item{\code{diss_method = "pls"}}
 #'        \item{\code{diss_method = "pca"} with \code{"opc"} used as the method
-#'        in the \code{pc_selection} argument. See \code{\link{ortho_diss}.}}
+#'        in the \code{pc_selection} argument. See [ortho_diss()].}
 #'        }
 #' @param k an integer value indicating the k-nearest neighbors of each
 #' observation in \code{Xu} that must be selected from \code{Xr}.
@@ -86,10 +86,10 @@
 #'        (of set of observations) is the one for which its distance matrix
 #'        minimizes the differences between the \code{Yr} value of each
 #'        observation and the \code{Yr} value of its closest observation. In this
-#'        case \code{value} must be a value (larger than 0 and
-#'        below \code{min(nrow(Xr), nrow(X2), ncol(Xr))}) indicating the maximum
-#'        number of principal components to be tested. See the
-#'        \code{\link{ortho_projection}} function for more details.}
+#'        case \code{value} must be a value  (larger than 0 and below the 
+#'        minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined) 
+#'        indicating the maximum number of principal components to be tested. 
+#'        See the \code{\link{ortho_projection}} function for more details.}
 #'
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
@@ -105,11 +105,13 @@
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
-#'        (larger than 0 and \code{min(nrow(Xr), nrow(X2), ncol(Xr))}).
+#'        (larger than 0 and below the 
+#'        minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined) 
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "var", value = 0.01)}.
+#' The default is \code{list(method = "var", value = 0.01)}.
+#' 
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such a case the default \code{"value"} when either \code{"opc"} or
@@ -181,13 +183,14 @@
 #'  \item{\code{dissimilarity}}{ If \code{return_dissimilarity = TRUE} the
 #'  dissimilarity object used (as computed by the \code{\link{dissimilarity}}
 #'  function.}
-#'  \item{\code{projection}}{ an \code{ortho_projection} object. Only output  if
+#'  \item{\code{projection}}{ an \code{ortho_projection} object. Only output if
 #'        \code{return_projection = TRUE} and if \code{diss_method = "pca"},
 #'        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
+#'        
 #'        This object contains the projection used to compute
 #'        the dissimilarity matrix. In case of local dissimilarity matrices,
 #'        the projection corresponds to the global projection used to select the
-#'        neighborhoods (see \code{\link{ortho_diss}} function for further
+#'        neighborhoods.  (see \code{\link{ortho_diss}} function for further
 #'        details).}
 #'  }
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
@@ -431,10 +434,20 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
       stop("spike must be a vector of integers")
     }
     if (length(spike) >= nrow(Xr)) {
-      stop("Argument spike cannot be larger or equal to the number of rows of Xr")
+      stop("The lebgth of spike cannot be larger or equal to the number of rows of Xr")
     }
-    if (max(spike) >= nrow(Xr)) {
+    if (max(spike) > nrow(Xr)) {
       stop("Argument spike contains indices subscript out of bounds of Xr")
+    }
+    if (!is.null(k)) {
+      if (min(k) <= length(spike)) {
+        stop("values for k must be larger than length(spike)")
+      }
+    }
+    if (!is.null(k_diss)) {
+      if (min(k_range) <= length(spike)) {
+        stop("values for k_range must be larger than length(spike)")
+      }
     }
     spike <- sort(unique(as.integer(spike)))
   }

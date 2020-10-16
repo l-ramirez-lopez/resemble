@@ -43,10 +43,14 @@ and their corresponding most similar observations in terms of the side informati
 provided. A single discrete variable of class factor can also be passed. In
 that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.}
 
-\item{method}{the method for projecting the data. Options are: "pca" (principal
-component analysis using the singular value decomposition algorithm),
-"pca.nipals" (principal component analysis using the non-linear iterative
-partial least squares algorithm) and "pls" (partial least squares).}
+\item{method}{the method for projecting the data. Options are: 
+\itemize{
+\item{\code{"pca"}:}{ principal component analysis using the singular value 
+decomposition algorithm.}
+\item{\code{"pca.nipals"}:}{ principal component analysis using the 
+non-linear iterative partial least squares algorithm.} 
+\item{\code{"pls"}:}{ partial least squares.}
+}}
 
 \item{pc_selection}{a list of length 2 which specifies the method to be used
 for optimizing the number of components (principal components or pls factors)
@@ -78,11 +82,13 @@ method). The methods available are:
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
-       (larger than 0 and below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))}).
+       (larger than 0 and
+       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} 
+       combined).
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "var", value = 0.01)}.
+The list \code{list(method = "var", value = 0.01)} is the default.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
@@ -100,7 +106,7 @@ centered.}
 must be scaled. If \code{Xu} is specified the data is scaled on the basis of
 \mjeqn{Xr \cup Xu}{Xr U Xu}.}
 
-\item{...}{additional arguments to be passed from \code{ortho_projection}
+\item{...}{additional arguments to be passed 
 to \code{pc_projection} or \code{pls_projection}.}
 
 \item{tol}{tolerance limit for convergence of the algorithm in the nipals
@@ -111,16 +117,14 @@ more than one variable.}
 \code{method = "pls"} this applies only to \code{Yr} matrices with more than
 one variable.}
 
-\item{object}{object of class "ortho_projection" (as returned by
-\code{ortho_projection}, \code{pc_projection} or \code{pls_projection}).}
+\item{object}{object of class \code{"ortho_projection"}.}
 
 \item{newdata}{an optional data frame or matrix in which to look for variables
 with which to predict. If omitted, the scores are used. It must contain the
 same number of columns, to be used in the same order.}
 }
 \value{
-\code{ortho_projection}, \code{pc_projection}, \code{pls_projection},
-return a \code{list} of class \code{ortho_projection} with the following
+a \code{list} of class \code{ortho_projection} with the following
 components:
 \itemize{
  \item{\code{scores}}{ a matrix of scores corresponding to the observations in
