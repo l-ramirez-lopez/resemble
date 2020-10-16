@@ -53,7 +53,7 @@ parallel processing is used, these progress bars will not be printed.}
 If \code{TRUE}, this parallelism is applied to the loop in \code{\link{mbl}}
 in which each iteration takes care of a single observation in \code{Xu}. The
 parallelization of this for loop is implemented using the
-\link[foreach]{foreach} function of the \code{\link{foreach}} package.
+code{\link[foreach]{foreach}} function of the package \code{foreach}.
 Default is \code{TRUE}.}
 }
 \value{
