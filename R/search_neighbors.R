@@ -436,7 +436,19 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
     if (length(spike) >= nrow(Xr)) {
       stop("The lebgth of spike cannot be larger or equal to the number of rows of Xr")
     }
-
+    if (max(spike) > nrow(Xr)) {
+      stop("Argument spike contains indices subscript out of bounds of Xr")
+    }
+    if (!is.null(k)) {
+      if (min(k) <= length(spike)) {
+        stop("values for k must be larger than length(spike)")
+      }
+    }
+    if (!is.null(k_diss)) {
+      if (min(k_range) <= length(spike)) {
+        stop("values for k_range must be larger than length(spike)")
+      }
+    }
     spike <- sort(unique(as.integer(spike)))
   }
   dsm <- dissimilarity(
