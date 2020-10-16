@@ -43,12 +43,12 @@ and their corresponding most similar observations in terms of the side informati
 provided. A single discrete variable of class factor can also be passed. In
 that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.}
 
-\item{method}{the method for projecting the data. Options are: 
+\item{method}{the method for projecting the data. Options are:
 \itemize{
-\item{\code{"pca"}:}{ principal component analysis using the singular value 
+\item{\code{"pca"}:}{ principal component analysis using the singular value
 decomposition algorithm.}
-\item{\code{"pca.nipals"}:}{ principal component analysis using the 
-non-linear iterative partial least squares algorithm.} 
+\item{\code{"pca.nipals"}:}{ principal component analysis using the
+non-linear iterative partial least squares algorithm.}
 \item{\code{"pls"}:}{ partial least squares.}
 }}
 
@@ -83,7 +83,7 @@ method). The methods available are:
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
        (larger than 0 and
-       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} 
+       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
        combined).
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
@@ -106,7 +106,7 @@ centered.}
 must be scaled. If \code{Xu} is specified the data is scaled on the basis of
 \mjeqn{Xr \cup Xu}{Xr U Xu}.}
 
-\item{...}{additional arguments to be passed 
+\item{...}{additional arguments to be passed
 to \code{pc_projection} or \code{pls_projection}.}
 
 \item{tol}{tolerance limit for convergence of the algorithm in the nipals

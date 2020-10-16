@@ -40,12 +40,12 @@
 #' and their corresponding most similar observations in terms of the side information
 #' provided. A single discrete variable of class factor can also be passed. In
 #' that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.
-#' @param method the method for projecting the data. Options are: 
+#' @param method the method for projecting the data. Options are:
 #' \itemize{
-#' \item{\code{"pca"}:}{ principal component analysis using the singular value 
+#' \item{\code{"pca"}:}{ principal component analysis using the singular value
 #' decomposition algorithm.}
-#' \item{\code{"pca.nipals"}:}{ principal component analysis using the 
-#' non-linear iterative partial least squares algorithm.} 
+#' \item{\code{"pca.nipals"}:}{ principal component analysis using the
+#' non-linear iterative partial least squares algorithm.}
 #' \item{\code{"pls"}:}{ partial least squares.}
 #' }
 #' @param pc_selection a list of length 2 which specifies the method to be used
@@ -79,7 +79,7 @@
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and
-#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} 
+#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
 #'        combined).
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
@@ -105,7 +105,7 @@
 #' @param max_iter maximum number of iterations (default is 1000). In the case of
 #' \code{method = "pls"} this applies only to \code{Yr} matrices with more than
 #' one variable.
-#' @param ... additional arguments to be passed 
+#' @param ... additional arguments to be passed
 #' to \code{pc_projection} or \code{pls_projection}.
 #' @param object object of class \code{"ortho_projection"}.
 #' @param newdata an optional data frame or matrix in which to look for variables
@@ -149,7 +149,7 @@
 #'
 #' This function supports multi-threading for the computation of dissimilarities
 #' via OpenMP in Rcpp.
-#' @return 
+#' @return
 #' a \code{list} of class \code{ortho_projection} with the following
 #' components:
 #' \itemize{

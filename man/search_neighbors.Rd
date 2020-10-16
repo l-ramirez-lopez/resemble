@@ -95,9 +95,9 @@ method). The methods available are:
        (of set of observations) is the one for which its distance matrix
        minimizes the differences between the \code{Yr} value of each
        observation and the \code{Yr} value of its closest observation. In this
-       case \code{value} must be a value  (larger than 0 and below the 
-       minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined) 
-       indicating the maximum number of principal components to be tested. 
+       case \code{value} must be a value (larger than 0 and below the
+       minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
+       indicating the maximum number of principal components to be tested.
        See the \code{\link{ortho_projection}} function for more details.}
 
        \item{\code{"cumvar"}:}{ selection of the principal components based
@@ -114,8 +114,8 @@ method). The methods available are:
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
-       (larger than 0 and below the 
-       minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined) 
+       (larger than 0 and below the
+       minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
@@ -190,7 +190,7 @@ a \code{list} containing the following elements:
  \item{\code{projection}}{ an \code{ortho_projection} object. Only output if
        \code{return_projection = TRUE} and if \code{diss_method = "pca"},
        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
-       
+
        This object contains the projection used to compute
        the dissimilarity matrix. In case of local dissimilarity matrices,
        the projection corresponds to the global projection used to select the

@@ -70,13 +70,13 @@
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and
-#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} 
+#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
 #'        combined).
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
 #' Default is \code{list(method = "var", value = 0.01)}.
-#' 
+#'
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such case, the default \code{"value"} when either \code{"opc"} or
@@ -147,9 +147,9 @@
 #' not have enough observations with non-missing \code{"Yr"} values, which might retrieve
 #' unreliable dissimilarity computations.
 #'
-#' If \code{"opc"} or \code{"manual"} are used in \code{pc_selection$method} 
-#' and \code{.local = TRUE}, the minimum number of observations with non-missing 
-#' \code{"Yr"} values at each neighborhood is determined by 
+#' If \code{"opc"} or \code{"manual"} are used in \code{pc_selection$method}
+#' and \code{.local = TRUE}, the minimum number of observations with non-missing
+#' \code{"Yr"} values at each neighborhood is determined by
 #' \code{pc_selection$value} (i.e. the maximum number of components to compute).
 #'
 #'

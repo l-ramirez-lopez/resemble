@@ -89,7 +89,9 @@
 #'
 #' @seealso \code{\link{mbl}}
 #' @examples
-#' \dontrun{local_fit_wapls(min_pls_c = 3, max_pls_c = 12)}
+#' \dontrun{
+#' local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
+#' }
 #' @export
 
 ## History:

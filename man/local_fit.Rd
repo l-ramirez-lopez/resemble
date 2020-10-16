@@ -89,7 +89,9 @@ There are three possible options for performing these regressions:
  }
 }
 \examples{
-\dontrun{local_fit_wapls(min_pls_c = 3, max_pls_c = 12)}
+\dontrun{
+local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
+}
 }
 \references{
 Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL

@@ -43,10 +43,10 @@ retained when the \code{k_diss} is given.}
 
 \item{spike}{an integer vector indicating the indices of observations in
 \code{Xr} that must be forced into the neighborhoods of every \code{Xu}
-observation. Default is \code{NULL} (i.e. no observations are forced). Note 
-that this argument is not intended for increasing the neighborhood size which 
-is only controlled by \code{k} or \code{k_diss} and \code{k_range}. By 
-forcing observations into the neighborhood, some observations will be forced 
+observation. Default is \code{NULL} (i.e. no observations are forced). Note
+that this argument is not intended for increasing the neighborhood size which
+is only controlled by \code{k} or \code{k_diss} and \code{k_range}. By
+forcing observations into the neighborhood, some observations will be forced
 out of the neighborhood. See details.}
 
 \item{method}{an object of class \code{\link{local_fit}} which indicates the
@@ -71,7 +71,7 @@ observation. Options are:
 
        \item{\code{"pls"}}{ Mahalanobis distance
        computed on the matrix of scores of a partial least squares projection
-       of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always 
+       of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always
        required. See \code{\link{ortho_diss}} function.}
 
        \item{\code{"cor"}}{ correlation coefficient
@@ -122,13 +122,13 @@ This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} { optimized principal component selection based 
-       on Ramirez-Lopez et al. (2013a, 2013b). The optimal number of 
-       components (of set of observations) is the one for which its distance 
+       \item{\code{"opc"}:} { optimized principal component selection based
+       on Ramirez-Lopez et al. (2013a, 2013b). The optimal number of
+       components (of set of observations) is the one for which its distance
        matrix minimizes the differences between the \code{Yr} value of each
-       observation and the \code{Yr} value of its closest observation. In 
+       observation and the \code{Yr} value of its closest observation. In
        this case \code{value} must be a value (larger than 0 and
-       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} 
+       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
        combined) indicating the maximum
        number of principal components to be tested. See the
        \code{\link{ortho_projection}} function for more details.}
@@ -147,7 +147,7 @@ method). The methods available are:
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
-       (larger than 0 and below the minimum dimension of \code{Xr} or 
+       (larger than 0 and below the minimum dimension of \code{Xr} or
        \code{Xr} and \code{Xu} combined).
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
@@ -171,7 +171,7 @@ See the \code{\link{mbl_control}} function for more details.}
 that can be coerced to \code{\link[base]{factor}} by \code{as.factor}) that
 assigns a group/class label to each observation in \code{Xr}
 (e.g. groups can be given by spectra collected from the same batch of
-measurements, from the same observation, from observations with very similar 
+measurements, from the same observation, from observations with very similar
 origin, etc). This is taken into account for internal leave-group-out cross
 validation for pls tuning (factor optimization) to avoid pseudo-replication.
 When one observation is selected for cross-validation, all observations of
@@ -219,9 +219,9 @@ a \code{list} of class \code{mbl} with the following components
  as well as the results of the global pls projection object used to obtain
  the GH values.}
  \item{\code{validation_results}:}{ a list of validation results for
- "local cross validation" (returned if the \code{validation_type} in 
- \code{control} list was set to \code{"local_cv"}), 
- "nearest neighbor validation" (returned if the \code{validation_type} 
+ "local cross validation" (returned if the \code{validation_type} in
+ \code{control} list was set to \code{"local_cv"}),
+ "nearest neighbor validation" (returned if the \code{validation_type}
  in \code{control} list was set to \code{"NNv"}) and
  "Yu prediction statistics" (returned  if \code{Yu} was supplied).}``
  \item{\code{results}:}{ a list of data tables containing the results of the
@@ -235,10 +235,10 @@ a \code{list} of class \code{mbl} with the following components
    \item{\code{k_original}:}{ This column is only output if the \code{k_diss}
    argument is used. It indicates the number of neighbors that were originally
    found when the given dissimilarity threshold is used.}
-   \item{\code{k}:}{ This column indicates the final number of neighbors 
+   \item{\code{k}:}{ This column indicates the final number of neighbors
    used.}
-   \item{\code{npls}:}{ This column is only output if the \code{pls} 
-   regression method was used. It indicates the final number of pls 
+   \item{\code{npls}:}{ This column is only output if the \code{pls}
+   regression method was used. It indicates the final number of pls
    components used.}
    \item{\code{min_pls}:}{ This column is only output if \code{wapls}
    regression method was used. It indicates the final number of minimum pls
@@ -258,35 +258,35 @@ a \code{list} of class \code{mbl} with the following components
    variable) in the neighborhood.}
    \item{\code{index_nearest_in_Xr}}{ The index of the nearest neighbor found
    in \code{Xr}.}
-   \item{\code{index_farthest_in_Xr}}{ The index of the farthest neighbor 
+   \item{\code{index_farthest_in_Xr}}{ The index of the farthest neighbor
    found in \code{Xr}.}
    \item{\code{y_nearest}:}{ The reference value (\code{Yr}) corresponding to
    the nearest neighbor found in \code{Xr}.}
-   \item{\code{y_nearest_pred}:}{ This column is only output if the 
-   validation method in the object passed to \code{control} was set to 
-   \code{"NNv"}. It represents the predicted value of the nearest neighbor 
-   observation found in \code{Xr}. This prediction come from model fitted 
-   with the remaining observations in the neighborhood of the target 
+   \item{\code{y_nearest_pred}:}{ This column is only output if the
+   validation method in the object passed to \code{control} was set to
+   \code{"NNv"}. It represents the predicted value of the nearest neighbor
+   observation found in \code{Xr}. This prediction come from model fitted
+   with the remaining observations in the neighborhood of the target
    observation in \code{Xu}.}
    \item{\code{loc_rmse_cv}:}{ This column is only output if the validation
    method in the object passed to \code{control} was set to
    \code{'local_cv'}. It represents the RMSE of the cross-validation
    computed for the neighborhood of the target observation in \code{Xu}.}
-   \item{\code{loc_st_rmse_cv}:}{ This column is only output if the 
+   \item{\code{loc_st_rmse_cv}:}{ This column is only output if the
    validation method in the object passed to \code{control} was set to
    \code{'local_cv'}. It represents the standardized RMSE of the
-   cross-validation computed for the neighborhood of the target observation 
+   cross-validation computed for the neighborhood of the target observation
    in \code{Xu}.}
    \item{\code{dist_nearest}:}{ The distance to the nearest neighbor.}
    \item{\code{dist_farthest}:}{ The distance to the farthest neighbor.}
    \item{\code{loc_n_components}:}{ This column is only output if the
    dissimilarity method used is one of \code{"pca"}, \code{"pca.nipals"} or
    \code{"pls"} and in addition the dissimilarities are requested to be
-   computed locally by passing \code{.local = TRUE} to the \code{mbl} 
+   computed locally by passing \code{.local = TRUE} to the \code{mbl}
    function.
    See \code{.local} argument in the \code{\link{ortho_diss}} function.}
    }
- \item{\code{documentation}}{ A character string with the documentation 
+ \item{\code{documentation}}{ A character string with the documentation
  added.}
  }
 When the \code{k_diss} argument is used, the printed results show a table
@@ -310,9 +310,9 @@ regression model.
 \details{
 The argument \code{spike} can be used to indicate what reference observations
 in \code{Xr} must be kept in the neighborhood of every single \code{Xu}
-observation. If a vector of length \mjeqn{m}{m} is passed to this argument, 
-this means that the \mjeqn{m}{m} original neighbors with the largest 
-dissimilarities to the target observations will be forced out of the 
+observation. If a vector of length \mjeqn{m}{m} is passed to this argument,
+this means that the \mjeqn{m}{m} original neighbors with the largest
+dissimilarities to the target observations will be forced out of the
 neighborhood. Spiking might be useful in cases where
 some reference observations are known to be somehow related to the ones in
 \code{Xu} and therefore might be relevant for fitting the local models. See
@@ -334,9 +334,9 @@ source of additional predictors (i.e the columns of this local matrix are
 treated as predictor variables). In some cases this results in an improvement
 of the prediction performance (Ramirez-Lopez et al., 2013a).
 If \code{diss_usage = "weights"}, the neighbors of the query point
-(\mjeqn{xu_{j}}{xu_j}) are weighted according to their dissimilarity to 
-\mjeqn{xu_{j}}{xu_j} before carrying out each local regression. The following 
-tricubic function (Cleveland and Delvin, 1988; Naes et al., 1990) is used for 
+(\mjeqn{xu_{j}}{xu_j}) are weighted according to their dissimilarity to
+\mjeqn{xu_{j}}{xu_j} before carrying out each local regression. The following
+tricubic function (Cleveland and Delvin, 1988; Naes et al., 1990) is used for
 computing the final weights based on the measured dissimilarities:
 
 \mjdeqn{W_{j}  =  (1 - v^{3})^{3}}{W_j  =  (1 - v^3)^3}
@@ -368,14 +368,14 @@ parameter tuning, what extra objects to return, permission for parallel
 execution, prediction limits, etc, can be specified by using the
 \code{\link{mbl_control}} function.
 
-By using the \code{group} argument one can specify groups of observations 
+By using the \code{group} argument one can specify groups of observations
 that have something in common (e.g. observations with very similar origin).
 The purpose of \code{group} is to avoid biased cross-validation results due
 to pseudo-replication. This argument allows to select calibration points
 that are independent from the validation ones. In this regard, when
-\code{validation_type = "local_cv"} (used in \code{\link{mbl_control}} 
-function), then the \code{p} argument refers to the percentage of groups of 
-observations (rather than single observations) to be retained in each 
+\code{validation_type = "local_cv"} (used in \code{\link{mbl_control}}
+function), then the \code{p} argument refers to the percentage of groups of
+observations (rather than single observations) to be retained in each
 sampling iteration at each local segment.
 }
 \examples{
@@ -533,7 +533,7 @@ approach to regression analysis by local fitting. Journal of the American
 Statistical Association, 83, 596-610.
 
 Guerrero, C., Zornoza, R., Gómez, I., Mataix-Beneyto, J. 2010. Spiking of
-NIR regional models using observations from target sites: Effect of model 
+NIR regional models using observations from target sites: Effect of model
 size on prediction accuracy. Geoderma, 158(1-2), 66-77.
 
 Naes, T., Isaksson, T., Kowalski, B. 1990. Locally weighted regression and
@@ -542,7 +542,7 @@ scatter correction for near-infrared reflectance data. Analytical Chemistry
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 Scholten, T. 2013a. The spectrum-based learner: A new local approach for
-modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 
+modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
 268-279.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
@@ -562,6 +562,6 @@ Infrared Spectroscopy, 5, 223-232.
 \code{\link{search_neighbors}}
 }
 \author{
-\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 and Antoine Stevens
 }
