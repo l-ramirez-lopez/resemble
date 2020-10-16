@@ -46,26 +46,13 @@ URL: http://l-ramirez-lopez.github.io/resemble/
 Depends:
     R (>= 3.5.0)
 Imports: 
-    foreach, 
-    iterators, 
-    Rcpp (>= 1.0.3), 
-    dplyr (>= 0.7.0), 
-    mathjaxr (>= 1.0), 
-    magrittr (>= 1.5.0), 
-    lifecycle (>= 0.2.0),
-    data.table (>= 1.9.8)
+    foreach, iterators, Rcpp (>= 1.0.3), dplyr (>= 0.7.0), mathjaxr (>= 1.0), 
+    magrittr (>= 1.5.0), lifecycle (>= 0.2.0), data.table (>= 1.9.8)
 Suggests: 
-    prospectr, 
-    parallel, 
-    doParallel,
-    testthat,
-    formatR,
-    bookdown, 
-    rmarkdown,
+    prospectr, parallel, doParallel, testthat, formatR, bookdown, rmarkdown,
     knitr
 LinkingTo: 
-    Rcpp, 
-    RcppArmadillo
+    Rcpp, RcppArmadillo
 RdMacros: mathjaxr
 VignetteBuilder: knitr
 NeedsCompilation: yes
