@@ -265,7 +265,7 @@ List opls_for_projection(arma::mat X,
           ncomp = ith_comp - 1;
           ith_comp = ith_comp - 2;
           if(i == 0) {
-            throw exception("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
+            throw std::invalid_argument("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
           }
           if (pcSelmethod == "cumvar") {
             ncomp = ncomp + 1;
@@ -1684,9 +1684,8 @@ List pca_nipals(arma::mat X,
       {
         ncomp = ith_comp - 1;
         ith_comp = ith_comp - 2;
-        if (i == 0)
-        {
-          throw exception("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
+        if (i == 0) {
+          throw std::invalid_argument("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
         }
         break;
       }
