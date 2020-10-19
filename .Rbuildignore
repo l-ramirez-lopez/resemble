@@ -6,3 +6,4 @@ code_ex.R
 ^\.Rprofile$
 ^cran-comments\.md$
 logo.R
+^Rscript*
