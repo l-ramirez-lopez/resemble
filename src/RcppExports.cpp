@@ -53,13 +53,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // moving_cor_diss
-NumericMatrix moving_cor_diss(NumericMatrix X, NumericMatrix Y, int w);
+NumericMatrix moving_cor_diss(arma::mat X, arma::mat Y, int w);
 RcppExport SEXP _resemble_moving_cor_diss(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< int >::type w(wSEXP);
     rcpp_result_gen = Rcpp::wrap(moving_cor_diss(X, Y, w));
     return rcpp_result_gen;
