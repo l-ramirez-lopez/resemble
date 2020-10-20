@@ -831,7 +831,6 @@ List opls_get_basics(arma::mat X,
   
   for (int i = 0; i < ncomp; i++) {
     Yplsb = Ypls;
-    Xpls = Xpls;      
     // Select the Y variable with the largest standard deviation
     imsd = get_col_largest_sd(Ypls);
     iypls = Ypls.col(imsd[0]);
