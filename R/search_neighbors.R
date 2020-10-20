@@ -420,7 +420,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
       if (input_dots$pre_k < kk) {
         stop(paste0(
           "pre_k must be larger than ",
-          if_else(is.null(k), "max(k_range)", "k")
+          ifelse(is.null(k), "max(k_range)", "k")
         ))
       }
     }

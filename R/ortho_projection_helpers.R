@@ -101,7 +101,9 @@ check_pc_arguments <- function(n_rows_x, n_cols_x, pc_selection,
   if (pc_selection_method %in% c("opc", "manual")) {
     if (length(pc_selection) == 1) {
       treshold_comp <- min(n_rows_x, n_cols_x)
-      treshold_comp <- if_else(treshold_comp > default_max_comp,
+      
+      
+      treshold_comp <- ifelse(treshold_comp > default_max_comp,
         default_max_comp, treshold_comp
       )
 

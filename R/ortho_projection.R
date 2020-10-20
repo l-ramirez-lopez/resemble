@@ -349,7 +349,7 @@ ortho_projection <- function(Xr, Xu = NULL,
     )
     mthd <- "pls"
   } else {
-    mthd <- if_else(method == "pca", "pca (svd)", "pca (nipals)")
+    mthd <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
     proj <- pc_projection(
       Xr = Xr, Yr = Yr, Xu = Xu, pc_selection = pc_selection,
       center = center, scale = scale, method = method, ...
@@ -558,7 +558,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     scale = sd_vector
   )
   colnames(fresults$variance) <- rownames(fresults$X_loadings)
-  fresults$method <- if_else(method == "pca", "pca (svd)", "pca (nipals)")
+  fresults$method <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
   if (pc_selection_method == "opc") {
     fresults$opc_evaluation <- results
   }

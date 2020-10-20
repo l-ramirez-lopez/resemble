@@ -11,7 +11,6 @@
 #' @importFrom lifecycle deprecate_soft
 ## usethis namespace: end
 #' @importFrom magrittr %>%
-#' @importFrom dplyr if_else select
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats model.frame model.matrix model.extract na.fail sd reshape
 #' @description

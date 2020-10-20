@@ -156,9 +156,9 @@ plot.mbl <- function(x,
       dt <- !is.element(dtn, opt[!is.element(opt, param)])
       idv <- ifelse("k" %in% colnames(tpl), "k", "k_diss")
       dt <- as.logical(dt * (!dtn %in% "p_bounded"))
-      to_plot <- tpl %>%
-        select(names(tpl)[dt]) %>%
-        reshape(
+     
+      to_plot <- data.frame(tpl)[, dt] %>%
+        stats::reshape(
           timevar = "val",
           idvar = idv,
           direction = "wide"
