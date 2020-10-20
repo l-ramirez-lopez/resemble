@@ -30,28 +30,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// fastDistVVL
-NumericVector fastDistVVL(NumericVector X);
-RcppExport SEXP _resemble_fastDistVVL(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(fastDistVVL(X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// minDissV
-NumericVector minDissV(NumericVector X);
-RcppExport SEXP _resemble_minDissV(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(minDissV(X));
-    return rcpp_result_gen;
-END_RCPP
-}
 // moving_cor_diss
 NumericMatrix moving_cor_diss(arma::mat X, arma::mat Y, int w);
 RcppExport SEXP _resemble_moving_cor_diss(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP) {
@@ -62,6 +40,28 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< int >::type w(wSEXP);
     rcpp_result_gen = Rcpp::wrap(moving_cor_diss(X, Y, w));
+    return rcpp_result_gen;
+END_RCPP
+}
+// which_min
+NumericVector which_min(NumericMatrix X);
+RcppExport SEXP _resemble_which_min(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(which_min(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// which_min_vector
+NumericVector which_min_vector(NumericVector X);
+RcppExport SEXP _resemble_which_min_vector(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(which_min_vector(X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -327,35 +327,13 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// which_min
-NumericVector which_min(NumericMatrix X);
-RcppExport SEXP _resemble_which_min(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(which_min(X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// which_min_vector
-NumericVector which_min_vector(NumericVector X);
-RcppExport SEXP _resemble_which_min_vector(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(which_min_vector(X));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fast_diss", (DL_FUNC) &_resemble_fast_diss, 3},
     {"_resemble_fast_diss_vector", (DL_FUNC) &_resemble_fast_diss_vector, 1},
-    {"_resemble_fastDistVVL", (DL_FUNC) &_resemble_fastDistVVL, 1},
-    {"_resemble_minDissV", (DL_FUNC) &_resemble_minDissV, 1},
     {"_resemble_moving_cor_diss", (DL_FUNC) &_resemble_moving_cor_diss, 3},
+    {"_resemble_which_min", (DL_FUNC) &_resemble_which_min, 1},
+    {"_resemble_which_min_vector", (DL_FUNC) &_resemble_which_min_vector, 1},
     {"_resemble_get_col_largest_sd", (DL_FUNC) &_resemble_get_col_largest_sd, 1},
     {"_resemble_get_column_sds", (DL_FUNC) &_resemble_get_column_sds, 1},
     {"_resemble_get_column_means", (DL_FUNC) &_resemble_get_column_means, 1},
@@ -373,8 +351,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
     {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 6},
     {"_resemble_pca_nipals", (DL_FUNC) &_resemble_pca_nipals, 8},
-    {"_resemble_which_min", (DL_FUNC) &_resemble_which_min, 1},
-    {"_resemble_which_min_vector", (DL_FUNC) &_resemble_which_min_vector, 1},
     {NULL, NULL, 0}
 };
 
