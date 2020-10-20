@@ -1,12 +1,8 @@
 #include <RcppArmadillo.h>
 #include <math.h>
 #include <iostream>
-#ifdef _OPENMP
-#include <omp.h>    // OpenMP
-#endif
 
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(openmp)]]
 
 using namespace Rcpp;
 
