@@ -24,13 +24,13 @@ test_that("dissimilarity works", {
   )
   expected_n_comp <- 24
   dsm_pls <- dissimilarity(
-    Xr = Xr, Xu = Xu,
+    Xr = standardNormalVariate(Xr), Xu = standardNormalVariate(Xu),
     diss_method = c("pls"),
     Yr = Yr, gh = TRUE, pc_selection = list("opc", 30),
     return_projection = TRUE,
     center = TRUE, scale = TRUE
   )
-  expected_n_pls <- 14
+  expected_n_pls <- 10
 
 
   dsm_pca_var <- dissimilarity(
