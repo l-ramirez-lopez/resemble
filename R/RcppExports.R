@@ -17,6 +17,16 @@ fast_diss <- function(X, Y, method) {
     .Call('_resemble_fast_diss', PACKAGE = 'resemble', X, Y, method)
 }
 
+#' @title A fast algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @description A fast (parallel for linux) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @usage 
+#' fast_diss_vector(X)
+#' @param X a vector.
+#' @return a vector of distance (lower triangle of the distance matrix, stored by column)
+#' @details used internally in ortho_projection
+#' @author Antoine Stevens
+#' @keywords internal 
+#' @useDynLib resemble
 fast_diss_vector <- function(X) {
     .Call('_resemble_fast_diss_vector', PACKAGE = 'resemble', X)
 }
