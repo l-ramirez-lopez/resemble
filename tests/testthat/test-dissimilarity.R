@@ -32,10 +32,8 @@ test_that("dissimilarity works", {
     return_projection = TRUE,
     center = TRUE, scale = TRUE
   )
-  print(dsm_pls$projection$opc_evaluation)
   expected_n_pls <- 15
-  
-  
+
   dsm_pca_var <- dissimilarity(
     Xr = Xr, Xu = Xu,
     diss_method = c("pca"),
@@ -87,8 +85,6 @@ test_that("dissimilarity works", {
   expect_is(dsm_pls_var, "list")
   expect_is(dsm_euclid, "list")
   expect_is(dsm_euclid, "list")
-  print(dsm_pls$projection$opc_evaluation)
-  print(dsm_pls)
   expect_true(dsm_pca$projection$n_components == expected_n_comp)
   expect_true(dsm_pls$projection$n_components == expected_n_pls)
   expect_true(dsm_pca_var$projection$n_components == expected_n_comp_var)
@@ -143,9 +139,7 @@ test_that("dissimilarity large sets works", {
     return_projection = TRUE,
     center = TRUE, scale = TRUE
   )
-  print(dsm_pls$projection$opc_evaluation)
   expected_n_pls <- 10
-
 
   dsm_pca_var <- dissimilarity(
     Xr = Xr, Xu = Xu,
@@ -198,8 +192,6 @@ test_that("dissimilarity large sets works", {
   expect_is(dsm_pls_var, "list")
   expect_is(dsm_euclid, "list")
   expect_is(dsm_euclid, "list")
-  print(dsm_pls$projection$opc_evaluation)
-  print(dsm_pls)
   expect_true(dsm_pca$projection$n_components == expected_n_comp)
   expect_true(dsm_pls$projection$n_components == expected_n_pls)
   expect_true(dsm_pca_var$projection$n_components == expected_n_comp_var)
