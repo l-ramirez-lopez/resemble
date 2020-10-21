@@ -5,6 +5,7 @@ code_ex.R
 ^packrat/
 ^\.Rprofile$
 ^cran-comments\.md$
+^my-comments\.md$
 logo.R
 ^Rscript*
 logo_large.png
