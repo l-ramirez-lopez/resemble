@@ -1,9 +1,5 @@
 #include <RcppArmadillo.h>
-#ifdef _OPENMP
-#include <omp.h>    // OpenMP
-#endif
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(openmp)]]
 
 using namespace Rcpp;
 using namespace RcppArmadillo;
@@ -60,21 +56,20 @@ arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){
 //' @author Antoine Stevens
 //' @keywords internal 
 //' @useDynLib resemble
-// [[Rcpp::plugins(openmp)]]
 // [[Rcpp::export]]   
 NumericVector fast_diss_vector(NumericVector X){  
   int nX = X.size();
   int n = ((nX*nX)-nX)/2;
   NumericVector output(n);  
-#if defined(_OPENMP) 
-#pragma omp parallel for schedule(dynamic)
-#endif
+  // #if defined(_OPENMP) 
+  // #pragma omp parallel for schedule(dynamic)
+  // #endif
   for(int i = 0; i < nX-1; i++)
     for(int j = i+1; j < nX; j++){
       double x = X(j)-X(i);
       output(nX*i - (i * (i + 3) / 2)  + j  - 1) =  x * x; 
     }
-    return output;         
+  return output;         
 }
 
 // //' @title A fast (serial) algorithm of Euclidean (non-squared) cross-distance for vectors written in C++ 
@@ -229,9 +224,9 @@ NumericVector which_min(NumericMatrix X){
   arma::mat XX(X.begin(), nX, kX, false); 
   arma::uword  index;
   arma::uvec vindex(nX);
-#if defined(_OPENMP) 
-#pragma omp parallel for schedule(static) 
-#endif
+  // #if defined(_OPENMP) 
+  // #pragma omp parallel for schedule(static) 
+  // #endif
   for(int i = 0; i < nX; i++){
     arma::rowvec x = XX.row(i);
     x(i) = arma::datum::nan; // remove diag
@@ -256,17 +251,19 @@ NumericVector which_min(NumericMatrix X){
 //' @keywords internal
 //' @useDynLib resemble
 //' @author Antoine Stevens 
-// [[Rcpp::export]]  
+// [[Rcpp::export]]
 NumericVector which_min_vector(NumericVector X){  
   arma::uword  index;
   double vct = (sqrt(((double)X.size()) * 8.0 + 1.0) + 1.0) / 2.0;
   int len = (int)vct;
   // int len = (sqrt(X.size()*8+1)+1)/2;
   arma::uvec vindex(len);    
-  int i,j;
-#if defined(_OPENMP) 
-#pragma omp parallel for private(i,j) schedule(dynamic)
-#endif
+  int i;
+  int j;
+  // #if defined(_OPENMP) 
+  // #pragma omp parallel for private(i,j) schedule(dynamic)
+  // #endif
+
   for(i = 0; i < len; i++){       
     arma::vec x(len); 
     for(j = 0; j < i; j++){
@@ -283,6 +280,6 @@ NumericVector which_min_vector(NumericVector X){
     x.min(index); // don't assign result to a value since we are interested only in the index
     vindex[i] = index;    
   }
-  return wrap(vindex +1);
+  return wrap(vindex + 1);
 }
 
