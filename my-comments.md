@@ -50,5 +50,14 @@ three platforms, the solution was to disable OPENMP.
 
 All platforms pass the checks successfully for the release. 
 
+## Size of the package
 To reduce the size of the package, Makevars was modified and Makevars.win was 
 added.
+
+## NOTE for compiled code
+An strange not was thrown when the check was done locally on windows with R `4.0.3`
+It is apparently a problem in R core and not related to the package nor Rcpp. 
+The issue was reported here:
+https://stackoverflow.com/questions/64402688/information-on-o-files-for-x64-is-not-available-note-on-r-package-checks-using/64419033#64419033
+
+
