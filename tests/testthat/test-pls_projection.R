@@ -191,5 +191,5 @@ test_that("pls_projection large sets works", {
   result_rmsd <- as.vector(round(colMeans((cbind(Yr, Yr_2) - cbind(Yr, Yr_2)[nn, ])^2)^0.5, 4))
   
   resemble_rmsds <- as.vector(round(pls2_opc_method$opc_evaluation[pls2_opc_method$n_components, 2:3], 4))
-  expect_true(all(pls2_opc_method$opc_evaluation[pls2_opc_method$n_components, 2:3] == result_rmsd))
+  expect_true(all(resemble_rmsds == result_rmsd))
 })
