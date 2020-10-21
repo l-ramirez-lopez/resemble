@@ -61,8 +61,6 @@
 #' case, the vector must represent the lower triangle of a dissimilarity matrix
 #' (e.g. as returned by the [stats::dist()] function of \code{stats}).
 #'
-#' This function supports multi-threading based on OpenMP for retrieving the
-#' closest observations.
 #' @return \code{sim_eval} returns a list with the following components:
 #' \itemize{
 #'  \item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or

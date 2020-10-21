@@ -80,9 +80,6 @@ observations). While \mjeqn{p_o}{p_o} is the relative agreement
 This functions accepts vectors to be passed to argument \code{d}, in this
 case, the vector must represent the lower triangle of a dissimilarity matrix
 (e.g. as returned by the [stats::dist()] function of \code{stats}).
-
-This function supports multi-threading based on OpenMP for retrieving the
-closest observations.
 }
 \examples{
 \dontrun{

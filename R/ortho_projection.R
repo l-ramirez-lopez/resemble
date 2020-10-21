@@ -147,8 +147,6 @@
 #' Note that for the \code{"opc"} method \code{Yr} is required (i.e. the
 #' side information of the observations).
 #'
-#' This function supports multi-threading for the computation of dissimilarities
-#' via OpenMP in Rcpp.
 #' @return
 #' a \code{list} of class \code{ortho_projection} with the following
 #' components:

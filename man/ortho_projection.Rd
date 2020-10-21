@@ -212,9 +212,6 @@ variables, or maximizes the kappa index in the case of categorical variables.
 In this process, the \code{\link{sim_eval}} function is used.
 Note that for the \code{"opc"} method \code{Yr} is required (i.e. the
 side information of the observations).
-
-This function supports multi-threading for the computation of dissimilarities
-via OpenMP in Rcpp.
 }
 \examples{
 \dontrun{
