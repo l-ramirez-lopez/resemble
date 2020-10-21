@@ -32,10 +32,8 @@ pc_projection, pls_projection respectively):
   error about data allocation in a matrix was retrieved
 - Argument pcSelection renamed to pc_selection
 - ... is deprecated in both pcProjection and plsProjection
-- Argument cores is deprecated, it wwas used to set the number of cores in some 
-c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
-available, but the number of threads must be set in the R global enviroment (e.g.
-Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
+- Argument cores is deprecated, it was used to set the number of cores in some 
+c++ internal functions via OpenMP in Rcpp. 
 - Names the following outputs have been changed: X.loadings, Y.loadings, sc.sdv 
 and n.components. Their new names are: X_loadings, Y_loadings, sc_sdv and 
 n_components.
@@ -67,9 +65,7 @@ n_components.
 - Argument pcSelection renamed to pc_selection
 - Argument return.all renamed to compute_all
 - Argument cores is deprecated, it wwas used to set the number of cores in some 
-c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
-available, but the number of threads must be set in the R global enviroment (e.g.
-Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
+c++ internal functions via OpenMP in Rcpp. 
 - When \code{.local = TRUE} a new output is produced: 'neighborhood_info' which 
 is a data.frame containing the relevant information about the neighborhood of 
 each sample (e.g. neighborhood indices, number of components used at each 
@@ -84,9 +80,7 @@ neighborhood, etc)
 - lower_triangle is deprecated. Now if a vector is passed to d, the function assumes
   that it is a lower triangle of a distance matrix
 - Argument cores is deprecated, it wwas used to set the number of cores in some 
-c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
-available, but the number of threads must be set in the R global enviroment (e.g.
-Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
+c++ internal functions via OpenMP in Rcpp.
   
   
 ### mbl
@@ -108,14 +102,8 @@ diss_method of mbl which was previosly named "sm" and it was in mblControl()
 
 ### neigCleaning (now search_neighbors)
 - Function renamed to search_neighbors
-- Argument cores is deprecated, it wwas used to set the number of cores in some 
-c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
-available, but the number of threads must be set in the R global enviroment (e.g.
-Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
-- Argument cores is deprecated, it wwas used to set the number of cores in some 
-c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
-available, but the number of threads must be set in the R global enviroment (e.g.
-Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
+- Argument cores is deprecated, it was used to set the number of cores in some 
+c++ internal functions via OpenMP in Rcpp. 
 
 
 ### mblControl (renamed to mbl_control):
@@ -123,10 +111,8 @@ Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 mbl fucntion
 - scale and center arguments have been moved to the mbl fucntion
 - Argument range.pred.lim renamed to range_prediction_limits
-- Argument cores is deprecated, it wwas used to set the number of cores in some 
-c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
-available, but the number of threads must be set in the R global enviroment (e.g.
-Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
+- Argument cores is deprecated, it was used to set the number of cores in some 
+c++ internal functions via OpenMP in Rcpp. 
 - k0, pcMethod, ghMethod are deprecated
 - localOptimization has been renamed to tune_locally
 - valMethod has been renamed to validation_type
@@ -136,12 +122,6 @@ Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 - option "pca" was replaced by option "gh" which plots the pls projection used 
 for computing the gh distance in mbl 
 
-
-### Note
-
-In `R`, the number of threads can be set by
-
-Sys.setenv("OMP_NUM_THREADS" = 6)
 
 
 ## resemble 1.3 (never released)
