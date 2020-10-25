@@ -1,7 +1,7 @@
 ---
 title: "Modelling complex spectral data with the resemble package"
 author: 
- - name: Leonardo Ramirez-Lopez, Alexandre M.J.-C. Wadoux
+ - name: Leonardo Ramirez-Lopez and Alexandre M.J.-C. Wadoux
    email: ramirez.lopez.leo@gmail.com
 date: "`r Sys.Date()`"
 clean: true
@@ -96,13 +96,13 @@ collected from all over the Walloon region in Belgium. The data are in an `R`
   * ___CEC___ (Cation Exchange Capacity in meq/100 g of dry soil): A numerical 
       variable (values are available for 447 and missing for 378 samples).
       
-  * __Predictor variables__: the predictor variables are in a matrix embedded in 
+* __Predictor variables__: the predictor variables are in a matrix embedded in 
   the data frame, which can be accessed via `NIRsoil$spc`. These variables 
   contain the NIR absorbance spectra of the samples recorded between the 
   1100 nm and 2498 nm of the electromagnetic spectrum at 2 nm interval. Each 
   column name in the matrix of spectra represents a specific wavelength (in nm).
   
-  * __Set__: a binary variable that indicates whether the samples belong to the 
+* __Set__: a binary variable that indicates whether the samples belong to the 
   training subset (represented by 1, 618 samples) or to the test 
   subset (represented by 0, 207 samples).
 
@@ -146,7 +146,7 @@ NIRsoil$spc_p <- NIRsoil$spc %>%
 ```
 ```{r plotspectra, fig.cap = "Raw spectral absorbance data (top) and first derivative of the absorbance spectra (bottom).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 7, echo = FALSE, fig.retina = 0.85}
 op <- par()
-par(mfrow = c(2, 1), mar = c(4,4,1,4))
+par(mfrow = c(2, 1), mar = c(4, 4, 1, 4))
 
 new_wavs <- as.matrix(as.numeric(colnames(NIRsoil$spc_p)))
 plot(range(wavs), range(NIRsoil$spc), col = NA,
