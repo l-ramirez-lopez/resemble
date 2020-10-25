@@ -11,6 +11,7 @@ link-citations: true
 output:
   bookdown::html_document2:
     theme: united
+    highlight: breezedark
     toc: true
     toc_depth: 3
     toc_float:
