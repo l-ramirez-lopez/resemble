@@ -22,13 +22,13 @@ Check the package vignette(s)!
 
 ## Core functionality 
 
-The core functionality of the package can be sumarized into the following 
+The core functionality of the package can be summarized into the following 
 functions:
   
 __`mbl`__: implements memory-based learning (MBL) for modeling and predicting 
 continuous response variables. For example, it can be used to reproduce the 
 famous LOCAL algorithm proposed by Shenk et al. (1997). In general, this 
-function allowes you to easily customize your own MBL regression-prediction 
+function allows you to easily customize your own MBL regression-prediction 
 method.
 
 __`dissimilarity`__: Computes dissimilarity matrices based on various methods 
@@ -40,8 +40,8 @@ __`ortho_projection`__: A function for dimensionality reduction using either
 principal component analysis or partial least squares (a.k.a projection to 
 latent structures). 
 
-__`search_neighbors`__: A function to efficiently retrieve from a refence set the 
-k-nearest neighbors of another given data set.
+__`search_neighbors`__: A function to efficiently retrieve from a reference set 
+the k-nearest neighbors of another given data set.
 
 ## New version
 During the recent lockdown we invested some of our free time to come up 
