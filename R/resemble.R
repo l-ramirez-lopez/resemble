@@ -70,7 +70,7 @@
 #' @name resemble-package
 #' @aliases resemble-package resemble
 #' @title Overview of the functions in the resemble package
-#' #' @references
+#' @references
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 #' Scholten, T. 2013a. The spectrum-based learner: A new local approach for
 #' modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
