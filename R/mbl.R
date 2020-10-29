@@ -649,7 +649,6 @@
 ## The error thrown is:
 ## Error in svd(x = X0) : infinite or missing values in 'x'
 
-
 mbl <- function(Xr, Yr, Xu, Yu = NULL,
                 k, k_diss, k_range,
                 spike = NULL,
@@ -677,7 +676,10 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   if (control$allow_parallel & getDoParRegistered()) {
     "%mydo%" <- get("%dopar%")
   }
-
+  if (!is.logical(verbose)) {
+    stop("'verbose' must be logical")
+  }
+  
   if (missing(k)) {
     k <- NULL
   }
