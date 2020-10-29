@@ -22,7 +22,6 @@ test_that("mbl works", {
   ctrl_1 <- mbl_control(
     validation_type = c("NNv", "local_cv"),
     number = 4, p = 0.5,
-    progress = FALSE,
     allow_parallel = FALSE
   )
 
@@ -31,6 +30,7 @@ test_that("mbl works", {
     k = k_test,
     method = local_fit_gpr(),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   pls <- mbl(
@@ -38,13 +38,15 @@ test_that("mbl works", {
     k = k_test,
     method = local_fit_pls(5),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   wapls <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
     method = local_fit_wapls(3, 5),
-    control = ctrl_1
+    control = ctrl_1,
+    verbose = FALSE
   )
 
   gpr_k_diss <- mbl(
@@ -52,6 +54,7 @@ test_that("mbl works", {
     k_diss = k_diss_test, k_range = k_range_test,
     method = local_fit_gpr(),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   pls_k_diss <- mbl(
@@ -59,13 +62,15 @@ test_that("mbl works", {
     k_diss = k_diss_test, k_range = k_range_test,
     method = local_fit_pls(5),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   wapls_k_diss <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k_diss = k_diss_test, k_range = k_range_test,
     method = local_fit_wapls(3, 5),
-    control = ctrl_1
+    control = ctrl_1,
+    verbose = FALSE
   )
 
 
@@ -74,7 +79,8 @@ test_that("mbl works", {
     k = k_test,
     method = local_fit_pls(5),
     control = ctrl_1,
-    group = rep(c(1, 2), length.out = nrow(Xr))
+    group = rep(c(1, 2), length.out = nrow(Xr)),
+    verbose = FALSE
   )
 
   output_names <- names(gpr)
@@ -118,7 +124,6 @@ test_that("mbl delivers expeted results", {
     validation_type = c("NNv", "local_cv"),
     number = 4, p = 0.8,
     tune_locally = TRUE,
-    progress = FALSE,
     allow_parallel = FALSE
   )
 
@@ -137,6 +142,7 @@ test_that("mbl delivers expeted results", {
     k = k_test,
     method = local_fit_gpr(grpnoisevar),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   set.seed(tseed)
@@ -145,6 +151,7 @@ test_that("mbl delivers expeted results", {
     k = k_test,
     method = local_fit_pls(pls_pls),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   set.seed(tseed)
@@ -152,7 +159,8 @@ test_that("mbl delivers expeted results", {
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
     method = local_fit_wapls(pls_wapls[1], pls_wapls[2]),
-    control = ctrl_1
+    control = ctrl_1,
+    verbose = FALSE
   )
 
   set.seed(tseed)
@@ -161,6 +169,7 @@ test_that("mbl delivers expeted results", {
     k_diss = k_diss_test, k_range = k_range_test,
     method = local_fit_gpr(),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   set.seed(tseed)
@@ -169,6 +178,7 @@ test_that("mbl delivers expeted results", {
     k_diss = k_diss_test, k_range = k_range_test,
     method = local_fit_pls(pls_pls),
     control = ctrl_1,
+    verbose = FALSE
   )
 
   set.seed(tseed)
@@ -176,7 +186,8 @@ test_that("mbl delivers expeted results", {
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k_diss = k_diss_test, k_range = k_range_test,
     method = local_fit_wapls(pls_wapls[1], pls_wapls[2]),
-    control = ctrl_1
+    control = ctrl_1,
+    verbose = FALSE
   )
 
   set.seed(tseed)
@@ -185,7 +196,8 @@ test_that("mbl delivers expeted results", {
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
     method = local_fit_pls(pls_pls),
-    control = ctrl_1, group = xgroup
+    control = ctrl_1, group = xgroup,
+    verbose = FALSE
   )
 
   set.seed(tseed)
@@ -194,7 +206,8 @@ test_that("mbl delivers expeted results", {
     k = k_test,
     method = local_fit_pls(pls_pls),
     control = ctrl_1, group = xgroup,
-    .local = TRUE, pre_k = 200
+    .local = TRUE, pre_k = 200,
+    verbose = FALSE
   )
 
 
