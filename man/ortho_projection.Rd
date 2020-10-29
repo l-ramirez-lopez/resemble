@@ -244,7 +244,7 @@ pca_projected
 # A principal components projection using the "opc" method
 # for the selection of the optimal number of components
 pca_projected_2 <- ortho_projection(
-  Xr = train_x, Xu = test_x, Yr,
+  Xr = train_x, Xu = test_x, Yr = train_y,
   method = "pca",
   pc_selection = list("opc", 40)
 )
@@ -254,7 +254,7 @@ plot(pca_projected_2)
 # A partial least squares projection using the "opc" method
 # for the selection of the optimal number of components
 pls_projected <- ortho_projection(
-  Xr = train_x, Xu = test_x, Yr,
+  Xr = train_x, Xu = test_x, Yr = train_y,
   method = "pls",
   pc_selection = list("opc", 40)
 )
@@ -264,7 +264,7 @@ plot(pls_projected)
 # A partial least squares projection using the "cumvar" method
 # for the selection of the optimal number of components
 pls_projected_2 <- ortho_projection(
-  Xr = train_x, Yr = train_y, Xu = test_x,
+  Xr = train_x, Xu = test_x, Yr = train_y,
   method = "pls",
   pc_selection = list("cumvar", 0.99)
 )
