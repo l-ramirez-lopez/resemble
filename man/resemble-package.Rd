@@ -4,12 +4,7 @@
 \name{resemble-package}
 \alias{resemble-package}
 \alias{resemble}
-\title{Overview of the functions in the resemble package
-#' @references
-Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
-Scholten, T. 2013a. The spectrum-based learner: A new local approach for
-modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
-268-279.}
+\title{Overview of the functions in the resemble package}
 \description{
 \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
 
@@ -62,6 +57,12 @@ Other supplementary functions:
   \item{\code{\link{plot.mbl}}}
   \item{\code{\link{plot.ortho_projection}}}
   }
+}
+\references{
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
+Scholten, T. 2013a. The spectrum-based learner: A new local approach for
+modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
+268-279.
 }
 \seealso{
 Useful links:
