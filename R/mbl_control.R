@@ -166,9 +166,6 @@ mbl_control <- function(return_dissimilarity = FALSE,
     stop("'range_prediction_limits' must be logical")
   }
 
-  if (!is.logical(progress)) {
-    stop("'progress' must be logical")
-  }
   cntrl <- list(
     return_dissimilarity = return_dissimilarity,
     validation_type = validation_type,
