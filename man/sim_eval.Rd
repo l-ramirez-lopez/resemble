@@ -82,7 +82,7 @@ case, the vector must represent the lower triangle of a dissimilarity matrix
 (e.g. as returned by the [stats::dist()] function of \code{stats}).
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

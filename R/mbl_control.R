@@ -11,7 +11,6 @@
 #'             number = 10,
 #'             p = 0.75,
 #'             range_prediction_limits = TRUE,
-#'             progress = TRUE,
 #'             allow_parallel = TRUE)
 #' @param return_dissimilarity a logical indicating if the dissimilarity matrix
 #' between \code{Xr} and \code{Xu} must be returned.
@@ -37,9 +36,6 @@
 #' this range, it will be automatically replaced with the value of the nearest
 #' range value. If \code{FALSE}, no prediction limits are imposed.
 #' Default is \code{TRUE}.
-#' @param progress a logical indicating whether or not to print a progress bar
-#' for each observation to be predicted. Default is \code{TRUE}. Note: In case
-#' parallel processing is used, these progress bars will not be printed.
 #' @param allow_parallel a logical indicating if parallel execution is allowed.
 #' If \code{TRUE}, this parallelism is applied to the loop in \code{\link{mbl}}
 #' in which each iteration takes care of a single observation in \code{Xu}. The
@@ -136,7 +132,6 @@ mbl_control <- function(return_dissimilarity = FALSE,
                         number = 10,
                         p = 0.75,
                         range_prediction_limits = TRUE,
-                        progress = TRUE,
                         allow_parallel = TRUE) {
   # Sanity checks
   if (!is.logical(allow_parallel)) {
@@ -181,7 +176,6 @@ mbl_control <- function(return_dissimilarity = FALSE,
     number = number,
     p = p,
     range_prediction_limits = range_prediction_limits,
-    progress = progress,
     allow_parallel = allow_parallel
   )
 

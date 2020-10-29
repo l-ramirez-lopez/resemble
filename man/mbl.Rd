@@ -9,7 +9,8 @@ mbl(Xr, Yr, Xu, Yu = NULL, k, k_diss, k_range, spike = NULL,
     diss_method = "pca", diss_usage = "predictors",
     gh = TRUE, pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
     control = mbl_control(), group = NULL,
-    center = TRUE, scale = FALSE, documentation = character(), ...)
+    center = TRUE, scale = FALSE, verbose = TRUE, 
+    documentation = character(), ...)
 }
 \arguments{
 \item{Xr}{a matrix of predictor variables of the reference data
@@ -187,6 +188,10 @@ and \code{Xu} will be centred for  dissimilarity computations.}
 to unit variance at each local segment (before regression). In addition, if
 \code{TRUE}, \code{Xr} and \code{Xu} will be scaled for  dissimilarity
 computations.}
+
+\item{verbose}{a logical indicating whether or not to print a progress bar
+for each observation to be predicted. Default is \code{TRUE}. Note: In case
+parallel processing is used, these progress bars will not be printed.}
 
 \item{documentation}{an optional character string that can be used to
 describe anything related to the \code{mbl} call (e.g. description of the
@@ -379,7 +384,7 @@ observations (rather than single observations) to be retained in each
 sampling iteration at each local segment.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 
@@ -477,10 +482,18 @@ plot(local_algorithm_2)
 
 # Example 4
 # Running the mbl function in parallel with example 2
-n_cores <- parallel::detectCores() - 1
-if (n_cores == 0) {
-  n_cores <- 1
+
+n_cores <- 2
+
+if (parallel::detectCores() < 2) {
+   n_cores <- 1
 }
+
+# Alternatively:
+# n_cores <- parallel::detectCores() - 1
+# if (n_cores == 0) {
+#  n_cores <- 1
+# }
 
 library(doParallel)
 clust <- makeCluster(n_cores)

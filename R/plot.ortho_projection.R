@@ -36,6 +36,9 @@ plot.ortho_projection <- function(x, col = "dodgerblue", ...) {
     grid()
     segments(tpl[, 1], 0, tpl[, 1], tpl[, 2], col = col)
   } else {
+    opar <- par("mfrow")
+    on.exit(par(opar))
+    
     o_mfrow <- par()$mfrow
     par(mfrow = c(1, 2))
     barplot(x_variance[grep("^explained_var", rownames(x_variance)), ],
@@ -48,6 +51,5 @@ plot.ortho_projection <- function(x, col = "dodgerblue", ...) {
       names.arg = colnames(x_variance), ylim = c(0, 1),
       ylab = "Explained variance (cumulative)", col = col, ...
     )
-    par(mfrow = o_mfrow)
   }
 }

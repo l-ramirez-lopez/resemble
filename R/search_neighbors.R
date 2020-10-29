@@ -206,7 +206,7 @@
 #' \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}
 #'  \code{\link{mbl}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #'
 #' data(NIRsoil)

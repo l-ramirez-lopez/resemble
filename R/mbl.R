@@ -16,7 +16,8 @@
 #'     diss_method = "pca", diss_usage = "predictors",
 #'     gh = TRUE, pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
 #'     control = mbl_control(), group = NULL,
-#'     center = TRUE, scale = FALSE, documentation = character(), ...)
+#'     center = TRUE, scale = FALSE, verbose = TRUE, 
+#'     documentation = character(), ...)
 #'
 #' @param Xr a matrix of predictor variables of the reference data
 #' (observations in rows and variables in columns).
@@ -177,6 +178,9 @@
 #' to unit variance at each local segment (before regression). In addition, if
 #' \code{TRUE}, \code{Xr} and \code{Xu} will be scaled for  dissimilarity
 #' computations.
+#' @param verbose a logical indicating whether or not to print a progress bar
+#' for each observation to be predicted. Default is \code{TRUE}. Note: In case
+#' parallel processing is used, these progress bars will not be printed.
 #' @param documentation an optional character string that can be used to
 #' describe anything related to the \code{mbl} call (e.g. description of the
 #' input data). Default: \code{character()}. NOTE: his is an experimental
@@ -387,7 +391,7 @@
 #' \code{\link{cor_diss}}, \code{\link{sid}}, \code{\link{ortho_diss}},
 #' \code{\link{search_neighbors}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
@@ -485,10 +489,18 @@
 #'
 #' # Example 4
 #' # Running the mbl function in parallel with example 2
-#' n_cores <- parallel::detectCores() - 1
-#' if (n_cores == 0) {
-#'   n_cores <- 1
+#' 
+#' n_cores <- 2
+#' 
+#' if (parallel::detectCores() < 2) {
+#'    n_cores <- 1
 #' }
+#' 
+#' # Alternatively:
+#' # n_cores <- parallel::detectCores() - 1
+#' # if (n_cores == 0) {
+#' #  n_cores <- 1
+#' # }
 #'
 #' library(doParallel)
 #' clust <- makeCluster(n_cores)
@@ -656,6 +668,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
                 group = NULL,
                 center = TRUE,
                 scale = FALSE,
+                verbose = TRUE,
                 documentation = character(),
                 ...) {
   f_call <- match.call()
@@ -1065,8 +1078,10 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   # to_erase <- getOption("width") - pg_bar_width - (2 * nchar(nrow(Xu))) - 2
   to_erase <- pg_bar_width + (2 * nchar(nrow(Xu))) + 8
   to_erase <- paste(rep(" ", to_erase), collapse = "")
-
-  cat("\033[32m\033[3mPredicting...\n\033[23m\033[39m")
+  
+  if (verbose){
+    cat("\033[32m\033[3mPredicting...\n\033[23m\033[39m")
+  }
   n_iter <- nrow(Xu)
 
   pred_obs <- foreach(
@@ -1104,7 +1119,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       additional_results$ith_neigh_diss <- ith_observation$ith_neigh_diss
     }
 
-    if (control$progress) {
+    if (verbose) {
       cat(paste0("\033[34m\033[3m", i, "/", n_iter, "\033[23m\033[39m"))
       pb <- txtProgressBar(width = pg_bar_width, char = "\033[34m_\033[39m")
     }
@@ -1123,7 +1138,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     }
 
     for (kk in 1:nrow(ith_pred_results)) {
-      if (control$progress) {
+      if (verbose) {
         setTxtProgressBar(pb, kk / nrow(ith_pred_results))
       }
 
@@ -1258,7 +1273,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       }
     }
 
-    if (control$progress) {
+    if (verbose) {
       if (kk == nrow(ith_pred_results) & i != n_iter) {
         cat("\r", to_erase, "\r")
       }

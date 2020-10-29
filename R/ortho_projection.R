@@ -208,7 +208,7 @@
 #' with soil vis-NIR spectra. Geoderma 199, 43-53.
 #' @seealso \code{\link{ortho_diss}}, \code{\link{sim_eval}}, \code{\link{mbl}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
 #'

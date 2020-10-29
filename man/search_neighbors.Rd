@@ -219,7 +219,7 @@ used inside \code{\link{dissimilarity}} (i.e. \code{\link{ortho_diss}}
 those functions as additional arguments (i.e. \code{...}).
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 
 data(NIRsoil)

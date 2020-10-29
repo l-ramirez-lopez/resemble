@@ -195,7 +195,6 @@ and \code{.local = TRUE}, the minimum number of observations with non-missing
 \code{pc_selection$value} (i.e. the maximum number of components to compute).
 }
 \examples{
-\dontrun{
 library(prospectr)
 data(NIRsoil)
 
@@ -231,7 +230,6 @@ pls_diss_optim <- ortho_diss(
   pc_selection = list("opc", 40),
   diss_method = "pls"
 )
-}
 }
 \references{
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,

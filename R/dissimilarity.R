@@ -170,7 +170,6 @@
 #'        }
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @examples
-#' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
@@ -201,7 +200,6 @@
 #'   pc_selection = list("opc", 30),
 #'   return_projection = TRUE
 #' )
-#' }
 #' @export
 #'
 ## History:

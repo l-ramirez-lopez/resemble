@@ -56,7 +56,7 @@ variables of the observations.
 The function does not accept input data containing missing values.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

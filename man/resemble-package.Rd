@@ -4,7 +4,12 @@
 \name{resemble-package}
 \alias{resemble-package}
 \alias{resemble}
-\title{Overview of the functions in the resemble package}
+\title{Overview of the functions in the resemble package
+#' @references
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
+Scholten, T. 2013a. The spectrum-based learner: A new local approach for
+modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
+268-279.}
 \description{
 \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
 
@@ -18,7 +23,8 @@ implements a number of \code{R} functions useful for
 modeling complex spectral spectra (e.g. NIR, IR).
 The package includes functions for dimensionality reduction,
 computing spectral dissimilarity matrices, nearest neighbor search,
-and modeling spectral data using memory-based learning.
+and modeling spectral data using memory-based learning. This package builds 
+upon the methods presented in Ramirez-Lopez et al. (2013) <doi: 10.1016/j.geoderma.2012.12.014>>.
 
 Development versions can be found in the github repository of the package
 at \href{https://github.com/l-ramirez-lopez/resemble}{https://github.com/l-ramirez-lopez/resemble}.

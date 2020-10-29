@@ -183,7 +183,6 @@ This function is a wrapper for \code{\link{ortho_diss}}, \code{\link{cor_diss}},
  functions for further details.
 }
 \examples{
-\dontrun{
 library(prospectr)
 data(NIRsoil)
 
@@ -214,7 +213,6 @@ dsm_pca <- dissimilarity(
   pc_selection = list("opc", 30),
   return_projection = TRUE
 )
-}
 }
 \seealso{
 \code{\link{ortho_diss}} \code{\link{cor_diss}} \code{\link{f_diss}}

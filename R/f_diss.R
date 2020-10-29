@@ -73,7 +73,7 @@
 #' a matrix of the computed dissimilarities.
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and Antoine Stevens
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
 #'

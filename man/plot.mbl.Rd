@@ -36,7 +36,7 @@ its covariance matrix. The root square of this matrix is estimated using a
 singular value decomposition.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 
 data(NIRsoil)

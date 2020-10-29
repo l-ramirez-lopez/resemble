@@ -184,7 +184,6 @@
 #' with soil vis-NIR spectra. Geoderma 199, 43-53.
 #' @seealso \code{\link{ortho_projection}}, \code{\link{sim_eval}}
 #' @examples
-#' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
@@ -220,7 +219,6 @@
 #'   pc_selection = list("opc", 40),
 #'   diss_method = "pls"
 #' )
-#' }
 #' @export
 
 #######################################################################

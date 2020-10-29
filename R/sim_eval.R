@@ -80,7 +80,7 @@
 #' Dematte, J. A. M.,  Scholten, T. 2013b. Distance and similarity-search
 #' metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
 #'

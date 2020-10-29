@@ -130,7 +130,7 @@
 #' @author Leonardo Ramirez-Lopez
 #' @importFrom stats bw.nrd0 density
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #'
 #' data(NIRsoil)

@@ -85,7 +85,7 @@ NOTE: The computed distances are divided by the number of variables/columns
 in \code{Xr}.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

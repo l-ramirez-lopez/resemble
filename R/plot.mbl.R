@@ -25,7 +25,7 @@
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @seealso \code{\link{mbl}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #'
 #' data(NIRsoil)
@@ -74,10 +74,12 @@ plot.mbl <- function(x,
                      g = c("validation", "gh"),
                      param = "rmse",
                      pls_c = c(1, 2), ...) {
-  original_set <- par()$mfrow
+
+  opar <- par("mfrow", "mar")
+  on.exit(par(opar))
+  
   if (length(g) != 1 & !is.null(x$gh)) {
     op <- par(mfrow = c(1, 2))
-    on.exit(par(op))
   }
 
   plot_dots <- list(...)
@@ -183,7 +185,7 @@ plot.mbl <- function(x,
       ))
       grid(
         nx = NULL, ny = NULL, col = rgb(0.3, 0.3, 0.3, 0.1), lty = 1,
-        lwd = par("lwd"), equilogs = TRUE
+        lwd = 1, equilogs = TRUE
       )
       mtext("Validation results", col = grey(0.3))
       # Adding a legend
@@ -239,7 +241,7 @@ plot.mbl <- function(x,
       points(tp[tp$set == "Xu", 1:2], xlim = rng, ylim = rng, col = xu_col, pch = plot_dots$pch)
       grid(
         nx = NULL, ny = NULL, col = rgb(0.3, 0.3, 0.3, 0.1), lty = 1,
-        lwd = par("lwd"), equilogs = TRUE
+        lwd = 1, equilogs = TRUE
       )
       legend("topleft",
         legend = c("Xr", "Xu"),
@@ -270,7 +272,7 @@ plot.mbl <- function(x,
       points(xu_scores[, pls_c, drop = FALSE], col = xu_col, pch = plot_dots$pch)
       grid(
         nx = NULL, ny = NULL, col = rgb(0.3, 0.3, 0.3, 0.1), lty = 1,
-        lwd = par("lwd"), equilogs = TRUE
+        lwd =1, equilogs = TRUE
       )
       legend("topright",
         legend = c("Xr", "Xu"),
@@ -301,7 +303,6 @@ plot.mbl <- function(x,
   mtext(main, outer = TRUE, cex = 2, line = -2)
   # par(ask = original_set)
   # op <- par(ask = original_set)
-  on.exit(par(mfrow = original_set))
   # par(mfrow = pm)
   # title(main = "Memory-based learning results")
   # dev.flush()

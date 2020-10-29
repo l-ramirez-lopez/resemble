@@ -146,7 +146,7 @@ NIRsoil$spc_p <- NIRsoil$spc %>%
   savitzkyGolay(p = poly_order, w = window, m = diff_order)
 ```
 ```{r plotspectra, fig.cap = "Raw spectral absorbance data (top) and first derivative of the absorbance spectra (bottom).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 7, echo = FALSE, fig.retina = 0.85}
-op <- par()
+old_par <- par("mfrow", "mar")
 par(mfrow = c(2, 1), mar = c(4, 4, 1, 4))
 
 new_wavs <- as.matrix(as.numeric(colnames(NIRsoil$spc_p)))
@@ -165,6 +165,7 @@ rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "#EFBF478
 grid(lty = 1, col = "#E47C4E80")
 matlines(x = new_wavs, y = t(NIRsoil$spc_p), 
         lty = 1, col = "#5177A133")
+par(old_par)
 ```
 
 ```{r eval = FALSE}
@@ -1048,7 +1049,7 @@ knitr::kable(do.call("rbind", comparisons),
 ```
 
 ```{r eval = FALSE}
-op <- par()
+old_par <- par("mfrow")
 par(mfrow = c(3, 3))
 p <- sapply(names(ev), 
             FUN = function(x, label, labs = c("Ciso (1-NN), %", "Ciso, %")) {
@@ -1060,10 +1061,12 @@ p <- sapply(names(ev),
               
             },
             x = ev)
+par(old_par)
 ```
 
 ```{r pcomparisons, fig.cap = paste(fig_cap), fig.cap.style = "Image Caption", fig.align = "center", fig.width = 8, fig.height = 8, echo = FALSE, fig.retina = 0.85}
-op <- par()
+old_par <- par("mfrow", "mar")
+
 par(mfrow = c(3, 3), pch = 16, mar = c(4,4,4,4))
 my_cols <- c("#750E3380", 
              "#C3BC6180", 
@@ -1085,17 +1088,12 @@ p <- sapply(names(ev),
               title(label)
               grid(col= "#80808080", lty = 1)
               abline(0, 1, col = "#FF1A0080")
-              
             },
             x = ev,
             cols = my_cols)
+par(old_par)
 ```
 
-
-```{r, results = 'hide', eval = FALSE}
-## reset the graphical parameters
-par(op)
-```
 
 # k-Nearest Neighbors (k-NN) search
 In the package, the k-NN search aims at finding in a given reference set of 
@@ -1818,7 +1816,8 @@ The scatter plots in \@ref(fig:mblcomparisons) ilustrate the prediction results
 obatined for CEC with each of the MBL configurations tested. 
 
 ```{r, eval = FALSE,  fig.show = 'hide'}
-op <- par()
+old_par <- par("mfrow", "mar")
+
 par(mfrow = c(2, 2))
 plot(testing$CEC, preds[, 2], 
      xlab = "Predicted CEC, meq/100g",
@@ -1834,11 +1833,12 @@ plot(testing$CEC, preds[, 4],
      xlab = "Predicted CEC, meq/100g",
      ylab = "CEC, meq/100g", main = colnames(preds)[4])
 abline(0, 1, col = "red")
-par(op)
+par(old_par)
 ```
 
 ```{r mblcomparisons, fig.cap = "CEC prediction results for the different MBL configurations tested" , fig.cap.style = "Image Caption", fig.align = "center", fig.width = 8, fig.height = 8, echo = FALSE, fig.retina = 0.85}
-op <- par()
+old_par <- par("mfrow", "mar")
+
 par(mfrow = c(2, 2), pch = 16, mar = c(4,4,4,4))
 my_cols <- c("#D42B08CC",
              "#750E3380",
@@ -1878,6 +1878,7 @@ p <- sapply(colnames(preds),
             cols = my_cols,
             rsq = r2s,
             rmse = rmses)
+par(old_par)
 ```
 
 ## Using `Yu` argument
@@ -1912,8 +1913,12 @@ following example we use parallel processing to predict Total Nitrogen:
 
 ```{r, eval = FALSE}
 # Running the mbl function using multiple cores
-n_cores <- parallel::detectCores() - 1
-if (n_cores == 0) {
+
+# Execute with two cores, if available, ...
+n_cores <- 2
+
+# ... if not then go with 1 core
+if (parallel::detectCores() < 2) {
   n_cores <- 1
 }
 

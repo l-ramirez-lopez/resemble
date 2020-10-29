@@ -11,7 +11,6 @@ mbl_control(return_dissimilarity = FALSE,
             number = 10,
             p = 0.75,
             range_prediction_limits = TRUE,
-            progress = TRUE,
             allow_parallel = TRUE)
 }
 \arguments{
@@ -44,10 +43,6 @@ variable within each neighborhood. When the predicted value is outside
 this range, it will be automatically replaced with the value of the nearest
 range value. If \code{FALSE}, no prediction limits are imposed.
 Default is \code{TRUE}.}
-
-\item{progress}{a logical indicating whether or not to print a progress bar
-for each observation to be predicted. Default is \code{TRUE}. Note: In case
-parallel processing is used, these progress bars will not be printed.}
 
 \item{allow_parallel}{a logical indicating if parallel execution is allowed.
 If \code{TRUE}, this parallelism is applied to the loop in \code{\link{mbl}}

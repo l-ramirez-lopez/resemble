@@ -214,7 +214,7 @@ Note that for the \code{"opc"} method \code{Yr} is required (i.e. the
 side information of the observations).
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

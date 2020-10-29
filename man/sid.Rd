@@ -144,7 +144,7 @@ the \code{sid} function will accept negative values and matrix centering
 will be possible.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 
 data(NIRsoil)
