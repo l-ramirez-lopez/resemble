@@ -335,8 +335,8 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-reconstruction_error <- function(x, projection_mat, xloadings) {
-    .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings)
+reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale) {
+    .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings, scale, Xcenter, Xscale)
 }
 
 #' @title Internal Cpp function for computing the weights of the PLS components 

@@ -208,15 +208,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // reconstruction_error
-Rcpp::NumericMatrix reconstruction_error(arma::mat x, arma::mat projection_mat, arma::mat xloadings);
-RcppExport SEXP _resemble_reconstruction_error(SEXP xSEXP, SEXP projection_matSEXP, SEXP xloadingsSEXP) {
+Rcpp::NumericMatrix reconstruction_error(arma::mat x, arma::mat projection_mat, arma::mat xloadings, bool scale, arma::mat Xcenter, arma::mat Xscale);
+RcppExport SEXP _resemble_reconstruction_error(SEXP xSEXP, SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type projection_mat(projection_matSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type xloadings(xloadingsSEXP);
-    rcpp_result_gen = Rcpp::wrap(reconstruction_error(x, projection_mat, xloadings));
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
+    rcpp_result_gen = Rcpp::wrap(reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -344,7 +347,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_opls_get_basics", (DL_FUNC) &_resemble_opls_get_basics, 6},
     {"_resemble_predict_opls", (DL_FUNC) &_resemble_predict_opls, 6},
     {"_resemble_project_opls", (DL_FUNC) &_resemble_project_opls, 6},
-    {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 3},
+    {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 6},
     {"_resemble_get_pls_weights", (DL_FUNC) &_resemble_get_pls_weights, 9},
     {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 12},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},
