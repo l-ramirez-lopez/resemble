@@ -272,9 +272,9 @@ List opls_for_projection(arma::mat X,
     }
   }
   
- 
   
-    
+  
+  
   arma::uvec pc_indices;
   if (pcSelmethod != "manual") {
     if (pcSelmethod == "var" || pcSelmethod == "cumvar") {
@@ -934,14 +934,14 @@ Rcpp::NumericMatrix predict_opls(arma::mat bo,
                                  bool scale,
                                  arma::mat Xscale
 ){
-
+  
   if (scale) {
     newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
   } 
   
   // Not Necessary to center since b0 is used
   // Xz = Xz - arma::repmat(Xcenter, newdata.n_rows, 1);
-
+  
   arma::mat predicted = (newdata * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), newdata.n_rows, 1);
   return Rcpp::wrap(predicted);
 }
@@ -996,10 +996,29 @@ Rcpp::NumericMatrix project_opls(arma::mat projection_mat,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix reconstruction_error(arma::mat x, 
                                          arma::mat projection_mat, 
-                                         arma::mat xloadings){
+                                         arma::mat xloadings,
+                                         bool scale,
+                                         arma::mat Xcenter,
+                                         arma::mat Xscale){
+  
+  if(scale){
+    x = x / arma::repmat(Xscale, x.n_rows, 1);
+  }
+  
+  //Necessary to center
+  x = x - arma::repmat(Xcenter, x.n_rows, 1);
+  
   arma::mat xrec = x;
   arma::mat xrmse;
   xrec = x * projection_mat * xloadings; 
+  
+  // if(scale){
+  //   xrec = xrec % arma::repmat(Xscale, x.n_rows, 1);
+  // }
+  // 
+  // //Necessary to center
+  // xrec = xrec + arma::repmat(Xcenter, newdata.n_rows, 1);
+  
   xrmse = sqrt(arma::mean(arma::mean(pow(x - xrec, 2), 0), 1));
   return Rcpp::wrap(xrmse);
 }
