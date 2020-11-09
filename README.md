@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-_Last update: 29.10.2020_
+_Last update: 09.11.2020_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -18,7 +18,7 @@ The `resemble` package provides high-performing functionality for
 data-driven modeling (including local modeling), nearest neighbor search and 
 orthogonal projections in spectral data.
 
-Check the package vignette(s)!
+Check the package vignette(s) [here](https://cran.r-project.org/web/packages/resemble/vignettes/resemble.html)!
 
 ## Core functionality 
 
