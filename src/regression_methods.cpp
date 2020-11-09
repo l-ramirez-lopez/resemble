@@ -1,12 +1,8 @@
 #include <RcppArmadillo.h>
 #include <math.h>
 #include <iostream>
-#ifdef _OPENMP
-#include <omp.h>    // OpenMP
-#endif
 
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(openmp)]]
 
 using namespace Rcpp;
 
@@ -265,7 +261,7 @@ List opls_for_projection(arma::mat X,
           ncomp = ith_comp - 1;
           ith_comp = ith_comp - 2;
           if(i == 0) {
-            throw exception("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
+            throw std::invalid_argument("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
           }
           if (pcSelmethod == "cumvar") {
             ncomp = ncomp + 1;
@@ -276,9 +272,9 @@ List opls_for_projection(arma::mat X,
     }
   }
   
- 
   
-    
+  
+  
   arma::uvec pc_indices;
   if (pcSelmethod != "manual") {
     if (pcSelmethod == "var" || pcSelmethod == "cumvar") {
@@ -835,7 +831,6 @@ List opls_get_basics(arma::mat X,
   
   for (int i = 0; i < ncomp; i++) {
     Yplsb = Ypls;
-    Xpls = Xpls;      
     // Select the Y variable with the largest standard deviation
     imsd = get_col_largest_sd(Ypls);
     iypls = Ypls.col(imsd[0]);
@@ -939,14 +934,14 @@ Rcpp::NumericMatrix predict_opls(arma::mat bo,
                                  bool scale,
                                  arma::mat Xscale
 ){
-
+  
   if (scale) {
     newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
   } 
   
   // Not Necessary to center since b0 is used
   // Xz = Xz - arma::repmat(Xcenter, newdata.n_rows, 1);
-
+  
   arma::mat predicted = (newdata * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), newdata.n_rows, 1);
   return Rcpp::wrap(predicted);
 }
@@ -1001,10 +996,29 @@ Rcpp::NumericMatrix project_opls(arma::mat projection_mat,
 // [[Rcpp::export]]
 Rcpp::NumericMatrix reconstruction_error(arma::mat x, 
                                          arma::mat projection_mat, 
-                                         arma::mat xloadings){
+                                         arma::mat xloadings,
+                                         bool scale,
+                                         arma::mat Xcenter,
+                                         arma::mat Xscale){
+  
+  if(scale){
+    x = x / arma::repmat(Xscale, x.n_rows, 1);
+  }
+  
+  //Necessary to center
+  x = x - arma::repmat(Xcenter, x.n_rows, 1);
+  
   arma::mat xrec = x;
   arma::mat xrmse;
   xrec = x * projection_mat * xloadings; 
+  
+  // if(scale){
+  //   xrec = xrec % arma::repmat(Xscale, x.n_rows, 1);
+  // }
+  // 
+  // //Necessary to center
+  // xrec = xrec + arma::repmat(Xcenter, newdata.n_rows, 1);
+  
   xrmse = sqrt(arma::mean(arma::mean(pow(x - xrec, 2), 0), 1));
   return Rcpp::wrap(xrmse);
 }
@@ -1684,9 +1698,8 @@ List pca_nipals(arma::mat X,
       {
         ncomp = ith_comp - 1;
         ith_comp = ith_comp - 2;
-        if (i == 0)
-        {
-          throw exception("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
+        if (i == 0) {
+          throw std::invalid_argument("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
         }
         break;
       }

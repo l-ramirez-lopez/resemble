@@ -33,7 +33,9 @@ variable, then the kappa index is used. See details.}
  }
 }
 \description{
-\lifecycle{stable}
+\loadmathjax
+
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 This function searches for the most similar observation (closest neighbor) of
 each observation in a given data set based on a dissimilarity (e.g. distance
@@ -43,7 +45,6 @@ square of differences and the correlation coefficient are used for continuous
 variables and for discrete variables the kappa index is used.
 }
 \details{
-\loadmathjax
 For the evaluation of dissimilarity matrices this function uses side
 information (information about one variable which is available for a
 group of observations, Ramirez-Lopez et al., 2013). It is assumed that there
@@ -57,12 +58,12 @@ provided. It is computed as follows:
 \mjdeqn{j(i) = NN(xr_i, Xr^{\{-i\}})}{j(i) = NN(xr_i, Xr^{\{-i\}})}
 \mjdeqn{RMSD = \sqrt{\frac{1}{m} \sum_{i=1}^n {(y_i - y_{j(i)})^2}}}{RMSD = \sqrt{1/n sum_{i=1}^m (y_i - y_{j(i)})^2}}
 
-where \mjeqn{NN(xr_i, Xr^{-i})}{NN(xr_i, Xr^{-i})} represents a function to 
-obtain the index  of the nearest neighbor observation found in \mjeqn{Xr}{Xr} 
-(excluding the \mjeqn{i}{i}th observation) for \mjeqn{xr_i}{xr_i}, 
-\mjeqn{y_{i}}{y_i} is the value of the side variable of the \mjeqn{i}{i}th 
-observation, \mjeqn{y_{j(i)}}{y_{j(i)}} is the value of the side variable of 
-the nearest neighbor of the \mjeqn{i}{i}th observation and \mjeqn{m}{m} is 
+where \mjeqn{NN(xr_i, Xr^{-i})}{NN(xr_i, Xr^{-i})} represents a function to
+obtain the index  of the nearest neighbor observation found in \mjeqn{Xr}{Xr}
+(excluding the \mjeqn{i}{i}th observation) for \mjeqn{xr_i}{xr_i},
+\mjeqn{y_{i}}{y_i} is the value of the side variable of the \mjeqn{i}{i}th
+observation, \mjeqn{y_{j(i)}}{y_{j(i)}} is the value of the side variable of
+the nearest neighbor of the \mjeqn{i}{i}th observation and \mjeqn{m}{m} is
 the total number of observations.
 
 If \code{side_info} is a factor the kappa index (\mjeqn{\kappa}{kappa}) is
@@ -79,12 +80,9 @@ observations). While \mjeqn{p_o}{p_o} is the relative agreement
 This functions accepts vectors to be passed to argument \code{d}, in this
 case, the vector must represent the lower triangle of a dissimilarity matrix
 (e.g. as returned by the [stats::dist()] function of \code{stats}).
-
-This function supports multi-threading based on OpenMP for retrieving the
-closest observations.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

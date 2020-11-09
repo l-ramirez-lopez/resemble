@@ -1,20 +1,17 @@
 #' @title Plot method for an object of class \code{mbl}
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' Plots the content of an object of class \code{mbl}
 #' @aliases plot.mbl
 #' @usage \method{plot}{mbl}(x, g = c("validation", "gh"), param = "rmse", pls_c = c(1,2), ...)
 #' @param x an object of class \code{mbl} (as returned by \code{mbl}).
 #' @param g a character vector indicating what results shall be plotted.
 #' Options are: \code{"validation"} (for plotting the validation results) and/or
-#' \code{"gh"} (for plotting the pls scores used to compute the GH distance. 
+#' \code{"gh"} (for plotting the pls scores used to compute the GH distance.
 #' See details).
-#' @param param a character string indicating what validation statistics shall be 
-#' plotted. The following options are available: \code{"rmse"}, \code{"st_rmse"} 
-#' or \code{"r2"}. These options only available if the \code{mbl} object contains 
-#' validation results. 
+#' @param param a character string indicating what validation statistics shall be
+#' plotted. The following options are available: \code{"rmse"}, \code{"st_rmse"}
+#' or \code{"r2"}. These options only available if the \code{mbl} object contains
+#' validation results.
 #' @param pls_c a numeric vector of length one or two indicating the pls factors to be
 #' plotted. Default is \code{c(1, 2)}. It is only available if \code{"gh"} is
 #' specified in the \code{g} argument.
@@ -28,7 +25,7 @@
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @seealso \code{\link{mbl}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #'
 #' data(NIRsoil)
@@ -77,10 +74,12 @@ plot.mbl <- function(x,
                      g = c("validation", "gh"),
                      param = "rmse",
                      pls_c = c(1, 2), ...) {
-  original_set <- par()$mfrow
+
+  opar <- par("mfrow", "mar")
+  on.exit(par(opar))
+  
   if (length(g) != 1 & !is.null(x$gh)) {
     op <- par(mfrow = c(1, 2))
-    on.exit(par(op))
   }
 
   plot_dots <- list(...)
@@ -159,9 +158,9 @@ plot.mbl <- function(x,
       dt <- !is.element(dtn, opt[!is.element(opt, param)])
       idv <- ifelse("k" %in% colnames(tpl), "k", "k_diss")
       dt <- as.logical(dt * (!dtn %in% "p_bounded"))
-      to_plot <- tpl %>%
-        select(names(tpl)[dt]) %>%
-        reshape(
+     
+      to_plot <- data.frame(tpl)[, dt] %>%
+        stats::reshape(
           timevar = "val",
           idvar = idv,
           direction = "wide"
@@ -186,7 +185,7 @@ plot.mbl <- function(x,
       ))
       grid(
         nx = NULL, ny = NULL, col = rgb(0.3, 0.3, 0.3, 0.1), lty = 1,
-        lwd = par("lwd"), equilogs = TRUE
+        lwd = 1, equilogs = TRUE
       )
       mtext("Validation results", col = grey(0.3))
       # Adding a legend
@@ -242,7 +241,7 @@ plot.mbl <- function(x,
       points(tp[tp$set == "Xu", 1:2], xlim = rng, ylim = rng, col = xu_col, pch = plot_dots$pch)
       grid(
         nx = NULL, ny = NULL, col = rgb(0.3, 0.3, 0.3, 0.1), lty = 1,
-        lwd = par("lwd"), equilogs = TRUE
+        lwd = 1, equilogs = TRUE
       )
       legend("topleft",
         legend = c("Xr", "Xu"),
@@ -273,7 +272,7 @@ plot.mbl <- function(x,
       points(xu_scores[, pls_c, drop = FALSE], col = xu_col, pch = plot_dots$pch)
       grid(
         nx = NULL, ny = NULL, col = rgb(0.3, 0.3, 0.3, 0.1), lty = 1,
-        lwd = par("lwd"), equilogs = TRUE
+        lwd =1, equilogs = TRUE
       )
       legend("topright",
         legend = c("Xr", "Xu"),
@@ -304,7 +303,6 @@ plot.mbl <- function(x,
   mtext(main, outer = TRUE, cex = 2, line = -2)
   # par(ask = original_set)
   # op <- par(ask = original_set)
-  on.exit(par(mfrow = original_set))
   # par(mfrow = pm)
   # title(main = "Memory-based learning results")
   # dev.flush()

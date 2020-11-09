@@ -1,9 +1,6 @@
 #' @title A function for computing dissimilarity matrices from orthogonal
 #' projections (ortho_diss)
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' This function computes dissimilarities (in an orthogonal space) between
 #' either observations in a given set or between observations in two different
@@ -22,8 +19,8 @@
 #'            compute_all = FALSE,
 #'            return_projection = FALSE,
 #'            allow_parallel = TRUE, ...)
-#' @param Xr a matrix containing \code{n} reference observations/rows and
-#' \code{p} variables/columns.
+#' @param Xr a matrix containing \code{n} reference observations rows and
+#' \code{p} variablescolumns.
 #' @param Xu an optional matrix containing data of a second set of observations
 #' with \code{p} variables/columns.
 #' @param Yr a matrix of \code{n} rows and one or more columns (variables) with
@@ -61,22 +58,25 @@
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of cumulative variance that the 
+#'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
 #'
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a single component 
+#'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
-#'        (larger than 0 and below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))}).
+#'        (larger than 0 and
+#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
+#'        combined).
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "var", value = 0.01)}.
+#' Default is \code{list(method = "var", value = 0.01)}.
+#'
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such case, the default \code{"value"} when either \code{"opc"} or
@@ -147,10 +147,10 @@
 #' not have enough observations with non-missing \code{"Yr"} values, which might retrieve
 #' unreliable dissimilarity computations.
 #'
-#' If \code{.local = TRUE} and \code{pc_selection$method} is \code{"opc"} or
-#' \code{"manual"}, the minimum number of observations with non-missing \code{"Yr"}
-#' values at each neighborhood is determined by \code{pc_selection$value}
-#' (i.e. the maximum number of components to compute).
+#' If \code{"opc"} or \code{"manual"} are used in \code{pc_selection$method}
+#' and \code{.local = TRUE}, the minimum number of observations with non-missing
+#' \code{"Yr"} values at each neighborhood is determined by
+#' \code{pc_selection$value} (i.e. the maximum number of components to compute).
 #'
 #'
 #' @return a \code{list} of class \code{ortho_diss} with the following elements:
@@ -184,7 +184,6 @@
 #' with soil vis-NIR spectra. Geoderma 199, 43-53.
 #' @seealso \code{\link{ortho_projection}}, \code{\link{sim_eval}}
 #' @examples
-#' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
@@ -220,7 +219,6 @@
 #'   pc_selection = list("opc", 40),
 #'   diss_method = "pls"
 #' )
-#' }
 #' @export
 
 #######################################################################

@@ -5,9 +5,6 @@
 #' @aliases local_fit_wapls
 #' @aliases local_fit_gpr
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' These functions define the way in which each local fit/prediction is done
 #' within each iteration in the \code{\link{mbl}} function.
@@ -92,15 +89,13 @@
 #'
 #' @seealso \code{\link{mbl}}
 #' @examples
-#' \dontrun{
 #' local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
-#' }
 #' @export
 
 ## History:
 ## 28.05.2020 Leo     Hello world!
-## 19.07.2020 Leo     arguments pls_max_iter and pls_tol were removed fas they 
-##                    are only required when modleing for more than one response 
+## 19.07.2020 Leo     arguments pls_max_iter and pls_tol were removed fas they
+##                    are only required when modleing for more than one response
 ##                    variable, i.e. pls2 (which is not implemented for mbl)
 
 
@@ -154,7 +149,8 @@ local_fit_wapls <- function(min_pls_c, max_pls_c) {
 
   fit_type <- list(
     method = "wapls",
-    pls_c = c(min_pls_c = min_pls_c, max_pls_c = max_pls_c))
+    pls_c = c(min_pls_c = min_pls_c, max_pls_c = max_pls_c)
+  )
 
   class(fit_type) <- c("local_fit", "list")
   fit_type

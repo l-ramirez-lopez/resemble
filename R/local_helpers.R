@@ -16,7 +16,6 @@ get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
                               diss_usage, allow_parallel = FALSE,
                               ...) {
   ortho_diss_methods <- c("pca", "pca.nipals", "pls")
-
   k_max <- NULL
   if (!is.null(k)) {
     k <- sort(k)
@@ -156,7 +155,7 @@ pls_cv <- function(x, y, ncomp,
     y = y,
     p = p,
     number = number,
-    group = group, 
+    group = group,
     replacement = FALSE
   )
 
@@ -193,7 +192,7 @@ pls_cv <- function(x, y, ncomp,
 
   val <- NULL
   val$resamples <- cv_samples$hold_out
-  
+
   if (method == "pls") {
     val$cv_results <- data.table(
       npls = 1:ncomp,
@@ -430,7 +429,7 @@ ith_mbl_neighbor <- function(Xr, Xu, Yr, Yu = NULL,
       ith_xr_neighbors <- cbind(ith_local_xr_xr_diss, ith_xr_neighbors)
       ith_xu <- cbind(ith_neigh_diss, ith_xu)
     }
-    
+
     if (!is.null(group)) {
       ith_group <- factor(group[ith_neighborhood])
     } else {

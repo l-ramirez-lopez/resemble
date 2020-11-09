@@ -30,18 +30,17 @@ a matrix of the computed dissimilarities.
 }
 \description{
 \loadmathjax
-
-\lifecycle{stable}
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 Computes correlation and moving correlation dissimilarity matrices.
 }
 \details{
 The correlation dissimilarity \mjeqn{d}{d} between two observations
-\mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's 
-correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as 
+\mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's
+correlation coefficient (\mjeqn{\rho}{\rho}) and it can be computed as
 follows:
 
-\mjdeqn{d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))}{d(x_i, x_j) = 1/2 (1 - \rho(x_i, x_j))}
+\mjdeqn{d(x_i, x_j) = \frac{1}{2}((1 - \rho(x_i, x_j)))}{d(x_i, x_j) = 1/2 (1 - \rho(x_i, x_j))}
 
 The above formula is used when \code{ws = NULL}.
 On the other hand (when \code{ws != NULL}) the moving correlation
@@ -57,7 +56,7 @@ variables of the observations.
 The function does not accept input data containing missing values.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

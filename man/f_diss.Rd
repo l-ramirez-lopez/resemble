@@ -13,7 +13,8 @@ f_diss(Xr, Xu = NULL, diss_method = "euclid",
 \item{Xu}{an optional matrix containing data of a second set of observations
 (samples).}
 
-\item{diss_method}{the method for computing the dissimilarity matrix.
+\item{diss_method}{the method for computing the dissimilarity between
+observations.
 Options are \code{"euclid"} (Euclidean distance), \code{"mahalanobis"}
 (Mahalanobis distance) and \code{"cosine"} (cosine distance, a.k.a spectral
 angle mapper). See details.}
@@ -31,8 +32,7 @@ a matrix of the computed dissimilarities.
 }
 \description{
 \loadmathjax
-
-\lifecycle{stable}
+\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 This function is used to compute the dissimilarity between observations
 based on Euclidean or Mahalanobis distance measures or on cosine
@@ -85,7 +85,7 @@ NOTE: The computed distances are divided by the number of variables/columns
 in \code{Xr}.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

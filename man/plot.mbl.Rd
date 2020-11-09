@@ -11,12 +11,12 @@
 
 \item{g}{a character vector indicating what results shall be plotted.
 Options are: \code{"validation"} (for plotting the validation results) and/or
-\code{"gh"} (for plotting the pls scores used to compute the GH distance. 
+\code{"gh"} (for plotting the pls scores used to compute the GH distance.
 See details).}
 
-\item{param}{a character string indicating what validation statistics shall be 
-plotted. The following options are available: \code{"rmse"}, \code{"st_rmse"} 
-or \code{"r2"}. These options only available if the \code{mbl} object contains 
+\item{param}{a character string indicating what validation statistics shall be
+plotted. The following options are available: \code{"rmse"}, \code{"st_rmse"}
+or \code{"r2"}. These options only available if the \code{mbl} object contains
 validation results.}
 
 \item{pls_c}{a numeric vector of length one or two indicating the pls factors to be
@@ -26,8 +26,6 @@ specified in the \code{g} argument.}
 \item{...}{some arguments to be passed to the plot methods.}
 }
 \description{
-\lifecycle{maturing}
-
 Plots the content of an object of class \code{mbl}
 }
 \details{
@@ -38,7 +36,7 @@ its covariance matrix. The root square of this matrix is estimated using a
 singular value decomposition.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 
 data(NIRsoil)

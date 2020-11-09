@@ -5,13 +5,12 @@
 \title{A function for memory-based learning (mbl)}
 \usage{
 mbl(Xr, Yr, Xu, Yu = NULL, k, k_diss, k_range, spike = NULL,
-    method = local_fit_wapls(min_pls_c = 3,
-                             max_pls_c = min(dim(Xr), 15)),
+    method = local_fit_wapls(min_pls_c = 3, max_pls_c = min(dim(Xr), 15)),
     diss_method = "pca", diss_usage = "predictors",
-    gh = TRUE, pc_selection = list(method = "opc",
-                                  value = min(dim(Xr), 40)),
+    gh = TRUE, pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
     control = mbl_control(), group = NULL,
-    center = TRUE, scale = FALSE, documentation = character(), ...)
+    center = TRUE, scale = FALSE, verbose = TRUE, 
+    documentation = character(), ...)
 }
 \arguments{
 \item{Xr}{a matrix of predictor variables of the reference data
@@ -45,8 +44,11 @@ retained when the \code{k_diss} is given.}
 
 \item{spike}{an integer vector indicating the indices of observations in
 \code{Xr} that must be forced into the neighborhoods of every \code{Xu}
-observation. Default is \code{NULL} (i.e. no observations are forced).
-See details.}
+observation. Default is \code{NULL} (i.e. no observations are forced). Note
+that this argument is not intended for increasing the neighborhood size which
+is only controlled by \code{k} or \code{k_diss} and \code{k_range}. By
+forcing observations into the neighborhood, some observations will be forced
+out of the neighborhood. See details.}
 
 \item{method}{an object of class \code{\link{local_fit}} which indicates the
 type of regression to conduct at each local segment as well as additional
@@ -70,8 +72,8 @@ observation. Options are:
 
        \item{\code{"pls"}}{ Mahalanobis distance
        computed on the matrix of scores of a partial least squares projection
-       of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
-       See \code{\link{ortho_diss}} function.}
+       of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always
+       required. See \code{\link{ortho_diss}} function.}
 
        \item{\code{"cor"}}{ correlation coefficient
        between observations. See \code{\link{cor_diss}} function.}
@@ -121,35 +123,38 @@ This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} { optimized principal component selection based on
-       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-       (of set of observations) is the one for which its distance matrix
-       minimizes the differences between the \code{Yr} value of each
-       observation and the \code{Yr} value of its closest observation. In this
-       case \code{value} must be a value (larger than 0 and
-       below \code{min(nrow(Xr), nrow(X2), ncol(Xr))}) indicating the maximum
+       \item{\code{"opc"}:} { optimized principal component selection based
+       on Ramirez-Lopez et al. (2013a, 2013b). The optimal number of
+       components (of set of observations) is the one for which its distance
+       matrix minimizes the differences between the \code{Yr} value of each
+       observation and the \code{Yr} value of its closest observation. In
+       this case \code{value} must be a value (larger than 0 and
+       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
+       combined) indicating the maximum
        number of principal components to be tested. See the
        \code{\link{ortho_projection}} function for more details.}
 
        \item{\code{"cumvar"}:}{ selection of the principal components based
        on a given cumulative amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of cumulative variance that the 
+       indicating the minimum amount of cumulative variance that the
        combination of retained components should explain.}
 
        \item{\code{"var"}:}{ selection of the principal components based
        on a given amount of explained variance. In this case,
        \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a single component 
+       indicating the minimum amount of variance that a single component
        should explain in order to be retained.}
 
        \item{\code{"manual"}:}{ for manually specifying a fix number of
        principal components. In this case, \code{value} must be a value
-       (larger than 0 and \code{min(nrow(Xr), nrow(X2), ncol(Xr))}).
+       (larger than 0 and below the minimum dimension of \code{Xr} or
+       \code{Xr} and \code{Xu} combined).
        indicating the minimum amount of variance that a component should
        explain in order to be retained.}
        }
-The default list passed is \code{list(method = "opc", value = min(dim(Xr), 40))}.
+The list
+\code{list(method = "opc", value = min(dim(Xr), 40))} is the default.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 string. In such a case the default \code{"value"} when either \code{"opc"} or
@@ -167,8 +172,8 @@ See the \code{\link{mbl_control}} function for more details.}
 that can be coerced to \code{\link[base]{factor}} by \code{as.factor}) that
 assigns a group/class label to each observation in \code{Xr}
 (e.g. groups can be given by spectra collected from the same batch of
-measurements, from the same observation, from observations with very similar origin,
-etc). This is taken into account for internal leave-group-out cross
+measurements, from the same observation, from observations with very similar
+origin, etc). This is taken into account for internal leave-group-out cross
 validation for pls tuning (factor optimization) to avoid pseudo-replication.
 When one observation is selected for cross-validation, all observations of
 the same group are removed together and assigned to validation. The length
@@ -183,6 +188,10 @@ and \code{Xu} will be centred for  dissimilarity computations.}
 to unit variance at each local segment (before regression). In addition, if
 \code{TRUE}, \code{Xr} and \code{Xu} will be scaled for  dissimilarity
 computations.}
+
+\item{verbose}{a logical indicating whether or not to print a progress bar
+for each observation to be predicted. Default is \code{TRUE}. Note: In case
+parallel processing is used, these progress bars will not be printed.}
 
 \item{documentation}{an optional character string that can be used to
 describe anything related to the \code{mbl} call (e.g. description of the
@@ -215,11 +224,11 @@ a \code{list} of class \code{mbl} with the following components
  as well as the results of the global pls projection object used to obtain
  the GH values.}
  \item{\code{validation_results}:}{ a list of validation results for
- \code{local_cross_validation} (returned if the \code{validation_type} in \code{control}
- list was set to \code{"local_cv"}),
- \code{nearest_neighbor_validation} (returned if the \code{validation_type} in \code{control}
- list was set to \code{"NNv"}) and
- \code{Yu_prediction_statistics} (returned  if \code{Yu} was supplied).}
+ "local cross validation" (returned if the \code{validation_type} in
+ \code{control} list was set to \code{"local_cv"}),
+ "nearest neighbor validation" (returned if the \code{validation_type}
+ in \code{control} list was set to \code{"NNv"}) and
+ "Yu prediction statistics" (returned  if \code{Yu} was supplied).}``
  \item{\code{results}:}{ a list of data tables containing the results of the
  predictions for each either \code{k} or \code{k_diss}. Each data table
  contains the following columns:}
@@ -231,9 +240,11 @@ a \code{list} of class \code{mbl} with the following components
    \item{\code{k_original}:}{ This column is only output if the \code{k_diss}
    argument is used. It indicates the number of neighbors that were originally
    found when the given dissimilarity threshold is used.}
-   \item{\code{k}:}{ This column indicates the final number of neighbors used.}
-   \item{\code{npls}:}{ This column is only output if the \code{pls} regression
-   method was used. It indicates the final number of pls components used.}
+   \item{\code{k}:}{ This column indicates the final number of neighbors
+   used.}
+   \item{\code{npls}:}{ This column is only output if the \code{pls}
+   regression method was used. It indicates the final number of pls
+   components used.}
    \item{\code{min_pls}:}{ This column is only output if \code{wapls}
    regression method was used. It indicates the final number of minimum pls
    components used. If no optimization was set, it retrieves the original
@@ -252,33 +263,36 @@ a \code{list} of class \code{mbl} with the following components
    variable) in the neighborhood.}
    \item{\code{index_nearest_in_Xr}}{ The index of the nearest neighbor found
    in \code{Xr}.}
-   \item{\code{index_farthest_in_Xr}}{ The index of the farthest neighbor found
-   in \code{Xr}.}
+   \item{\code{index_farthest_in_Xr}}{ The index of the farthest neighbor
+   found in \code{Xr}.}
    \item{\code{y_nearest}:}{ The reference value (\code{Yr}) corresponding to
    the nearest neighbor found in \code{Xr}.}
-   \item{\code{y_nearest_pred}:}{ This column is only output if the validation
-   method in the object passed to \code{control} was set to \code{"NNv"}.
-   It represents the predicted value of the nearest neighbor observation found
-   in \code{Xr}. This prediction come from model fitted with the remaining
-   observations in the neighborhood of the target observation in \code{Xu}.}
+   \item{\code{y_nearest_pred}:}{ This column is only output if the
+   validation method in the object passed to \code{control} was set to
+   \code{"NNv"}. It represents the predicted value of the nearest neighbor
+   observation found in \code{Xr}. This prediction come from model fitted
+   with the remaining observations in the neighborhood of the target
+   observation in \code{Xu}.}
    \item{\code{loc_rmse_cv}:}{ This column is only output if the validation
    method in the object passed to \code{control} was set to
    \code{'local_cv'}. It represents the RMSE of the cross-validation
    computed for the neighborhood of the target observation in \code{Xu}.}
-   \item{\code{loc_st_rmse_cv}:}{ This column is only output if the validation
-   method in the object passed to \code{control} was set to
+   \item{\code{loc_st_rmse_cv}:}{ This column is only output if the
+   validation method in the object passed to \code{control} was set to
    \code{'local_cv'}. It represents the standardized RMSE of the
-   cross-validation computed for the neighborhood of the target observation in
-   \code{Xu}.}
+   cross-validation computed for the neighborhood of the target observation
+   in \code{Xu}.}
    \item{\code{dist_nearest}:}{ The distance to the nearest neighbor.}
    \item{\code{dist_farthest}:}{ The distance to the farthest neighbor.}
    \item{\code{loc_n_components}:}{ This column is only output if the
    dissimilarity method used is one of \code{"pca"}, \code{"pca.nipals"} or
    \code{"pls"} and in addition the dissimilarities are requested to be
-   computed locally by passing \code{.local = TRUE} to the \code{mbl} function.
+   computed locally by passing \code{.local = TRUE} to the \code{mbl}
+   function.
    See \code{.local} argument in the \code{\link{ortho_diss}} function.}
    }
- \item{\code{documentation}}{ A character string with the documentation added.}
+ \item{\code{documentation}}{ A character string with the documentation
+ added.}
  }
 When the \code{k_diss} argument is used, the printed results show a table
 with a column named '\code{p_bounded}. It represents the percentage of
@@ -287,8 +301,6 @@ threshold were outside the boundaries specified in the \code{k_range}
 argument.
 }
 \description{
-\lifecycle{maturing}
-
 \loadmathjax
 This function is implemented for memory-based learning (a.k.a.
 instance-based learning or local regression) which is a non-linear lazy
@@ -303,7 +315,10 @@ regression model.
 \details{
 The argument \code{spike} can be used to indicate what reference observations
 in \code{Xr} must be kept in the neighborhood of every single \code{Xu}
-observation. Spiking might be useful in cases where
+observation. If a vector of length \mjeqn{m}{m} is passed to this argument,
+this means that the \mjeqn{m}{m} original neighbors with the largest
+dissimilarities to the target observations will be forced out of the
+neighborhood. Spiking might be useful in cases where
 some reference observations are known to be somehow related to the ones in
 \code{Xu} and therefore might be relevant for fitting the local models. See
 Guerrero et al. (2010) for an example on the benefits of spiking.
@@ -324,14 +339,14 @@ source of additional predictors (i.e the columns of this local matrix are
 treated as predictor variables). In some cases this results in an improvement
 of the prediction performance (Ramirez-Lopez et al., 2013a).
 If \code{diss_usage = "weights"}, the neighbors of the query point
-(\mjeqn{xu_{j}}{xu_j}) are weighted according to their dissimilarity to \mjeqn{xu_{j}}{xu_j}
-before carrying out each local regression. The following tricubic function
-(Cleveland and Delvin, 1988; Naes et al., 1990) is used for computing the
-final weights based on the measured dissimilarities:
+(\mjeqn{xu_{j}}{xu_j}) are weighted according to their dissimilarity to
+\mjeqn{xu_{j}}{xu_j} before carrying out each local regression. The following
+tricubic function (Cleveland and Delvin, 1988; Naes et al., 1990) is used for
+computing the final weights based on the measured dissimilarities:
 
 \mjdeqn{W_{j}  =  (1 - v^{3})^{3}}{W_j  =  (1 - v^3)^3}
 
-where if \mjeqn{{xr_{i} \in}}{xr_i in} neighbors of \mjeqn{xu_{j}}{xu_j}:
+where if \mjeqn{{xr_{i} \in }}{xr_i in} neighbors of \mjeqn{xu_{j}}{xu_j}:
 
 \mjdeqn{v_{j}(xu_{j})  =  d(xr_{i}, xu_{j})}{v_j(xu_j)  =  d(xr_i, xu_j)}
 
@@ -358,18 +373,18 @@ parameter tuning, what extra objects to return, permission for parallel
 execution, prediction limits, etc, can be specified by using the
 \code{\link{mbl_control}} function.
 
-By using the \code{group} argument one can specify groups of observations that
-have something in common (e.g. observations with very similar origin).
+By using the \code{group} argument one can specify groups of observations
+that have something in common (e.g. observations with very similar origin).
 The purpose of \code{group} is to avoid biased cross-validation results due
 to pseudo-replication. This argument allows to select calibration points
 that are independent from the validation ones. In this regard, when
-\code{validation_type = "local_cv"} (used in \code{\link{mbl_control}} function),
-then the \code{p} argument refers to the percentage of groups of observations
-(rather than single observations) to be retained in each sampling iteration at
-each local segment.
+\code{validation_type = "local_cv"} (used in \code{\link{mbl_control}}
+function), then the \code{p} argument refers to the percentage of groups of
+observations (rather than single observations) to be retained in each
+sampling iteration at each local segment.
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 
@@ -377,7 +392,8 @@ data(NIRsoil)
 # Golay smoothing filter
 sg_det <- savitzkyGolay(
   detrend(NIRsoil$spc,
-          wav = as.numeric(colnames(NIRsoil$spc))),
+    wav = as.numeric(colnames(NIRsoil$spc))
+  ),
   m = 1,
   p = 1,
   w = 7
@@ -386,11 +402,11 @@ sg_det <- savitzkyGolay(
 NIRsoil$spc_pr <- sg_det
 
 # split into training and testing sets
-test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
 test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
 train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
-train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
 
 # Example 1
 # A mbl implemented in Ramirez-Lopez et al. (2013,
@@ -466,10 +482,18 @@ plot(local_algorithm_2)
 
 # Example 4
 # Running the mbl function in parallel with example 2
-n_cores <- parallel::detectCores() - 1
-if (n_cores == 0) {
-  n_cores <- 1
+
+n_cores <- 2
+
+if (parallel::detectCores() < 2) {
+   n_cores <- 1
 }
+
+# Alternatively:
+# n_cores <- parallel::detectCores() - 1
+# if (n_cores == 0) {
+#  n_cores <- 1
+# }
 
 library(doParallel)
 clust <- makeCluster(n_cores)
@@ -522,8 +546,8 @@ approach to regression analysis by local fitting. Journal of the American
 Statistical Association, 83, 596-610.
 
 Guerrero, C., Zornoza, R., Gómez, I., Mataix-Beneyto, J. 2010. Spiking of
-NIR regional models using observations from target sites: Effect of model size on
-prediction accuracy. Geoderma, 158(1-2), 66-77.
+NIR regional models using observations from target sites: Effect of model
+size on prediction accuracy. Geoderma, 158(1-2), 66-77.
 
 Naes, T., Isaksson, T., Kowalski, B. 1990. Locally weighted regression and
 scatter correction for near-infrared reflectance data. Analytical Chemistry
@@ -531,7 +555,8 @@ scatter correction for near-infrared reflectance data. Analytical Chemistry
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 Scholten, T. 2013a. The spectrum-based learner: A new local approach for
-modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
+modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
+268-279.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
 J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for
@@ -550,5 +575,6 @@ Infrared Spectroscopy, 5, 223-232.
 \code{\link{search_neighbors}}
 }
 \author{
-\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and Antoine Stevens
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+and Antoine Stevens
 }

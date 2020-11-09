@@ -180,7 +180,7 @@ format_xr_xu_indices <- function(xr_xu_names) {
 
 
   xu_mss <- paste0(c(
-    if_else(length(xu_insufficient) > 0,
+    ifelse(length(xu_insufficient) > 0,
       "\nXu: ", ""
     ),
     paste(xu_insufficient, collapse = ", ")
@@ -188,7 +188,7 @@ format_xr_xu_indices <- function(xr_xu_names) {
   collapse = " "
   )
   xr_mss <- paste0(c(
-    if_else(length(xr_insufficient) > 0,
+    ifelse(length(xr_insufficient) > 0,
       "\nXr: ", ""
     ),
     paste(xr_insufficient, collapse = ", ")

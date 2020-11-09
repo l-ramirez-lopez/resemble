@@ -40,10 +40,14 @@
 #' and their corresponding most similar observations in terms of the side information
 #' provided. A single discrete variable of class factor can also be passed. In
 #' that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.
-#' @param method the method for projecting the data. Options are: "pca" (principal
-#' component analysis using the singular value decomposition algorithm),
-#' "pca.nipals" (principal component analysis using the non-linear iterative
-#' partial least squares algorithm) and "pls" (partial least squares).
+#' @param method the method for projecting the data. Options are:
+#' \itemize{
+#' \item{\code{"pca"}:}{ principal component analysis using the singular value
+#' decomposition algorithm.}
+#' \item{\code{"pca.nipals"}:}{ principal component analysis using the
+#' non-linear iterative partial least squares algorithm.}
+#' \item{\code{"pls"}:}{ partial least squares.}
+#' }
 #' @param pc_selection a list of length 2 which specifies the method to be used
 #' for optimizing the number of components (principal components or pls factors)
 #' to be retained. This list must contain two elements (in the following order):
@@ -57,13 +61,13 @@
 #'        minimizes the differences between the \code{Yr} value of each
 #'        observation and the \code{Yr} value of its closest observation. In this
 #'        case \code{value} must be a value (larger than 0 and
-#'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating 
+#'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating
 #'        the maximum number of principal components to be tested. See details.}
 #'
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of cumulative variance that the 
+#'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
 #'
 #'        \item{\code{"var"}:}{ selection of the principal components based
@@ -74,11 +78,13 @@
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
-#'        (larger than 0 and below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))}).
+#'        (larger than 0 and
+#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
+#'        combined).
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "var", value = 0.01)}.
+#' The list \code{list(method = "var", value = 0.01)} is the default.
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such a case the default \code{"value"} when either \code{"opc"} or
@@ -99,19 +105,18 @@
 #' @param max_iter maximum number of iterations (default is 1000). In the case of
 #' \code{method = "pls"} this applies only to \code{Yr} matrices with more than
 #' one variable.
-#' @param ... additional arguments to be passed from \code{ortho_projection}
+#' @param ... additional arguments to be passed
 #' to \code{pc_projection} or \code{pls_projection}.
-#' @param object object of class "ortho_projection" (as returned by
-#' \code{ortho_projection}, \code{pc_projection} or \code{pls_projection}).
+#' @param object object of class \code{"ortho_projection"}.
 #' @param newdata an optional data frame or matrix in which to look for variables
 #' with which to predict. If omitted, the scores are used. It must contain the
 #' same number of columns, to be used in the same order.
 #' @details
 #' In the case of \code{method = "pca"}, the algrithm used is the singular value
 #' decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
-#'      
+#'
 #'  \mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}
-#'      
+#'
 #' where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right
 #' singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
 #' containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
@@ -142,10 +147,8 @@
 #' Note that for the \code{"opc"} method \code{Yr} is required (i.e. the
 #' side information of the observations).
 #'
-#' This function supports multi-threading for the computation of dissimilarities
-#' via OpenMP in Rcpp.
-#' @return \code{ortho_projection}, \code{pc_projection}, \code{pls_projection},
-#' return a \code{list} of class \code{ortho_projection} with the following
+#' @return
+#' a \code{list} of class \code{ortho_projection} with the following
 #' components:
 #' \itemize{
 #'  \item{\code{scores}}{ a matrix of scores corresponding to the observations in
@@ -164,8 +167,8 @@
 #'  onto a "pls" space. This object is only returned if the "pls" algorithm was
 #'  used.}
 #'  \item{\code{variance}}{ a matrix indicating the standard deviation of each
-#'  component (sd), the variance explained by each single component 
-#'  (explained_var) and the cumulative explained variance 
+#'  component (sd), the variance explained by each single component
+#'  (explained_var) and the cumulative explained variance
 #'  (cumulative_explained_var). These values are
 #'  computed based on the data used to create the projection matrices.
 #'  For example if the "pls" method was used, then these values are computed
@@ -205,27 +208,28 @@
 #' with soil vis-NIR spectra. Geoderma 199, 43-53.
 #' @seealso \code{\link{ortho_diss}}, \code{\link{sim_eval}}, \code{\link{mbl}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
-#' 
+#'
 #' # Proprocess the data using detrend plus first derivative with Savitzky and
 #' # Golay smoothing filter
 #' sg_det <- savitzkyGolay(
 #'   detrend(NIRsoil$spc,
-#'           wav = as.numeric(colnames(NIRsoil$spc))),
+#'     wav = as.numeric(colnames(NIRsoil$spc))
+#'   ),
 #'   m = 1,
 #'   p = 1,
 #'   w = 7
 #' )
 #' NIRsoil$spc_pr <- sg_det
-#' 
+#'
 #' # split into training and testing sets
-#' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC),]
+#' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
 #' test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
-#' 
+#'
 #' train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
-#' train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC),]
+#' train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
 #'
 #' # A principal component analysis using 5 components
 #' pca_projected <- ortho_projection(train_x, pc_selection = list("manual", 5))
@@ -234,7 +238,7 @@
 #' # A principal components projection using the "opc" method
 #' # for the selection of the optimal number of components
 #' pca_projected_2 <- ortho_projection(
-#'   Xr = train_x, Xu = test_x, Yr,
+#'   Xr = train_x, Xu = test_x, Yr = train_y,
 #'   method = "pca",
 #'   pc_selection = list("opc", 40)
 #' )
@@ -244,7 +248,7 @@
 #' # A partial least squares projection using the "opc" method
 #' # for the selection of the optimal number of components
 #' pls_projected <- ortho_projection(
-#'   Xr = train_x, Xu = test_x, Yr,
+#'   Xr = train_x, Xu = test_x, Yr = train_y,
 #'   method = "pls",
 #'   pc_selection = list("opc", 40)
 #' )
@@ -254,7 +258,7 @@
 #' # A partial least squares projection using the "cumvar" method
 #' # for the selection of the optimal number of components
 #' pls_projected_2 <- ortho_projection(
-#'   Xr = train_x, Yr = train_y, Xu = test_x,
+#'   Xr = train_x, Xu = test_x, Yr = train_y,
 #'   method = "pls",
 #'   pc_selection = list("cumvar", 0.99)
 #' )
@@ -343,7 +347,7 @@ ortho_projection <- function(Xr, Xu = NULL,
     )
     mthd <- "pls"
   } else {
-    mthd <- if_else(method == "pca", "pca (svd)", "pca (nipals)")
+    mthd <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
     proj <- pc_projection(
       Xr = Xr, Yr = Yr, Xu = Xu, pc_selection = pc_selection,
       center = center, scale = scale, method = method, ...
@@ -393,7 +397,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
       ))
     }
   }
-  
+
   ny <- ncol(Yr)
 
   if (!is.null(Xu)) {
@@ -552,7 +556,7 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     scale = sd_vector
   )
   colnames(fresults$variance) <- rownames(fresults$X_loadings)
-  fresults$method <- if_else(method == "pca", "pca (svd)", "pca (nipals)")
+  fresults$method <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
   if (pc_selection_method == "opc") {
     fresults$opc_evaluation <- results
   }

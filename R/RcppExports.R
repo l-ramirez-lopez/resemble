@@ -17,26 +17,18 @@ fast_diss <- function(X, Y, method) {
     .Call('_resemble_fast_diss', PACKAGE = 'resemble', X, Y, method)
 }
 
-fast_diss_vector <- function(X) {
-    .Call('_resemble_fast_diss_vector', PACKAGE = 'resemble', X)
-}
-
-#' @title A fast (serial) algorithm of Euclidean (non-squared) cross-distance for vectors written in C++ 
-#' @description A fast algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @title A fast algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
+#' @description A fast (parallel for linux) algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
 #' @usage 
-#' fastDistVVL(X)
-#' @param X a vector
+#' fast_diss_vector(X)
+#' @param X a vector.
 #' @return a vector of distance (lower triangle of the distance matrix, stored by column)
 #' @details used internally in ortho_projection
-#' @author Leo Ramirez-Lopez
+#' @author Antoine Stevens
 #' @keywords internal 
 #' @useDynLib resemble
-fastDistVVL <- function(X) {
-    .Call('_resemble_fastDistVVL', PACKAGE = 'resemble', X)
-}
-
-minDissV <- function(X) {
-    .Call('_resemble_minDissV', PACKAGE = 'resemble', X)
+fast_diss_vector <- function(X) {
+    .Call('_resemble_fast_diss_vector', PACKAGE = 'resemble', X)
 }
 
 #' @title Moving/rolling correlation distance of two matrices
@@ -52,6 +44,38 @@ minDissV <- function(X) {
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 moving_cor_diss <- function(X, Y, w) {
     .Call('_resemble_moving_cor_diss', PACKAGE = 'resemble', X, Y, w)
+}
+
+#' @title A function to compute row-wise index of minimum values of a square distance matrix
+#' @description For internal use only
+#' @usage 
+#' which_min(X)
+#' @param X a square matrix of distances
+#' @return a vector of the indices of the minimum value in each row of the input matrix
+#' @details Used internally to find the nearest neighbors
+#' @keywords internal
+#' @useDynLib resemble
+#' @author Antoine Stevens 
+which_min <- function(X) {
+    .Call('_resemble_which_min', PACKAGE = 'resemble', X)
+}
+
+#' @title A function to compute indices of minimum values of a distance vector
+#' @description For internal use only
+#' @usage 
+#' which_min_vector(X)
+#' @param X a vector of distances 
+#' @return a vector of the indices of the nearest neighbors
+#' @details 
+#' Used internally to find the nearest neighbors. 
+#' It searches in lower (or upper) triangular matrix. Therefore this must be the format of the 
+#' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
+#' since \code{sqrt} cannot be applied to integers.
+#' @keywords internal
+#' @useDynLib resemble
+#' @author Antoine Stevens 
+which_min_vector <- function(X) {
+    .Call('_resemble_which_min_vector', PACKAGE = 'resemble', X)
 }
 
 #' @title Function for identifiying the column in a matrix with the largest standard deviation
@@ -311,8 +335,8 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-reconstruction_error <- function(x, projection_mat, xloadings) {
-    .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings)
+reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale) {
+    .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings, scale, Xcenter, Xscale)
 }
 
 #' @title Internal Cpp function for computing the weights of the PLS components 
@@ -491,37 +515,5 @@ gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale 
 #' @useDynLib resemble
 pca_nipals <- function(X, ncomp, center, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01) {
     .Call('_resemble_pca_nipals', PACKAGE = 'resemble', X, ncomp, center, scale, maxiter, tol, pcSelmethod, pcSelvalue)
-}
-
-#' @title A function to compute row-wise index of minimum values of a square distance matrix
-#' @description For internal use only
-#' @usage 
-#' which_min(X)
-#' @param X a square matrix of distances
-#' @return a vector of the indices of the minimum value in each row of the input matrix
-#' @details Used internally to find the nearest neighbors
-#' @keywords internal
-#' @useDynLib resemble
-#' @author Antoine Stevens 
-which_min <- function(X) {
-    .Call('_resemble_which_min', PACKAGE = 'resemble', X)
-}
-
-#' @title A function to compute indices of minimum values of a distance vector
-#' @description For internal use only
-#' @usage 
-#' which_min_vector(X)
-#' @param X a vector of distances 
-#' @return a vector of the indices of the nearest neighbors
-#' @details 
-#' Used internally to find the nearest neighbors. 
-#' It searches in lower (or upper) triangular matrix. Therefore this must be the format of the 
-#' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
-#' since \code{sqrt} cannot be applied to integers.
-#' @keywords internal
-#' @useDynLib resemble
-#' @author Antoine Stevens 
-which_min_vector <- function(X) {
-    .Call('_resemble_which_min_vector', PACKAGE = 'resemble', X)
 }
 

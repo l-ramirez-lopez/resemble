@@ -1,10 +1,9 @@
 #' @title A function for computing the spectral information divergence between
 #' spectra (sid)
 #' @description
-#'
-#' \lifecycle{experimental}
-#'
 #' \loadmathjax
+#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#experimental'><img src='figures/lifecycle-experimental.svg' alt='Experimental lifecycle'></a>}}{\strong{Experimental}}
+#'
 #' This function computes the spectral information divergence/dissimilarity between
 #' spectra based on the kullback-leibler divergence algorithm (see details).
 #' @usage
@@ -131,7 +130,7 @@
 #' @author Leonardo Ramirez-Lopez
 #' @importFrom stats bw.nrd0 density
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #'
 #' data(NIRsoil)

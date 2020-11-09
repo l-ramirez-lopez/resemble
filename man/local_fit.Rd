@@ -34,8 +34,6 @@ for Gaussian process local regressions (\code{local_fit_gpr}). Default is
 An object of class \code{local_fit} mirroring the input arguments.
 }
 \description{
-\lifecycle{maturing}
-
 \loadmathjax
 These functions define the way in which each local fit/prediction is done
 within each iteration in the \code{\link{mbl}} function.
@@ -91,9 +89,7 @@ There are three possible options for performing these regressions:
  }
 }
 \examples{
-\dontrun{
 local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
-}
 }
 \references{
 Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL

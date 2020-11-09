@@ -22,7 +22,6 @@ r_packages:
   - covr
   - data.table
   - magrittr
-  - dplyr
   - testthat
 
 after_success:

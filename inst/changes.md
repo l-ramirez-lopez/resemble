@@ -1,13 +1,12 @@
 # Changes implemented for version 2.0
 
 
-In general, the code has been reformatted for compliying with Google and 
-tidyverse style guideleines. Here the major changes are listed.
 
-### Main new fucntions
-- search_neighbors
-- dissimilarity
+### New features
+- search_neighbors() function
+- dissimilarity() function
 
+## Breaking changes
 
 ### orthoProjection, pcProjection, plsProjection (renamed to ortho_projection, 
 pc_projection, pls_projection respectively):

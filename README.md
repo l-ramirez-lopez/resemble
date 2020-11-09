@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-_Last update: 12.10.2020_
+_Last update: 29.10.2020_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -22,13 +22,13 @@ Check the package vignette(s)!
 
 ## Core functionality 
 
-The core functionality of the package can be sumarized into the following 
+The core functionality of the package can be summarized into the following 
 functions:
   
 __`mbl`__: implements memory-based learning (MBL) for modeling and predicting 
 continuous response variables. For example, it can be used to reproduce the 
 famous LOCAL algorithm proposed by Shenk et al. (1997). In general, this 
-function allowes you to easily customize your own MBL regression-prediction 
+function allows you to easily customize your own MBL regression-prediction 
 method.
 
 __`dissimilarity`__: Computes dissimilarity matrices based on various methods 
@@ -40,8 +40,8 @@ __`ortho_projection`__: A function for dimensionality reduction using either
 principal component analysis or partial least squares (a.k.a projection to 
 latent structures). 
 
-__`search_neighbors`__: A function to efficiently retrieve from a refence set the 
-k-nearest neighbors of another given data set.
+__`search_neighbors`__: A function to efficiently retrieve from a reference set 
+the k-nearest neighbors of another given data set.
 
 ## New version
 During the recent lockdown we invested some of our free time to come up 
@@ -69,8 +69,8 @@ just type the following line in your `R` console:
 install.packages('resemble')
 ```
 
-If you do not have the following packages installed, it might be good to install 
-them first
+If you do not have the following packages installed, it might be good to 
+update/install them first
 ```
 install.packages('Rcpp')
 install.packages('RcppArmadillo')
@@ -129,8 +129,9 @@ plot(sbl)
 get_predictions(sbl)
 
 ````
-<img src="./man/figures/mbl.png" width="80%" align="middle">
-
+<p align="center">
+<img src="./man/figures/mbl.png" width="80%">
+</p>
 Figure 1. Standard plot of the results of the __`mbl`__ function.
 
 [`resemble`](http://l-ramirez-lopez.github.io/resemble/) implements functions 
@@ -167,6 +168,20 @@ __`'gpr'`__:          Gaussian process with linear kernel.
 __`'pls'`__:          Partial least squares.     
 
 __`'wapls'`__:        Weighted average partial least squares (Shenk et al., 1997).
+
+Figure 2 illustrates the basic steps in MBL for a set of five observations.
+
+<p align="center">
+<img src="./vignettes/MBL.gif" width="50%">
+</p>
+Figure 2. Example of the main steps in memory-based learning for predicting a response variable in five different observations based on set of p-dimesnional variables.
+
+
+## Citing the package
+Simply type and you will get the info you need:
+```
+citation(package = "resemble")
+```
 
 ## News
 * 2020.04: [Tsakiridis et al. (2020)](https://www.sciencedirect.com/science/article/abs/pii/S0016706119308870?via%3Dihub), 
@@ -233,13 +248,13 @@ multivariate prediction of soil organic carbon by Vis-NIR spectra. Geoderma,
 comparison of different approaches to multi-product brix calibration in 
 near-infrared spectroscopy. In OCM 2017-Optical Characterization of Materials-conference proceedings (p. 129). KIT Scientific Publishing).
 
-* 2016-05: In [this recent scientific paper](http://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at 
+* 2016-05: In [this scientific paper](https://www.sciencedirect.com/science/article/pii/S001670611630180X) the authors sucesfully used `resemble` to predict soil organic carbon content at 
 national scale in France. (Clairotte, M., Grinand, C., Kouakoua, E., Thébault, A., 
 Saby, N. P., Bernoux, M., & Barthès, B. G. (2016). National calibration of soil 
 organic carbon concentration using diffuse infrared reflectance spectroscopy. 
 Geoderma, 276, 41-52).
 
-* 2016-04: [This paper](http://www.mdpi.com/2072-4292/8/4/341) shows some 
+* 2016-04: [This paper](https://www.mdpi.com/2072-4292/8/4/341) shows some 
 interesting results on applying memory-based learning to predict soil properties.
 
 * 2016-04: In some recent entries of [this blog](http://nir-quimiometria.blogspot.com/), 
@@ -273,7 +288,7 @@ prospectr package) is used.
 * 2014-03: The package released on CRAN!
 
 ## Other R'elated stuff
-* [Check our other project called `prospectr`.](http://github.com/l-ramirez-lopez/prospectr)
+* [Check our other project called `prospectr`.](https://github.com/l-ramirez-lopez/prospectr)
 * [Check this presentation in which we used the resemble package to predict soil attributes from large scale soil spectral libraries.](http://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
 
 ## Bug report and development version

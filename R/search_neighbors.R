@@ -1,9 +1,6 @@
 #' @title A function for searching in a given reference set the neighbors of
 #' another given set of observations (search_neighbors)
 #' @description
-#'
-#' \lifecycle{maturing}
-#'
 #' \loadmathjax
 #' This function searches in a reference set the neighbors of the observations
 #' provided  in another set.
@@ -59,7 +56,7 @@
 #' \itemize{
 #'        \item{\code{diss_method = "pls"}}
 #'        \item{\code{diss_method = "pca"} with \code{"opc"} used as the method
-#'        in the \code{pc_selection} argument. See \code{\link{ortho_diss}.}}
+#'        in the \code{pc_selection} argument. See [ortho_diss()].}
 #'        }
 #' @param k an integer value indicating the k-nearest neighbors of each
 #' observation in \code{Xu} that must be selected from \code{Xr}.
@@ -89,30 +86,32 @@
 #'        (of set of observations) is the one for which its distance matrix
 #'        minimizes the differences between the \code{Yr} value of each
 #'        observation and the \code{Yr} value of its closest observation. In this
-#'        case \code{value} must be a value (larger than 0 and
-#'        below \code{min(nrow(Xr), nrow(X2), ncol(Xr))}) indicating the maximum
-#'        number of principal components to be tested. See the
-#'        \code{\link{ortho_projection}} function for more details.}
+#'        case \code{value} must be a value (larger than 0 and below the
+#'        minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
+#'        indicating the maximum number of principal components to be tested.
+#'        See the \code{\link{ortho_projection}} function for more details.}
 #'
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of cumulative variance that the 
+#'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
 #'
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a single component 
+#'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
 #'
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
-#'        (larger than 0 and \code{min(nrow(Xr), nrow(X2), ncol(Xr))}).
+#'        (larger than 0 and below the
+#'        minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
 #'        indicating the minimum amount of variance that a component should
 #'        explain in order to be retained.}
 #'        }
-#' The default list passed is \code{list(method = "var", value = 0.01)}.
+#' The default is \code{list(method = "var", value = 0.01)}.
+#'
 #' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 #' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
 #' string. In such a case the default \code{"value"} when either \code{"opc"} or
@@ -184,13 +183,14 @@
 #'  \item{\code{dissimilarity}}{ If \code{return_dissimilarity = TRUE} the
 #'  dissimilarity object used (as computed by the \code{\link{dissimilarity}}
 #'  function.}
-#'  \item{\code{projection}}{ an \code{ortho_projection} object. Only output  if
+#'  \item{\code{projection}}{ an \code{ortho_projection} object. Only output if
 #'        \code{return_projection = TRUE} and if \code{diss_method = "pca"},
 #'        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
+#'
 #'        This object contains the projection used to compute
 #'        the dissimilarity matrix. In case of local dissimilarity matrices,
 #'        the projection corresponds to the global projection used to select the
-#'        neighborhoods (see \code{\link{ortho_diss}} function for further
+#'        neighborhoods.  (see \code{\link{ortho_diss}} function for further
 #'        details).}
 #'  }
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
@@ -206,7 +206,7 @@
 #' \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}
 #'  \code{\link{mbl}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #'
 #' data(NIRsoil)
@@ -293,13 +293,15 @@
 ##                    - scaled renamed to scale
 ##                    - pcMethod and cores are deprecated
 
-search_neighbors <- function(Xr, Xu, diss_method = c("pca",
-                                                     "pca.nipals",
-                                                     "pls",
-                                                     "cor",
-                                                     "euclid",
-                                                     "cosine",
-                                                     "sid"),
+search_neighbors <- function(Xr, Xu, diss_method = c(
+                               "pca",
+                               "pca.nipals",
+                               "pls",
+                               "cor",
+                               "euclid",
+                               "cosine",
+                               "sid"
+                             ),
                              Yr = NULL,
                              k, k_diss, k_range,
                              spike = NULL,
@@ -309,8 +311,8 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
                              ws = NULL,
                              center = TRUE, scale = FALSE,
                              documentation = character(), ...) {
-  
-  
+
+
   # Sanity checks
   match.arg(diss_method, c(
     "pca",
@@ -321,27 +323,27 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
     "cosine",
     "sid"
   ))
-  
+
   if (missing(k)) {
     k <- NULL
   }
-  
+
   if (missing(k_diss)) {
     k_diss <- NULL
   }
-  
+
   if (missing(k_range)) {
     k_range <- NULL
   }
-  
+
   if (!is.logical(center)) {
     stop("'center' argument must be logical")
   }
-  
+
   if (!is.logical(scale)) {
     stop("'scale' argument must be logical")
   }
-  
+
   if (diss_method == "cor") {
     if (!is.null(ws)) {
       if (ws < 3 | ws > (ncol(Xr) - 1) | length(ws) != 1 | (ws %% 2) == 0) {
@@ -352,18 +354,18 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
       }
     }
   }
-  
+
   if (!is.null(k) & !is.null(k_diss)) {
     # if k and k_diss are not called here, errors are thrown during checks
     k
     k_diss
     stop("Only one of k or k_diss can be specified")
   }
-  
+
   if (is.null(k) & is.null(k_diss)) {
     stop("Either k or k_diss must be specified")
   }
-  
+
   if (!is.null(k)) {
     k <- as.integer(k)
     if (k < 1) {
@@ -377,7 +379,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
     }
     kk <- k
   }
-  
+
   if (!is.null(k_diss)) {
     # if k_diss is not called here, errors are thrown during checks
     k_diss
@@ -418,12 +420,12 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
       if (input_dots$pre_k < kk) {
         stop(paste0(
           "pre_k must be larger than ",
-          if_else(is.null(k), "max(k_range)", "k")
+          ifelse(is.null(k), "max(k_range)", "k")
         ))
       }
     }
   }
-  
+
   if (!is.null(spike)) {
     if (!is.vector(spike)) {
       stop("spike must be a vector of integers")
@@ -432,10 +434,20 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
       stop("spike must be a vector of integers")
     }
     if (length(spike) >= nrow(Xr)) {
-      stop("Argument spike cannot be larger or equal to the number of rows of Xr")
+      stop("The lebgth of spike cannot be larger or equal to the number of rows of Xr")
     }
-    if (max(spike) >= nrow(Xr)) {
+    if (max(spike) > nrow(Xr)) {
       stop("Argument spike contains indices subscript out of bounds of Xr")
+    }
+    if (!is.null(k)) {
+      if (min(k) <= length(spike)) {
+        stop("values for k must be larger than length(spike)")
+      }
+    }
+    if (!is.null(k_diss)) {
+      if (min(k_range) <= length(spike)) {
+        stop("values for k_range must be larger than length(spike)")
+      }
     }
     spike <- sort(unique(as.integer(spike)))
   }
@@ -451,19 +463,19 @@ search_neighbors <- function(Xr, Xu, diss_method = c("pca",
     scale = scale,
     ...
   )
-  
+
   results <- diss_to_neighbors(dsm$dissimilarity,
-                               k = k, k_diss = k_diss, k_range = k_range,
-                               spike = spike,
-                               return_dissimilarity = return_dissimilarity
+    k = k, k_diss = k_diss, k_range = k_range,
+    spike = spike,
+    return_dissimilarity = return_dissimilarity
   )
-  
+
   if (return_projection & diss_method %in% c("pca", "pca.nipals", "pls")) {
     results$projection <- dsm$projection
   }
   if ("gh" %in% names(input_dots)) {
     results$gh <- dsm$gh
   }
-  
+
   results
 }
