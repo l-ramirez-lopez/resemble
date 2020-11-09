@@ -18,7 +18,10 @@ The `resemble` package provides high-performing functionality for
 data-driven modeling (including local modeling), nearest neighbor search and 
 orthogonal projections in spectral data.
 
-Check the package vignette(s) [here](https://cran.r-project.org/web/packages/resemble/vignettes/resemble.html)!
+Vignette
+
+A new vignette for `resemble` explaining its core functionality is available 
+at https://cran.r-project.org/web/packages/resemble/vignettes/resemble.html)
 
 ## Core functionality 
 
