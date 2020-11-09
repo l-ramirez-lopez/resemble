@@ -1,4 +1,4 @@
-# resemble  
+# `resemble` :  Memory-Based Learning in Spectral Chemometrics
 <!-- badges: start -->
 
 [![Travis-CI Build Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https://travis-ci.org/l-ramirez-lopez/resemble/)
