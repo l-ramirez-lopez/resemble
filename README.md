@@ -20,7 +20,7 @@ orthogonal projections in spectral data.
 
 ## Vignette
 A new vignette for `resemble` explaining its core functionality is available 
-at https://cran.r-project.org/web/packages/resemble/vignettes/resemble.html)
+at: https://cran.r-project.org/web/packages/resemble/vignettes/resemble.html
 
 ## Core functionality 
 
