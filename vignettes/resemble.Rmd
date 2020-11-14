@@ -234,9 +234,9 @@ Principal Component (PC) analysis and Partial Least Squares (PLS) decomposition
 methods assume that the meaningful structure the data intrinsically lies on 
 a lower dimensional space. Both methods attempt to find a projection matrix 
 that projects the original variables onto a less complex 
-space represented by new few variables. These new variables mimic the original 
-variability across observations. These two methods can be considered as the 
-standard ones for dimensionality reduction in many fields of spectroscopic 
+subspaces (represented by new few variables). These new variables mimic the 
+original variability across observations. These two methods can be considered as 
+the standard ones for dimensionality reduction in many fields of spectroscopic 
 analysis. 
 
 The difference between PC and PLS is that in PC the objective is to 
@@ -244,6 +244,21 @@ find few new variables (which are orthogonal) that capture as much of the
 original data variance while in the latter the objective is to find few new 
 variables that maximize their variance with respect to a set of one or more 
 external variables (e.g. response variables or side information variables). 
+
+In PC and PLS the input spectra ($X$, of $n \times d$ dimensions) is decomposed 
+into two main matrices: a matrix of scores ($T$) and a matrix of ladings ($P$), 
+so that:
+
+$$X = T \: P + \varepsilon$$
+where the dimensions of $T$ and $P$ are $n \times o$ and $o \times d$, and where 
+$o$ represents a given number of components being retained and $\varepsilon$
+represents the reconstruction error. The maximum $o$ (number of components) that
+can be retrieved is limited to $\textrm{min}(n-1, d)$. 
+One interesting property of $P$ is that it is equivalent to $P^{-1}$. This 
+implies that when the PC decomposition is estimated for a given set of 
+observations ($X_{new}$) the resulting $P$ matrix can be directly used to project 
+new spectra onto the same principal component space by:
+$$T_{new} = X_{new}\:P'$$
 
 ## Methods
 In the `resemble` package, PC analysis and PLS decomposition are available 
