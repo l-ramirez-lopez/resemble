@@ -16,7 +16,7 @@ BugReports:
 Description: 
     Functions for dissimilarity analysis and memory-based learning 
     (MBL, a.k.a local modeling) in complex spectral data sets. 
-    Most of these functions are based the methods presented in 
+    Most of these functions are based on the methods presented in 
     Ramirez-Lopez et al. (2013) <doi:10.1016/j.geoderma.2012.12.014>.
 License: MIT + file LICENSE
 URL: http://l-ramirez-lopez.github.io/resemble/
