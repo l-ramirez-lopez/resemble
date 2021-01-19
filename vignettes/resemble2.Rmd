@@ -1,29 +1,20 @@
 ---
-title: "Modelling complex spectral data with the resemble package"
-author: 
- - name: Leonardo Ramirez-Lopez and Alexandre M.J.-C. Wadoux
-   email: ramirez.lopez.leo@gmail.com
+title: "Modelling complex spectral data with the `resemble` package"
+author:
+- name: Leonardo Ramirez-Lopez and Alexandre M.J.-C. Wadoux
+  email: ramirez.lopez.leo@gmail.com
 date: "`r Sys.Date()`"
 clean: true
 bibliography: ["resemble.bib"]
 biblio-style: "apalike"
 link-citations: true
+numbersections: true
 output:
-  bookdown::html_document2:
-    theme: united
-    highlight: breezedark
+  bookdown::pdf_document2:
     toc: true
     toc_depth: 3
-    toc_float:
-      collapsed: true
-      smooth_scroll: false
+    highlight: breezedark
   citation_package: natbib
-vignette: >
-  %\VignetteIndexEntry{Modelling complex spectral data with the resemble package}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
-editor_options:
-  chunk_output_type: console
 ---
 
 ```{r setup, include = FALSE}
@@ -69,8 +60,8 @@ spectral databases. The core functionalities of the package include:
 
 # Citing the package
 Simply type and you will get the info you need:
-```{r eval = TRUE}
-citation(package = "resemble")
+```{r eval = FALSE}
+format(citation(package = "resemble"), style = "latex")
 ```
 
 
@@ -80,7 +71,7 @@ This vignette uses the soil Near-Infrared (NIR) spectral dataset provided in the
 [package `prospectr`](https://CRAN.R-project.org/package=prospectr)
 package [@stevens2020introduction]. The reason why we use this dataset is because 
 soils are one of the most complex matrices analyzed with NIR spectroscopy. This 
-spectral dataset/library was used in the \sQuote{Chimiometrie 2006} challenge by 
+spectral dataset/library was used in the _Chimiometrie 2006_ challenge by 
 @pierna2008soil. The library contains NIR absorbance spectra of dried and sieved
 825 soil observations/samples. These samples originate from agricultural fields 
 collected from all over the Walloon region in Belgium. The data are in an `R` 
@@ -145,7 +136,7 @@ NIRsoil$spc_p <- NIRsoil$spc %>%
   resample(wav = wavs, new.wav = seq(min(wavs), max(wavs), by = new_res)) %>% 
   savitzkyGolay(p = poly_order, w = window, m = diff_order)
 ```
-```{r plotspectra, fig.cap = "Raw spectral absorbance data (top) and first derivative of the absorbance spectra (bottom).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 7, echo = FALSE, fig.retina = 0.85}
+```{r plotspectra, fig.cap = "Raw spectral absorbance data (top) and first derivative of the absorbance spectra (bottom).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 7, echo = FALSE, fig.retina = 2}
 old_par <- par("mfrow", "mar")
 par(mfrow = c(2, 1), mar = c(4, 4, 1, 4))
 
@@ -234,9 +225,9 @@ Principal Component (PC) analysis and Partial Least Squares (PLS) decomposition
 methods assume that the meaningful structure the data intrinsically lies on 
 a lower dimensional space. Both methods attempt to find a projection matrix 
 that projects the original variables onto a less complex 
-subspaces (represented by new few variables). These new variables mimic the 
-original variability across observations. These two methods can be considered as 
-the standard ones for dimensionality reduction in many fields of spectroscopic 
+space represented by new few variables. These new variables mimic the original 
+variability across observations. These two methods can be considered as the 
+standard ones for dimensionality reduction in many fields of spectroscopic 
 analysis. 
 
 The difference between PC and PLS is that in PC the objective is to 
@@ -244,21 +235,6 @@ find few new variables (which are orthogonal) that capture as much of the
 original data variance while in the latter the objective is to find few new 
 variables that maximize their variance with respect to a set of one or more 
 external variables (e.g. response variables or side information variables). 
-
-In PC and PLS the input spectra ($X$, of $n \times d$ dimensions) is decomposed 
-into two main matrices: a matrix of scores ($T$) and a matrix of ladings ($P$), 
-so that:
-
-$$X = T \: P + \varepsilon$$
-where the dimensions of $T$ and $P$ are $n \times o$ and $o \times d$, and where 
-$o$ represents a given number of components being retained and $\varepsilon$
-represents the reconstruction error. The maximum $o$ (number of components) that
-can be retrieved is limited to $\textrm{min}(n-1, d)$. 
-One interesting property of $P$ is that it is equivalent to $P^{-1}$. This 
-implies that when the PC decomposition is estimated for a given set of 
-observations ($X_{new}$) the resulting $P$ matrix can be directly used to project 
-new spectra onto the same principal component space by:
-$$T_{new} = X_{new}\:P'$$
 
 ## Methods
 In the `resemble` package, PC analysis and PLS decomposition are available 
@@ -287,7 +263,7 @@ pca_tr
 
 Plot the `ortho_projection` object:
 
-```{r plotpcsvariance, fig.cap = "Individual contribution to the explained variance for each component (left) and cumulative variance explained by the principal components (right).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 3, fig.retina = 0.85}
+```{r plotpcsvariance, fig.cap = "Individual contribution to the explained variance for each component (left) and cumulative variance explained by the principal components (right).",  fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 3, fig.retina = 2}
 plot(pca_tr, col = "#D42B08CC")
 ```
 
@@ -417,12 +393,12 @@ represent the space in which the overall Total Carbon difference between each
 sample and its corresponding nearest neighbor is minimized. The following graph 
 shows how the RMSD varies as a function of the number of components 
 (Figure \@ref(fig:pcrmsd)):
-```{r pcrmsd, fig.cap = "Root mean squared difference between the samples and their corresponding nearest neighbors (for Total Carbon as side finormation) found by using dissimilarity matrices computed with different number of PCs.", fig.id = "plot_pcs_opc", fig.cap.style = "Image Caption", fig.align = "center", fig.width = 5, fig.height = 4, fig.retina = 0.85}
+```{r pcrmsd, fig.cap = "Root mean squared difference between the samples and their corresponding nearest neighbors (for Total Carbon as side finormation) found by using dissimilarity matrices computed with different number of PCs.", fig.id = "plot_pcs_opc", fig.cap.style = "Image Caption", fig.align = "center", fig.width = 5, fig.height = 4, fig.retina = 2}
 plot(pca_tr_opc, col = "#FF1A00CC")
 ```
 
 The following code exemplifies how the RMSD is calculated (only for the `r pca_tr_opc$n_components`th component, Figure \@ref(fig:rmsdscatter)): 
-```{r rmsdscatter, fig.cap = paste("Comparison between each sample and its corresponding nearest neighbor (in terms of  Total Carbon) when ", pca_tr_opc$n_components, "are used for dissimilarity matrix computations."), fig.id = "plot_pcs_opc2", fig.cap.style = "Image Caption", fig.align = "center", fig.width = 4, fig.height = 4, fig.retina = 0.85}
+```{r rmsdscatter, fig.cap = paste("Comparison between each sample and its corresponding nearest neighbor (in terms of  Total Carbon) when ", pca_tr_opc$n_components, "are used for dissimilarity matrix computations."), fig.id = "plot_pcs_opc2", fig.cap.style = "Image Caption", fig.align = "center", fig.width = 4, fig.height = 4, fig.retina = 2}
 # compute the dissimilarity matrix using all the retained scores
 pc_diss <- f_diss(pca_tr_opc$scores, diss_method = "mahalanobis")
 # get the nearest neighbor for each sample
@@ -859,6 +835,7 @@ ed_stats_tr[1:2, 1:3]
 # compare resemble and R stats results of Euclidean distances
 ed_resemble$dissimilarity[1:2, 1:3]
 ```
+
 In the above code it can be seen that the results of the `dist()` require 
 scaling based on the number of input variables. This means that, by default, 
 the values output by `dist()` increase with the number of input 
@@ -1010,6 +987,7 @@ fig_cap <- paste("Comparison between observations and their corresponding",
       "ed: Euclidean dissimilarity;",  
       "sinfd: Spectral information divergence.", collapse = "")
 ```
+
 Table \@ref(tab:tcomparisons) and Figure \@ref(fig:pcomparisons) show the 
 results of the comparisons (for the training dataset) between the Total Carbon 
 of the observations and the Total Carbon of their most similar samples (1-NN) 
@@ -1079,7 +1057,9 @@ p <- sapply(names(ev),
 par(old_par)
 ```
 
-```{r pcomparisons, fig.cap = paste(fig_cap), fig.cap.style = "Image Caption", fig.align = "center", fig.width = 8, fig.height = 8, echo = FALSE, fig.retina = 0.85}
+
+```{r pcomparisons, fig.cap = paste(fig_cap), fig.width = 7, fig.height = 7, echo = FALSE, fig.retina = 2}
+
 old_par <- par("mfrow", "mar")
 
 par(mfrow = c(3, 3), pch = 16, mar = c(4,4,4,4))
@@ -1359,17 +1339,18 @@ collection of less complex local (or locally stable) approximations
 a set of $m$ observations from their explanatory variables $X$, a set of $m$ 
 functions are required to be fitted. This can be described as:
 
-$$\hat{y}_i = \hat{f}_i(x_i;\theta_i) \; \forall \; i = \{1, ..., m\}$$
+$$\hat{y}_i = \hat{f}_i(x_i;\theta_i) + \varepsilon_{i} \; \forall \; i = \{1, ..., m\}$$
 where $\theta_{i}$ represents a set of particular parameters required to 
-fit $\hat{f}_i$ (e.g. number of factors in a PLS model). Therefore, MBL in the 
-above example can be described broadly as:
+fit $\hat{f}_i$ (e.g. number of factors in a PLS model), and $\varepsilon_{i}$ 
+is a residual error term from the fitting of $\hat{y}_{i}$ in the $i$th 
+neighborhood. Therefore, MBL in the above example can be described broadly as:
 
 $$\hat{f} = \{\hat{f}_1,...,\hat{f}_m\}$$
 Figure \@ref(fig:mblgif) illustrates the basic steps in MBL for a set of five 
 observations ($m = 5$).
 
-```{r mblgif, fig.cap =  "Example of the main steps in memory-based learning for predicting a response variable in five different observations based on set of p-dimensional space.", echo = FALSE, out.width = '65%', fig.align = 'center', fig.retina = 0.85}
-knitr::include_graphics("MBL.gif")
+```{r mblgif, fig.cap =  "Example of the main steps in memory-based learning for predicting a response variable in five different observations based on set of p-dimensional space.", echo = FALSE, out.width = '100%', fig.align = 'center', fig.retina = 2}
+knitr::include_graphics("MBLALL.png")
 ```
 
 There are four basic aspects behind the steps in Figure \@ref(fig:mblgif) that 
@@ -1570,7 +1551,7 @@ local_ciso <- mbl(
 
 Now let's explore the `local_ciso` object:
 
-```{r localresultsciso, fig.cap = "MBL results for Total Carbon predictions using the LOCAL algorithm. NNv: nearest-neighbor cross-validation.", fig.align = "center", fig.width = 7.5, fig.height = 4, fig.retina = 0.85}
+```{r localresultsciso, fig.cap = "MBL results for Total Carbon predictions using the LOCAL algorithm. NNv: nearest-neighbor cross-validation.", fig.align = "center", fig.width = 6, fig.height = 3.5, fig.retina = 2}
 plot(local_ciso, main = "")
 local_ciso 
 ```
@@ -1850,7 +1831,7 @@ abline(0, 1, col = "red")
 par(old_par)
 ```
 
-```{r mblcomparisons, fig.cap = "CEC prediction results for the different MBL configurations tested" , fig.cap.style = "Image Caption", fig.align = "center", fig.width = 8, fig.height = 8, echo = FALSE, fig.retina = 0.85}
+```{r mblcomparisons, fig.cap = "CEC prediction results for the different MBL configurations tested" , fig.cap.style = "Image Caption", fig.align = "center", fig.width = 7, fig.height = 7, echo = FALSE, fig.retina = 2}
 old_par <- par("mfrow", "mar")
 
 par(mfrow = c(2, 2), pch = 16, mar = c(4,4,4,4))
