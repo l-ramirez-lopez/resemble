@@ -23,6 +23,9 @@ opls_get_all(X,
 \item{maxiter}{maximum number of iterations.}
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
+
+\item{(for}{weights computation): xls_max_w an integer indicating the maximum window size for the "xls"
+method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).}
 }
 \value{
 a list containing the following elements:
