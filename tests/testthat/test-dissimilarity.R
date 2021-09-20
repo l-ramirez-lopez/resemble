@@ -1,7 +1,6 @@
 context("test-dissimilarity")
 
 
-
 test_that("dissimilarity works", {
   nirdata <- data("NIRsoil", package = "prospectr")
   
