@@ -39,6 +39,9 @@ and below 1) indicating that components that explain (individually)
 a variance lower than this threshold must be excluded. If \code{'manual'} 
 is chosen, \code{pcSelvalue} has no effect and the number of components 
 retrieved are the one specified in \code{ncomp}.}
+
+\item{(for}{weights computation): xls_max_w an integer indicating the maximum window size for the "xls"
+method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).}
 }
 \value{
 a list containing the following elements:
