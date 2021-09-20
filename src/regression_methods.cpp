@@ -1,4 +1,4 @@
-#include <RcppArmadillo.h>
+#include <RcppArmadillo.h> 
 #include <math.h>
 #include <iostream>
 
@@ -81,6 +81,150 @@ NumericVector get_column_sums(arma::mat X){
 }
 
 
+//' @title Computes the weights for pls regressions
+//' @description
+//' This is an internal function that computes the wights required for obtaining
+//' each vector of pls scores. Implementation is done in C++ for improved performance.
+//' @param X a numeric matrix of spectral data.
+//' @param Y a matrix of one column with the response variable.
+//' @param algorithm a character string indicating what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y as in 
+//' Shenk and Westerhaus, 1991; Westerhaus 2014) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param xls_min_w an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param xls_max_w an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
+//' @author Leonardo Ramirez-Lopez and Claudio Orellano
+//' @references
+//' Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of 
+//' near infrared spectra and modified partial least squares regression. 
+//' Crop Science, 31(6), 1548-1555.
+//' 
+//' Westerhaus, M. (2014). Eastern Analytical Symposium Award for outstanding 
+//' Wachievements in near infrared spectroscopy: my contributions to 
+//' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+//' @return a `matrix` of one column containing the weights.
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+arma::mat get_weights(arma::mat X, 
+                      arma::mat Y, 
+                      String algorithm = "pls", 
+                      const int xls_min_w = 3, 
+                      const int xls_max_w = 15) {
+  int n_cols_x = X.n_cols;
+  
+  arma::mat w = arma::zeros<arma::mat>(n_cols_x, 1);
+  
+  // Scaling factor
+  arma::mat cr = sqrt(trans(Y) * X * trans(X) * Y);
+  
+  if (algorithm == "pls") {
+    // 1.2 The weights are computed as the cross product of
+    // X0 and Y0
+    w = trans(X) * Y;
+  }
+  
+  
+  if (algorithm == "mpls") {
+    // modified PLS (Shenk and Westerhaus, 1991)
+    // Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of 
+    // near infrared spectra and modified partial least squares regression. 
+    // Crop Science, 31(6), 1548-1555.
+    // 1.2 The weights are computed as the correlation between
+    // X0 and Y0 (see also: Eastern Analytical Symposium Award for outstanding 
+    // achievements in near infrared spectroscopy: my contributions to near 
+    // infrared spectroscopy
+    // by: Mark Westerhaus from FOSS)
+    for (int i = 0; i < n_cols_x; i++) {
+      w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
+    }
+  }
+  
+  if (algorithm == "xls") {
+    // as in BUCHI NIRWise PLUS software 
+    for (int i = 0; i < n_cols_x; i++) {
+      for (int j = i + xls_min_w; j <= std::min(i + xls_max_w, n_cols_x - 1); j++) {
+        w(i, 0) += arma::conv_to<double>::from(arma::cor(Y, X.col(i) - X.col(j)));
+        w(j, 0) -= arma::conv_to<double>::from(arma::cor(Y, X.col(i) - X.col(j)));
+      }
+    }
+  }
+  
+  // divided by the 'scaling factor'... 
+  w = w / repmat(cr, X.n_cols, 1);
+  return (w);
+}
+
+
+
+
+//' @title Internal Cpp function for computing the weights of the PLS components 
+//' necessary for weighted average PLS
+//' @description For internal use only!. 
+//' @usage
+//' get_local_pls_weights(projection_mat, 
+//'           xloadings, 
+//'           coefficients, 
+//'           new_x, 
+//'           min_component, 
+//'           max_component, 
+//'           scale, 
+//'           Xcenter, 
+//'           Xscale)
+//' @param projection_mat the projection matrix generated either by the \code{opls} function.
+//' @param xloadings .
+//' @param coefficients the matrix of regression coefficients.
+//' @param new_x a matrix of one new spectra to be predicted.
+//' @param min_component an integer indicating the minimum number of pls components.
+//' @param max_component an integer indicating the maximum number of pls components.
+//' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
+//' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
+//' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
+//' @return a matrix of one row with the weights for each component between the max. and min. specified. 
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, 
+                                          arma::mat xloadings,
+                                          arma::mat coefficients,
+                                          arma::mat new_x,
+                                          int min_component, 
+                                          int max_component, 
+                                          bool scale,
+                                          arma::mat Xcenter,
+                                          arma::mat Xscale
+){
+  arma::mat Xz = new_x;
+  arma::mat whgt;
+  
+  if(scale){
+    Xz = Xz / Xscale;
+  }
+  
+  //Necessary to center
+  Xz = Xz - Xcenter;
+  
+  arma::mat xrmsres = arma::zeros(1, max_component);
+  
+  arma::mat sc = Xz * projection_mat.cols(0, max_component - 1);
+  for(int i = (min_component - 1); i < max_component; i++){
+    arma::mat xrec = sc.cols(0,i) * xloadings.rows(0,i);
+    xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
+  }
+  
+  arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
+  arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
+  arma::mat whgtn = pow(rmsb_x, -1);
+  whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);
+  return Rcpp::wrap(whgt);
+}
+
+
+
 //' @title orthogonal scores algorithn of partial leat squares (opls) projection
 //' @description Computes orthogonal socres partial least squares (opls) 
 //' projection with the NIPALS algorithm. It allows multiple response variables.
@@ -113,6 +257,14 @@ NumericVector get_column_sums(arma::mat X){
 //' a variance lower than this threshold must be excluded. If \code{'manual'} 
 //' is chosen, \code{pcSelvalue} has no effect and the number of components 
 //' retrieved are the one specified in \code{ncomp}.
+//' @param (for weights computation): algorithm a character string indicating what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_min_w an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_max_w an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -142,7 +294,10 @@ List opls_for_projection(arma::mat X,
                          double maxiter,
                          double tol,
                          String pcSelmethod = "var",
-                         double pcSelvalue = 0.01
+                         double pcSelvalue = 0.01, 
+                         String algorithm = "pls", 
+                         const int xls_min_w = 3, 
+                         const int xls_max_w = 15
 ){
   
   int ny = Y.n_cols;
@@ -209,12 +364,13 @@ List opls_for_projection(arma::mat X,
       if(j > 0) {
         previous_ts = ts;
       }
-      //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // //Step 1: Compute a vector of loading weights...
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -369,6 +525,14 @@ List opls_for_projection(arma::mat X,
 //' @param scale logical indicating whether \code{X} must be scaled.
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param (for weights computation): algorithm a character string indicating what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_min_w an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_max_w an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{ncomp}}{ the number of components used.}
@@ -393,7 +557,10 @@ List opls_get_all(arma::mat X,
                   int ncomp,
                   bool scale,            
                   double maxiter,
-                  double tol){
+                  double tol, 
+                  String algorithm = "pls", 
+                  const int xls_min_w = 3, 
+                  const int xls_max_w = 15){
   
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -456,12 +623,13 @@ List opls_get_all(arma::mat X,
       if (j > 0) {
         previous_ts = ts;
       }
-      //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // //Step 1: Compute a vector of loading weights...
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -608,6 +776,14 @@ List opls_get_all(arma::mat X,
 //' @param scale logical indicating whether \code{X} must be scaled.
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param (for weights computation): algorithm a character string indicating what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_min_w an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_max_w an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -628,7 +804,10 @@ List opls(arma::mat X,
           int ncomp,
           bool scale,            
           double maxiter,
-          double tol){
+          double tol, 
+          String algorithm = "pls", 
+          const int xls_min_w = 3, 
+          const int xls_max_w = 15){
   
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -686,11 +865,12 @@ List opls(arma::mat X,
         previous_ts = ts;
       }
       //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -769,6 +949,14 @@ List opls(arma::mat X,
 //' @param scale logical indicating whether \code{X} must be scaled.
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param (for weights computation): algorithm a character string indicating what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_min_w an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param (for weights computation): xls_max_w an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -786,7 +974,10 @@ List opls_get_basics(arma::mat X,
                      int ncomp,
                      bool scale,            
                      double maxiter,
-                     double tol
+                     double tol, 
+                     String algorithm = "pls", 
+                     const int xls_min_w = 3, 
+                     const int xls_max_w = 15
 ){
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -844,11 +1035,12 @@ List opls_get_basics(arma::mat X,
         previous_ts = ts;
       }
       //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -985,10 +1177,13 @@ Rcpp::NumericMatrix project_opls(arma::mat projection_mat,
 
 //' @title Projection to pls and then re-construction
 //' @description Projects spectra onto a PLS space and then reconstructs it back.
-//' @usage project_opls(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
+//' @usage reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale)
 //' @param x a matrix to project.
 //' @param projection_mat the projection matrix generated by the \code{opls_get_basics} function.
 //' @param xloadings the loadings matrix generated by the \code{opls_get_basics} function.
+//' @param scale logical indicating if scaling is required
+//' @param Xcenter a matrix of one row with the centering values
+//' @param Xscale a matrix of one row with the scaling values
 //' @return a matrix of 1 row and 1 column.
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -1019,72 +1214,11 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
   // //Necessary to center
   // xrec = xrec + arma::repmat(Xcenter, newdata.n_rows, 1);
   
-  xrmse = sqrt(arma::mean(arma::mean(pow(x - xrec, 2), 0), 1));
+  xrmse = arma::mean(sqrt(arma::mean(pow(x - xrec, 2), 0)), 1);
   return Rcpp::wrap(xrmse);
 }
 
 
-//' @title Internal Cpp function for computing the weights of the PLS components 
-//' necessary for weighted average PLS
-//' @description For internal use only!. 
-//' @usage
-//' get_pls_weights(projection_mat, 
-//'           xloadings, 
-//'           coefficients, 
-//'           new_x, 
-//'           min_component, 
-//'           max_component, 
-//'           scale, 
-//'           Xcenter, 
-//'           Xscale)
-//' @param projection_mat the projection matrix generated either by the \code{opls} function.
-//' @param xloadings .
-//' @param coefficients the matrix of regression coefficients.
-//' @param new_x a matrix of one new spectra to be predicted.
-//' @param min_component an integer indicating the minimum number of pls components.
-//' @param max_component an integer indicating the maximum number of pls components.
-//' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
-//' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
-//' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
-//' @return a matrix of one row with the weights for each component between the max. and min. specified. 
-//' @author Leonardo Ramirez-Lopez
-//' @keywords internal 
-//' @useDynLib resemble
-// [[Rcpp::export]]
-Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat, 
-                                    arma::mat xloadings,
-                                    arma::mat coefficients,
-                                    arma::mat new_x,
-                                    int min_component, 
-                                    int max_component, 
-                                    bool scale,
-                                    arma::mat Xcenter,
-                                    arma::mat Xscale
-){
-  arma::mat Xz = new_x;
-  arma::mat whgt;
-  
-  if(scale){
-    Xz = Xz / Xscale;
-  }
-  
-  //Necessary to center
-  Xz = Xz - Xcenter;
-  
-  arma::mat xrmsres = arma::zeros(1, max_component);
-  
-  arma::mat sc = Xz * projection_mat.cols(0, max_component - 1);
-  for(int i = (min_component - 1); i < max_component; i++){
-    arma::mat xrec = sc.cols(0,i) * xloadings.rows(0,i);
-    xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
-  }
-  
-  arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
-  arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
-  arma::mat whgtn = pow(rmsb_x, -1);
-  whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);
-  return Rcpp::wrap(whgt);
-}
 
 //' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
 //' @description For internal use only!. 
@@ -1207,7 +1341,7 @@ List opls_cv_cpp(arma::mat X,
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
-    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
+    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_local_pls_weights(cfit["projection_mat"], 
                                                                       cfit["X_loadings"],
                                                                           cfit["coefficients"],
                                                                               new_x,
@@ -1280,7 +1414,7 @@ List opls_cv_cpp(arma::mat X,
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
-    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
+    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_local_pls_weights(cfit["projection_mat"], 
                                                                       cfit["X_loadings"],
                                                                           cfit["coefficients"],
                                                                               new_x,
