@@ -340,7 +340,7 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
   max_component <- pls_c[[2]]
 
 
-  whgt <- get_pls_weights(
+  whgt <- get_local_pls_weights(
     projection_mat = pls_model$projection_mat,
     xloadings = pls_model$X_loadings,
     coefficients = pls_model$coefficients,
