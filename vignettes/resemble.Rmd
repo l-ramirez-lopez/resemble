@@ -1361,8 +1361,7 @@ functions are required to be fitted. This can be described as:
 
 $$\hat{y}_i = \hat{f}_i(x_i;\theta_i) \; \forall \; i = \{1, ..., m\}$$
 where $\theta_{i}$ represents a set of particular parameters required to 
-fit $\hat{f}_i$ (e.g. number of factors in a PLS model). Therefore, MBL in the 
-above example can be described broadly as:
+fit $\hat{f}_i$ (e.g. number of factors in a PLS model). Therefore, MBL in the above example can be described broadly as:
 
 $$\hat{f} = \{\hat{f}_1,...,\hat{f}_m\}$$
 Figure \@ref(fig:mblgif) illustrates the basic steps in MBL for a set of five 
