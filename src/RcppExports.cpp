@@ -109,9 +109,43 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_weights
+arma::mat get_weights(arma::mat X, arma::mat Y, String algorithm, const int xls_min_w, const int xls_max_w);
+RcppExport SEXP _resemble_get_weights(SEXP XSEXP, SEXP YSEXP, SEXP algorithmSEXP, SEXP xls_min_wSEXP, SEXP xls_max_wSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_min_w(xls_min_wSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_max_w(xls_max_wSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_weights(X, Y, algorithm, xls_min_w, xls_max_w));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_local_pls_weights
+Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, arma::mat xloadings, arma::mat coefficients, arma::mat new_x, int min_component, int max_component, bool scale, arma::mat Xcenter, arma::mat Xscale);
+RcppExport SEXP _resemble_get_local_pls_weights(SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP coefficientsSEXP, SEXP new_xSEXP, SEXP min_componentSEXP, SEXP max_componentSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type projection_mat(projection_matSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type xloadings(xloadingsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type coefficients(coefficientsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type new_x(new_xSEXP);
+    Rcpp::traits::input_parameter< int >::type min_component(min_componentSEXP);
+    Rcpp::traits::input_parameter< int >::type max_component(max_componentSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_local_pls_weights(projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale));
+    return rcpp_result_gen;
+END_RCPP
+}
 // opls_for_projection
-List opls_for_projection(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol, String pcSelmethod, double pcSelvalue);
-RcppExport SEXP _resemble_opls_for_projection(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP pcSelmethodSEXP, SEXP pcSelvalueSEXP) {
+List opls_for_projection(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol, String pcSelmethod, double pcSelvalue, String algorithm, const int xls_min_w, const int xls_max_w);
+RcppExport SEXP _resemble_opls_for_projection(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP pcSelmethodSEXP, SEXP pcSelvalueSEXP, SEXP algorithmSEXP, SEXP xls_min_wSEXP, SEXP xls_max_wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -123,13 +157,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< String >::type pcSelmethod(pcSelmethodSEXP);
     Rcpp::traits::input_parameter< double >::type pcSelvalue(pcSelvalueSEXP);
-    rcpp_result_gen = Rcpp::wrap(opls_for_projection(X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue));
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_min_w(xls_min_wSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_max_w(xls_max_wSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls_for_projection(X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue, algorithm, xls_min_w, xls_max_w));
     return rcpp_result_gen;
 END_RCPP
 }
 // opls_get_all
-List opls_get_all(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol);
-RcppExport SEXP _resemble_opls_get_all(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+List opls_get_all(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol, String algorithm, const int xls_min_w, const int xls_max_w);
+RcppExport SEXP _resemble_opls_get_all(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP algorithmSEXP, SEXP xls_min_wSEXP, SEXP xls_max_wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -139,13 +176,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(opls_get_all(X, Y, ncomp, scale, maxiter, tol));
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_min_w(xls_min_wSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_max_w(xls_max_wSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls_get_all(X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w));
     return rcpp_result_gen;
 END_RCPP
 }
 // opls
-List opls(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol);
-RcppExport SEXP _resemble_opls(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+List opls(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol, String algorithm, const int xls_min_w, const int xls_max_w);
+RcppExport SEXP _resemble_opls(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP algorithmSEXP, SEXP xls_min_wSEXP, SEXP xls_max_wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -155,13 +195,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(opls(X, Y, ncomp, scale, maxiter, tol));
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_min_w(xls_min_wSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_max_w(xls_max_wSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls(X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w));
     return rcpp_result_gen;
 END_RCPP
 }
 // opls_get_basics
-List opls_get_basics(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol);
-RcppExport SEXP _resemble_opls_get_basics(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+List opls_get_basics(arma::mat X, arma::mat Y, int ncomp, bool scale, double maxiter, double tol, String algorithm, const int xls_min_w, const int xls_max_w);
+RcppExport SEXP _resemble_opls_get_basics(SEXP XSEXP, SEXP YSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP algorithmSEXP, SEXP xls_min_wSEXP, SEXP xls_max_wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -171,7 +214,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(opls_get_basics(X, Y, ncomp, scale, maxiter, tol));
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_min_w(xls_min_wSEXP);
+    Rcpp::traits::input_parameter< const int >::type xls_max_w(xls_max_wSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls_get_basics(X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -220,25 +266,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
     rcpp_result_gen = Rcpp::wrap(reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_pls_weights
-Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat, arma::mat xloadings, arma::mat coefficients, arma::mat new_x, int min_component, int max_component, bool scale, arma::mat Xcenter, arma::mat Xscale);
-RcppExport SEXP _resemble_get_pls_weights(SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP coefficientsSEXP, SEXP new_xSEXP, SEXP min_componentSEXP, SEXP max_componentSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type projection_mat(projection_matSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type xloadings(xloadingsSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type coefficients(coefficientsSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type new_x(new_xSEXP);
-    Rcpp::traits::input_parameter< int >::type min_component(min_componentSEXP);
-    Rcpp::traits::input_parameter< int >::type max_component(max_componentSEXP);
-    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_pls_weights(projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -341,14 +368,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_get_column_sds", (DL_FUNC) &_resemble_get_column_sds, 1},
     {"_resemble_get_column_means", (DL_FUNC) &_resemble_get_column_means, 1},
     {"_resemble_get_column_sums", (DL_FUNC) &_resemble_get_column_sums, 1},
-    {"_resemble_opls_for_projection", (DL_FUNC) &_resemble_opls_for_projection, 8},
-    {"_resemble_opls_get_all", (DL_FUNC) &_resemble_opls_get_all, 6},
-    {"_resemble_opls", (DL_FUNC) &_resemble_opls, 6},
-    {"_resemble_opls_get_basics", (DL_FUNC) &_resemble_opls_get_basics, 6},
+    {"_resemble_get_weights", (DL_FUNC) &_resemble_get_weights, 5},
+    {"_resemble_get_local_pls_weights", (DL_FUNC) &_resemble_get_local_pls_weights, 9},
+    {"_resemble_opls_for_projection", (DL_FUNC) &_resemble_opls_for_projection, 11},
+    {"_resemble_opls_get_all", (DL_FUNC) &_resemble_opls_get_all, 9},
+    {"_resemble_opls", (DL_FUNC) &_resemble_opls, 9},
+    {"_resemble_opls_get_basics", (DL_FUNC) &_resemble_opls_get_basics, 9},
     {"_resemble_predict_opls", (DL_FUNC) &_resemble_predict_opls, 6},
     {"_resemble_project_opls", (DL_FUNC) &_resemble_project_opls, 6},
     {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 6},
-    {"_resemble_get_pls_weights", (DL_FUNC) &_resemble_get_pls_weights, 9},
     {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 12},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},
     {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
