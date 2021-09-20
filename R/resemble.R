@@ -90,14 +90,17 @@
 #' \item Leonardo Ramirez-Lopez (\href{https://orcid.org/0000-0002-5369-5120}{ORCID})
 #'
 #' \item Antoine Stevens (\href{https://orcid.org/0000-0002-1588-7519}{ORCID})
+#' 
+#' \item Claudio Orellano 
 #'
 #' \item Raphael Viscarra Rossel (\href{https://orcid.org/0000-0003-1540-4748}{ORCID})
 #'
+#' \item Zefang Shen
+#' 
 #' \item Craig Lobsey (\href{https://orcid.org/0000-0001-5416-8640}{ORCID})
 #'
 #' \item Alex Wadoux (\href{https://orcid.org/0000-0001-7325-9716}{ORCID})
 #'
-#' \item Timo Breure (\href{https://orcid.org/0000-0001-5695-8064}{ORCID})
 #' }
 ######################################################################
 # resemble
