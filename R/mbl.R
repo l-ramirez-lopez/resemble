@@ -1189,7 +1189,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         } else {
           kth_weights <- rep(1, current_k)
         }
-
+        
         # local fit
         i_k_pred <- fit_and_predict(
           x = i_k_xr,
@@ -1207,7 +1207,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
           noise_variance = method$noise_variance,
           range_prediction_limits = control$range_prediction_limits,
           pls_max_iter = 1,
-          pls_tol = 1e-6
+          pls_tol = 1e-6, 
+          modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
         )
 
         ith_pred_results$pred[kk] <- i_k_pred$prediction
@@ -1263,7 +1264,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
             tune = FALSE,
             range_prediction_limits = control$range_prediction_limits,
             pls_max_iter = 1,
-            pls_tol = 1e-6
+            pls_tol = 1e-6, 
+            modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
           )$prediction
 
           ith_pred_results$y_nearest_pred[kk] <- nearest_pred / kth_weights[1]
