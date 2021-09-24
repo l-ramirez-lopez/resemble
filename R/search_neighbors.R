@@ -37,6 +37,12 @@
 #'        computed on the matrix of scores of a partial least squares projection
 #'        of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
 #'        See \code{\link{ortho_diss}} function.}
+#'        
+#'        \item{\code{"mpls"}}:{ Mahalanobis distance
+#'        computed on the matrix of scores of a modified partial least squares 
+#'        projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
+#'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
+#'        always required. See \code{\link{ortho_diss}} function.}
 #'
 #'        \item{\code{"cor"}}{ correlation coefficient
 #'        between observations. See \code{\link{cor_diss}} function.}
@@ -297,6 +303,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
                                "pca",
                                "pca.nipals",
                                "pls",
+                               "mpls",
                                "cor",
                                "euclid",
                                "cosine",
@@ -318,6 +325,7 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
     "pca",
     "pca.nipals",
     "pls",
+    "mpls",
     "cor",
     "euclid",
     "cosine",
