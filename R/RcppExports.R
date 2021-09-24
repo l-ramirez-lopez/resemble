@@ -102,6 +102,18 @@ get_column_sds <- function(X) {
     .Call('_resemble_get_column_sds', PACKAGE = 'resemble', X)
 }
 
+#' @title Function for computing the overall variance of a matrix
+#' @description Computes the variance of a matrix. For internal use only!
+#' @usage overall_var(X)
+#' @param X a matrix.
+#' @return a vector of standard deviation values. 
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+overall_var <- function(X) {
+    .Call('_resemble_overall_var', PACKAGE = 'resemble', X)
+}
+
 #' @title Function for computing the mean of each column in a matrix
 #' @description Computes the mean of each column in a matrix. For internal use only!
 #' @usage get_column_means(X)
@@ -442,7 +454,8 @@ reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, X
 #'                   min_component, ncomp, 
 #'                   new_x, 
 #'                   maxiter, tol, 
-#'                   wapls_grid)
+#'                   wapls_grid, 
+#'                   algorithm)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of a single response variable.
 #' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
@@ -459,6 +472,7 @@ reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, X
 #' @param maxiter maximum number of iterations.
 #' @param tol limit for convergence of the algorithm in the nipals algorithm.
 #' @param wapls_grid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls'} is based on in case \code{method = 'completewapls1p'}.
+#' @param algorithm either pls (\code{'pls'}) or modified pls (\code{'mpls'}). See \code{get_weigths} function.
 #' @return a list containing the following one-row matrices:
 #' \itemize{
 #' \item{\code{rmse_seg}}{ the RMSEs.}
@@ -468,8 +482,8 @@ reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, X
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid) {
-    .Call('_resemble_opls_cv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid)
+opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm) {
+    .Call('_resemble_opls_cv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm)
 }
 
 #' @title Gaussian process regression with linear kernel (gaussian_process)
