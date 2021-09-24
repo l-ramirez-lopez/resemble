@@ -52,6 +52,25 @@ NumericVector get_column_sds(arma::mat X){
   return Rcpp::wrap(sds);
 }
 
+
+
+//' @title Function for computing the overall variance of a matrix
+//' @description Computes the variance of a matrix. For internal use only!
+//' @usage overall_var(X)
+//' @param X a matrix.
+//' @return a vector of standard deviation values. 
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+NumericVector overall_var(arma::mat X){
+  double n_rows_x = (double)X.n_rows;
+  double ovar = sum(var(X)) * (n_rows_x - 1);
+  return Rcpp::wrap(ovar);
+}
+
+
+
 //' @title Function for computing the mean of each column in a matrix
 //' @description Computes the mean of each column in a matrix. For internal use only!
 //' @usage get_column_means(X)
@@ -115,16 +134,14 @@ arma::mat get_weights(arma::mat X,
                       const int xls_min_w = 3, 
                       const int xls_max_w = 15) {
   int n_cols_x = X.n_cols;
-  
+
   arma::mat w = arma::zeros<arma::mat>(n_cols_x, 1);
-  
-  // Scaling factor
-  arma::mat cr = sqrt(trans(Y) * X * trans(X) * Y);
   
   if (algorithm == "pls") {
     // 1.2 The weights are computed as the cross product of
     // X0 and Y0
     w = trans(X) * Y;
+    // Scaling factor
   }
   
   
@@ -138,6 +155,39 @@ arma::mat get_weights(arma::mat X,
     // achievements in near infrared spectroscopy: my contributions to near 
     // infrared spectroscopy
     // by: Mark Westerhaus from FOSS)
+
+    // for (int i = 0; i < n_cols_x; i++) {
+    //   w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
+    // }
+    
+    for (int i = 0; i < n_cols_x; i++) {
+      w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
+    }
+    
+    // arma::mat x_center_vec;
+    // x_center_vec = Rcpp::as<arma::mat>(get_column_means(X));
+    // X = X - arma::repmat(x_center_vec, X.n_rows, 1);
+    // 
+    // arma::mat y_center_vec;
+    // y_center_vec = Rcpp::as<arma::mat>(get_column_means(Y));
+    // Y = Y - arma::repmat(y_center_vec, Y.n_rows, 1);
+    // 
+    // w = trans(X) * Y;
+    // 
+    // w = w / trans(sqrt(sum(pow(X, 2), 0)) % arma::repmat(sqrt(sum(pow(Y, 2), 0)), 1, X.n_cols));
+  }
+
+  if (algorithm == "mpls_for") {
+    // modified PLS (Shenk and Westerhaus, 1991)
+    // Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of 
+    // near infrared spectra and modified partial least squares regression. 
+    // Crop Science, 31(6), 1548-1555.
+    // 1.2 The weights are computed as the correlation between
+    // X0 and Y0 (see also: Eastern Analytical Symposium Award for outstanding 
+    // achievements in near infrared spectroscopy: my contributions to near 
+    // infrared spectroscopy
+    // by: Mark Westerhaus from FOSS)
+    
     for (int i = 0; i < n_cols_x; i++) {
       w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
     }
@@ -153,7 +203,8 @@ arma::mat get_weights(arma::mat X,
     }
   }
   
-  // divided by the 'scaling factor'... 
+  // divided by the 'scaling factor' / scaling it to unit length w * w = 1... 
+  arma::mat cr = sqrt(trans(w) * w);
   w = w / repmat(cr, X.n_cols, 1);
   return (w);
 }
@@ -326,9 +377,10 @@ List opls_for_projection(arma::mat X,
   
   arma::mat Xpls = Xz;
   arma::mat Ypls = Y;
+  double xvar;
   
   //variance of Xpls
-  double xvar = sum(pow(get_column_sds(Xpls), 2));  
+  xvar = overall_var(Xpls)(0);
   
   // matrices to declare
   arma::mat iypls;
@@ -338,11 +390,11 @@ List opls_for_projection(arma::mat X,
   bool keepg;
   arma::mat previous_ts = arma::zeros(Xz.n_rows, 1);
   arma::mat lb;
-  arma::mat cr;
   arma::mat ts;
   arma::mat w;
   arma::mat p;
   arma::mat q;
+  double ireconstructed_var;
   arma::mat cx;
   arma::mat cy;
   arma::mat projection_matrix;
@@ -394,14 +446,17 @@ List opls_for_projection(arma::mat X,
     Ypls = Ypls - cy;
     // save the matrices corresponding to the loadings
     // and scores..
+    
     weights.row(i) = trans(w);
     scores.col(i) = ts;
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
-    explained_var(0,i) = arma::var(scores.col(i));
+    
+    ireconstructed_var = overall_var(cx)(0);
+    explained_var(0,i) = ireconstructed_var;
     explained_var(1,i) = explained_var(0,i) / xvar;
     explained_var(2,i) = sum(explained_var.row(0)) / xvar;
-    
+
     
     ith_comp = ith_comp + 1;
     
@@ -416,7 +471,7 @@ List opls_for_projection(arma::mat X,
         if (chk) {
           ncomp = ith_comp - 1;
           ith_comp = ith_comp - 2;
-          if(i == 0) {
+          if (i == 0 && pcSelmethod == "var") {
             throw std::invalid_argument("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
           }
           if (pcSelmethod == "cumvar") {
@@ -450,9 +505,7 @@ List opls_for_projection(arma::mat X,
       yex = yex.cols(pc_indices);
     }
   }
-  // convert this to standard deviation
-  explained_var.row(0) = sqrt(explained_var.row(0));
-  
+
   projection_matrix = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
   
   arma::mat yexi;
@@ -495,6 +548,7 @@ List opls_for_projection(arma::mat X,
     Rcpp::Named("projection_mat") = projection_matrix,
     Rcpp::Named("Y") = Y,
     Rcpp::Named("variance") = Rcpp::List::create(
+      Rcpp::Named("original_x_var") = xvar,
       Rcpp::Named("x_var") = explained_var,
       Rcpp::Named("y_var") = yex
     ),
@@ -590,7 +644,7 @@ List opls_get_all(arma::mat X,
   arma::mat Ypls = Y;
   
   //variance of Xpls
-  double xvar = sum(pow(get_column_sds(Xpls), 2));  
+  double xvar = overall_var(Xpls)(0);
   
   // matrices to declare
   arma::mat iypls;
@@ -605,6 +659,7 @@ List opls_get_all(arma::mat X,
   arma::mat w;
   arma::mat p;
   arma::mat q;
+  double ireconstructed_var;
   arma::mat cx;
   arma::mat cy;
   arma::mat projection_matrix;
@@ -656,12 +711,12 @@ List opls_get_all(arma::mat X,
     scores.col(i) = ts;
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
-    explained_var(0,i) = arma::var(scores.col(i));
-    explained_var(1,i) = explained_var(0,i)/xvar;
+    
+    ireconstructed_var = overall_var(cx)(0);
+    explained_var(0,i) = ireconstructed_var;
+    explained_var(1,i) = explained_var(0,i) / xvar;
     explained_var(2,i) = sum(explained_var.row(0)) / xvar;
   }
-  // convert this to standard deviation
-  explained_var.row(0) = sqrt(explained_var.row(0));
   projection_matrix = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
   
   arma::mat yexi;
@@ -747,6 +802,7 @@ List opls_get_all(arma::mat X,
     Rcpp::Named("selectivity_ratio") = trans(sratio),
     Rcpp::Named("Y") = Y,
     Rcpp::Named("variance") = Rcpp::List::create(
+      Rcpp::Named("original_x_var") = xvar,
       Rcpp::Named("x_var") = explained_var,
       Rcpp::Named("y_var") = yex
     ),
@@ -1227,7 +1283,8 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
 //'                   min_component, ncomp, 
 //'                   new_x, 
 //'                   maxiter, tol, 
-//'                   wapls_grid)
+//'                   wapls_grid, 
+//'                   algorithm)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of a single response variable.
 //' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
@@ -1244,6 +1301,7 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
 //' @param wapls_grid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls'} is based on in case \code{method = 'completewapls1p'}.
+//' @param algorithm either pls (\code{'pls'}) or modified pls (\code{'mpls'}). See \code{get_weigths} function.
 //' @return a list containing the following one-row matrices:
 //' \itemize{
 //' \item{\code{rmse_seg}}{ the RMSEs.}
@@ -1265,7 +1323,8 @@ List opls_cv_cpp(arma::mat X,
                  arma::mat new_x,
                  double maxiter, 
                  double tol,
-                 arma::mat wapls_grid
+                 arma::mat wapls_grid, 
+                 String algorithm
 ){
   arma::mat rmseseg;
   arma::mat strmseseg;
@@ -1308,7 +1367,7 @@ List opls_cv_cpp(arma::mat X,
       arma::mat rpymatslice;
       rpymatslice = arma::repmat(pymatslice, 1, ncomp);
       
-      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol, algorithm));
       
       transf = fit["transf"];   
       
@@ -1337,7 +1396,7 @@ List opls_cv_cpp(arma::mat X,
     rsqseg = arma::zeros(1, mindices.n_cols);
     
     // define the wapls weights directly here
-    List cfit = Rcpp::as<Rcpp::List>(opls(X, Y, ncomp, scale, maxiter, tol));
+    List cfit = Rcpp::as<Rcpp::List>(opls(X, Y, ncomp, scale, maxiter, tol, algorithm));
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
@@ -1380,7 +1439,7 @@ List opls_cv_cpp(arma::mat X,
       }
       
       
-      List fit = Rcpp::as<Rcpp::List>(opls(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      List fit = Rcpp::as<Rcpp::List>(opls(xmatslice, ymatslice, ncomp, scale, maxiter, tol, algorithm));
       
       transf = fit["transf"];   
       
@@ -1404,13 +1463,13 @@ List opls_cv_cpp(arma::mat X,
     }
   }
   
-  if(method == "completewapls1"){
+  if (method == "completewapls1") {
     rmseseg = arma::zeros(wapls_grid.n_rows, mindices.n_cols);
     strmseseg = arma::zeros(wapls_grid.n_rows, mindices.n_cols);
     rsqseg = arma::zeros(wapls_grid.n_rows, mindices.n_cols);
     
     // define the wapls weights directly here
-    List cfit = Rcpp::as<Rcpp::List>(opls_get_basics(X, Y, ncomp, scale, maxiter, tol));
+    List cfit = Rcpp::as<Rcpp::List>(opls_get_basics(X, Y, ncomp, scale, maxiter, tol, algorithm));
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
@@ -1463,7 +1522,7 @@ List opls_cv_cpp(arma::mat X,
       }
       
       
-      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol, algorithm));
       
       transf = fit["transf"];   
       
@@ -1780,13 +1839,15 @@ List pca_nipals(arma::mat X,
   
   arma::mat Xpls = Xz;
   //variance of Xpls
-  double xvar = sum(pow(get_column_sds(Xpls), 2));  
+  double xvar = overall_var(Xpls)(0);  
   // int max_pcs = arma::min(arma::size(Xpls));
   
   // matrices to declare
   int iter;
   bool keepg;
   arma::mat pp;
+  arma::mat cx;
+  double ireconstructed_var;
   arma::mat pp_std;
   arma::mat tt_ith;
   arma::mat val_ith;
@@ -1811,12 +1872,15 @@ List pca_nipals(arma::mat X,
       }
       tt.col(0) = tt_ith.col(0);
     }
-    Xpls = Xpls - (tt * trans(pp_std));
+    cx = (tt * trans(pp_std));
+    Xpls = Xpls - cx;
     pc_scores.col(i) = tt.col(0);
     pc_loadings.col(i) = pp_std.col(0);
-    explained_var(0,i) = arma::var(pc_scores.col(i));
+    
+    ireconstructed_var = overall_var(cx)(0);
+    explained_var(0,i) = ireconstructed_var;
     explained_var(1,i) = explained_var(0,i) / xvar;
-    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;   
     
     ith_comp = ith_comp + 1;
     if(pcSelmethod == "var" || pcSelmethod == "cumvar")
@@ -1857,13 +1921,12 @@ List pca_nipals(arma::mat X,
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
   }
-  // convert this to standard deviation
-  explained_var.row(0) = sqrt(explained_var.row(0));
-  
+
   return Rcpp::List::create(
     Rcpp::Named("pc_indices") = pc_indices,
     Rcpp::Named("pc_scores") = pc_scores,
     Rcpp::Named("pc_loadings") = trans(pc_loadings),
+    Rcpp::Named("original_x_variance") = xvar, 
     Rcpp::Named("pc_variance") = explained_var,
     Rcpp::Named("scale") = Rcpp::List::create(
       Rcpp::Named("center") = x_center_vec,
