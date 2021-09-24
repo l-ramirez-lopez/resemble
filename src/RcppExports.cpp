@@ -87,6 +87,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// overall_var
+NumericVector overall_var(arma::mat X);
+RcppExport SEXP _resemble_overall_var(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(overall_var(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_column_means
 NumericVector get_column_means(arma::mat X);
 RcppExport SEXP _resemble_get_column_means(SEXP XSEXP) {
@@ -270,8 +281,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // opls_cv_cpp
-List opls_cv_cpp(arma::mat X, arma::mat Y, bool scale, String method, arma::mat mindices, arma::mat pindices, int min_component, int ncomp, arma::mat new_x, double maxiter, double tol, arma::mat wapls_grid);
-RcppExport SEXP _resemble_opls_cv_cpp(SEXP XSEXP, SEXP YSEXP, SEXP scaleSEXP, SEXP methodSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP min_componentSEXP, SEXP ncompSEXP, SEXP new_xSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP wapls_gridSEXP) {
+List opls_cv_cpp(arma::mat X, arma::mat Y, bool scale, String method, arma::mat mindices, arma::mat pindices, int min_component, int ncomp, arma::mat new_x, double maxiter, double tol, arma::mat wapls_grid, String algorithm);
+RcppExport SEXP _resemble_opls_cv_cpp(SEXP XSEXP, SEXP YSEXP, SEXP scaleSEXP, SEXP methodSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP min_componentSEXP, SEXP ncompSEXP, SEXP new_xSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP wapls_gridSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -287,7 +298,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type wapls_grid(wapls_gridSEXP);
-    rcpp_result_gen = Rcpp::wrap(opls_cv_cpp(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid));
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls_cv_cpp(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -366,6 +378,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_which_min_vector", (DL_FUNC) &_resemble_which_min_vector, 1},
     {"_resemble_get_col_largest_sd", (DL_FUNC) &_resemble_get_col_largest_sd, 1},
     {"_resemble_get_column_sds", (DL_FUNC) &_resemble_get_column_sds, 1},
+    {"_resemble_overall_var", (DL_FUNC) &_resemble_overall_var, 1},
     {"_resemble_get_column_means", (DL_FUNC) &_resemble_get_column_means, 1},
     {"_resemble_get_column_sums", (DL_FUNC) &_resemble_get_column_sums, 1},
     {"_resemble_get_weights", (DL_FUNC) &_resemble_get_weights, 5},
@@ -377,7 +390,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_predict_opls", (DL_FUNC) &_resemble_predict_opls, 6},
     {"_resemble_project_opls", (DL_FUNC) &_resemble_project_opls, 6},
     {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 6},
-    {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 12},
+    {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 13},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},
     {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
     {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 6},
