@@ -7,7 +7,7 @@
 #' numerical matrices by using an specifed dissmilarity measure.
 #' @usage
 #' dissimilarity(Xr, Xu = NULL,
-#'               diss_method = c("pca", "pca.nipals", "pls",
+#'               diss_method = c("pca", "pca.nipals", "pls", "mpls",
 #'                               "cor", "euclid", "cosine", "sid"),
 #'               Yr = NULL, gh = FALSE, pc_selection = list("var", 0.01),
 #'               return_projection = FALSE, ws = NULL,
@@ -34,6 +34,12 @@
 #'
 #'        \item{\code{"pls"}}:{ Mahalanobis distance
 #'        computed on the matrix of scores of a partial least squares projection
+#'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
+#'        always required. See \code{\link{ortho_diss}} function.}
+#'        
+#'        \item{\code{"mpls"}}:{ Mahalanobis distance
+#'        computed on the matrix of scores of a modified partial least squares 
+#'        projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
 #'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 #'        always required. See \code{\link{ortho_diss}} function.}
 #'
@@ -157,7 +163,8 @@
 #'
 #'        \item{\code{projection}:}{ an \code{ortho_projection} object. Only output
 #'        if \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-#'        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
+#'        \code{diss_method = "pca.nipals"},  \code{diss_method = "pls"} or  
+#'        \code{diss_method = "mpls"}.
 #'
 #'        This object contains the projection used to compute
 #'        the dissimilarity matrix. In case of local dissimilarity matrices,
@@ -168,6 +175,15 @@
 #'        \item{\code{gh}:}{ a list containing the GH distances as well as the
 #'        pls projection used to compute the GH.}
 #'        }
+#' @references
+#' Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
+#' calibration procedure for near infrared instruments. Journal of Near Infrared
+#' Spectroscopy, 5, 223-232.
+#'
+#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding 
+#' Wachievements in near infrared spectroscopy: my contributions to 
+#' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+#' 
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @examples
 #' library(prospectr)
@@ -212,6 +228,7 @@ dissimilarity <- function(Xr,
                             "pca",
                             "pca.nipals",
                             "pls",
+                            "mpls",
                             "cor",
                             "euclid",
                             "cosine",
@@ -237,6 +254,7 @@ dissimilarity <- function(Xr,
     "cor",
     "movcor",
     "pls",
+    "mpls",
     "euclid",
     "cosine",
     "sid"
@@ -266,12 +284,17 @@ dissimilarity <- function(Xr,
   }
 
 
-  ortho_dissmethods <- c("pca", "pca.nipals", "pls")
+  ortho_dissmethods <- c("pca", "pca.nipals", "pls", "mpls")
   f_dissmethods <- c("euclid", "cosine")
   cor_dissmethods <- c("cor")
   divergencemethods <- c("sid")
 
   if (diss_method %in% ortho_dissmethods) {
+    if (diss_method == "mpls") {
+      modified <- TRUE
+    } else {
+      modified <- FALSE
+    }
     pcDistance <- ortho_diss(
       Xr = Xr,
       Xu = Xu,
@@ -280,6 +303,7 @@ dissimilarity <- function(Xr,
       diss_method = diss_method,
       center = center,
       scale = scale,
+      modified = modified,
       return_projection = ((gh & diss_method == "pls") | return_projection),
       ...
     )
