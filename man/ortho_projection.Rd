@@ -22,7 +22,7 @@ pc_projection(Xr, Xu = NULL, Yr = NULL,
 
 pls_projection(Xr, Xu = NULL, Yr,
                pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
-               scale = FALSE,
+               scale = FALSE, method = "pls",
                tol = 1e-6, max_iter = 1000, ...)
 
 \method{predict}{ortho_projection}(object, newdata, ...)
@@ -50,6 +50,7 @@ decomposition algorithm.}
 \item{\code{"pca.nipals"}:}{ principal component analysis using the
 non-linear iterative partial least squares algorithm.}
 \item{\code{"pls"}:}{ partial least squares.}
+\item{\code{"mpls"}:}{ modified partial least squares. See details.}
 }}
 
 \item{pc_selection}{a list of length 2 which specifies the method to be used
@@ -142,17 +143,20 @@ components:
  \item{\code{projection_mat}}{ a matrix that can be used to project new data
  onto a "pls" space. This object is only returned if the "pls" algorithm was
  used.}
- \item{\code{variance}}{ a matrix indicating the standard deviation of each
- component (sd), the variance explained by each single component
- (explained_var) and the cumulative explained variance
- (cumulative_explained_var). These values are
- computed based on the data used to create the projection matrices.
- For example if the "pls" method was used, then these values are computed
- based only on the data that contains information on \code{Yr} (i.e. the
- \code{Xr} data). If the principal component method is used, the this data is
- computed on the basis of \code{Xr} and \code{Xu} (if it applies) since both
- matrices are employed in the computation of the projection matrix (loadings
- in this case)}.
+ \item{\code{variance}}{ a list with information on the original variance and 
+ the explained variances. This list contains a matrix indicating the amount of 
+ variance explained by each component (var), the ratio between explained 
+ variance by each single component and the original variance (explained_var) and 
+ the cumulative ratio of explained variance (cumulative_explained_var). 
+ The amount of variance explained by each component is computed by multiplying 
+ its score vector by its corresponding loading vector and calculating the 
+ variance of the result. These values are computed based on the observations 
+ used to create the projection matrices. For example if the "pls" method was 
+ used, then these values are computed  based only on the data that contains 
+ information on \code{Yr} (i.e. the  \code{Xr} data). If the principal 
+ component method is used, the this data is  computed on the basis of 
+ \code{Xr} and \code{Xu} (if it applies) since both  matrices are employed in 
+ the computation of the projection matrix (loadings  in this case)}.
  \item{\code{sdv}}{ the standard deviation of the retrieved scores. This vector
  can be different from the "sd" in \code{variance}.}
  \item{\code{n_components}}{ the number of components (either principal
@@ -194,9 +198,19 @@ loadings is equivalent to the matrix \mjeqn{V}{V}.
 When \code{method = "pca.nipals"}, the algorithm used for principal component
 analysis is the non-linear iterative partial least squares (nipals).
 
+
 In the case of the of the partial least squares projection (a.k.a projection
-to latent structures) the nipals regression algorithm is used. Details on the "nipals"
-algorithm are presented in Martens (1991).
+to latent structures) the nipals regression algorithm is used by default. 
+Details on the "nipals" algorithm are presented in Martens (1991). Another 
+method called modified pls (\code{'mpls'}) can also be used. The modified 
+pls was proposed Shenk and Westerhaus (1991, see also Westerhaus, 2014) and it 
+differs from the standard pls method in the way the weights of the \code{Xr} 
+(used to compute the matrix of scores) are obtained. While pls uses the covariance 
+between  \code{Yr} and \code{Xr} (and later their deflated versions 
+corresponding at each pls component iteration) to obtain these weights, the modified pls 
+uses the correlation as weights. The authors indicate that by using correlation,
+a larger potion of the response variable(s) can be explained. 
+
 
 When \code{method = "opc"}, the selection of the components is carried out by
 using an iterative method based on the side information concept
@@ -280,6 +294,18 @@ modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
 J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use
 with soil vis-NIR spectra. Geoderma 199, 43-53.
+
+Shenk, J. S., & Westerhaus, M. O. 1991. Populations structuring of 
+near infrared spectra and modified partial least squares regression. 
+Crop Science, 31(6), 1548-1555.
+
+Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
+calibration procedure for near infrared instruments. Journal of Near Infrared
+Spectroscopy, 5, 223-232.
+
+Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding 
+Wachievements in near infrared spectroscopy: my contributions to 
+Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 }
 \seealso{
 \code{\link{ortho_diss}}, \code{\link{sim_eval}}, \code{\link{mbl}}

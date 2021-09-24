@@ -9,7 +9,8 @@ opls_cv_cpp(X, Y, scale, method,
                   min_component, ncomp, 
                   new_x, 
                   maxiter, tol, 
-                  wapls_grid)
+                  wapls_grid, 
+                  algorithm)
 }
 \arguments{
 \item{X}{a matrix of predictor variables.}
@@ -39,6 +40,8 @@ iteration.}
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 
 \item{wapls_grid}{the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls'} is based on in case \code{method = 'completewapls1p'}.}
+
+\item{algorithm}{either pls (\code{'pls'}) or modified pls (\code{'mpls'}). See \code{get_weigths} function.}
 }
 \value{
 a list containing the following one-row matrices:
