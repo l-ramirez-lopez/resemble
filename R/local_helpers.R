@@ -145,12 +145,20 @@ pls_cv <- function(x, y, ncomp,
                    group = NULL,
                    retrieve = TRUE,
                    tune = TRUE,
-                   max_iter = 1, tol = 1e-6) {
+                   max_iter = 1, tol = 1e-6, 
+                   modified = FALSE) {
   min_allowed <- (floor(min(ncol(x), nrow(x)) * p)) - 1
 
   if (min_allowed < ncomp) {
     ncomp <- min_allowed
   }
+  
+  if (modified) {
+    algorithm <- "mpls"
+  } else {
+    algorithm <- "pls"
+  }
+  
   cv_samples <- sample_stratified(
     y = y,
     p = p,
@@ -187,7 +195,8 @@ pls_cv <- function(x, y, ncomp,
     new_x = new_x,
     maxiter = max_iter,
     tol = tol,
-    wapls_grid = search_grid
+    wapls_grid = search_grid, 
+    algorithm = algorithm
   )
 
   val <- NULL
@@ -216,7 +225,8 @@ pls_cv <- function(x, y, ncomp,
           scale = scale,
           ncomp = best_pls_c,
           maxiter = max_iter,
-          tol = tol
+          tol = tol, 
+          algorithm = algorithm
         )
       } else {
         val$models <- opls_get_basics(
@@ -225,7 +235,8 @@ pls_cv <- function(x, y, ncomp,
           scale = scale,
           ncomp = ncomp,
           maxiter = max_iter,
-          tol = tol
+          tol = tol, 
+          algorithm = algorithm
         )
       }
     }
@@ -253,7 +264,8 @@ pls_cv <- function(x, y, ncomp,
       scale = scale,
       ncomp = ncomp,
       maxiter = max_iter,
-      tol = tol
+      tol = tol, 
+      algorithm = algorithm
     )
   }
 
@@ -286,7 +298,8 @@ pls_cv <- function(x, y, ncomp,
       scale = scale,
       ncomp = ncomp,
       maxiter = max_iter,
-      tol = tol
+      tol = tol, 
+      algorithm = algorithm
     )
   }
   val
@@ -625,7 +638,7 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
                             tune = FALSE, number = 10, p = 0.75,
                             group = NULL, noise_variance = 0.001,
                             range_prediction_limits = TRUE,
-                            pls_max_iter = 1, pls_tol = 1e-6) {
+                            pls_max_iter = 1, pls_tol = 1e-6, modified = FALSE) {
   if (is.null(weights)) {
     weights <- 1
   }
@@ -635,6 +648,12 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
     scale <- FALSE
   }
 
+  if (modified) {
+    algorithm <- "mpls"
+  } else {
+    algorithm <- "pls"
+  }
+    
 
   results <- cv_val <- pred <- NULL
   if (pred_method == "gpr") {
@@ -688,7 +707,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
         retrieve = TRUE,
         tune = tune,
         max_iter = pls_max_iter,
-        tol = pls_tol
+        tol = pls_tol, 
+        modified = modified
       )
       fit <- cv_val$models
       ncomp <- cv_val$best_pls_c
@@ -701,7 +721,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
         scale = scale,
         ncomp = pls_c,
         maxiter = pls_max_iter,
-        tol = pls_tol
+        tol = pls_tol, 
+        algorithm = algorithm
       )
       ncomp <- pls_c
     }
@@ -732,7 +753,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
         retrieve = TRUE,
         tune = tune,
         max_iter = pls_max_iter,
-        tol = pls_tol
+        tol = pls_tol, 
+        modified = modified
       )
 
       fit <- cv_val$models
@@ -759,7 +781,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
         scale = scale,
         ncomp = pls_c[[2]],
         maxiter = pls_max_iter,
-        tol = pls_tol
+        tol = pls_tol, 
+        algorithm = algorithm
       )
 
       # compute weights for PLS components selected (from plsMin to plsMax)
