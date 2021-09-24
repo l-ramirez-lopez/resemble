@@ -1,5 +1,22 @@
 # News for the resemble package
 
+## resemble 2.1 (piapia)
+23.09.2021
+
+## Improvements and fixes
+- A Bug in the computation of the explained variance of X for pls models was 
+detected and fixed. The pls related functions were underestimating the amount 
+of variance exmplained by each PLS component. The explained variance was being 
+computed from the matrix of scores, in this version it is computed from the 
+reconstructed spectra at each PLS iteration.
+
+- Manual selection of components in pc_projection() and pls_projection() now 
+accepts to select only 1 component (before the minimum was 2).
+
+- A modified PLS method was implemented (see local_fit_pls and local_fit_wapls).
+It uses correlation bteween response and predictors to derive the PLS weights. 
+
+
 ## resemble 2.0 (gordillo)
 
 * 02.07.2020 
