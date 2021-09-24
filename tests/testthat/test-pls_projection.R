@@ -27,15 +27,36 @@ test_that("pls_projection works", {
   Yr <- Yr[1:40]
   Yr_2 <- Yr_2[1:40]
   
+  testthat::expect_type(pc_projection(Xr,
+                                      Yr = Yr,
+                                      pc_selection = list(method = "manual", value = 1),
+                                      center = TRUE, scale = TRUE), 
+                        "list")
+  
+  testthat::expect_type(pc_projection(Xr,
+                                      Yr = Yr,
+                                      method = "pca.nipals",
+                                      pc_selection = list(method = "manual", value = 1),
+                                      center = TRUE, scale = T), 
+                        "list")
+  
+  testthat::expect_type(pls_projection(Xr,
+                                       Yr = Yr,
+                                       pc_selection = list(method = "manual", value = 1),
+                                       center = TRUE, scale = TRUE), 
+                        "list")
+  
+    
   cumvar_value <- 0.74
   one_input_matrix <- pls_projection(Xr,
                                      Yr = Yr,
                                      pc_selection = list(method = "cumvar", value = cumvar_value),
                                      center = TRUE, scale = FALSE)
   
+
   test_ncomp <- one_input_matrix$n_components - 1
   expect_true(ncol(one_input_matrix$scores) == one_input_matrix$n_components)
-  expect_true(all(one_input_matrix$variance$x_var[3, 1:test_ncomp] < cumvar_value))
+  expect_true(all(one_input_matrix$variance$x_var[3, 1:test_ncomp] > cumvar_value))
   
   two_input_matrices <- pls_projection(Xr, Xu, Yr,
                                        pc_selection = list(method = "cumvar", value = cumvar_value),
@@ -47,7 +68,7 @@ test_that("pls_projection works", {
   
   two_test_ncomp <- two_input_matrices$n_components - 1
   expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncomp] < cumvar_value))
+  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncomp] > cumvar_value))
   
   preds <- sum(abs(predict(two_input_matrices)[1:nrow(Xr), ] - predict(two_input_matrices, Xr)))
   expect_true(preds < tol)
@@ -71,7 +92,8 @@ test_that("pls_projection works", {
   
   expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
   two_test_ncnomp <- two_input_matrices$n_components - 1
-  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncnomp] < cumvar_value))
+  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncnomp] > cumvar_value))
+  
   
   opc_method <- pls_projection(Xr, Xu,
                                Yr = Yr,
@@ -88,8 +110,6 @@ test_that("pls_projection works", {
   distm <- as.matrix(dist(scale(pls2_opc_method$scores[1:nrow(Xr), ], TRUE, TRUE)))
   distm2 <- f_diss(pls2_opc_method$scores[1:nrow(Xr), ], scale = TRUE, center = TRUE)
   nn <- apply(distm, MARGIN = 2, FUN = function(x) order(x)[2])
-  
-  distm 
   
   result_rmsd <- as.vector(round(colMeans((cbind(Yr, Yr_2) - cbind(Yr, Yr_2)[nn, ])^2)^0.5, 4))
 
