@@ -93,6 +93,8 @@
 #' \item{\code{"pca.nipals"}}{: principal component analysis using
 #' the non-linear iterative partial least squares algorithm.}
 #' \item{\code{"pls"}}{: partial least squares.}
+#' \item{\code{"mpls"}}{: modified partial least squares (Shenk and Westerhaus, 
+#' 1991 and Westerhaus, 2014).}
 #' }
 #' See the \code{\link{ortho_projection}} function for further details on the
 #' projection methods.
@@ -112,6 +114,13 @@
 #' scaled. If \code{Xu} is provided the data is scaled based on the standard
 #' deviation of the the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}).
 #' if \code{center = TRUE}, scaling is applied after centering.
+#' @param modified a logical used when () indicating whether the modified version of the pls 
+#' algorithm (). If \code{TRUE}, 
+#' the correlation between \code{Yr} and \code{Xr} (and later their deflated versions 
+#' corresponding at each pls component iteration) is used to compute the 
+#' \code{Xr} weights. If \code{FALSE}, the covariance is used instead of 
+#' correlation (as in the standard method). See \code{\link{local_fit}} for more 
+#' details.
 #' @param compute_all a logical. In case \code{Xu} is specified it indicates
 #' whether or not the distances between all the elements resulting from the
 #' pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu} must be computed).
