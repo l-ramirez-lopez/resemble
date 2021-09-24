@@ -16,6 +16,12 @@ accepts to select only 1 component (before the minimum was 2).
 - A modified PLS method was implemented (see local_fit_pls and local_fit_wapls).
 It uses correlation bteween response and predictors to derive the PLS weights. 
 
+- pls_proection() now includes a new argument (method) to allow the user to select 
+between the standard pls algorithm and a modified pls algorithm.
+
+- ortho_diss() and dissimilarity() functions include a new dissimilarity method: 
+"mpls" (modified pls).
+
 
 ## resemble 2.0 (gordillo)
 
