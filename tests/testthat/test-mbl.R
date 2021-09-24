@@ -40,7 +40,15 @@ test_that("mbl works", {
     control = ctrl_1,
     verbose = FALSE
   )
-
+  
+  mpls <- mbl(
+    Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+    k = k_test,
+    method = local_fit_pls(5, modified = TRUE),
+    control = ctrl_1,
+    verbose = FALSE
+  )
+  
   wapls <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
@@ -49,6 +57,14 @@ test_that("mbl works", {
     verbose = FALSE
   )
 
+  wampls <- mbl(
+    Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+    k = k_test,
+    method = local_fit_wapls(3, 5, modified = TRUE),
+    control = ctrl_1,
+    verbose = FALSE
+  )
+  
   gpr_k_diss <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k_diss = k_diss_test, k_range = k_range_test,
@@ -93,6 +109,8 @@ test_that("mbl works", {
   expect_is(gpr, "list")
   expect_is(pls, "list")
   expect_is(wapls, "list")
+  expect_is(mpls, "list")
+  expect_is(wampls, "list")
   expect_is(gpr_k_diss, "list")
   expect_is(pls_k_diss, "list")
   expect_is(wapls_k_diss, "list")
@@ -162,6 +180,25 @@ test_that("mbl delivers expeted results", {
     control = ctrl_1,
     verbose = FALSE
   )
+  
+  set.seed(tseed)
+  mpls <- mbl(
+    Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+    k = k_test,
+    method = local_fit_pls(pls_pls, modified = TRUE),
+    control = ctrl_1,
+    verbose = FALSE
+  )
+  
+  set.seed(tseed)
+  wampls <- mbl(
+    Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
+    k = k_test,
+    method = local_fit_wapls(pls_wapls[1], pls_wapls[2], modified = TRUE),
+    control = ctrl_1,
+    verbose = FALSE
+  )
+  
 
   set.seed(tseed)
   gpr_k_diss <- mbl(
@@ -225,6 +262,17 @@ test_that("mbl delivers expeted results", {
     wapls$validation_results$local_cross_validation$rmse < 1.8,
     wapls$validation_results$local_cross_validation$rmse > 1.4
   )
+  
+  
+  cv_mpls <- c(
+    mpls$validation_results$local_cross_validation$rmse < 1.7,
+    mpls$validation_results$local_cross_validation$rmse > 1.5
+  )
+  
+  cv_wampls <- c(
+    wampls$validation_results$local_cross_validation$rmse < 1.65,
+    wampls$validation_results$local_cross_validation$rmse > 1.45
+  )
 
   cv_gpr_k_diss <- c(
     gpr_k_diss$validation_results$local_cross_validation$rmse < 1.9,
@@ -283,6 +331,8 @@ test_that("mbl delivers expeted results", {
   expect_true(all(cv_gpr))
   expect_true(all(cv_pls))
   expect_true(all(cv_wapls))
+  expect_true(all(cv_mpls))
+  expect_true(all(cv_wampls))
   expect_true(all(cv_gpr_k_diss))
   expect_true(all(cv_pls_k_diss))
   expect_true(all(cv_wapls_k_diss))
