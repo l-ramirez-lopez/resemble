@@ -19,8 +19,8 @@ It uses correlation bteween response and predictors to derive the PLS weights.
 - pls_proection() now includes a new argument (method) to allow the user to select 
 between the standard pls algorithm and a modified pls algorithm.
 
-- ortho_diss() and dissimilarity() functions include a new dissimilarity method: 
-"mpls" (modified pls).
+- ortho_diss(), dissimilarity() and search_neighbors() functions include a new 
+dissimilarity method: "mpls" (modified pls).
 
 
 ## resemble 2.0 (gordillo)
