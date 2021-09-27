@@ -16,7 +16,7 @@
 #'     diss_method = "pca", diss_usage = "predictors",
 #'     gh = TRUE, pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
 #'     control = mbl_control(), group = NULL,
-#'     center = TRUE, scale = FALSE, verbose = TRUE, 
+#'     center = TRUE, scale = FALSE, verbose = TRUE, seed = NULL, 
 #'     documentation = character(), ...)
 #'
 #' @param Xr a matrix of predictor variables of the reference data
@@ -181,6 +181,10 @@
 #' @param verbose a logical indicating whether or not to print a progress bar
 #' for each observation to be predicted. Default is \code{TRUE}. Note: In case
 #' parallel processing is used, these progress bars will not be printed.
+#' @param seed an integer value containing the random number generator (RNG) 
+#' state for random number generation. This argument can be used for 
+#' reproducibility purposes (for random sampling) in the cross-validation 
+#' results. Default is \code{NULL}, i.e. no RNG is applied.
 #' @param documentation an optional character string that can be used to
 #' describe anything related to the \code{mbl} call (e.g. description of the
 #' input data). Default: \code{character()}. NOTE: his is an experimental
@@ -348,8 +352,9 @@
 #'    function.
 #'    See \code{.local} argument in the \code{\link{ortho_diss}} function.}
 #'    }
-#'  \item{\code{documentation}}{ A character string with the documentation
-#'  added.}
+#'  \item{\code{seed}}{ a value mirroing the one passed to seed.}
+#'  \item{\code{documentation}:}{ a character string mirroring the one provided
+#'  in the \code{documentation} argument.}
 #'  }
 #' When the \code{k_diss} argument is used, the printed results show a table
 #' with a column named '\code{p_bounded}. It represents the percentage of
@@ -669,6 +674,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
                 scale = FALSE,
                 verbose = TRUE,
                 documentation = character(),
+                seed = NULL, 
                 ...) {
   f_call <- match.call()
 
@@ -1208,6 +1214,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
           range_prediction_limits = control$range_prediction_limits,
           pls_max_iter = 1,
           pls_tol = 1e-6, 
+          seed = seed,
           modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
         )
 
@@ -1264,7 +1271,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
             tune = FALSE,
             range_prediction_limits = control$range_prediction_limits,
             pls_max_iter = 1,
-            pls_tol = 1e-6, 
+            pls_tol = 1e-6,
+            seed = seed,
             modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
           )$prediction
 
@@ -1477,7 +1485,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       Yu_prediction_statistics = pred_res
     ),
     results = results_table,
-    documentation = documentation
+    documentation = documentation, 
+    seed = seed
   )
 
   attr(results_list, "call") <- f_call
