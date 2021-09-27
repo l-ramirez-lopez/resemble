@@ -146,9 +146,10 @@ pls_cv <- function(x, y, ncomp,
                    retrieve = TRUE,
                    tune = TRUE,
                    max_iter = 1, tol = 1e-6, 
+                   seed = NULL,
                    modified = FALSE) {
   min_allowed <- (floor(min(ncol(x), nrow(x)) * p)) - 1
-
+  
   if (min_allowed < ncomp) {
     ncomp <- min_allowed
   }
@@ -164,9 +165,10 @@ pls_cv <- function(x, y, ncomp,
     p = p,
     number = number,
     group = group,
-    replacement = FALSE
+    replacement = FALSE,
+    seed = seed
   )
-
+  
   if (method == "wapls" & retrieve & tune) {
     pls_c <- c(min_component, ncomp)
     seq_pls <- min(pls_c):max(pls_c)
@@ -182,7 +184,7 @@ pls_cv <- function(x, y, ncomp,
     search_grid <- matrix(0, 0, 0)
     fit_method <- method
   }
-
+  
   cv_results <- opls_cv_cpp(
     X = x,
     Y = y,
@@ -198,10 +200,10 @@ pls_cv <- function(x, y, ncomp,
     wapls_grid = search_grid, 
     algorithm = algorithm
   )
-
+  
   val <- NULL
   val$resamples <- cv_samples$hold_out
-
+  
   if (method == "pls") {
     val$cv_results <- data.table(
       npls = 1:ncomp,
@@ -212,7 +214,7 @@ pls_cv <- function(x, y, ncomp,
     )
     best_pls_c <- val$cv_results$npls[which(val$cv_results$rmse_cv == min(val$cv_results$rmse_cv))]
     val$best_pls_c <- best_pls_c
-
+    
     if (retrieve) {
       if (!is.null(weights)) {
         x <- sweep(x, 1, weights, "*")
@@ -241,7 +243,7 @@ pls_cv <- function(x, y, ncomp,
       }
     }
   }
-
+  
   if (method == "wapls" & retrieve & !tune) {
     val$compweights <- cv_results$compweights
     val$cv_results <- data.table(
@@ -252,8 +254,8 @@ pls_cv <- function(x, y, ncomp,
       rmse_sd_cv = sd(cv_results$rmse_seg),
       r2_cv = mean(cv_results$rsq_seg)
     )
-
-
+    
+    
     if (!is.null(weights)) {
       x <- sweep(x, 1, weights, "*") ### MODIFIED
       y <- y * weights
@@ -268,30 +270,30 @@ pls_cv <- function(x, y, ncomp,
       algorithm = algorithm
     )
   }
-
+  
   if (method == "wapls" & retrieve & tune) {
     val$cv_results <- data.table(search_grid,
-      rmse_cv = rowMeans(cv_results$rmse_seg),
-      st_rmse_cv = rowMeans(cv_results$st_rmse_seg),
-      rmse_sd_cv = get_col_sds(t(cv_results$rmse_seg)),
-      r2_cv = rowMeans(cv_results$rsq_seg)
+                                 rmse_cv = rowMeans(cv_results$rmse_seg),
+                                 st_rmse_cv = rowMeans(cv_results$st_rmse_seg),
+                                 rmse_sd_cv = get_col_sds(t(cv_results$rmse_seg)),
+                                 r2_cv = rowMeans(cv_results$rsq_seg)
     )
     opmls <- which.min(val$cv_results$rmse_cv)
     val$best_pls_c$min_component <- val$cv_results$min_component[opmls]
     val$best_pls_c$max_component <- val$cv_results$max_component[opmls]
     val$compweights <- cv_results$compweights
-
-
+    
+    
     if (!is.null(weights)) {
       x <- sweep(x, 1, weights, "*")
       y <- y * weights
     }
-
+    
     tmp_compweights <- val$compweights[val$best_pls_c$min_component:val$best_pls_c$max_component]
     val$compweights[] <- 0
     tmp_compweights <- tmp_compweights / sum(tmp_compweights)
     val$compweights[val$best_pls_c$min_component:val$best_pls_c$max_component] <- tmp_compweights
-
+    
     val$models <- opls_get_basics(
       X = x,
       Y = y,
@@ -638,7 +640,7 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
                             tune = FALSE, number = 10, p = 0.75,
                             group = NULL, noise_variance = 0.001,
                             range_prediction_limits = TRUE,
-                            pls_max_iter = 1, pls_tol = 1e-6, modified = FALSE) {
+                            pls_max_iter = 1, pls_tol = 1e-6, modified = FALSE, seed = NULL) {
   if (is.null(weights)) {
     weights <- 1
   }
@@ -666,7 +668,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
         p = p,
         number = number,
         group = group,
-        retrieve = "final_model"
+        retrieve = "final_model", 
+        seed = seed
       )
       fit <- cv_val$model
     } else {
@@ -708,7 +711,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
         tune = tune,
         max_iter = pls_max_iter,
         tol = pls_tol, 
-        modified = modified
+        modified = modified, 
+        seed = seed
       )
       fit <- cv_val$models
       ncomp <- cv_val$best_pls_c
@@ -754,7 +758,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
         tune = tune,
         max_iter = pls_max_iter,
         tol = pls_tol, 
-        modified = modified
+        modified = modified, 
+        seed = seed
       )
 
       fit <- cv_val$models
@@ -834,7 +839,8 @@ gaussian_pr_cv <- function(x,
                            number = 10,
                            group = NULL,
                            noise_variance = 0.001,
-                           retrieve = c("final_model", "none")) {
+                           retrieve = c("final_model", "none"), 
+                           seed = NULL) {
 
   ## Create the resampling groups
   cv_samples <- sample_stratified(
@@ -842,7 +848,8 @@ gaussian_pr_cv <- function(x,
     p = p,
     number = number,
     group = group,
-    replacement = FALSE
+    replacement = FALSE, 
+    seed = seed
   )
 
   cv_results <- gaussian_process_cv(
