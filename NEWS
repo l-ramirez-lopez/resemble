@@ -3,6 +3,14 @@
 ## resemble 2.1 (piapia)
 23.09.2021
 
+### New features
+- A argument named "seed" was added to the mbl function. It is used to gurantee 
+reproducibility of cross-validation results. 
+
+- A modified PLS method was implemented (see local_fit_pls and local_fit_wapls).
+It uses correlation bteween response and predictors to derive the PLS weights. 
+
+
 ## Improvements and fixes
 - A Bug in the computation of the explained variance of X for pls models was 
 detected and fixed. The pls related functions were underestimating the amount 
@@ -12,9 +20,6 @@ reconstructed spectra at each PLS iteration.
 
 - Manual selection of components in pc_projection() and pls_projection() now 
 accepts to select only 1 component (before the minimum was 2).
-
-- A modified PLS method was implemented (see local_fit_pls and local_fit_wapls).
-It uses correlation bteween response and predictors to derive the PLS weights. 
 
 - pls_proection() now includes a new argument (method) to allow the user to select 
 between the standard pls algorithm and a modified pls algorithm.
