@@ -394,7 +394,7 @@
 #'
 #' @seealso \code{\link{mbl_control}}, \code{\link{f_diss}},
 #' \code{\link{cor_diss}}, \code{\link{sid}}, \code{\link{ortho_diss}},
-#' \code{\link{search_neighbors}}
+#' \code{\link{search_neighbors}},  \code{\link{local_fit}}
 #' @examples
 #' \donttest{
 #' library(prospectr)
