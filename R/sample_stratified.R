@@ -29,11 +29,18 @@ sample_stratified <- function(y, p, number, group = NULL, replacement = FALSE, s
   ## On the other hand, if the percentage of samples to build the hold_in subset
   ## is equal or above 50% of the total number of samples, the selection is based
   ## on the number of samples to exclude.
+  
+  machine_precision <- ifelse(
+    is.null(.Machine$sizeof.longdouble) | .Machine$sizeof.longdouble == 0,
+    8, 
+    .Machine$sizeof.longdouble - 2
+  )
+
   if (p < 0.5) {
-    p_to_sample <- p
+    p_to_sample <- round(p, machine_precision)
     do_sampling_for <- "calibration"
   } else {
-    p_to_sample <- 1 - p
+    p_to_sample <- round(1 - p, machine_precision)
     do_sampling_for <- "validation"
   }
   
@@ -211,15 +218,28 @@ sample_stratified <- function(y, p, number, group = NULL, replacement = FALSE, s
 #' to every value.
 #' @param y a matrix of one column with the response variable.
 #' @param n the number of strata.
+#' @param probs the probability distributions to build the strata, 
+#' default is \code{NULL}
 #' @return a data table with the input \code{y} and the corresponding strata to
 #' every value.
 #' @keywords internal
-get_sample_strata <- function(y, n) {
-  y_strata <- unique(quantile(y,
-                              probs = seq(0, 1, length = (n + 1)),
-                              names = FALSE
-  ))
+get_sample_strata <- function(y, n = NULL, probs = NULL) {
   
+  if (!is.null(n) & !is.null(probs)) {
+    stop("both n and probs have been passed to the function, only one of them can be accepted")
+  }
+  
+  if (!is.null(n)) {
+    probs <- seq(0, 1, length = (n + 1))
+  }
+  
+  y_strata <- unique(
+    quantile(
+      y,
+      probs = probs,
+      names = FALSE
+    )
+  )
   
   strata_labels <- 1:(length(y_strata) - 1)
   y_cuts <- cut(y,
@@ -232,6 +252,7 @@ get_sample_strata <- function(y, n) {
     original_order = 1:length(y),
     strata = y_cuts
   )
+  strata_category
 }
 
 
@@ -396,7 +417,11 @@ get_samples_from_strata <- function(original_order,
     keep <- strata_samples[, 1]
     exclude <- original_order[!original_order %in% keep]
     if (replacement) {
-      replacement_indices <- sample(keep, length(original_order) - length(keep), replace = TRUE)
+      browser()
+      
+      # replacement_indices <- sample(keep, length(original_order) - length(keep), replace = TRUE)
+      replacement_indices <- get_quartile_samples(y[keep], n = length(original_order) - length(keep))
+      keep <- c(keep, keep[replacement_indices])
     } else {
       replacement_indices <- NULL
     }
