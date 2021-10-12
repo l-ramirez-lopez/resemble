@@ -29,8 +29,7 @@
 #' algorithm (Shenk and Westerhaus, 1991 and Westerhaus, 2014). Default is 
 #' \code{FALSE}. 
 #' @param tol a numeric value indicating the convergence for calculating the 
-#' scores and loadings in pls models with more than one response variable. 
-#' Default is 1-e6.
+#' scores. Default is 1-e6.
 #' @param max_iter an integer indicating the maximum number of iterations in 
 #' case \code{tol} is not reached. Defaul is 100.
 #' @param noise_variance a numeric value indicating the variance of the noise
