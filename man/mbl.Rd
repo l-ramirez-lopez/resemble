@@ -6,11 +6,10 @@
 \usage{
 mbl(Xr, Yr, Xu, Yu = NULL, k, k_diss, k_range, spike = NULL,
     method = local_fit_wapls(min_pls_c = 3, max_pls_c = min(dim(Xr), 15)),
-    diss_method = "pca", diss_usage = "predictors",
-    gh = TRUE, pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
-    control = mbl_control(), group = NULL,
-    center = TRUE, scale = FALSE, verbose = TRUE, 
-    documentation = character(), ...)
+    diss_method = "pca", diss_usage = "predictors", gh = TRUE, 
+    pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
+    control = mbl_control(), group = NULL, center = TRUE, scale = FALSE,
+    verbose = TRUE, documentation = character(), seed = NULL, ...)
 }
 \arguments{
 \item{Xr}{a matrix of predictor variables of the reference data
@@ -198,6 +197,11 @@ describe anything related to the \code{mbl} call (e.g. description of the
 input data). Default: \code{character()}. NOTE: his is an experimental
 argument.}
 
+\item{seed}{an integer value containing the random number generator (RNG) 
+state for random number generation. This argument can be used for 
+reproducibility purposes (for random sampling) in the cross-validation 
+results. Default is \code{NULL}, i.e. no RNG is applied.}
+
 \item{...}{further arguments to be passed to the \code{\link{dissimilarity}}
 function. See details.}
 }
@@ -291,8 +295,9 @@ a \code{list} of class \code{mbl} with the following components
    function.
    See \code{.local} argument in the \code{\link{ortho_diss}} function.}
    }
- \item{\code{documentation}}{ A character string with the documentation
- added.}
+ \item{\code{seed}}{ a value mirroing the one passed to seed.}
+ \item{\code{documentation}:}{ a character string mirroring the one provided
+ in the \code{documentation} argument.}
  }
 When the \code{k_diss} argument is used, the printed results show a table
 with a column named '\code{p_bounded}. It represents the percentage of
@@ -572,7 +577,7 @@ Infrared Spectroscopy, 5, 223-232.
 \seealso{
 \code{\link{mbl_control}}, \code{\link{f_diss}},
 \code{\link{cor_diss}}, \code{\link{sid}}, \code{\link{ortho_diss}},
-\code{\link{search_neighbors}}
+\code{\link{search_neighbors}},  \code{\link{local_fit}}
 }
 \author{
 \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}

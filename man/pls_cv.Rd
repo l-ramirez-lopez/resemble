@@ -21,6 +21,7 @@ pls_cv(
   tune = TRUE,
   max_iter = 1,
   tol = 1e-06,
+  seed = NULL,
   modified = FALSE
 )
 }

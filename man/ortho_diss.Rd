@@ -137,14 +137,6 @@ via \code{\link[foreach]{foreach}} function of the 'foreach' package.}
 
 \item{...}{additional arguments to be passed to the
 \code{\link{ortho_projection}} function.}
-
-\item{modified}{a logical used when () indicating whether the modified version of the pls 
-algorithm (). If \code{TRUE}, 
-the correlation between \code{Yr} and \code{Xr} (and later their deflated versions 
-corresponding at each pls component iteration) is used to compute the 
-\code{Xr} weights. If \code{FALSE}, the covariance is used instead of 
-correlation (as in the standard method). See \code{\link{local_fit}} for more 
-details.}
 }
 \value{
 a \code{list} of class \code{ortho_diss} with the following elements:

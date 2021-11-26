@@ -7,7 +7,10 @@
 opls_for_projection(X, Y, ncomp, scale,
                     maxiter, tol,
                     pcSelmethod = "var",
-                    pcSelvalue = 0.01)
+                    pcSelvalue = 0.01, 
+                    algorithm = "pls", 
+                    xls_min_w = 3, 
+                    xls_max_w = 15)
 }
 \arguments{
 \item{X}{a matrix of predictor variables.}
@@ -40,7 +43,16 @@ a variance lower than this threshold must be excluded. If \code{'manual'}
 is chosen, \code{pcSelvalue} has no effect and the number of components 
 retrieved are the one specified in \code{ncomp}.}
 
-\item{(for}{weights computation): xls_max_w an integer indicating the maximum window size for the "xls"
+\item{algorithm}{(for weights computation) a character string indicating 
+what method to use. Options are:
+\code{'pls'} for pls (using covariance between X and Y), 
+\code{'mpls'} for modified pls (using correlation between X and Y) or
+\code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).}
+
+\item{xls_min_w}{(for weights computation) an integer indicating the minimum window size for the "xls"
+method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).}
+
+\item{xls_max_w}{(for weights computation) an integer indicating the maximum window size for the "xls"
 method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).}
 }
 \value{

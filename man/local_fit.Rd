@@ -27,8 +27,7 @@ algorithm (Shenk and Westerhaus, 1991 and Westerhaus, 2014). Default is
 case \code{tol} is not reached. Defaul is 100.}
 
 \item{tol}{a numeric value indicating the convergence for calculating the 
-scores and loadings in pls models with more than one response variable. 
-Default is 1-e6.}
+scores. Default is 1-e6.}
 
 \item{min_pls_c}{an integer indicating the minimum number of pls components
 to be used in the local regressions when the weighted average partial least

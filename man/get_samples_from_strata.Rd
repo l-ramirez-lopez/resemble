@@ -5,6 +5,7 @@
 \title{A function for stratified calibration/validation sampling}
 \usage{
 get_samples_from_strata(
+  y,
   original_order,
   strata,
   samples_per_strata,

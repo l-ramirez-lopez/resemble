@@ -5,8 +5,8 @@
 \title{A function for searching in a given reference set the neighbors of
 another given set of observations (search_neighbors)}
 \usage{
-search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "cor",
-                                         "euclid", "cosine", "sid"),
+search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "mpls", 
+                                         "cor", "euclid", "cosine", "sid"),
                  Yr = NULL, k, k_diss, k_range, spike = NULL,
                  pc_selection = list("var", 0.01),
                  return_projection = FALSE, return_dissimilarity = FALSE,
