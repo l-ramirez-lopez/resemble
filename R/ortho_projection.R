@@ -612,8 +612,8 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
 #' @export pls_projection
 pls_projection <- function(Xr, Xu = NULL, Yr,
                            pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
-                           method = "pls",
                            scale = FALSE,
+                           method = "pls",
                            tol = 1e-6, max_iter = 1000, ...) {
   pc_selection_method <- pc_selection[[1]]
   match.arg(pc_selection_method, c("opc", "var", "cumvar", "manual"))
@@ -857,7 +857,7 @@ predict.ortho_projection <- function(object, newdata, ...) {
       newdata <- sweep(newdata, MARGIN = 2, FUN = "/", STATS = object$scale)
       return(newdata %*% t(object$X_loadings))
     } else {
-      predpoj <- resemble:::project_opls(
+      predpoj <- project_opls(
         projection_mat = object$projection_mat,
         ncomp = ncol(object$projection_mat),
         newdata = newdata,
