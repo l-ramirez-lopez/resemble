@@ -13,7 +13,8 @@ gaussian_pr_cv(
   number = 10,
   group = NULL,
   noise_variance = 0.001,
-  retrieve = c("final_model", "none")
+  retrieve = c("final_model", "none"),
+  seed = NULL
 )
 }
 \description{
