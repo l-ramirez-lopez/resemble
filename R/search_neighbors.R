@@ -5,8 +5,8 @@
 #' This function searches in a reference set the neighbors of the observations
 #' provided  in another set.
 #' @usage
-#' search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "cor",
-#'                                          "euclid", "cosine", "sid"),
+#' search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "mpls", 
+#'                                          "cor", "euclid", "cosine", "sid"),
 #'                  Yr = NULL, k, k_diss, k_range, spike = NULL,
 #'                  pc_selection = list("var", 0.01),
 #'                  return_projection = FALSE, return_dissimilarity = FALSE,
