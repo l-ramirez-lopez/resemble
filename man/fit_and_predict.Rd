@@ -21,7 +21,8 @@ fit_and_predict(
   range_prediction_limits = TRUE,
   pls_max_iter = 1,
   pls_tol = 1e-06,
-  modified = FALSE
+  modified = FALSE,
+  seed = NULL
 )
 }
 \description{
