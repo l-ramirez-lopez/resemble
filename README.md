@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-_Last update: 09.11.2020_
+_Last update: 26.11.2021_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -292,6 +292,7 @@ prospectr package) is used.
 ## Other R'elated stuff
 * [Check our other project called `prospectr`.](https://github.com/l-ramirez-lopez/prospectr)
 * [Check this presentation in which we used the resemble package to predict soil attributes from large scale soil spectral libraries.](http://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
+            https://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf
 
 ## Bug report and development version
 
