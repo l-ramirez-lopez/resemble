@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // fast_diss
 arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method);
 RcppExport SEXP _resemble_fast_diss(SEXP XSEXP, SEXP YSEXP, SEXP methodSEXP) {
@@ -281,8 +286,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // opls_cv_cpp
-List opls_cv_cpp(arma::mat X, arma::mat Y, bool scale, String method, arma::mat mindices, arma::mat pindices, int min_component, int ncomp, arma::mat new_x, double maxiter, double tol, arma::mat wapls_grid, String algorithm);
-RcppExport SEXP _resemble_opls_cv_cpp(SEXP XSEXP, SEXP YSEXP, SEXP scaleSEXP, SEXP methodSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP min_componentSEXP, SEXP ncompSEXP, SEXP new_xSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP wapls_gridSEXP, SEXP algorithmSEXP) {
+List opls_cv_cpp(arma::mat X, arma::mat Y, bool scale, String method, arma::mat mindices, arma::mat pindices, int min_component, int ncomp, arma::mat new_x, double maxiter, double tol, arma::mat wapls_grid, String algorithm, bool statistics);
+RcppExport SEXP _resemble_opls_cv_cpp(SEXP XSEXP, SEXP YSEXP, SEXP scaleSEXP, SEXP methodSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP min_componentSEXP, SEXP ncompSEXP, SEXP new_xSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP wapls_gridSEXP, SEXP algorithmSEXP, SEXP statisticsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -299,7 +304,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type wapls_grid(wapls_gridSEXP);
     Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
-    rcpp_result_gen = Rcpp::wrap(opls_cv_cpp(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm));
+    Rcpp::traits::input_parameter< bool >::type statistics(statisticsSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls_cv_cpp(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -336,8 +342,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // gaussian_process_cv
-List gaussian_process_cv(arma::mat X, arma::mat Y, arma::mat mindices, arma::mat pindices, float noisev, bool scale);
-RcppExport SEXP _resemble_gaussian_process_cv(SEXP XSEXP, SEXP YSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP noisevSEXP, SEXP scaleSEXP) {
+List gaussian_process_cv(arma::mat X, arma::mat Y, arma::mat mindices, arma::mat pindices, float noisev, bool scale, bool statistics);
+RcppExport SEXP _resemble_gaussian_process_cv(SEXP XSEXP, SEXP YSEXP, SEXP mindicesSEXP, SEXP pindicesSEXP, SEXP noisevSEXP, SEXP scaleSEXP, SEXP statisticsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -347,7 +353,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type pindices(pindicesSEXP);
     Rcpp::traits::input_parameter< float >::type noisev(noisevSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(gaussian_process_cv(X, Y, mindices, pindices, noisev, scale));
+    Rcpp::traits::input_parameter< bool >::type statistics(statisticsSEXP);
+    rcpp_result_gen = Rcpp::wrap(gaussian_process_cv(X, Y, mindices, pindices, noisev, scale, statistics));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -390,10 +397,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_predict_opls", (DL_FUNC) &_resemble_predict_opls, 6},
     {"_resemble_project_opls", (DL_FUNC) &_resemble_project_opls, 6},
     {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 6},
-    {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 13},
+    {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 14},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},
     {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
-    {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 6},
+    {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 7},
     {"_resemble_pca_nipals", (DL_FUNC) &_resemble_pca_nipals, 8},
     {NULL, NULL, 0}
 };
