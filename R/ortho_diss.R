@@ -114,13 +114,6 @@
 #' scaled. If \code{Xu} is provided the data is scaled based on the standard
 #' deviation of the the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}).
 #' if \code{center = TRUE}, scaling is applied after centering.
-#' @param modified a logical used when () indicating whether the modified version of the pls 
-#' algorithm (). If \code{TRUE}, 
-#' the correlation between \code{Yr} and \code{Xr} (and later their deflated versions 
-#' corresponding at each pls component iteration) is used to compute the 
-#' \code{Xr} weights. If \code{FALSE}, the covariance is used instead of 
-#' correlation (as in the standard method). See \code{\link{local_fit}} for more 
-#' details.
 #' @param compute_all a logical. In case \code{Xu} is specified it indicates
 #' whether or not the distances between all the elements resulting from the
 #' pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu} must be computed).
@@ -307,8 +300,8 @@ ortho_diss <- function(Xr, Xu = NULL,
   if (!is.null(Yr)) {
     Yr <- as.matrix(Yr)
   } else {
-    if (pc_selection[[1]] == "opc" | diss_method == "pls") {
-      stop("Yr must be provided when the 'opc' is used in pc_selection is used or diss_method = 'pls'")
+    if (pc_selection[[1]] == "opc" | diss_method %in% c("pls", "mpls")) {
+      stop("Yr must be provided when the 'opc' is used in pc_selection is used or diss_method is one of 'pls' or 'mpls'")
     }
   }
 
