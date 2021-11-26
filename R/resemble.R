@@ -22,7 +22,7 @@
 #'
 #' @details
 #'
-#' This is the version \code{2.0} (\code{'gordillo'}) of the package. It
+#' This is the version \code{2.1} (\code{'piapia'}) of the package. It
 #' implements a number of \code{R} functions useful for
 #' modeling complex spectral spectra (e.g. NIR, IR).
 #' The package includes functions for dimensionality reduction,
