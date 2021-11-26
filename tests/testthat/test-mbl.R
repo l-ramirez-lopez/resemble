@@ -265,12 +265,12 @@ test_that("mbl delivers expeted results", {
   
   
   cv_mpls <- c(
-    mpls$validation_results$local_cross_validation$rmse < 1.7,
+    mpls$validation_results$local_cross_validation$rmse < 1.8,
     mpls$validation_results$local_cross_validation$rmse > 1.5
   )
   
   cv_wampls <- c(
-    wampls$validation_results$local_cross_validation$rmse < 1.65,
+    wampls$validation_results$local_cross_validation$rmse < 1.68,
     wampls$validation_results$local_cross_validation$rmse > 1.45
   )
 
