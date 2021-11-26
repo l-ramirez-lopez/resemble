@@ -19,6 +19,7 @@ and the response variable must be scaled to zero mean and unit variance.}
 \value{
 a list containing the following elements:
 \itemize{
+\item{\code{b}}{ the regression coefficients.}
 \item{\code{Xz}}{ the (final transformed) matrix of predictor variables.}
 \item{\code{alpha}}{ the alpha matrix.}
 \item{\code{is.scaled}}{ logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
