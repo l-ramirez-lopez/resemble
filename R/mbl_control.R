@@ -2,7 +2,7 @@
 #' process in the \code{mbl} function
 #' @description
 #'
-#' \lifecycle{maturing}
+#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#experimental'><img src='figures/lifecycle-maturing.svg' alt='Experimental lifecycle'></a>}}{\strong{Maturing}}
 #'
 #' \loadmathjax
 #' This function is used to further control some aspects of the memory-based
