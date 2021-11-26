@@ -13,11 +13,10 @@
 #' @usage
 #' mbl(Xr, Yr, Xu, Yu = NULL, k, k_diss, k_range, spike = NULL,
 #'     method = local_fit_wapls(min_pls_c = 3, max_pls_c = min(dim(Xr), 15)),
-#'     diss_method = "pca", diss_usage = "predictors",
-#'     gh = TRUE, pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
-#'     control = mbl_control(), group = NULL,
-#'     center = TRUE, scale = FALSE, verbose = TRUE, seed = NULL, 
-#'     documentation = character(), ...)
+#'     diss_method = "pca", diss_usage = "predictors", gh = TRUE, 
+#'     pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
+#'     control = mbl_control(), group = NULL, center = TRUE, scale = FALSE,
+#'     verbose = TRUE, documentation = character(), seed = NULL, ...) 
 #'
 #' @param Xr a matrix of predictor variables of the reference data
 #' (observations in rows and variables in columns).
