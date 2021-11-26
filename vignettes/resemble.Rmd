@@ -292,7 +292,7 @@ plot(pca_tr, col = "#D42B08CC")
 ```
 
 The code above shows that in this dataset, `r pca_tr$n_components` components 
-are required to explain around `r round(100 * sum(pca_tr$variance[2,]), 0)`% of 
+are required to explain around `r round(100 * sum(pca_tr$variance$x_var[2,]), 0)`% of 
 the original variance found in the spectra (Figure \@ref(fig:plotpcsvariance)).
 
 Equivalent results can be obtained with the NIPALS algorithm:
