@@ -248,6 +248,10 @@ dissimilarity <- function(Xr,
   ## - group function to be passed to the opc methods?
 
   result <- list(dissimilarity = NULL)
+  # Mahalanobis is excluded from this list because when used on matrices with 
+  # highly correlated variables, it returns singular covariance matrices. So it
+  # need to be prevented as it doe snot really make sense to compute mahalanobis 
+  # on the raw spectra
   avalmethods <- c(
     "pca",
     "pca.nipals",
