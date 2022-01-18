@@ -1,8 +1,8 @@
 Package: resemble
 Type: Package
 Title: Memory-Based Learning in Spectral Chemometrics
-Version: 2.1.1
-Date: 2020-10-29
+Version: 2.1.2
+Date: 2022-01-17
 Author: Leonardo Ramirez-Lopez [aut, cre], 
     Antoine Stevens [aut, ctb],
     Claudio Orellano [ctb],
