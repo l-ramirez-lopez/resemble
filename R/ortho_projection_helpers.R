@@ -134,10 +134,10 @@ check_pc_arguments <- function(n_rows_x, n_cols_x, pc_selection,
       if (!is.numeric(pc_selection_checked$value)) {
         stop("The second value in pc_selection must be an integer value")
       }
-      if (pc_selection_checked$value < 2 | pc_selection_checked$value > min(n_rows_x, n_cols_x)) {
+      if (pc_selection_checked$value < 1 | pc_selection_checked$value > min(n_rows_x, n_cols_x)) {
         stop(paste(
-          "The maximum number of principal components must be a value ",
-          " between 2 and", min(n_rows_x, n_cols_x)
+          "The maximum number of principal components must be a value",
+          " between 1 and", min(n_rows_x, n_cols_x)
         ))
       }
     }

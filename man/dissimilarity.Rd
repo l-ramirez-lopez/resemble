@@ -5,7 +5,7 @@
 \title{Dissimilarity computation between matrices}
 \usage{
 dissimilarity(Xr, Xu = NULL,
-              diss_method = c("pca", "pca.nipals", "pls",
+              diss_method = c("pca", "pca.nipals", "pls", "mpls",
                               "cor", "euclid", "cosine", "sid"),
               Yr = NULL, gh = FALSE, pc_selection = list("var", 0.01),
               return_projection = FALSE, ws = NULL,
@@ -36,6 +36,12 @@ compute the dissimilarities between observations. Options are:
 
        \item{\code{"pls"}}:{ Mahalanobis distance
        computed on the matrix of scores of a partial least squares projection
+       of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
+       always required. See \code{\link{ortho_diss}} function.}
+       
+       \item{\code{"mpls"}}:{ Mahalanobis distance
+       computed on the matrix of scores of a modified partial least squares 
+       projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
        always required. See \code{\link{ortho_diss}} function.}
 
@@ -158,7 +164,8 @@ A list with the following components:
 
        \item{\code{projection}:}{ an \code{ortho_projection} object. Only output
        if \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-       \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
+       \code{diss_method = "pca.nipals"},  \code{diss_method = "pls"} or  
+       \code{diss_method = "mpls"}.
 
        This object contains the projection used to compute
        the dissimilarity matrix. In case of local dissimilarity matrices,
@@ -213,6 +220,15 @@ dsm_pca <- dissimilarity(
   pc_selection = list("opc", 30),
   return_projection = TRUE
 )
+}
+\references{
+Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
+calibration procedure for near infrared instruments. Journal of Near Infrared
+Spectroscopy, 5, 223-232.
+
+Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding 
+Wachievements in near infrared spectroscopy: my contributions to 
+Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 }
 \seealso{
 \code{\link{ortho_diss}} \code{\link{cor_diss}} \code{\link{f_diss}}

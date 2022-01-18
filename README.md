@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-_Last update: 09.11.2020_
+_Last update: 26.11.2021_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -20,7 +20,7 @@ orthogonal projections in spectral data.
 
 ## Vignette
 A new vignette for `resemble` explaining its core functionality is available 
-at: https://cran.r-project.org/web/packages/resemble/vignettes/resemble.html
+at: https://CRAN.R-project.org/package=prospectr/vignettes/prospectr.html
 
 ## Core functionality 
 
@@ -207,7 +207,7 @@ Franceschini, M. H. D., Terra, F. S., Marques, K. P. P., Sayão, V. M., &
 Demattê, J. A. M. (2019). Robust soil mapping at the farm scale with vis–NIR 
 spectroscopy. European Journal of Soil Science. 70, 378–393).
 
-* 2019-01: [In this scientific paper](https://www.mdpi.com/2571-8789/3/1/11/htm) 
+* 2019-01: [In this scientific paper](https://doi.org/10.3390/soilsystems3010011) 
 we use `resemble` to model MIR spectra from a continental soil spectral library 
 in United States. (Dangal, S.R., Sanderman, J., Wills, S. and Ramirez-Lopez, 
 L., 2019. Accurate and Precise Prediction of Soil Properties from a Large
@@ -232,8 +232,10 @@ Simó, J. (2018). The Spanish core collection of common beans (Phaseolus
 vulgaris L.): an important source of variability for breeding chemical 
 composition. Frontiers in Plant Science, 9).
 
-* 2018-07: Another use-case of `resemble` is presented by [Gholizadeh et al.(2018)](https://www.mdpi.com/2072-4292/10/8/1172/htm) for a soil science 
-application in Czech Republic. (Gholizadeh, A., Saberioon, M., Carmon, N., 
+* 2018-07: Another use-case of `resemble` is presented by 
+[Gholizadeh et al.(2018)](https://doi.org/10.3390/rs10081172) 
+for a soil science application in Czech Republic. 
+(Gholizadeh, A., Saberioon, M., Carmon, N., 
 Boruvka, L. and Ben-Dor, E., 2018. Examining the Performance of PARACUDA-II 
 Data-Mining Engine versus Selected Techniques to Model Soil Carbon from 
 Reflectance Spectra. Remote Sensing, 10(8), p.1172).
@@ -256,7 +258,7 @@ Saby, N. P., Bernoux, M., & Barthès, B. G. (2016). National calibration of soil
 organic carbon concentration using diffuse infrared reflectance spectroscopy. 
 Geoderma, 276, 41-52).
 
-* 2016-04: [This paper](https://www.mdpi.com/2072-4292/8/4/341) shows some 
+* 2016-04: [This paper](https://doi.org/10.3390/rs8040341) shows some 
 interesting results on applying memory-based learning to predict soil properties.
 
 * 2016-04: In some recent entries of [this blog](http://nir-quimiometria.blogspot.com/), 
@@ -291,7 +293,8 @@ prospectr package) is used.
 
 ## Other R'elated stuff
 * [Check our other project called `prospectr`.](https://github.com/l-ramirez-lopez/prospectr)
-* [Check this presentation in which we used the resemble package to predict soil attributes from large scale soil spectral libraries.](http://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
+* [Check this presentation in which we used the resemble package to predict soil attributes from large scale soil spectral libraries.](https://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
+            https://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf
 
 ## Bug report and development version
 

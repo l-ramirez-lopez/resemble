@@ -1,14 +1,15 @@
 Package: resemble
 Type: Package
 Title: Memory-Based Learning in Spectral Chemometrics
-Version: 2.0.0
-Date: 2020-10-29
+Version: 2.1.2
+Date: 2022-01-17
 Author: Leonardo Ramirez-Lopez [aut, cre], 
     Antoine Stevens [aut, ctb],
+    Claudio Orellano [ctb],
     Raphael Viscarra Rossel [ctb],
+    Zefang Shen [ctb],
     Craig Lobsey [ctb], 
-    Alex Wadoux [ctb],
-    Timo Breure [ctb]
+    Alex Wadoux [ctb]
 Maintainer: 
     Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: 
@@ -47,5 +48,5 @@ VignetteBuilder: knitr
 NeedsCompilation: yes
 LazyData: true
 Repository: CRAN
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Encoding: UTF-8

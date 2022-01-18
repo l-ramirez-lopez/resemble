@@ -292,7 +292,7 @@ plot(pca_tr, col = "#D42B08CC")
 ```
 
 The code above shows that in this dataset, `r pca_tr$n_components` components 
-are required to explain around `r round(100 * sum(pca_tr$variance[2,]), 0)`% of 
+are required to explain around `r round(100 * sum(pca_tr$variance$x_var[2,]), 0)`% of 
 the original variance found in the spectra (Figure \@ref(fig:plotpcsvariance)).
 
 Equivalent results can be obtained with the NIPALS algorithm:
@@ -996,19 +996,19 @@ ev[["sinfd"]] <- sim_eval(sinfd$dissimilarity, side_info = Ciso)
 ```
 
 
-```{r, results = 'hide', eval = TRUE, echo = FALSE}
-fig_cap <- paste("Comparison between observations and their corresponding 
-                 nearest neighbor (1-NN)","observation in terms of Tocal Carbon (Ciso). The 1-NNs",
-                 "are retrieved with the", 
-                 "following dissimilarity merics:",
-                 "pcad: PC dissimilarity with default settings (variance-based of components);",
-                 "plsd: PLS dissimilarity with default settings (variance-based of components);",
-                 "o_pcad: PC dissimilarity with optimal selection of components;",  
-                 "o_plsd: PLS dissimilarity with optimal selection of components;",  
-                 "cd: Correlation dissimilarity;",  
-                 "mcd: Moving window correlation dissimilarity;",  
-                 "ed: Euclidean dissimilarity;",  
-                 "sinfd: Spectral information divergence/dissimilarity.")
+```{r fcaption, results = 'hide', eval = TRUE, echo = FALSE}
+fig_cap <- paste("Comparison between observations and their corresponding",
+      "nearest neighbor (1-NN)","observation in terms of Total Carbon (Ciso). The 1-NNs",
+      "are retrieved with the", 
+      "following dissimilarity metrics:",
+      "pcad: PC dissimilarity with default settings (variance-based of components);",
+      "plsd: PLS dissimilarity with default settings (variance-based of components);",
+      "o-pcad: PC dissimilarity with optimal selection of components;",  
+      "o-plsd: PLS dissimilarity with optimal selection of components;",  
+      "cd: Correlation dissimilarity;",  
+      "mcd: Moving window correlation dissimilarity;",  
+      "ed: Euclidean dissimilarity;",  
+      "sinfd: Spectral information divergence.", collapse = "")
 ```
 Table \@ref(tab:tcomparisons) and Figure \@ref(fig:pcomparisons) show the 
 results of the comparisons (for the training dataset) between the Total Carbon 
@@ -1359,11 +1359,9 @@ collection of less complex local (or locally stable) approximations
 a set of $m$ observations from their explanatory variables $X$, a set of $m$ 
 functions are required to be fitted. This can be described as:
 
-$$\hat{y}_i = \hat{f}_i(x_i;\theta_i) + \varepsilon_{i} \; \forall \; i = \{1, ..., m\}$$
+$$\hat{y}_i = \hat{f}_i(x_i;\theta_i) \; \forall \; i = \{1, ..., m\}$$
 where $\theta_{i}$ represents a set of particular parameters required to 
-fit $\hat{f}_i$ (e.g. number of factors in a PLS model), and $\varepsilon_{i}$ 
-is a residual error term from the fitting of $\hat{y}_{i}$ in the $i$th 
-neighborhood. Therefore, MBL in the above example can be described broadly as:
+fit $\hat{f}_i$ (e.g. number of factors in a PLS model). Therefore, MBL in the above example can be described broadly as:
 
 $$\hat{f} = \{\hat{f}_1,...,\hat{f}_m\}$$
 Figure \@ref(fig:mblgif) illustrates the basic steps in MBL for a set of five 

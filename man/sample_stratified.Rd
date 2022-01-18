@@ -3,9 +3,9 @@
 \name{sample_stratified}
 \alias{sample_stratified}
 \title{A function to create calibration and validation sample sets for
-leave-group-out and bootstraping cross-validation}
+leave-group-out cross-validation}
 \usage{
-sample_stratified(y, p, number, group = NULL, replacement = FALSE)
+sample_stratified(y, p, number, group = NULL, replacement = FALSE, seed = NULL)
 }
 \arguments{
 \item{y}{a matrix of one column with the response variable.}
@@ -20,6 +20,8 @@ observation belongs to.}
 
 \item{replacement}{A logical indicating sample replacements for the
 calibration set are required.}
+
+\item{seed}{an integer for random number generator (default \code{NULL}).}
 }
 \value{
 a list with two matrices (\code{hold_in} and
@@ -32,7 +34,6 @@ values of a continuous response variable (y). If group is provided, the
 sampling is done based on the groups and the average of y per group. This
 function is used to create calibration and validation groups for
 leave-group-out cross-validations (or
-leave-group-of-groups-out cross-validation if group argument is provided)
-and/or bootstrapping.
+leave-group-of-groups-out cross-validation if group argument is provided).
 }
 \keyword{internal}

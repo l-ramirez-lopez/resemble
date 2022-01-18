@@ -4,7 +4,7 @@
 \alias{get_sample_strata}
 \title{A function to assign values to sample distribution strata}
 \usage{
-get_sample_strata(y, n)
+get_sample_strata(y, n = NULL, probs = NULL)
 }
 \arguments{
 \item{y}{a matrix of one column with the response variable.}

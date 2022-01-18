@@ -5,8 +5,8 @@
 \title{A function for searching in a given reference set the neighbors of
 another given set of observations (search_neighbors)}
 \usage{
-search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "cor",
-                                         "euclid", "cosine", "sid"),
+search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "mpls", 
+                                         "cor", "euclid", "cosine", "sid"),
                  Yr = NULL, k, k_diss, k_range, spike = NULL,
                  pc_selection = list("var", 0.01),
                  return_projection = FALSE, return_dissimilarity = FALSE,
@@ -40,6 +40,12 @@ to be used in the selection of the nearest neighbors of each observation.
        computed on the matrix of scores of a partial least squares projection
        of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
        See \code{\link{ortho_diss}} function.}
+       
+       \item{\code{"mpls"}}:{ Mahalanobis distance
+       computed on the matrix of scores of a modified partial least squares 
+       projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
+       of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
+       always required. See \code{\link{ortho_diss}} function.}
 
        \item{\code{"cor"}}{ correlation coefficient
        between observations. See \code{\link{cor_diss}} function.}

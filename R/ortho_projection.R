@@ -23,7 +23,7 @@
 #'
 #' pls_projection(Xr, Xu = NULL, Yr,
 #'                pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
-#'                scale = FALSE,
+#'                scale = FALSE, method = "pls",
 #'                tol = 1e-6, max_iter = 1000, ...)
 #'
 #' \method{predict}{ortho_projection}(object, newdata, ...)
@@ -47,6 +47,7 @@
 #' \item{\code{"pca.nipals"}:}{ principal component analysis using the
 #' non-linear iterative partial least squares algorithm.}
 #' \item{\code{"pls"}:}{ partial least squares.}
+#' \item{\code{"mpls"}:}{ modified partial least squares. See details.}
 #' }
 #' @param pc_selection a list of length 2 which specifies the method to be used
 #' for optimizing the number of components (principal components or pls factors)
@@ -128,10 +129,20 @@
 #' When \code{method = "pca.nipals"}, the algorithm used for principal component
 #' analysis is the non-linear iterative partial least squares (nipals).
 #'
-#' In the case of the of the partial least squares projection (a.k.a projection
-#' to latent structures) the nipals regression algorithm is used. Details on the "nipals"
-#' algorithm are presented in Martens (1991).
 #'
+#' In the case of the of the partial least squares projection (a.k.a projection
+#' to latent structures) the nipals regression algorithm is used by default. 
+#' Details on the "nipals" algorithm are presented in Martens (1991). Another 
+#' method called modified pls (\code{'mpls'}) can also be used. The modified 
+#' pls was proposed Shenk and Westerhaus (1991, see also Westerhaus, 2014) and it 
+#' differs from the standard pls method in the way the weights of the \code{Xr} 
+#' (used to compute the matrix of scores) are obtained. While pls uses the covariance 
+#' between  \code{Yr} and \code{Xr} (and later their deflated versions 
+#' corresponding at each pls component iteration) to obtain these weights, the modified pls 
+#' uses the correlation as weights. The authors indicate that by using correlation,
+#' a larger potion of the response variable(s) can be explained. 
+#' 
+#' 
 #' When \code{method = "opc"}, the selection of the components is carried out by
 #' using an iterative method based on the side information concept
 #' (Ramirez-Lopez et al. 2013a, 2013b). First let be \mjeqn{P}{P} a sequence of
@@ -166,17 +177,20 @@
 #'  \item{\code{projection_mat}}{ a matrix that can be used to project new data
 #'  onto a "pls" space. This object is only returned if the "pls" algorithm was
 #'  used.}
-#'  \item{\code{variance}}{ a matrix indicating the standard deviation of each
-#'  component (sd), the variance explained by each single component
-#'  (explained_var) and the cumulative explained variance
-#'  (cumulative_explained_var). These values are
-#'  computed based on the data used to create the projection matrices.
-#'  For example if the "pls" method was used, then these values are computed
-#'  based only on the data that contains information on \code{Yr} (i.e. the
-#'  \code{Xr} data). If the principal component method is used, the this data is
-#'  computed on the basis of \code{Xr} and \code{Xu} (if it applies) since both
-#'  matrices are employed in the computation of the projection matrix (loadings
-#'  in this case)}.
+#'  \item{\code{variance}}{ a list with information on the original variance and 
+#'  the explained variances. This list contains a matrix indicating the amount of 
+#'  variance explained by each component (var), the ratio between explained 
+#'  variance by each single component and the original variance (explained_var) and 
+#'  the cumulative ratio of explained variance (cumulative_explained_var). 
+#'  The amount of variance explained by each component is computed by multiplying 
+#'  its score vector by its corresponding loading vector and calculating the 
+#'  variance of the result. These values are computed based on the observations 
+#'  used to create the projection matrices. For example if the "pls" method was 
+#'  used, then these values are computed  based only on the data that contains 
+#'  information on \code{Yr} (i.e. the  \code{Xr} data). If the principal 
+#'  component method is used, the this data is  computed on the basis of 
+#'  \code{Xr} and \code{Xu} (if it applies) since both  matrices are employed in 
+#'  the computation of the projection matrix (loadings  in this case)}.
 #'  \item{\code{sdv}}{ the standard deviation of the retrieved scores. This vector
 #'  can be different from the "sd" in \code{variance}.}
 #'  \item{\code{n_components}}{ the number of components (either principal
@@ -206,6 +220,19 @@
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
 #' J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use
 #' with soil vis-NIR spectra. Geoderma 199, 43-53.
+#' 
+#' Shenk, J. S., & Westerhaus, M. O. 1991. Populations structuring of 
+#' near infrared spectra and modified partial least squares regression. 
+#' Crop Science, 31(6), 1548-1555.
+#' 
+#' Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
+#' calibration procedure for near infrared instruments. Journal of Near Infrared
+#' Spectroscopy, 5, 223-232.
+#'
+#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding 
+#' Wachievements in near infrared spectroscopy: my contributions to 
+#' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+#' 
 #' @seealso \code{\link{ortho_diss}}, \code{\link{sim_eval}}, \code{\link{mbl}}
 #' @examples
 #' \donttest{
@@ -332,9 +359,9 @@ ortho_projection <- function(Xr, Xu = NULL,
                              method = "pca",
                              pc_selection = list(method = "var", value = 0.01),
                              center = TRUE, scale = FALSE, ...) {
-  method <- match.arg(method, c("pls", "pca", "pca.nipals"))
+  method <- match.arg(method, c("pca", "pca.nipals", "pls", "mpls"))
 
-  if (method == "pls") {
+  if (method %in% c("pls", "mpls")) {
     if (missing(Yr)) {
       stop("'Yr' is missing for pls method")
     }
@@ -342,10 +369,10 @@ ortho_projection <- function(Xr, Xu = NULL,
       stop("When pls projection is used, 'Yr' must be numeric")
     }
     proj <- pls_projection(
-      Xr = Xr, Yr = Yr, Xu = Xu, pc_selection = pc_selection,
+      Xr = Xr, Yr = Yr, Xu = Xu, method = method, pc_selection = pc_selection,
       scale = scale, ...
     )
-    mthd <- "pls"
+    mthd <- method
   } else {
     mthd <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
     proj <- pc_projection(
@@ -444,17 +471,26 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   if (method == "pca") {
     sv_decomposition <- svd(x = X0, nu = max_comp, nv = max_comp)
     sv_decomposition$d <- sv_decomposition$d[1:max_comp]
-    # Loadings and scores
-    pc_loadings <- t(sv_decomposition$v)
-    pc_scores <- sv_decomposition$u %*% diag(sv_decomposition$d)
+    if (length(sv_decomposition$d) == 1)
+      # scores
+      pc_scores <- sv_decomposition$u %*% as.matrix(sv_decomposition$d)
+    else {
+      # scores
+      pc_scores <- sv_decomposition$u %*% diag(sv_decomposition$d)
+    }
+
+    # Loadings 
+    pc_loadings <- t(sv_decomposition$v) 
+    
     # Variance of each PC variable
     sdPC <- get_column_sds(pc_scores)
     # Compute the percentage of explained variance for all the PCs
-    ons <- (sv_decomposition$d)^2 / (nrow(X0) - 1)
-    explained_v <- ons / sum(get_column_sds(X0)^2)
+    ons <- (sv_decomposition$d)^2
+    xvariance <- overall_var(X0)
+    explained_v <- ons / xvariance
     cumulative_v <- cumsum(explained_v)
     variance <- rbind(
-      sd = as.vector(sdPC),
+      var = ons,
       explained_var = explained_v,
       cumulative_explained_var = cumulative_v
     )
@@ -475,8 +511,9 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
     pc_scores <- nipals_pca$pc_scores
     pc_loadings <- nipals_pca$pc_loadings
     explained_v <- nipals_pca$pc_variance
+    xvariance <- nipals_pca$original_x_variance
     variance <- rbind(
-      sd = explained_v[1, ],
+      var = explained_v[1, ],
       explained_var = explained_v[2, ],
       cumulative_explained_var = explained_v[3, ]
     )
@@ -549,13 +586,15 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
   fresults <- list(
     scores = pc_scores[, 1:selected_pcs, drop = FALSE],
     X_loadings = pc_loadings[1:selected_pcs, , drop = FALSE],
-    variance = variance[, 1:selected_pcs, drop = FALSE],
+    
+    variance = list(original_x_var = xvariance,
+                    x_var = variance[, 1:selected_pcs, drop = FALSE]),
     scores_sd = scores_sd,
     n_components = selected_pcs, pc_selection = pc_selection,
     center = mean_vector,
     scale = sd_vector
   )
-  colnames(fresults$variance) <- rownames(fresults$X_loadings)
+  colnames(fresults$variance$x_var) <- rownames(fresults$X_loadings)
   fresults$method <- ifelse(method == "pca", "pca (svd)", "pca (nipals)")
   if (pc_selection_method == "opc") {
     fresults$opc_evaluation <- results
@@ -573,7 +612,9 @@ pc_projection <- function(Xr, Xu = NULL, Yr = NULL,
 #' @export pls_projection
 pls_projection <- function(Xr, Xu = NULL, Yr,
                            pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
-                           scale = FALSE, tol = 1e-6, max_iter = 1000, ...) {
+                           scale = FALSE,
+                           method = "pls",
+                           tol = 1e-6, max_iter = 1000, ...) {
   pc_selection_method <- pc_selection[[1]]
   match.arg(pc_selection_method, c("opc", "var", "cumvar", "manual"))
 
@@ -597,6 +638,10 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     }
   }
 
+  
+  match.arg(method, c("pls", "mpls"))
+  
+  
   if (is.null(pc_selection$value)) {
     pc_selection_value <- pc_selection[[2]]
   } else {
@@ -642,11 +687,11 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
   pc_selection <- dparam$pc_selection_checked
   max_comp <- dparam$max_comp
 
-  weights <- matrix(NA, max_comp, ncol(X0))
-  scores <- matrix(NA, nrow(X0), max_comp)
-  X_loadings <- matrix(NA, max_comp, ncol(X0))
-  Y_loadings <- matrix(NA, max_comp, ny)
-  pls_variance <- matrix(NA, 3, max_comp)
+  # weights <- matrix(NA, max_comp, ncol(X0))
+  # scores <- matrix(NA, nrow(X0), max_comp)
+  # X_loadings <- matrix(NA, max_comp, ncol(X0))
+  # Y_loadings <- matrix(NA, max_comp, ny)
+  # pls_variance <- matrix(NA, 3, max_comp)
 
   if (pc_selection_method %in% c("opc", "manual")) {
     pc_selection$value <- pc_selection_value - 1
@@ -655,6 +700,7 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     cpp_method <- pc_selection_method
   }
 
+  
   plsp <- opls_for_projection(
     X = X0,
     Y = as.matrix(Y0),
@@ -663,7 +709,8 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     maxiter = max_iter,
     tol = tol,
     pcSelmethod = cpp_method,
-    pcSelvalue = pc_selection$value
+    pcSelvalue = pc_selection$value,
+    algorithm = method
   )
   max_comp <- plsp$ncomp
 
@@ -710,7 +757,7 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
   rownames(weights) <- rownames(X_loadings)
   colnames(weights) <- colnames(X_loadings)
   colnames(pls_variance) <- rownames(X_loadings)
-  rownames(pls_variance) <- c("sd", "explained_var_X", "cumulative_explained_var_X")
+  rownames(pls_variance) <- c("var", "explained_var_X", "cumulative_explained_var_X")
 
   yex <- plsp$variance$y_var[, 1:max_comp, drop = FALSE]
 
@@ -769,8 +816,9 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     X_loadings = X_loadings,
     Y_loadings = Y_loadings,
     weights = weights,
-    projection_mat = plsp$projection_mat[, 1:ncol(scores)],
-    variance = list(x_var = pls_variance, y_var = yex),
+    projection_mat = plsp$projection_mat[, 1:ncol(scores), drop = FALSE],
+    variance = list(original_x_var = plsp$variance$original_x_var, 
+                    x_var = pls_variance, y_var = yex),
     scores_sd = scores_sd,
     n_components = max_comp,
     pc_selection = pc_selection,

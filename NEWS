@@ -1,5 +1,39 @@
 # News for the resemble package
 
+## resemble 2.1 (piapia)
+23.09.2021
+
+### New features
+- A argument named "seed" was added to the mbl function. It is used to gurantee 
+reproducibility of cross-validation results. 
+
+- A modified PLS method was implemented (see local_fit_pls and local_fit_wapls).
+It uses correlation bteween response and predictors to derive the PLS weights. 
+
+## Improvements and fixes
+- A Bug in the computation of the explained variance of X for pls models was 
+detected and fixed. The pls related functions were underestimating the amount 
+of variance exmplained by each PLS component. The explained variance was being 
+computed from the matrix of scores, in this version it is computed from the 
+reconstructed spectra at each PLS iteration.
+
+- Manual selection of components in pc_projection() and pls_projection() now 
+accepts to select only 1 component (before the minimum was 2).
+
+- pls_projection() now includes a new argument (method) to allow the user to select 
+between the standard pls algorithm and a modified pls algorithm.
+
+- ortho_diss(), dissimilarity() and search_neighbors() functions include a new 
+dissimilarity method: "mpls" (modified pls).
+
+- An internal function for stratified random sampling for cross validtaion 
+purposes has been improved for computational speed. 
+
+- The package was stripping some symbols for Rcpp functions in Makevars in order 
+to reduce the installation size of the package. Now these lines have been 
+commented to comply with CRAN policies.
+
+
 ## resemble 2.0 (gordillo)
 
 * 02.07.2020 

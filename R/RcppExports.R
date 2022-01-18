@@ -102,6 +102,18 @@ get_column_sds <- function(X) {
     .Call('_resemble_get_column_sds', PACKAGE = 'resemble', X)
 }
 
+#' @title Function for computing the overall variance of a matrix
+#' @description Computes the variance of a matrix. For internal use only!
+#' @usage overall_var(X)
+#' @param X a matrix.
+#' @return a vector of standard deviation values. 
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+overall_var <- function(X) {
+    .Call('_resemble_overall_var', PACKAGE = 'resemble', X)
+}
+
 #' @title Function for computing the mean of each column in a matrix
 #' @description Computes the mean of each column in a matrix. For internal use only!
 #' @usage get_column_means(X)
@@ -126,6 +138,67 @@ get_column_sums <- function(X) {
     .Call('_resemble_get_column_sums', PACKAGE = 'resemble', X)
 }
 
+#' @title Computes the weights for pls regressions
+#' @description
+#' This is an internal function that computes the wights required for obtaining
+#' each vector of pls scores. Implementation is done in C++ for improved performance.
+#' @param X a numeric matrix of spectral data.
+#' @param Y a matrix of one column with the response variable.
+#' @param algorithm a character string indicating what method to use. Options are:
+#' \code{'pls'} for pls (using covariance between X and Y), 
+#' \code{'mpls'} for modified pls (using correlation between X and Y as in 
+#' Shenk and Westerhaus, 1991; Westerhaus 2014) or
+#' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+#' @param xls_min_w an integer indicating the minimum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+#' @param xls_max_w an integer indicating the maximum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
+#' @author Leonardo Ramirez-Lopez and Claudio Orellano
+#' @references
+#' Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of 
+#' near infrared spectra and modified partial least squares regression. 
+#' Crop Science, 31(6), 1548-1555.
+#' 
+#' Westerhaus, M. (2014). Eastern Analytical Symposium Award for outstanding 
+#' Wachievements in near infrared spectroscopy: my contributions to 
+#' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+#' @return a `matrix` of one column containing the weights.
+#' @keywords internal 
+#' @useDynLib resemble
+get_weights <- function(X, Y, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
+    .Call('_resemble_get_weights', PACKAGE = 'resemble', X, Y, algorithm, xls_min_w, xls_max_w)
+}
+
+#' @title Internal Cpp function for computing the weights of the PLS components 
+#' necessary for weighted average PLS
+#' @description For internal use only!. 
+#' @usage
+#' get_local_pls_weights(projection_mat, 
+#'           xloadings, 
+#'           coefficients, 
+#'           new_x, 
+#'           min_component, 
+#'           max_component, 
+#'           scale, 
+#'           Xcenter, 
+#'           Xscale)
+#' @param projection_mat the projection matrix generated either by the \code{opls} function.
+#' @param xloadings .
+#' @param coefficients the matrix of regression coefficients.
+#' @param new_x a matrix of one new spectra to be predicted.
+#' @param min_component an integer indicating the minimum number of pls components.
+#' @param max_component an integer indicating the maximum number of pls components.
+#' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
+#' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
+#' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
+#' @return a matrix of one row with the weights for each component between the max. and min. specified. 
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+get_local_pls_weights <- function(projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale) {
+    .Call('_resemble_get_local_pls_weights', PACKAGE = 'resemble', projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale)
+}
+
 #' @title orthogonal scores algorithn of partial leat squares (opls) projection
 #' @description Computes orthogonal socres partial least squares (opls) 
 #' projection with the NIPALS algorithm. It allows multiple response variables.
@@ -135,7 +208,10 @@ get_column_sums <- function(X) {
 #' opls_for_projection(X, Y, ncomp, scale,
 #'                     maxiter, tol,
 #'                     pcSelmethod = "var",
-#'                     pcSelvalue = 0.01)
+#'                     pcSelvalue = 0.01, 
+#'                     algorithm = "pls", 
+#'                     xls_min_w = 3, 
+#'                     xls_max_w = 15)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
 #' @param ncomp the number of pls components.
@@ -158,6 +234,15 @@ get_column_sums <- function(X) {
 #' a variance lower than this threshold must be excluded. If \code{'manual'} 
 #' is chosen, \code{pcSelvalue} has no effect and the number of components 
 #' retrieved are the one specified in \code{ncomp}.
+#' @param algorithm (for weights computation) a character string indicating 
+#' what method to use. Options are:
+#' \code{'pls'} for pls (using covariance between X and Y), 
+#' \code{'mpls'} for modified pls (using correlation between X and Y) or
+#' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+#' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+#' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 #' @return a list containing the following elements:
 #' \itemize{
 #' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -179,8 +264,8 @@ get_column_sums <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01) {
-    .Call('_resemble_opls_for_projection', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue)
+opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
+    .Call('_resemble_opls_for_projection', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title orthogonal scores algorithn of partial leat squares (opls_get_all)
@@ -194,13 +279,25 @@ opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = 
 #'              ncomp, 
 #'              scale, 
 #'              maxiter, 
-#'              tol)
+#'              tol, 
+#'              algorithm = "pls", 
+#'              xls_min_w = 3, 
+#'              xls_max_w = 15)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
 #' @param ncomp the number of pls components.
 #' @param scale logical indicating whether \code{X} must be scaled.
 #' @param maxiter maximum number of iterations.
 #' @param tol limit for convergence of the algorithm in the nipals algorithm.
+#' @param algorithm (for weights computation) a character string indicating 
+#' what method to use. Options are:
+#' \code{'pls'} for pls (using covariance between X and Y), 
+#' \code{'mpls'} for modified pls (using correlation between X and Y) or
+#' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+#' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+#' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 #' @return a list containing the following elements:
 #' \itemize{
 #' \item{\code{ncomp}}{ the number of components used.}
@@ -219,8 +316,8 @@ opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol) {
-    .Call('_resemble_opls_get_all', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol)
+opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
+    .Call('_resemble_opls_get_all', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title orthogonal scores algorithn of partial leat squares (opls)
@@ -234,13 +331,26 @@ opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol) {
 #'      ncomp, 
 #'      scale, 
 #'      maxiter, 
-#'      tol)
+#'      tol, 
+#'      algorithm = "pls", 
+#'      xls_min_w = 3, 
+#'      xls_max_w = 15)
+#'      
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
 #' @param ncomp the number of pls components.
 #' @param scale logical indicating whether \code{X} must be scaled.
 #' @param maxiter maximum number of iterations.
 #' @param tol limit for convergence of the algorithm in the nipals algorithm.
+#' @param algorithm (for weights computation) a character string indicating 
+#' what method to use. Options are:
+#' \code{'pls'} for pls (using covariance between X and Y), 
+#' \code{'mpls'} for modified pls (using correlation between X and Y) or
+#' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+#' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+#' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 #' @return a list containing the following elements:
 #' \itemize{
 #' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -255,8 +365,8 @@ opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls <- function(X, Y, ncomp, scale, maxiter, tol) {
-    .Call('_resemble_opls', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol)
+opls <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
+    .Call('_resemble_opls', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title fast orthogonal scores algorithn of partial leat squares (opls)
@@ -267,13 +377,25 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol) {
 #' For internal use only!
 #' @usage 
 #' opls_get_basics(X, Y, ncomp, scale, 
-#'                 maxiter, tol)
+#'                 maxiter, tol, 
+#'                 algorithm = "pls", 
+#'                 xls_min_w = 3, 
+#'                 xls_max_w = 15)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
 #' @param ncomp the number of pls components.
 #' @param scale logical indicating whether \code{X} must be scaled.
 #' @param maxiter maximum number of iterations.
 #' @param tol limit for convergence of the algorithm in the nipals algorithm.
+#' @param algorithm (for weights computation) a character string indicating 
+#' what method to use. Options are:
+#' \code{'pls'} for pls (using covariance between X and Y), 
+#' \code{'mpls'} for modified pls (using correlation between X and Y) or
+#' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+#' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+#' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+#' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 #' @return a list containing the following elements:
 #' \itemize{
 #' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -285,8 +407,8 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls_get_basics <- function(X, Y, ncomp, scale, maxiter, tol) {
-    .Call('_resemble_opls_get_basics', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol)
+opls_get_basics <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
+    .Call('_resemble_opls_get_basics', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title Prediction function for the \code{opls} and \code{fopls} functions
@@ -327,46 +449,19 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 
 #' @title Projection to pls and then re-construction
 #' @description Projects spectra onto a PLS space and then reconstructs it back.
-#' @usage project_opls(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
+#' @usage reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale)
 #' @param x a matrix to project.
 #' @param projection_mat the projection matrix generated by the \code{opls_get_basics} function.
 #' @param xloadings the loadings matrix generated by the \code{opls_get_basics} function.
+#' @param scale logical indicating if scaling is required
+#' @param Xcenter a matrix of one row with the centering values
+#' @param Xscale a matrix of one row with the scaling values
 #' @return a matrix of 1 row and 1 column.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
 reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale) {
     .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings, scale, Xcenter, Xscale)
-}
-
-#' @title Internal Cpp function for computing the weights of the PLS components 
-#' necessary for weighted average PLS
-#' @description For internal use only!. 
-#' @usage
-#' get_pls_weights(projection_mat, 
-#'           xloadings, 
-#'           coefficients, 
-#'           new_x, 
-#'           min_component, 
-#'           max_component, 
-#'           scale, 
-#'           Xcenter, 
-#'           Xscale)
-#' @param projection_mat the projection matrix generated either by the \code{opls} function.
-#' @param xloadings .
-#' @param coefficients the matrix of regression coefficients.
-#' @param new_x a matrix of one new spectra to be predicted.
-#' @param min_component an integer indicating the minimum number of pls components.
-#' @param max_component an integer indicating the maximum number of pls components.
-#' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
-#' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
-#' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
-#' @return a matrix of one row with the weights for each component between the max. and min. specified. 
-#' @author Leonardo Ramirez-Lopez
-#' @keywords internal 
-#' @useDynLib resemble
-get_pls_weights <- function(projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale) {
-    .Call('_resemble_get_pls_weights', PACKAGE = 'resemble', projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale)
 }
 
 #' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
@@ -376,34 +471,67 @@ get_pls_weights <- function(projection_mat, xloadings, coefficients, new_x, min_
 #'                   min_component, ncomp, 
 #'                   new_x, 
 #'                   maxiter, tol, 
-#'                   wapls_grid)
+#'                   wapls_grid, 
+#'                   algorithm, 
+#'                   statistics = TRUE)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of a single response variable.
-#' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
-#' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls'} or \code{'completewapls1p'}.
-#' @param mindices a matrix with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
-#' resampling iterations. The elements of each column indicate the indices of the observations to be used for modeling at each 
-#' iteration.
-#' @param pindices a matrix with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
-#' resampling iterations. The elements of each column indicate the indices of the observations to be used for predicting at each 
-#' iteration.
-#' @param min_component an integer indicating the number of minimum pls components (if the \code{method = 'pls'}).
+#' @param scale a logical indicating whether the matrix of predictors 
+#' (\code{X}) must be scaled.
+#' @param method the method used for regression. One of the following options: 
+#' \code{'pls'} or \code{'wapls'} or \code{'completewapls1p'}.
+#' @param mindices a matrix with \code{n} rows and \code{m} columns where 
+#' \code{m} is equivalent to the number of resampling iterations. The elements 
+#' of each column indicate the indices of the observations to be used for 
+#' modeling at each iteration.
+#' @param pindices a matrix with \code{k} rows and \code{m} columns where 
+#' \code{m} is equivalent to the number of 
+#' resampling iterations. The elements of each column indicate the indices of 
+#' the observations to be used for predicting at each iteration.
+#' @param min_component an integer indicating the number of minimum pls 
+#' components (if the \code{method = 'pls'}).
 #' @param ncomp an integer indicating the number of pls components.
-#' @param new_x a matrix of one row corresponding to the observation to be predicted (if the \code{method = 'wapls'}).
+#' @param new_x a matrix of one row corresponding to the observation to be 
+#' predicted (if the \code{method = 'wapls'}).
 #' @param maxiter maximum number of iterations.
 #' @param tol limit for convergence of the algorithm in the nipals algorithm.
-#' @param wapls_grid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls'} is based on in case \code{method = 'completewapls1p'}.
-#' @return a list containing the following one-row matrices:
+#' @param wapls_grid the grid on which the search for the best combination of 
+#' minimum and maximum pls factors of \code{'wapls'} is based on in case 
+#' \code{method = 'completewapls1p'}.
+#' @param algorithm either pls (\code{'pls'}) or modified pls (\code{'mpls'}). 
+#' See \code{get_weigths} function.
+#' @param statistics a logical value indicating whether the precision and 
+#' accuracy statistics are to be returned, otherwise the predictions for each 
+#' validation segment are retrieved.
+#' @return 
+#' if \code{statistics = true} a list containing the following one-row matrices:
 #' \itemize{
 #' \item{\code{rmse_seg}}{ the RMSEs.}
 #' \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
 #' \item{\code{rsq_seg}}{ the coefficients of determination.}
 #' } 
+#' 
+#' if \code{statistics = false} a list containing the following one-row matrices:
+#' \itemize{
+#' \item{\code{predictions}}{ the predictions of each of the validation 
+#' segments in \code{pindices}. Each column in \code{pindices} contains the 
+#' validation indices of a segment.}
+#' \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
+#' \item{\code{rsq_seg}}{ the coefficients of determination.}
+#' } 
+#' 
+#' If \code{method = "wapls"}, data of the pls weights are output in this 
+#' list(\code{compweights}).
+#'
+#' If \code{method = "completewapls1"}, data of all the combination of 
+#' components passed in \code{wapls_grid} are 
+#' output in this list(\code{complete_compweights}).
+#' 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid) {
-    .Call('_resemble_opls_cv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid)
+opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics = TRUE) {
+    .Call('_resemble_opls_cv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics)
 }
 
 #' @title Gaussian process regression with linear kernel (gaussian_process)
@@ -416,6 +544,7 @@ opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, 
 #' and the response variable must be scaled to zero mean and unit variance.
 #' @return a list containing the following elements:
 #' \itemize{
+#' \item{\code{b}}{ the regression coefficients.}
 #' \item{\code{Xz}}{ the (final transformed) matrix of predictor variables.}
 #' \item{\code{alpha}}{ the alpha matrix.}
 #' \item{\code{is.scaled}}{ logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
@@ -454,7 +583,8 @@ predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale,
 #' @title Internal Cpp function for performing leave-group-out cross 
 #' validations for gaussian process
 #' @description For internal use only!. 
-#' @usage gaussian_process_cv(X, Y, mindices, pindices, noisev = 0.001, scale)
+#' @usage gaussian_process_cv(X, Y, mindices, pindices, noisev = 0.001,  
+#' scale = TRUE, statistics = TRUE)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of a single response variable.
 #' @param mindices a matrix with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
@@ -466,6 +596,9 @@ predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale,
 #' @param ncomp an integer indicating the number of pls components.
 #' @param scale a logical indicating whether both the predictors 
 #' and the response variable must be scaled to zero mean and unit variance.
+#' @param statistics a logical value indicating whether the precision and 
+#' accuracy statistics are to be returned, otherwise the predictions for each 
+#' validation segment are retrieved.
 #' @return a list containing the following one-row matrices:
 #' \itemize{
 #' \item{\code{rmse.seg}}{ the RMSEs.}
@@ -475,8 +608,8 @@ predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale,
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale = TRUE) {
-    .Call('_resemble_gaussian_process_cv', PACKAGE = 'resemble', X, Y, mindices, pindices, noisev, scale)
+gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale = TRUE, statistics = TRUE) {
+    .Call('_resemble_gaussian_process_cv', PACKAGE = 'resemble', X, Y, mindices, pindices, noisev, scale, statistics)
 }
 
 #' @title Principal components based on  the non-linear iterative partial least squares (nipals) algorithm

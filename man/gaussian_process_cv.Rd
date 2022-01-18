@@ -5,7 +5,8 @@
 \title{Internal Cpp function for performing leave-group-out cross 
 validations for gaussian process}
 \usage{
-gaussian_process_cv(X, Y, mindices, pindices, noisev = 0.001, scale)
+gaussian_process_cv(X, Y, mindices, pindices, noisev = 0.001,  
+scale = TRUE, statistics = TRUE)
 }
 \arguments{
 \item{X}{a matrix of predictor variables.}
@@ -22,6 +23,10 @@ iteration.}
 
 \item{scale}{a logical indicating whether both the predictors 
 and the response variable must be scaled to zero mean and unit variance.}
+
+\item{statistics}{a logical value indicating whether the precision and 
+accuracy statistics are to be returned, otherwise the predictions for each 
+validation segment are retrieved.}
 
 \item{ncomp}{an integer indicating the number of pls components.}
 }

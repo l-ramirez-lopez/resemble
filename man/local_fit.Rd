@@ -7,9 +7,10 @@
 \alias{local_fit_gpr}
 \title{Local fit functions}
 \usage{
-local_fit_pls(pls_c)
+local_fit_pls(pls_c, modified = FALSE, max_iter = 100, tol = 1e-6)
 
-local_fit_wapls(min_pls_c, max_pls_c)
+local_fit_wapls(min_pls_c, max_pls_c, modified = FALSE, 
+                max_iter = 100, tol = 1e-6)
 
 local_fit_gpr(noise_variance = 0.001)
 }
@@ -17,6 +18,16 @@ local_fit_gpr(noise_variance = 0.001)
 \item{pls_c}{an integer indicating the number of pls components to be used in
 the local regressions when the partial least squares (\code{local_fit_pls})
 method is used.}
+
+\item{modified}{a logical indicating whether the modified version of the pls 
+algorithm (Shenk and Westerhaus, 1991 and Westerhaus, 2014). Default is 
+\code{FALSE}.}
+
+\item{max_iter}{an integer indicating the maximum number of iterations in 
+case \code{tol} is not reached. Defaul is 100.}
+
+\item{tol}{a numeric value indicating the convergence for calculating the 
+scores. Default is 1-e6.}
 
 \item{min_pls_c}{an integer indicating the minimum number of pls components
 to be used in the local regressions when the weighted average partial least
@@ -87,17 +98,36 @@ There are three possible options for performing these regressions:
  }
  }
  }
+ 
+The \code{modified} argument in the pls methods (\code{local_fit_pls()} 
+and \code{local_fit_wapls()}) is used to indicate if 
+a modified version of the pls algorithm (modified pls or mpls). The modified 
+pls was proposed Shenk and Westerhaus (1991, see also Westerhaus, 2014) and it 
+differs from the standard pls method in the way the weights of the predictors 
+(used to compute the matrix of scores) are obtained. While pls uses the covariance 
+between  response(s) and predictors (and later their deflated versions 
+corresponding at each pls component iteration) to obtain these weights, the modified pls 
+uses the correlation as weights. The authors indicate that by using correlation,
+a larger potion of the response variable(s) can be explained.
 }
 \examples{
 local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
 }
 \references{
+Shenk, J. S., & Westerhaus, M. O. 1991. Populations structuring of 
+near infrared spectra and modified partial least squares regression. 
+Crop Science, 31(6), 1548-1555.
+
 Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
 calibration procedure for near infrared instruments. Journal of Near Infrared
 Spectroscopy, 5, 223-232.
 
 Rasmussen, C.E., Williams, C.K. Gaussian Processes for Machine Learning.
 Massachusetts Institute of Technology: MIT-Press, 2006.
+
+Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding 
+Wachievements in near infrared spectroscopy: my contributions to 
+Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 }
 \seealso{
 \code{\link{mbl}}

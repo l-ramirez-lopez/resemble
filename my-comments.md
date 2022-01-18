@@ -1,5 +1,66 @@
 # resemble
- 
+
+# version 2.1.1
+
+## Package was built using: 
+```
+devtools::build(
+  pkg = ".",
+  path = NULL,
+  binary = FALSE,
+  vignettes = TRUE,
+  manual = TRUE,
+  args = NULL,
+  quiet = FALSE
+)
+```
+
+26.11.2021
+## Size of the package
+According to Brian Ripley the package was violating CRAN policies
+The CRAN policy contains
+
+- Packages should not attempt to disable compiler diagnostics, nor to
+remove other diagnostic information such as symbols in shared objects.
+
+The package was stripping some symbols for Rcpp functions in Makevars in order 
+to reduce the installation size of the package. Now these lines have been 
+commented to comply with CRAN policies:
+#strippedLib: $(SHLIB)
+#		if test -e "/usr/bin/strip" & test -e "/bin/uname" & [[ `uname` == "Linux" ]]; then /usr/bin/strip --strip-debug $(SHLIB); fi
+#.phony: strippedLib
+
+# Rhub checks for release of `resemble 2.1.1` (`piapia`)
+
+The checks were conducted in the following platforms trhough rhub:
+
+- "windows-x86_64-devel"
+
+- "macos-highsierra-release-cran"
+
+- "linux-x86_64-rocker-gcc-san" ## Not checked Rhub throwed a PREPERROR
+
+- "debian-clang-devel" OK
+
+- "fedora-gcc-devel"
+* checking installed package size ... NOTE
+installed size is 12.2Mb
+sub-directories of 1Mb or more:
+  doc    2.0Mb
+libs   9.6Mb
+
+- "solaris-x86-patched-ods" OK
+
+For example, for checks with "fedora-gcc-devel"", the following code was used::
+```
+rhub::check("/home/rl_leonardo/github/resemble_2.1.1.tar.gz", 
+            platform = c("fedora-gcc-devel"), 
+            email = "ramirez.lopez.leo@gmail.com")
+```
+
+
+
+# version 2.0 
 # Rhub checks for release of `resemble 2.0.0` (`gordillo`)
 
 29.10.2020
@@ -9,7 +70,7 @@ As requested by CRAN:
 - A <doi:...> has been added in the description field of DESCRIPTION
 - \donttest{} is now used (instead of \dontrun{}) for those examples
   taking more than 5 seconds 
-- verobse argument has been added to the functions to easily suppress any
+- verbose argument has been added to the functions to easily suppress any
   message different from error warnings or messages.
 - on.exit() is now called properly to reset to user
   parameters when the functions are exited

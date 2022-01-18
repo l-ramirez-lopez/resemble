@@ -9,9 +9,10 @@
 #' These functions define the way in which each local fit/prediction is done
 #' within each iteration in the \code{\link{mbl}} function.
 #' @usage
-#' local_fit_pls(pls_c)
+#' local_fit_pls(pls_c, modified = FALSE, max_iter = 100, tol = 1e-6)
 #'
-#' local_fit_wapls(min_pls_c, max_pls_c)
+#' local_fit_wapls(min_pls_c, max_pls_c, modified = FALSE, 
+#'                 max_iter = 100, tol = 1e-6)
 #'
 #' local_fit_gpr(noise_variance = 0.001)
 #'
@@ -24,6 +25,13 @@
 #' @param max_pls_c integer indicating the maximum number of pls components
 #' to be used in the local regressions when the weighted average partial least
 #' squares (\code{local_fit_wapls}) method is used. See details.
+#' @param modified a logical indicating whether the modified version of the pls 
+#' algorithm (Shenk and Westerhaus, 1991 and Westerhaus, 2014). Default is 
+#' \code{FALSE}. 
+#' @param tol a numeric value indicating the convergence for calculating the 
+#' scores. Default is 1-e6.
+#' @param max_iter an integer indicating the maximum number of iterations in 
+#' case \code{tol} is not reached. Defaul is 100.
 #' @param noise_variance a numeric value indicating the variance of the noise
 #' for Gaussian process local regressions (\code{local_fit_gpr}). Default is
 #' 0.001.
@@ -77,16 +85,35 @@
 #'  }
 #'  }
 #'  }
+#'  
+#' The \code{modified} argument in the pls methods (\code{local_fit_pls()} 
+#' and \code{local_fit_wapls()}) is used to indicate if 
+#' a modified version of the pls algorithm (modified pls or mpls). The modified 
+#' pls was proposed Shenk and Westerhaus (1991, see also Westerhaus, 2014) and it 
+#' differs from the standard pls method in the way the weights of the predictors 
+#' (used to compute the matrix of scores) are obtained. While pls uses the covariance 
+#' between  response(s) and predictors (and later their deflated versions 
+#' corresponding at each pls component iteration) to obtain these weights, the modified pls 
+#' uses the correlation as weights. The authors indicate that by using correlation,
+#' a larger potion of the response variable(s) can be explained. 
+#' 
 #' @return An object of class \code{local_fit} mirroring the input arguments.
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @references
+#' Shenk, J. S., & Westerhaus, M. O. 1991. Populations structuring of 
+#' near infrared spectra and modified partial least squares regression. 
+#' Crop Science, 31(6), 1548-1555.
+#' 
 #' Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
 #' calibration procedure for near infrared instruments. Journal of Near Infrared
 #' Spectroscopy, 5, 223-232.
 #'
 #' Rasmussen, C.E., Williams, C.K. Gaussian Processes for Machine Learning.
 #' Massachusetts Institute of Technology: MIT-Press, 2006.
-#'
+#' 
+#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding 
+#' Wachievements in near infrared spectroscopy: my contributions to 
+#' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 #' @seealso \code{\link{mbl}}
 #' @examples
 #' local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
@@ -97,13 +124,13 @@
 ## 19.07.2020 Leo     arguments pls_max_iter and pls_tol were removed fas they
 ##                    are only required when modleing for more than one response
 ##                    variable, i.e. pls2 (which is not implemented for mbl)
+## 20.09.2020 Leo     max_iter and tol were added to pls obajects
 
-
-local_fit_pls <- function(pls_c) {
+local_fit_pls <- function(pls_c, modified = FALSE, max_iter = 100, tol = 1e-6) {
   if (missing(pls_c)) {
     stop("'pls_c' must be specified")
   }
-
+  
   if (length(pls_c) != 1 | !is.numeric(pls_c)) {
     stop(paste0(
       "'pls_c' must be a single numerical ",
@@ -111,10 +138,13 @@ local_fit_pls <- function(pls_c) {
       "be evaluated"
     ))
   }
-
+  
   fit_type <- list(
     method = "pls",
-    pls_c = pls_c
+    pls_c = pls_c,
+    modified = modified,
+    max_iter = max_iter,
+    tol = tol
   )
   class(fit_type) <- c("local_fit", "list")
   fit_type
@@ -122,11 +152,17 @@ local_fit_pls <- function(pls_c) {
 
 #' @aliases local_fit
 #' @export local_fit_wapls
-local_fit_wapls <- function(min_pls_c, max_pls_c) {
+local_fit_wapls <- function(
+  min_pls_c, 
+  max_pls_c, 
+  modified = FALSE, 
+  max_iter = 100, 
+  tol = 1e-6
+) {
   if (missing(min_pls_c) | missing(max_pls_c)) {
     stop("Both 'min_pls_c' and 'max_pls_c' must be specified")
   }
-
+  
   if (length(min_pls_c) != 1 | !is.numeric(min_pls_c)) {
     stop(paste0(
       "'min_pls_c' must be a single numerical ",
@@ -134,7 +170,7 @@ local_fit_wapls <- function(min_pls_c, max_pls_c) {
       "be evaluated"
     ))
   }
-
+  
   if (length(max_pls_c) != 1 | !is.numeric(max_pls_c)) {
     stop(paste0(
       "'max_pls_c' must be a single numerical ",
@@ -142,16 +178,19 @@ local_fit_wapls <- function(min_pls_c, max_pls_c) {
       "be evaluated"
     ))
   }
-
+  
   if (min_pls_c >= max_pls_c) {
     stop("min_pls_c must be smaller than max_pls_c")
   }
-
+  
   fit_type <- list(
     method = "wapls",
-    pls_c = c(min_pls_c = min_pls_c, max_pls_c = max_pls_c)
+    pls_c = c(min_pls_c = min_pls_c, max_pls_c = max_pls_c),
+    modified = modified,
+    max_iter = max_iter,
+    tol = tol
   )
-
+  
   class(fit_type) <- c("local_fit", "list")
   fit_type
 }

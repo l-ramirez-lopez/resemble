@@ -1,7 +1,6 @@
 context("test-dissimilarity")
 
 
-
 test_that("dissimilarity works", {
   nirdata <- data("NIRsoil", package = "prospectr")
   
@@ -26,7 +25,7 @@ test_that("dissimilarity works", {
   )
   expected_n_comp <- 6
   dsm_pls <- dissimilarity(
-    Xr = standardNormalVariate(Xr), Xu = standardNormalVariate(Xu),
+    Xr = prospectr::standardNormalVariate(Xr), Xu = prospectr::standardNormalVariate(Xu),
     diss_method = c("pls"),
     Yr = Yr, gh = TRUE, pc_selection = list("opc", 15),
     return_projection = TRUE,
@@ -133,7 +132,7 @@ test_that("dissimilarity large sets works", {
   )
   expected_n_comp <- 24
   dsm_pls <- dissimilarity(
-    Xr = standardNormalVariate(Xr), Xu = standardNormalVariate(Xu),
+    Xr = prospectr::standardNormalVariate(Xr), Xu = prospectr::standardNormalVariate(Xu),
     diss_method = c("pls"),
     Yr = Yr, gh = TRUE, pc_selection = list("opc", 30),
     return_projection = TRUE,

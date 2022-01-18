@@ -1,4 +1,4 @@
-#include <RcppArmadillo.h>
+#include <RcppArmadillo.h> 
 #include <math.h>
 #include <iostream>
 
@@ -52,6 +52,25 @@ NumericVector get_column_sds(arma::mat X){
   return Rcpp::wrap(sds);
 }
 
+
+
+//' @title Function for computing the overall variance of a matrix
+//' @description Computes the variance of a matrix. For internal use only!
+//' @usage overall_var(X)
+//' @param X a matrix.
+//' @return a vector of standard deviation values. 
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+NumericVector overall_var(arma::mat X){
+  double n_rows_x = (double)X.n_rows;
+  double ovar = sum(var(X)) * (n_rows_x - 1);
+  return Rcpp::wrap(ovar);
+}
+
+
+
 //' @title Function for computing the mean of each column in a matrix
 //' @description Computes the mean of each column in a matrix. For internal use only!
 //' @usage get_column_means(X)
@@ -81,6 +100,166 @@ NumericVector get_column_sums(arma::mat X){
 }
 
 
+//' @title Computes the weights for pls regressions
+//' @description
+//' This is an internal function that computes the wights required for obtaining
+//' each vector of pls scores. Implementation is done in C++ for improved performance.
+//' @param X a numeric matrix of spectral data.
+//' @param Y a matrix of one column with the response variable.
+//' @param algorithm a character string indicating what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y as in 
+//' Shenk and Westerhaus, 1991; Westerhaus 2014) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param xls_min_w an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param xls_max_w an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
+//' @author Leonardo Ramirez-Lopez and Claudio Orellano
+//' @references
+//' Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of 
+//' near infrared spectra and modified partial least squares regression. 
+//' Crop Science, 31(6), 1548-1555.
+//' 
+//' Westerhaus, M. (2014). Eastern Analytical Symposium Award for outstanding 
+//' Wachievements in near infrared spectroscopy: my contributions to 
+//' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+//' @return a `matrix` of one column containing the weights.
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+arma::mat get_weights(arma::mat X, 
+                      arma::mat Y, 
+                      String algorithm = "pls", 
+                      const int xls_min_w = 3, 
+                      const int xls_max_w = 15) {
+  int n_cols_x = X.n_cols;
+  
+  arma::mat w = arma::zeros<arma::mat>(n_cols_x, 1);
+  
+  if (algorithm == "pls") {
+    // 1.2 The weights are computed as the cross product of
+    // X0 and Y0
+    w = trans(X) * Y;
+    // Scaling factor
+  }
+  
+  
+  if (algorithm == "mpls") {
+    // modified PLS (Shenk and Westerhaus, 1991)
+    // Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of 
+    // near infrared spectra and modified partial least squares regression. 
+    // Crop Science, 31(6), 1548-1555.
+    // 1.2 The weights are computed as the correlation between
+    // X0 and Y0 (see also: Eastern Analytical Symposium Award for outstanding 
+    // achievements in near infrared spectroscopy: my contributions to near 
+    // infrared spectroscopy
+    // by: Mark Westerhaus from FOSS)
+    
+    // for (int i = 0; i < n_cols_x; i++) {
+    //   w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
+    // }
+    
+    for (int i = 0; i < n_cols_x; i++) {
+      w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
+    }
+    
+    // arma::mat x_center_vec;
+    // x_center_vec = Rcpp::as<arma::mat>(get_column_means(X));
+    // X = X - arma::repmat(x_center_vec, X.n_rows, 1);
+    // 
+    // arma::mat y_center_vec;
+    // y_center_vec = Rcpp::as<arma::mat>(get_column_means(Y));
+    // Y = Y - arma::repmat(y_center_vec, Y.n_rows, 1);
+    // 
+    // w = trans(X) * Y;
+    // 
+    // w = w / trans(sqrt(sum(pow(X, 2), 0)) % arma::repmat(sqrt(sum(pow(Y, 2), 0)), 1, X.n_cols));
+  }
+  
+  if (algorithm == "xls") {
+    // as in BUCHI NIRWise PLUS software 
+    for (int i = 0; i < n_cols_x; i++) {
+      for (int j = i + xls_min_w; j <= std::min(i + xls_max_w, n_cols_x - 1); j++) {
+        w(i, 0) += arma::conv_to<double>::from(arma::cor(Y, X.col(i) - X.col(j)));
+        w(j, 0) -= arma::conv_to<double>::from(arma::cor(Y, X.col(i) - X.col(j)));
+      }
+    }
+  }
+  
+  // divided by the 'scaling factor' / scaling it to unit length w * w = 1... 
+  arma::mat cr = sqrt(trans(w) * w);
+  w = w / repmat(cr, X.n_cols, 1);
+  return (w);
+}
+
+
+
+
+//' @title Internal Cpp function for computing the weights of the PLS components 
+//' necessary for weighted average PLS
+//' @description For internal use only!. 
+//' @usage
+//' get_local_pls_weights(projection_mat, 
+//'           xloadings, 
+//'           coefficients, 
+//'           new_x, 
+//'           min_component, 
+//'           max_component, 
+//'           scale, 
+//'           Xcenter, 
+//'           Xscale)
+//' @param projection_mat the projection matrix generated either by the \code{opls} function.
+//' @param xloadings .
+//' @param coefficients the matrix of regression coefficients.
+//' @param new_x a matrix of one new spectra to be predicted.
+//' @param min_component an integer indicating the minimum number of pls components.
+//' @param max_component an integer indicating the maximum number of pls components.
+//' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
+//' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
+//' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
+//' @return a matrix of one row with the weights for each component between the max. and min. specified. 
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, 
+                                          arma::mat xloadings,
+                                          arma::mat coefficients,
+                                          arma::mat new_x,
+                                          int min_component, 
+                                          int max_component, 
+                                          bool scale,
+                                          arma::mat Xcenter,
+                                          arma::mat Xscale
+){
+  arma::mat Xz = new_x;
+  arma::mat whgt;
+  
+  if(scale){
+    Xz = Xz / Xscale;
+  }
+  
+  //Necessary to center
+  Xz = Xz - Xcenter;
+  
+  arma::mat xrmsres = arma::zeros(1, max_component);
+  
+  arma::mat sc = Xz * projection_mat.cols(0, max_component - 1);
+  for(int i = (min_component - 1); i < max_component; i++){
+    arma::mat xrec = sc.cols(0,i) * xloadings.rows(0, i);
+    xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
+  }
+  
+  arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
+  arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
+  arma::mat whgtn = pow(rmsb_x, -1);
+  whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);
+  return Rcpp::wrap(whgt);
+}
+
+
+
 //' @title orthogonal scores algorithn of partial leat squares (opls) projection
 //' @description Computes orthogonal socres partial least squares (opls) 
 //' projection with the NIPALS algorithm. It allows multiple response variables.
@@ -90,7 +269,10 @@ NumericVector get_column_sums(arma::mat X){
 //' opls_for_projection(X, Y, ncomp, scale,
 //'                     maxiter, tol,
 //'                     pcSelmethod = "var",
-//'                     pcSelvalue = 0.01)
+//'                     pcSelvalue = 0.01, 
+//'                     algorithm = "pls", 
+//'                     xls_min_w = 3, 
+//'                     xls_max_w = 15)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
@@ -113,6 +295,15 @@ NumericVector get_column_sums(arma::mat X){
 //' a variance lower than this threshold must be excluded. If \code{'manual'} 
 //' is chosen, \code{pcSelvalue} has no effect and the number of components 
 //' retrieved are the one specified in \code{ncomp}.
+//' @param algorithm (for weights computation) a character string indicating 
+//' what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -142,8 +333,10 @@ List opls_for_projection(arma::mat X,
                          double maxiter,
                          double tol,
                          String pcSelmethod = "var",
-                         double pcSelvalue = 0.01
-){
+                         double pcSelvalue = 0.01, 
+                         String algorithm = "pls", 
+                         const int xls_min_w = 3, 
+                         const int xls_max_w = 15) {
   
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -171,9 +364,10 @@ List opls_for_projection(arma::mat X,
   
   arma::mat Xpls = Xz;
   arma::mat Ypls = Y;
+  double xvar;
   
   //variance of Xpls
-  double xvar = sum(pow(get_column_sds(Xpls), 2));  
+  xvar = overall_var(Xpls)(0);
   
   // matrices to declare
   arma::mat iypls;
@@ -183,11 +377,11 @@ List opls_for_projection(arma::mat X,
   bool keepg;
   arma::mat previous_ts = arma::zeros(Xz.n_rows, 1);
   arma::mat lb;
-  arma::mat cr;
   arma::mat ts;
   arma::mat w;
   arma::mat p;
   arma::mat q;
+  double ireconstructed_var;
   arma::mat cx;
   arma::mat cy;
   arma::mat projection_matrix;
@@ -209,12 +403,13 @@ List opls_for_projection(arma::mat X,
       if(j > 0) {
         previous_ts = ts;
       }
-      //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // //Step 1: Compute a vector of loading weights...
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -238,11 +433,14 @@ List opls_for_projection(arma::mat X,
     Ypls = Ypls - cy;
     // save the matrices corresponding to the loadings
     // and scores..
+    
     weights.row(i) = trans(w);
     scores.col(i) = ts;
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
-    explained_var(0,i) = arma::var(scores.col(i));
+    
+    ireconstructed_var = overall_var(cx)(0);
+    explained_var(0,i) = ireconstructed_var;
     explained_var(1,i) = explained_var(0,i) / xvar;
     explained_var(2,i) = sum(explained_var.row(0)) / xvar;
     
@@ -260,7 +458,7 @@ List opls_for_projection(arma::mat X,
         if (chk) {
           ncomp = ith_comp - 1;
           ith_comp = ith_comp - 2;
-          if(i == 0) {
+          if (i == 0 && pcSelmethod == "var") {
             throw std::invalid_argument("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
           }
           if (pcSelmethod == "cumvar") {
@@ -294,8 +492,6 @@ List opls_for_projection(arma::mat X,
       yex = yex.cols(pc_indices);
     }
   }
-  // convert this to standard deviation
-  explained_var.row(0) = sqrt(explained_var.row(0));
   
   projection_matrix = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
   
@@ -339,6 +535,7 @@ List opls_for_projection(arma::mat X,
     Rcpp::Named("projection_mat") = projection_matrix,
     Rcpp::Named("Y") = Y,
     Rcpp::Named("variance") = Rcpp::List::create(
+      Rcpp::Named("original_x_var") = xvar,
       Rcpp::Named("x_var") = explained_var,
       Rcpp::Named("y_var") = yex
     ),
@@ -362,13 +559,25 @@ List opls_for_projection(arma::mat X,
 //'              ncomp, 
 //'              scale, 
 //'              maxiter, 
-//'              tol)
+//'              tol, 
+//'              algorithm = "pls", 
+//'              xls_min_w = 3, 
+//'              xls_max_w = 15)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
 //' @param scale logical indicating whether \code{X} must be scaled.
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param algorithm (for weights computation) a character string indicating 
+//' what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{ncomp}}{ the number of components used.}
@@ -393,7 +602,10 @@ List opls_get_all(arma::mat X,
                   int ncomp,
                   bool scale,            
                   double maxiter,
-                  double tol){
+                  double tol, 
+                  String algorithm = "pls", 
+                  const int xls_min_w = 3, 
+                  const int xls_max_w = 15) {
   
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -423,7 +635,7 @@ List opls_get_all(arma::mat X,
   arma::mat Ypls = Y;
   
   //variance of Xpls
-  double xvar = sum(pow(get_column_sds(Xpls), 2));  
+  double xvar = overall_var(Xpls)(0);
   
   // matrices to declare
   arma::mat iypls;
@@ -438,6 +650,7 @@ List opls_get_all(arma::mat X,
   arma::mat w;
   arma::mat p;
   arma::mat q;
+  double ireconstructed_var;
   arma::mat cx;
   arma::mat cy;
   arma::mat projection_matrix;
@@ -456,12 +669,13 @@ List opls_get_all(arma::mat X,
       if (j > 0) {
         previous_ts = ts;
       }
-      //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // //Step 1: Compute a vector of loading weights...
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -488,12 +702,12 @@ List opls_get_all(arma::mat X,
     scores.col(i) = ts;
     Xloadings.row(i) = trans(p);
     Yloadings.row(i) = trans(q);
-    explained_var(0,i) = arma::var(scores.col(i));
-    explained_var(1,i) = explained_var(0,i)/xvar;
+    
+    ireconstructed_var = overall_var(cx)(0);
+    explained_var(0,i) = ireconstructed_var;
+    explained_var(1,i) = explained_var(0,i) / xvar;
     explained_var(2,i) = sum(explained_var.row(0)) / xvar;
   }
-  // convert this to standard deviation
-  explained_var.row(0) = sqrt(explained_var.row(0));
   projection_matrix = trans(weights) * arma::solve(Xloadings * trans(weights), arma::eye(Xloadings.n_rows, Xloadings.n_rows));
   
   arma::mat yexi;
@@ -579,6 +793,7 @@ List opls_get_all(arma::mat X,
     Rcpp::Named("selectivity_ratio") = trans(sratio),
     Rcpp::Named("Y") = Y,
     Rcpp::Named("variance") = Rcpp::List::create(
+      Rcpp::Named("original_x_var") = xvar,
       Rcpp::Named("x_var") = explained_var,
       Rcpp::Named("y_var") = yex
     ),
@@ -601,13 +816,26 @@ List opls_get_all(arma::mat X,
 //'      ncomp, 
 //'      scale, 
 //'      maxiter, 
-//'      tol)
+//'      tol, 
+//'      algorithm = "pls", 
+//'      xls_min_w = 3, 
+//'      xls_max_w = 15)
+//'      
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
 //' @param scale logical indicating whether \code{X} must be scaled.
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param algorithm (for weights computation) a character string indicating 
+//' what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -628,7 +856,10 @@ List opls(arma::mat X,
           int ncomp,
           bool scale,            
           double maxiter,
-          double tol){
+          double tol, 
+          String algorithm = "pls", 
+          const int xls_min_w = 3, 
+          const int xls_max_w = 15) {
   
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -686,11 +917,12 @@ List opls(arma::mat X,
         previous_ts = ts;
       }
       //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -762,13 +994,25 @@ List opls(arma::mat X,
 //' For internal use only!
 //' @usage 
 //' opls_get_basics(X, Y, ncomp, scale, 
-//'                 maxiter, tol)
+//'                 maxiter, tol, 
+//'                 algorithm = "pls", 
+//'                 xls_min_w = 3, 
+//'                 xls_max_w = 15)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of either a single or multiple response variables.
 //' @param ncomp the number of pls components.
 //' @param scale logical indicating whether \code{X} must be scaled.
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
+//' @param algorithm (for weights computation) a character string indicating 
+//' what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y), 
+//' \code{'mpls'} for modified pls (using correlation between X and Y) or
+//' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
+//' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
+//' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
+//' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
 //' \item{\code{coefficients}}{ the matrix of regression coefficients.}
@@ -786,8 +1030,11 @@ List opls_get_basics(arma::mat X,
                      int ncomp,
                      bool scale,            
                      double maxiter,
-                     double tol
-){
+                     double tol, 
+                     String algorithm = "pls", 
+                     const int xls_min_w = 3, 
+                     const int xls_max_w = 15
+) {
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
   
@@ -844,11 +1091,12 @@ List opls_get_basics(arma::mat X,
         previous_ts = ts;
       }
       //Step 1: Compute a vector of loading weights...
-      // 1.1 Compute the 'scaling factor'
-      cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
-      // 1.2 The weights are computed as the cross product of
-      // X0 and Y0 divided by the 'scaling factor'...
-      w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      // // 1.1 Compute the 'scaling factor'
+      // cr = sqrt(trans(iypls) * Xpls * trans(Xpls) * iypls);
+      // // 1.2 The weights are computed as the cross product of
+      // // X0 and Y0 divided by the 'scaling factor'...
+      // w = (trans(Xpls) * iypls) / repmat(cr, Xpls.n_cols, 1);
+      w = get_weights(Xpls, iypls, algorithm, xls_min_w, xls_max_w);
       // Step 2: Compute the scores...
       ts = Xpls * w;
       // Step 3: Compute the X-loadings (p) and the Y-loadings (q)...
@@ -985,10 +1233,13 @@ Rcpp::NumericMatrix project_opls(arma::mat projection_mat,
 
 //' @title Projection to pls and then re-construction
 //' @description Projects spectra onto a PLS space and then reconstructs it back.
-//' @usage project_opls(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
+//' @usage reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale)
 //' @param x a matrix to project.
 //' @param projection_mat the projection matrix generated by the \code{opls_get_basics} function.
 //' @param xloadings the loadings matrix generated by the \code{opls_get_basics} function.
+//' @param scale logical indicating if scaling is required
+//' @param Xcenter a matrix of one row with the centering values
+//' @param Xscale a matrix of one row with the scaling values
 //' @return a matrix of 1 row and 1 column.
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -1019,72 +1270,11 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
   // //Necessary to center
   // xrec = xrec + arma::repmat(Xcenter, newdata.n_rows, 1);
   
-  xrmse = sqrt(arma::mean(arma::mean(pow(x - xrec, 2), 0), 1));
+  xrmse = arma::mean(sqrt(arma::mean(pow(x - xrec, 2), 0)), 1);
   return Rcpp::wrap(xrmse);
 }
 
 
-//' @title Internal Cpp function for computing the weights of the PLS components 
-//' necessary for weighted average PLS
-//' @description For internal use only!. 
-//' @usage
-//' get_pls_weights(projection_mat, 
-//'           xloadings, 
-//'           coefficients, 
-//'           new_x, 
-//'           min_component, 
-//'           max_component, 
-//'           scale, 
-//'           Xcenter, 
-//'           Xscale)
-//' @param projection_mat the projection matrix generated either by the \code{opls} function.
-//' @param xloadings .
-//' @param coefficients the matrix of regression coefficients.
-//' @param new_x a matrix of one new spectra to be predicted.
-//' @param min_component an integer indicating the minimum number of pls components.
-//' @param max_component an integer indicating the maximum number of pls components.
-//' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
-//' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
-//' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
-//' @return a matrix of one row with the weights for each component between the max. and min. specified. 
-//' @author Leonardo Ramirez-Lopez
-//' @keywords internal 
-//' @useDynLib resemble
-// [[Rcpp::export]]
-Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat, 
-                                    arma::mat xloadings,
-                                    arma::mat coefficients,
-                                    arma::mat new_x,
-                                    int min_component, 
-                                    int max_component, 
-                                    bool scale,
-                                    arma::mat Xcenter,
-                                    arma::mat Xscale
-){
-  arma::mat Xz = new_x;
-  arma::mat whgt;
-  
-  if(scale){
-    Xz = Xz / Xscale;
-  }
-  
-  //Necessary to center
-  Xz = Xz - Xcenter;
-  
-  arma::mat xrmsres = arma::zeros(1, max_component);
-  
-  arma::mat sc = Xz * projection_mat.cols(0, max_component - 1);
-  for(int i = (min_component - 1); i < max_component; i++){
-    arma::mat xrec = sc.cols(0,i) * xloadings.rows(0,i);
-    xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
-  }
-  
-  arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
-  arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
-  arma::mat whgtn = pow(rmsb_x, -1);
-  whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);
-  return Rcpp::wrap(whgt);
-}
 
 //' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
 //' @description For internal use only!. 
@@ -1093,29 +1283,62 @@ Rcpp::NumericMatrix get_pls_weights(arma::mat projection_mat,
 //'                   min_component, ncomp, 
 //'                   new_x, 
 //'                   maxiter, tol, 
-//'                   wapls_grid)
+//'                   wapls_grid, 
+//'                   algorithm, 
+//'                   statistics = TRUE)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of a single response variable.
-//' @param scale a logical indicating whether the matrix of predictors (\code{X}) must be scaled.
-//' @param method the method used for regression. One of the following options: \code{'pls'} or \code{'wapls'} or \code{'completewapls1p'}.
-//' @param mindices a matrix with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
-//' resampling iterations. The elements of each column indicate the indices of the observations to be used for modeling at each 
-//' iteration.
-//' @param pindices a matrix with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
-//' resampling iterations. The elements of each column indicate the indices of the observations to be used for predicting at each 
-//' iteration.
-//' @param min_component an integer indicating the number of minimum pls components (if the \code{method = 'pls'}).
+//' @param scale a logical indicating whether the matrix of predictors 
+//' (\code{X}) must be scaled.
+//' @param method the method used for regression. One of the following options: 
+//' \code{'pls'} or \code{'wapls'} or \code{'completewapls1p'}.
+//' @param mindices a matrix with \code{n} rows and \code{m} columns where 
+//' \code{m} is equivalent to the number of resampling iterations. The elements 
+//' of each column indicate the indices of the observations to be used for 
+//' modeling at each iteration.
+//' @param pindices a matrix with \code{k} rows and \code{m} columns where 
+//' \code{m} is equivalent to the number of 
+//' resampling iterations. The elements of each column indicate the indices of 
+//' the observations to be used for predicting at each iteration.
+//' @param min_component an integer indicating the number of minimum pls 
+//' components (if the \code{method = 'pls'}).
 //' @param ncomp an integer indicating the number of pls components.
-//' @param new_x a matrix of one row corresponding to the observation to be predicted (if the \code{method = 'wapls'}).
+//' @param new_x a matrix of one row corresponding to the observation to be 
+//' predicted (if the \code{method = 'wapls'}).
 //' @param maxiter maximum number of iterations.
 //' @param tol limit for convergence of the algorithm in the nipals algorithm.
-//' @param wapls_grid the grid on which the search for the best combination of minimum and maximum pls factors of \code{'wapls'} is based on in case \code{method = 'completewapls1p'}.
-//' @return a list containing the following one-row matrices:
+//' @param wapls_grid the grid on which the search for the best combination of 
+//' minimum and maximum pls factors of \code{'wapls'} is based on in case 
+//' \code{method = 'completewapls1p'}.
+//' @param algorithm either pls (\code{'pls'}) or modified pls (\code{'mpls'}). 
+//' See \code{get_weigths} function.
+//' @param statistics a logical value indicating whether the precision and 
+//' accuracy statistics are to be returned, otherwise the predictions for each 
+//' validation segment are retrieved.
+//' @return 
+//' if \code{statistics = true} a list containing the following one-row matrices:
 //' \itemize{
 //' \item{\code{rmse_seg}}{ the RMSEs.}
 //' \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
 //' \item{\code{rsq_seg}}{ the coefficients of determination.}
 //' } 
+//' 
+//' if \code{statistics = false} a list containing the following one-row matrices:
+//' \itemize{
+//' \item{\code{predictions}}{ the predictions of each of the validation 
+//' segments in \code{pindices}. Each column in \code{pindices} contains the 
+//' validation indices of a segment.}
+//' \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
+//' \item{\code{rsq_seg}}{ the coefficients of determination.}
+//' } 
+//' 
+//' If \code{method = "wapls"}, data of the pls weights are output in this 
+//' list(\code{compweights}).
+//'
+//' If \code{method = "completewapls1"}, data of all the combination of 
+//' components passed in \code{wapls_grid} are 
+//' output in this list(\code{complete_compweights}).
+//' 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -1131,7 +1354,9 @@ List opls_cv_cpp(arma::mat X,
                  arma::mat new_x,
                  double maxiter, 
                  double tol,
-                 arma::mat wapls_grid
+                 arma::mat wapls_grid, 
+                 String algorithm,
+                 bool statistics = true
 ){
   arma::mat rmseseg;
   arma::mat strmseseg;
@@ -1139,6 +1364,17 @@ List opls_cv_cpp(arma::mat X,
   
   arma::mat compweights;
   arma::mat crcompweights;
+  
+  arma::mat nypred;
+  arma::mat ypred;
+  arma::mat predictions;
+  int pred_rows;
+  if (!statistics) {
+    // integer multiplication uses "*" while double uses "%"
+    pred_rows = mindices.n_cols * pindices.n_rows;
+    predictions = arma::zeros(pred_rows, ncomp);
+  }
+  int preds_counter = 0;
   
   if(method == "pls"){
     rmseseg = arma::zeros(ncomp, mindices.n_cols);
@@ -1174,11 +1410,9 @@ List opls_cv_cpp(arma::mat X,
       arma::mat rpymatslice;
       rpymatslice = arma::repmat(pymatslice, 1, ncomp);
       
-      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol, algorithm));
       
       transf = fit["transf"];   
-      
-      arma::mat ypred;
       
       ypred = Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                fit["coefficients"], 
@@ -1187,12 +1421,18 @@ List opls_cv_cpp(arma::mat X,
                                                   scale,
                                                   transf["Xscale"]));
       
-      arma::mat rdl = sqrt(get_column_means(pow(rpymatslice - ypred, 2)));
-      rmseseg.col(i) = rdl;
-      arma::mat mimav = arma::zeros(1,1);
-      mimav.col(0) = max(pymatslice) - min(pymatslice);
-      strmseseg.col(i) = rmseseg.col(i) / arma::repmat(mimav, ncomp, 1);
-      rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+      if (!statistics){
+        // predictions.row(i) = ypred;
+        predictions.rows(preds_counter, preds_counter + ypred.n_rows - 1) = ypred;
+        preds_counter = preds_counter +  ypred.n_rows;
+      } else {
+        arma::mat rdl = sqrt(get_column_means(pow(rpymatslice - ypred, 2)));
+        rmseseg.col(i) = rdl;
+        arma::mat mimav = arma::zeros(1,1);
+        mimav.col(0) = max(pymatslice) - min(pymatslice);
+        strmseseg.col(i) = rmseseg.col(i) / arma::repmat(mimav, ncomp, 1);
+        rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+      }
     }
   }
   
@@ -1203,11 +1443,11 @@ List opls_cv_cpp(arma::mat X,
     rsqseg = arma::zeros(1, mindices.n_cols);
     
     // define the wapls weights directly here
-    List cfit = Rcpp::as<Rcpp::List>(opls(X, Y, ncomp, scale, maxiter, tol));
+    List cfit = Rcpp::as<Rcpp::List>(opls(X, Y, ncomp, scale, maxiter, tol, algorithm));
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
-    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
+    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_local_pls_weights(cfit["projection_mat"], 
                                                                       cfit["X_loadings"],
                                                                           cfit["coefficients"],
                                                                               new_x,
@@ -1246,12 +1486,9 @@ List opls_cv_cpp(arma::mat X,
       }
       
       
-      List fit = Rcpp::as<Rcpp::List>(opls(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      List fit = Rcpp::as<Rcpp::List>(opls(xmatslice, ymatslice, ncomp, scale, maxiter, tol, algorithm));
       
       transf = fit["transf"];   
-      
-      arma::mat nypred;
-      arma::mat ypred;
       
       nypred = Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
                                                 fit["coefficients"], 
@@ -1261,26 +1498,32 @@ List opls_cv_cpp(arma::mat X,
                                                    transf["Xscale"]));
       ypred = arma::sum(rcompweights % nypred, 1);
       
-      arma::mat rdl = sqrt(get_column_means(pow(pymatslice - ypred, 2)));
-      rmseseg.col(i) = rdl;
-      arma::mat mimav = arma::zeros(1,1);
-      mimav.col(0) = max(pymatslice) - min(pymatslice);
-      strmseseg.col(i) = rmseseg.col(i) / mimav;
-      rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+      if (!statistics){
+        // predictions.row(i) = ypred;
+        predictions.rows(preds_counter, preds_counter + ypred.n_rows - 1) = ypred;
+        preds_counter = preds_counter +  ypred.n_rows;
+      } else {
+        arma::mat rdl = sqrt(get_column_means(pow(pymatslice - ypred, 2)));
+        rmseseg.col(i) = rdl;
+        arma::mat mimav = arma::zeros(1, 1);
+        mimav.col(0) = max(pymatslice) - min(pymatslice);
+        strmseseg.col(i) = rmseseg.col(i) / mimav;
+        rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+      }
     }
   }
   
-  if(method == "completewapls1"){
+  if (method == "completewapls1") {
     rmseseg = arma::zeros(wapls_grid.n_rows, mindices.n_cols);
     strmseseg = arma::zeros(wapls_grid.n_rows, mindices.n_cols);
     rsqseg = arma::zeros(wapls_grid.n_rows, mindices.n_cols);
     
     // define the wapls weights directly here
-    List cfit = Rcpp::as<Rcpp::List>(opls_get_basics(X, Y, ncomp, scale, maxiter, tol));
+    List cfit = Rcpp::as<Rcpp::List>(opls_get_basics(X, Y, ncomp, scale, maxiter, tol, algorithm));
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
-    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_pls_weights(cfit["projection_mat"], 
+    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_local_pls_weights(cfit["projection_mat"], 
                                                                       cfit["X_loadings"],
                                                                           cfit["coefficients"],
                                                                               new_x,
@@ -1297,7 +1540,7 @@ List opls_cv_cpp(arma::mat X,
       arma::mat subw = arma::zeros(1, ncomp); 
       subw.cols(minpls - 1, maxpls - 1) = compweights.cols(minpls - 1, maxpls - 1);
       arma::mat sumsubw = arma::repmat(sum(subw, 1), 1, ncomp);
-      crcompweights.row(i) = subw/sumsubw;
+      crcompweights.row(i) = subw / sumsubw;
     }
     
     arma::mat rcompweights = arma::repmat(compweights, pindices.n_rows, 1);
@@ -1329,7 +1572,7 @@ List opls_cv_cpp(arma::mat X,
       }
       
       
-      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol));
+      List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol, algorithm));
       
       transf = fit["transf"];   
       
@@ -1349,26 +1592,38 @@ List opls_cv_cpp(arma::mat X,
       ypred = nypred * trans(crcompweights);
       
       //ypred = arma::sum(rcompweights % nypred, 1);
-      
-      arma::mat rdl = sqrt(get_column_means(pow(rpymatslice - ypred, 2)));
-      rmseseg.col(i) = rdl;
-      arma::mat mimav = arma::zeros(1,1);
-      mimav.col(0) = max(pymatslice) - min(pymatslice);
-      strmseseg.col(i) = rmseseg.col(i) / arma::repmat(mimav, wapls_grid.n_rows, 1);
-      rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+      if (!statistics){
+        // predictions.row(i) = ypred;
+        predictions.rows(preds_counter, preds_counter + ypred.n_rows - 1) = ypred;
+        preds_counter = preds_counter +  ypred.n_rows;
+      } else {
+        arma::mat rdl = sqrt(get_column_means(pow(rpymatslice - ypred, 2)));
+        rmseseg.col(i) = rdl;
+        arma::mat mimav = arma::zeros(1, 1);
+        mimav.col(0) = max(pymatslice) - min(pymatslice);
+        strmseseg.col(i) = rmseseg.col(i) / arma::repmat(mimav, wapls_grid.n_rows, 1);
+        rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+      }
     }
   }
   
-  
-  // here all the weights are output from 1 to ncomp (if method == wapls)
-  // zeroes are assigned to those which are not selected at the begining
-  return Rcpp::List::create(
-    Rcpp::Named("rmse_seg") = rmseseg,
-    Rcpp::Named("st_rmse_seg") = strmseseg,
-    Rcpp::Named("rsq_seg") = rsqseg,
-    Rcpp::Named("compweights") = compweights,
-    Rcpp::Named("crcompweights") = crcompweights
-  );
+  if (!statistics) { 
+    return Rcpp::List::create(
+      Rcpp::Named("predictions") = predictions,
+      Rcpp::Named("compweights") = compweights,
+      Rcpp::Named("complete_compweights") = crcompweights
+    );
+  } else {
+    // here all the weights are output from 1 to ncomp (if method == wapls)
+    // zeroes are assigned to those which are not selected at the begining
+    return Rcpp::List::create(
+      Rcpp::Named("rmse_seg") = rmseseg,
+      Rcpp::Named("st_rmse_seg") = strmseseg,
+      Rcpp::Named("rsq_seg") = rsqseg,
+      Rcpp::Named("compweights") = compweights,
+      Rcpp::Named("complete_compweights") = crcompweights
+    );
+  }
 }
 
 
@@ -1383,6 +1638,7 @@ List opls_cv_cpp(arma::mat X,
 //' and the response variable must be scaled to zero mean and unit variance.
 //' @return a list containing the following elements:
 //' \itemize{
+//' \item{\code{b}}{ the regression coefficients.}
 //' \item{\code{Xz}}{ the (final transformed) matrix of predictor variables.}
 //' \item{\code{alpha}}{ the alpha matrix.}
 //' \item{\code{is.scaled}}{ logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
@@ -1440,7 +1696,10 @@ List gaussian_process(arma::mat X,
   
   arma::mat alpha = arma::solve(K + vrnc, arma::eye(X.n_rows, X.n_rows)) * Yz;
   
+  arma::mat b = trans(Xz) * alpha;
+  
   return Rcpp::List::create(
+    Rcpp::Named("b") = b,
     Rcpp::Named("Xz") = Xz,
     Rcpp::Named("alpha") = alpha,
     Rcpp::Named("is_scaled") = scale,
@@ -1498,7 +1757,8 @@ NumericVector predict_gaussian_process(arma::mat Xz,
 //' @title Internal Cpp function for performing leave-group-out cross 
 //' validations for gaussian process
 //' @description For internal use only!. 
-//' @usage gaussian_process_cv(X, Y, mindices, pindices, noisev = 0.001, scale)
+//' @usage gaussian_process_cv(X, Y, mindices, pindices, noisev = 0.001,  
+//' scale = TRUE, statistics = TRUE)
 //' @param X a matrix of predictor variables.
 //' @param Y a matrix of a single response variable.
 //' @param mindices a matrix with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
@@ -1510,6 +1770,9 @@ NumericVector predict_gaussian_process(arma::mat Xz,
 //' @param ncomp an integer indicating the number of pls components.
 //' @param scale a logical indicating whether both the predictors 
 //' and the response variable must be scaled to zero mean and unit variance.
+//' @param statistics a logical value indicating whether the precision and 
+//' accuracy statistics are to be returned, otherwise the predictions for each 
+//' validation segment are retrieved.
 //' @return a list containing the following one-row matrices:
 //' \itemize{
 //' \item{\code{rmse.seg}}{ the RMSEs.}
@@ -1525,12 +1788,22 @@ List gaussian_process_cv(arma::mat X,
                          arma::mat mindices,
                          arma::mat pindices,
                          float noisev = 0.001,
-                         bool scale = true
+                         bool scale = true, 
+                         bool statistics = true
 ){
   
   arma::mat rmseseg = arma::zeros(1, mindices.n_cols);
   arma::mat strmseseg = arma::zeros(1, mindices.n_cols);
   arma::mat rsqseg = arma::zeros(1, mindices.n_cols);
+  
+  arma::mat predictions;
+  int pred_rows;
+  if (!statistics) {
+    // integer multiplication uses "*" while double uses "%"
+    pred_rows = mindices.n_cols * pindices.n_rows;
+    predictions = arma::zeros(pred_rows, 1);
+  }
+  int preds_counter = 0;
   
   List transf;
   
@@ -1564,22 +1837,31 @@ List gaussian_process_cv(arma::mat X,
     
     ypred = Rcpp::as<arma::mat>(predict_gaussian_process(fit["Xz"], fit["alpha"], pxmatslice, scale, fit["Xcenter"], fit["Xscale"], fit["Ycenter"], fit["Yscale"]));
     
-    
-    arma::mat rdl = sqrt(get_column_means(pow(pymatslice - ypred, 2)));
-    rmseseg.col(i) = rdl;
-    arma::mat mimav = arma::zeros(1,1);
-    mimav.col(0) = max(pymatslice) - min(pymatslice);
-    strmseseg.col(i) = rmseseg.col(i) / mimav;
-    rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+    if (!statistics){
+      // predictions.row(i) = ypred;
+      predictions.rows(preds_counter, preds_counter + ypred.n_rows - 1) = ypred;
+      preds_counter = preds_counter +  ypred.n_rows;
+    } else {
+      arma::mat rdl = sqrt(get_column_means(pow(pymatslice - ypred, 2)));
+      rmseseg.col(i) = rdl;
+      arma::mat mimav = arma::zeros(1,1);
+      mimav.col(0) = max(pymatslice) - min(pymatslice);
+      strmseseg.col(i) = rmseseg.col(i) / mimav;
+      rsqseg.col(i) = pow(arma::cor(ypred, pymatslice), 2);
+    }
   }
-  return Rcpp::List::create(
-    Rcpp::Named("rmse_seg") = rmseseg,
-    Rcpp::Named("st_rmse_seg") = strmseseg,
-    Rcpp::Named("rsq_seg") = rsqseg
-  );
+  if (!statistics) { 
+    return Rcpp::List::create(
+      Rcpp::Named("predictions") = predictions
+    );
+  } else {
+    return Rcpp::List::create(
+      Rcpp::Named("rmse_seg") = rmseseg,
+      Rcpp::Named("st_rmse_seg") = strmseseg,
+      Rcpp::Named("rsq_seg") = rsqseg
+    );
+  }
 }
-
-
 
 //' @title Principal components based on  the non-linear iterative partial least squares (nipals) algorithm
 //' @description Computes orthogonal socres partial least squares (opls) regressions with the NIPALS algorithm. It allows multiple response variables. 
@@ -1646,13 +1928,15 @@ List pca_nipals(arma::mat X,
   
   arma::mat Xpls = Xz;
   //variance of Xpls
-  double xvar = sum(pow(get_column_sds(Xpls), 2));  
+  double xvar = overall_var(Xpls)(0);  
   // int max_pcs = arma::min(arma::size(Xpls));
   
   // matrices to declare
   int iter;
   bool keepg;
   arma::mat pp;
+  arma::mat cx;
+  double ireconstructed_var;
   arma::mat pp_std;
   arma::mat tt_ith;
   arma::mat val_ith;
@@ -1677,12 +1961,15 @@ List pca_nipals(arma::mat X,
       }
       tt.col(0) = tt_ith.col(0);
     }
-    Xpls = Xpls - (tt * trans(pp_std));
+    cx = (tt * trans(pp_std));
+    Xpls = Xpls - cx;
     pc_scores.col(i) = tt.col(0);
     pc_loadings.col(i) = pp_std.col(0);
-    explained_var(0,i) = arma::var(pc_scores.col(i));
+    
+    ireconstructed_var = overall_var(cx)(0);
+    explained_var(0,i) = ireconstructed_var;
     explained_var(1,i) = explained_var(0,i) / xvar;
-    explained_var(2,i) = sum(explained_var.row(0)) / xvar;
+    explained_var(2,i) = sum(explained_var.row(0)) / xvar;   
     
     ith_comp = ith_comp + 1;
     if(pcSelmethod == "var" || pcSelmethod == "cumvar")
@@ -1723,13 +2010,12 @@ List pca_nipals(arma::mat X,
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
   }
-  // convert this to standard deviation
-  explained_var.row(0) = sqrt(explained_var.row(0));
   
   return Rcpp::List::create(
     Rcpp::Named("pc_indices") = pc_indices,
     Rcpp::Named("pc_scores") = pc_scores,
     Rcpp::Named("pc_loadings") = trans(pc_loadings),
+    Rcpp::Named("original_x_variance") = xvar, 
     Rcpp::Named("pc_variance") = explained_var,
     Rcpp::Named("scale") = Rcpp::List::create(
       Rcpp::Named("center") = x_center_vec,

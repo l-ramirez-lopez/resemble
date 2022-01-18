@@ -93,6 +93,8 @@
 #' \item{\code{"pca.nipals"}}{: principal component analysis using
 #' the non-linear iterative partial least squares algorithm.}
 #' \item{\code{"pls"}}{: partial least squares.}
+#' \item{\code{"mpls"}}{: modified partial least squares (Shenk and Westerhaus, 
+#' 1991 and Westerhaus, 2014).}
 #' }
 #' See the \code{\link{ortho_projection}} function for further details on the
 #' projection methods.
@@ -298,8 +300,8 @@ ortho_diss <- function(Xr, Xu = NULL,
   if (!is.null(Yr)) {
     Yr <- as.matrix(Yr)
   } else {
-    if (pc_selection[[1]] == "opc" | diss_method == "pls") {
-      stop("Yr must be provided when the 'opc' is used in pc_selection is used or diss_method = 'pls'")
+    if (pc_selection[[1]] == "opc" | diss_method %in% c("pls", "mpls")) {
+      stop("Yr must be provided when the 'opc' is used in pc_selection is used or diss_method is one of 'pls' or 'mpls'")
     }
   }
 

@@ -20,7 +20,9 @@ fit_and_predict(
   noise_variance = 0.001,
   range_prediction_limits = TRUE,
   pls_max_iter = 1,
-  pls_tol = 1e-06
+  pls_tol = 1e-06,
+  modified = FALSE,
+  seed = NULL
 )
 }
 \description{
