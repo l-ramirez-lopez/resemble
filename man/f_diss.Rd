@@ -52,7 +52,7 @@ In the case of both the Euclidean and Mahalanobis distances, the scaled
 dissimilarity matrix \mjeqn{D}{D} between between observations in a given
 matrix \mjeqn{X}{X} is computed as follows:
 
-\mjdeqn{d(x_i, x_j)^{2} = \sum (x_i - x_j)M^{-1}(x_i - x_j)^{\mathrm{T}}}{D(x_i, x_j)^{2} = \sum (x_i - x_j)M^{-1}(x_i - x_j)^T}
+\mjdeqn{d(x_i, x_j)^{2} = \sum (x_i - x_j)M^{-1}(x_i - x_j)^{\mathrm{T}}}{d(x_i, x_j)^{2} = \sum (x_i - x_j)M^{-1}(x_i - x_j)^T}
 \mjdeqn{d_{scaled}(x_i, x_j) = \sqrt{\frac{1}{p}d(x_i, x_j)^{2}}}{d_scaled (x_i, x_j) = sqrt(1/p d(x_i, x_j)^2)}
 
 where \mjeqn{p}{p} is the number of variables in \mjeqn{X}{X}, \mjeqn{M}{M} is the identity
