@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-_Last update: 17.01.2022_
+_Last update: 16.03.2022_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -185,9 +185,29 @@ Simply type and you will get the info you need:
 citation(package = "resemble")
 ```
 
-## News
+## News: Memory based learnig (MBL) and `resemble`
+
+* 2022.03: [Ng et al., 2022](https://www.sciencedirect.com/science/article/pii/S2667006222000107)
+uses MBL (implemented in `resemble`) to asses the feasibility 
+of quantifying a number of soil properties from IR spectra. They also show that
+MBL achieved better accuracy than [Cubist regression](https://odsc.medium.com/balancing-interpretability-and-predictive-power-with-cubist-models-in-r-858d2c936b79).
+
+* 2022.02: [Li et al., 2022](https://www.authorea.com/users/308848/articles/539538-strategy-of-efficient-estimation-of-soil-organic-content-at-the-local-scale-based-on-the-national-spectral-database?commit=e628e3487f23c8cc6fc19199e956dea9c5aae23c)
+show how useful the combination of MBL and spiking (implemented in `resemble`) 
+can be to accurately predict soil properties from NIR data in China.
+
+* 2021.12: [Yu et al., 2022](https://www.mdpi.com/2072-4292/14/6/1303) uses MBL 
+with External Parameter Orthogonalization to predict soil properties in in the 
+field. 
+
+* 2021.10: [In this paper](https://soil.copernicus.org/articles/7/693/2021/) we use MBL 
+to predict soil properties in Africa. 
+
+* 2020.08: Charlotte Rivard shows how to use MBL in IR spectroscopy 
+[here](https://whrc.github.io/Soil-Predictions-MIR/).
+
 * 2020.04: [Tsakiridis et al. (2020)](https://www.sciencedirect.com/science/article/abs/pii/S0016706119308870?via%3Dihub), 
-used the optmal principal components dissimilarity method implemented in `resemble` in combination with convolutional neural networks for simultaneous prediction of soil properties from vis-NIR spectra.
+used the optimal principal components dissimilarity method implemented in `resemble` in combination with convolutional neural networks for simultaneous prediction of soil properties from vis-NIR spectra.
 
 * 2019-04: [Tziolas et al. (2019)](https://www.sciencedirect.com/science/article/abs/pii/S0016706118307006), used
 `resemble` to investigate on improved MBL methods for quantitative predictions 
