@@ -10,7 +10,7 @@
     "\033[34m",
     pkg, " version ",
     resemble_v,
-    " -- 'piapia'\033[39m"
+    " -- 'Fix-Hodges'\033[39m"
   )
   mss2 <- paste0(
     "\033[34mcheck the package repository at: ",
