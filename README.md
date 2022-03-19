@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-_Last update: 16.03.2022_
+_Last update: 20.03.2022_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
@@ -92,6 +92,13 @@ using [`devtools`](https://CRAN.R-project.org/package=devtools):
 ```
 devtools::install_github("l-ramirez-lopez/resemble")
 ```
+
+NOTE: in some MAC Os it is still recommended to install `gfortran` and `clang`
+from [here](https://cran.r-project.org/bin/macosx/tools/). Even for R >= 4.0. 
+For more info, check this [issue](https://github.com/tidyverts/fable/issues/193).  
+
+
+
 
 ## Example
 
