@@ -10,7 +10,7 @@
 
 Functions for memory-based learning
 
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 }
 \details{
 This is the version \code{2.1} (\code{'piapia'}) of the package. It
