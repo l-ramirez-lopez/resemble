@@ -9,13 +9,13 @@
 
 <!-- badges: end -->
 
-_Last update: 20.03.2022_
+_Last update: 30.08.2022_
 
 <em><p align="right"> Think Globally, Fit Locally (Saul and Roweis, 2003) </p></em>
 
 ## About
 The `resemble` package provides high-performing functionality for 
-data-driven modeling (including local modeling), nearest neighbor search and 
+data-driven modeling (including local modeling), nearest-neighbor search and 
 orthogonal projections in spectral data.
 
 ## Vignette
