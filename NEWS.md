@@ -2,8 +2,10 @@
 
 ## `resemble 2.2.1 (Fix-Hodges)`
 ### Improvements and fixes
+- Fixed: An error was thrown when passing a pre-computed distance matrix to the 
+`diss_method` argument in `mbl()` ([#24](https://github.com/l-ramirez-lopez/resemble/issues/24)).
 
-* Documentation is now compatible with HTML5.
+- Documentation is now compatible with HTML5.
 
 
 ## `resemble 2.1 (piapia)`
