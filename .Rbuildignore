@@ -6,6 +6,7 @@ code_ex.R
 ^\.Rprofile$
 ^cran-comments\.md$
 ^my-comments\.md$
+^NEWS\.html$
 logo.R
 ^Rscript*
 logo_large.png
