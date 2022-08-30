@@ -166,7 +166,7 @@ input data). Default: \code{character()}. NOTE: his is an experimental
 argument.}
 
 \item{...}{further arguments to be passed to the \code{\link{dissimilarity}}
-fucntion. See details.}
+function. See details.}
 }
 \value{
 a \code{list} containing the following elements:

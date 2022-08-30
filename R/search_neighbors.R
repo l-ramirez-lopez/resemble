@@ -150,7 +150,7 @@
 #' input data). Default: \code{character()}. NOTE: his is an experimental
 #' argument.
 #' @param ... further arguments to be passed to the \code{\link{dissimilarity}}
-#' fucntion. See details.
+#' function. See details.
 #' @details
 #' This function may be specially useful when the reference set (\code{Xr}) is
 #' very large. In some cases the number of observations in the reference set
