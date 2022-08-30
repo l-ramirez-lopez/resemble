@@ -928,6 +928,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       allow_parallel = control$allow_parallel,
       ...
     )
+  
     diss_xr_xu <- neighborhoods$dissimilarity
     if (!is.null(neighborhoods$projection)) {
       diss_xr_xu_projection <- neighborhoods$projection
@@ -946,9 +947,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         ))
       }
       diss_xr_xr <- diss_method[1:nrow(Xr), 1:nrow(Xr)]
-      diss_xr_xu <- diss_method[1:nrow(Xr), (1 + nrow(Xr)):ncol(diss_method)]
-      rm(diss_method)
-      gc()
+      diss_method <- diss_method[1:nrow(Xr), (1 + nrow(Xr)):ncol(diss_method)]
     }
     if (diss_usage %in% c("weights", "none")) {
       if (dim_diss[1] != n_xr & dim_diss[2] != n_xu) {
@@ -962,17 +961,19 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       }
     }
     diss_xr_xu <- diss_method
-    append(
-      neighborhoods,
-      diss_to_neighbors(diss_xr_xu,
-        k = k, k_diss = k_diss, k_range = k_range,
-        spike = NULL,
+    diss_method <- "external_matrix"
+    
+
+    neighborhoods <-
+      diss_to_neighbors(
+        diss_xr_xu,
+        k = k_max, k_diss = k_diss_max,
+        k_range = k_range,
+        spike = spike,
         return_dissimilarity = control$return_dissimilarity
       )
-    )
-
+    
     if (gh) {
-      neighborhoods <- NULL
       neighborhoods$gh$projection <- pls_projection(
         Xr = Xr, Xu = Xu,
         Yr = Yr,
@@ -980,7 +981,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         scale = scale, ...
       )
       neighborhoods$gh$gh_Xr <- f_diss(neighborhoods$gh$projection$scores,
-        Xu = t(colMeans(neighborhoods$gh$projection$scores)),
+        Xu = t(colMeans(neighborhoods$gh$projection$scores[1:nrow(Xr), ])),
         diss_method = "mahalanobis",
         center = FALSE, scale = FALSE
       )
@@ -991,7 +992,6 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
 
     neighborhoods$diss_xr_xr <- diss_xr_xr
     rm(diss_xr_xr)
-    rm(diss_method)
     gc()
   }
 
