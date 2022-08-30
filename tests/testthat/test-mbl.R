@@ -427,5 +427,5 @@ test_that("mbl with external disstances works", {
   r_ext <- sbl_internal_diss$validation_results$nearest_neighbor_validation 
   r_int <- sbl_external_diss$validation_results$nearest_neighbor_validation
   
-  expect_true(sum(abs(r_ext - r-int)) < tol)
+  expect_true(sum(abs(r_ext - r_int)) < tol)
 })
