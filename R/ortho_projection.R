@@ -113,7 +113,7 @@
 #' with which to predict. If omitted, the scores are used. It must contain the
 #' same number of columns, to be used in the same order.
 #' @details
-#' In the case of \code{method = "pca"}, the algrithm used is the singular value
+#' In the case of \code{method = "pca"}, the algorithm used is the singular value
 #' decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
 #'
 #'  \mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}

@@ -182,7 +182,7 @@ Functions to perform orthogonal projections of high dimensional data matrices
 using principal component analysis (pca) and partial least squares (pls).
 }
 \details{
-In the case of \code{method = "pca"}, the algrithm used is the singular value
+In the case of \code{method = "pca"}, the algorithm used is the singular value
 decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
 
  \mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}
