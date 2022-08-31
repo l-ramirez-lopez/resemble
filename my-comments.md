@@ -1,5 +1,83 @@
 # resemble
 
+# version 2.2.1
+
+# submission message:
+Dear CRAN maintainers,
+I am submitting my package "resemble" to CRAN. This version accounts for 
+problems found in Rd files auto-generated with roxygen2 7.1.2 (not compatible 
+with HTML5). The new Rd files are now compatible with HTML5 (as Rd files 
+are generated with roxygen2_7.2.0 ). 
+Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
+A first submission of this version failed (for "r-devel-linux-x86_64-debian-gcc"), 
+therefore following platforms were tested for a second submission using Rhub: 
+- Debian Linux, R-devel, GCC ASAN/UBSAN
+- Debian Linux, R-devel, GCC, no long double
+- Debian Linux, R-devel, clang, ISO-8859-15 locale
+- Debian Linux, R-devel, GCC
+For this second submission the package passed all the tests in the above platforms. 
+Reverse dependencies have also been checked. 
+Best regards,
+Leonardo
+
+
+
+## Package was built using: 
+```
+devtools::build(
+  pkg = ".",
+  path = NULL,
+  binary = FALSE,
+  vignettes = TRUE,
+  manual = TRUE,
+  args = NULL,
+  quiet = FALSE
+)
+```
+
+# R win builder checks for release of `resemble 2.2.1` (`Fix-Hodges`) 30.08.2022 
+passed all the checks without notes.
+
+# Rhub checks for release of `resemble 2.2.1` (`Fix-Hodges`) 30.08.2022
+The checks were conducted in the following platforms through rhub:
+
+```
+rhub::check(paste0(gsub("/resemble$", "/", getwd()), "resemble_2.2.1.tar.gz"), 
+            platform = c("fedora-gcc-devel"), 
+            email = "ramirez.lopez.leo@gmail.com")
+```
+- "linux-x86_64-rocker-gcc-san" OK
+
+- "fedora-gcc-devel" NOTE
+  installed size is 11.7Mb
+  sub-directories of 1Mb or more:
+    doc    1.6Mb
+    libs   9.5Mb
+
+- "windows-x86_64-devel" OK
+
+- "macos-highsierra-release-cran" OK
+
+- "windows-x86_64-release" OK
+
+- "ubuntu-gcc-release" NOTE
+     installed size is 13.5Mb
+     sub-directories of 1Mb or more:
+       doc    1.6Mb
+       libs  11.3Mb
+
+
+- "solaris-x86-patched-ods" Package suggested but not available: ‘testthat’
+   
+   The suggested packages are required for a complete check.
+   Checking can be attempted without them by setting the environment
+   variable _R_CHECK_FORCE_SUGGESTS_ to a false value.
+   
+   See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+   manual.
+
+
+
 # version 2.1.1
 
 ## Package was built using: 
