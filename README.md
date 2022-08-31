@@ -224,10 +224,9 @@ of soil properties using NIR spectroscopy and geographical information.
 compared several machine learning methods for predictive soil spectroscopy and 
 show that MBL `resemble` offers highly competive results.
 
-* 2020.01: [Sanderman et al., (2020)](https://acsess.onlinelibrary.wiley.com/doi/epdf/10.1002/saj2.20009) used `resemble` for the prediction of soil health indicatorsin the United States.
+* 2020.01: [Sanderman et al., (2020)](https://scholar.google.ch/scholar?cluster=8189603827145687468&hl=en&as_sdt=0,5&as_vis=1) used `resemble` for the prediction of soil health indicatorsin the United States.
 
-* 2019-03: Another paper using `resemble`... I published a [scientific paper](https://onlinelibrary.wiley.com/doi/10.1111/ejss.12752) were we used 
-memory-based learning (MBL) for digital soil mapping. Here we use MBL to remove 
+* 2019-03: I published a [scientific paper](https://scholar.google.com/scholar?cluster=1892507175331927677&hl=en&as_sdt=2005&sciodt=0,5&as_ylo=2022) were we used memory-based learning (MBL) for digital soil mapping. Here we use MBL to remove 
 local calibration outliers rather than using this approach to overcome the typical 
 complexity of large spectral datasets. (Ramirez‐Lopez, L., Wadoux, A. C.,
 Franceschini, M. H. D., Terra, F. S., Marques, K. P. P., Sayão, V. M., & 
