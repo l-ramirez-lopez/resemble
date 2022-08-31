@@ -355,3 +355,77 @@ test_that("mbl delivers expeted results", {
   expect_true(all(yuv_pls_k_diss))
   expect_true(all(yuv_wapls_k_diss))
 })
+
+
+test_that("mbl with external disstances works", {
+  tol <- 1e-10
+  nirdata <- data("NIRsoil", package = "prospectr")
+  
+  # Proprocess the data using detrend plus first derivative with Savitzky and
+  # Golay smoothing filter
+  sg_det <- savitzkyGolay(
+    detrend(NIRsoil$spc,
+            wav = as.numeric(colnames(NIRsoil$spc))
+    ),
+    m = 1,
+    p = 1,
+    w = 7
+  )
+  
+  NIRsoil$spc_pr <- sg_det
+  
+  # split into training and testing sets
+  test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
+  test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
+  
+  train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
+  train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
+  
+  my_control <- mbl_control(validation_type = "NNv")
+  
+  ## The neighborhood sizes to test
+  ks <- seq(40, 140, by = 20)
+  
+  ext_d <- dissimilarity(
+    rbind(train_x, test_x),  Xu = rbind(train_x, test_x),
+    diss_method = "cor",
+    center = FALSE, scale = FALSE
+  )$dissimilarity
+  
+  dim(ext_d)
+  diag(ext_d) <- 0
+  
+  
+  sbl_external_diss <- mbl(
+    Xr = train_x,
+    Yr = train_y,
+    Xu = test_x,
+    k = ks,
+    spike = 1:5,
+    method = local_fit_gpr(),
+    diss_method = ext_d,
+    diss_usage = "predictors",
+    control = my_control,
+    scale = FALSE, 
+    center = FALSE
+  )
+  
+  sbl_internal_diss <- mbl(
+    Xr = train_x,
+    Yr = train_y,
+    Xu = test_x,
+    k = ks,
+    spike = 1:5,
+    method = local_fit_gpr(),
+    diss_method = "cor",
+    diss_usage = "predictors",
+    control = my_control,
+    scale = FALSE, 
+    center = FALSE
+  )
+  
+  r_ext <- sbl_internal_diss$validation_results$nearest_neighbor_validation 
+  r_int <- sbl_external_diss$validation_results$nearest_neighbor_validation
+  
+  expect_true(sum(abs(r_ext - r_int)) < tol)
+})
