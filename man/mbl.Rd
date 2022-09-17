@@ -6,7 +6,7 @@
 \usage{
 mbl(Xr, Yr, Xu, Yu = NULL, k, k_diss, k_range, spike = NULL,
     method = local_fit_wapls(min_pls_c = 3, max_pls_c = min(dim(Xr), 15)),
-    diss_method = "pca", diss_usage = "predictors", gh = TRUE, 
+    diss_method = "pca", diss_usage = "predictors", gh = TRUE,
     pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
     control = mbl_control(), group = NULL, center = TRUE, scale = FALSE,
     verbose = TRUE, documentation = character(), seed = NULL, ...)
@@ -62,32 +62,24 @@ computed on the matrix of scores of a Principal Component (PC)
 projection of \code{Xr} and \code{Xu}. PC projection is done using the
 singular value decomposition (SVD) algorithm.
 See \code{\link{ortho_diss}} function.}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{   \\item\{\code{"pca.nipals"}\}\{ Mahalanobis distance
-   computed on the matrix of scores of a Principal Component (PC)
-   projection of \code{Xr} and \code{Xu}. PC projection is done using the
-   non-linear iterative partial least squares (nipals) algorithm.
-   See \code{\link{ortho_diss}} function.\}
-
-   \\item\{\code{"pls"}\}\{ Mahalanobis distance
-   computed on the matrix of scores of a partial least squares projection
-   of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always
-   required. See \code{\link{ortho_diss}} function.\}
-
-   \\item\{\code{"cor"}\}\{ correlation coefficient
-   between observations. See \code{\link{cor_diss}} function.\}
-
-   \\item\{\code{"euclid"}\}\{ Euclidean distance
-   between observations. See \code{\link{f_diss}} function.\}
-
-   \\item\{\code{"cosine"}\}\{ Cosine distance
-   between observations. See \code{\link{f_diss}} function.\}
-
-   \\item\{\code{"sid"}\}\{ spectral information divergence between
-   observations. See \code{\link{sid}} function.\}
-   \}
-}\if{html}{\out{</div>}}
-
+\item{\code{"pca.nipals"}}{ Mahalanobis distance
+computed on the matrix of scores of a Principal Component (PC)
+projection of \code{Xr} and \code{Xu}. PC projection is done using the
+non-linear iterative partial least squares (nipals) algorithm.
+See \code{\link{ortho_diss}} function.}
+\item{\code{"pls"}}{ Mahalanobis distance
+computed on the matrix of scores of a partial least squares projection
+of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always
+required. See \code{\link{ortho_diss}} function.}
+\item{\code{"cor"}}{ correlation coefficient
+between observations. See \code{\link{cor_diss}} function.}
+\item{\code{"euclid"}}{ Euclidean distance
+between observations. See \code{\link{f_diss}} function.}
+\item{\code{"cosine"}}{ Cosine distance
+between observations. See \code{\link{f_diss}} function.}
+\item{\code{"sid"}}{ spectral information divergence between
+observations. See \code{\link{sid}} function.}
+}
 Alternatively, a matrix of dissimilarities can also be passed to this
 argument. This matrix is supposed to be a user-defined matrix
 representing the dissimilarities between observations in \code{Xr} and
@@ -134,28 +126,23 @@ below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
 combined) indicating the maximum
 number of principal components to be tested. See the
 \code{\link{ortho_projection}} function for more details.}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{   \\item\{\code{"cumvar"}:\}\{ selection of the principal components based
-   on a given cumulative amount of explained variance. In this case,
-   \code{value} must be a value (larger than 0 and below or equal to 1)
-   indicating the minimum amount of cumulative variance that the
-   combination of retained components should explain.\}
-
-   \\item\{\code{"var"}:\}\{ selection of the principal components based
-   on a given amount of explained variance. In this case,
-   \code{value} must be a value (larger than 0 and below or equal to 1)
-   indicating the minimum amount of variance that a single component
-   should explain in order to be retained.\}
-
-   \\item\{\code{"manual"}:\}\{ for manually specifying a fix number of
-   principal components. In this case, \code{value} must be a value
-   (larger than 0 and below the minimum dimension of \code{Xr} or
-   \code{Xr} and \code{Xu} combined).
-   indicating the minimum amount of variance that a component should
-   explain in order to be retained.\}
-   \}
-}\if{html}{\out{</div>}}
-
+\item{\code{"cumvar"}:}{ selection of the principal components based
+on a given cumulative amount of explained variance. In this case,
+\code{value} must be a value (larger than 0 and below or equal to 1)
+indicating the minimum amount of cumulative variance that the
+combination of retained components should explain.}
+\item{\code{"var"}:}{ selection of the principal components based
+on a given amount of explained variance. In this case,
+\code{value} must be a value (larger than 0 and below or equal to 1)
+indicating the minimum amount of variance that a single component
+should explain in order to be retained.}
+\item{\code{"manual"}:}{ for manually specifying a fix number of
+principal components. In this case, \code{value} must be a value
+(larger than 0 and below the minimum dimension of \code{Xr} or
+\code{Xr} and \code{Xu} combined).
+indicating the minimum amount of variance that a component should
+explain in order to be retained.}
+}
 The list
 \code{list(method = "opc", value = min(dim(Xr), 40))} is the default.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
@@ -495,7 +482,7 @@ plot(local_algorithm_2)
 n_cores <- 2
 
 if (parallel::detectCores() < 2) {
-   n_cores <- 1
+  n_cores <- 1
 }
 
 # Alternatively:

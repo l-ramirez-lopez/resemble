@@ -9,7 +9,7 @@
 \usage{
 local_fit_pls(pls_c, modified = FALSE, max_iter = 100, tol = 1e-6)
 
-local_fit_wapls(min_pls_c, max_pls_c, modified = FALSE, 
+local_fit_wapls(min_pls_c, max_pls_c, modified = FALSE,
                 max_iter = 100, tol = 1e-6)
 
 local_fit_gpr(noise_variance = 0.001)

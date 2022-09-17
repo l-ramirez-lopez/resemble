@@ -68,29 +68,24 @@ observation and the \code{Yr} value of its closest observation. In this
 case \code{value} must be a value (larger than 0 and
 below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating
 the maximum number of principal components to be tested. See details.}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{   \\item\{\code{"cumvar"}:\}\{ selection of the principal components based
-   on a given cumulative amount of explained variance. In this case,
-   \code{value} must be a value (larger than 0 and below or equal to 1)
-   indicating the minimum amount of cumulative variance that the
-   combination of retained components should explain.\}
-
-   \\item\{\code{"var"}:\}\{ selection of the principal components based
-   on a given amount of explained variance. In this case,
-   \code{value} must be a value (larger than 0 and below or equal to 1)
-   indicating the minimum amount of variance that a single component should
-   explain in order to be retained.\}
-
-   \\item\{\code{"manual"}:\}\{ for manually specifying a fix number of
-   principal components. In this case, \code{value} must be a value
-   (larger than 0 and
-   below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
-   combined).
-   indicating the minimum amount of variance that a component should
-   explain in order to be retained.\}
-   \}
-}\if{html}{\out{</div>}}
-
+\item{\code{"cumvar"}:}{ selection of the principal components based
+on a given cumulative amount of explained variance. In this case,
+\code{value} must be a value (larger than 0 and below or equal to 1)
+indicating the minimum amount of cumulative variance that the
+combination of retained components should explain.}
+\item{\code{"var"}:}{ selection of the principal components based
+on a given amount of explained variance. In this case,
+\code{value} must be a value (larger than 0 and below or equal to 1)
+indicating the minimum amount of variance that a single component should
+explain in order to be retained.}
+\item{\code{"manual"}:}{ for manually specifying a fix number of
+principal components. In this case, \code{value} must be a value
+(larger than 0 and
+below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
+combined).
+indicating the minimum amount of variance that a component should
+explain in order to be retained.}
+}
 The list \code{list(method = "var", value = 0.01)} is the default.
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
 \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character

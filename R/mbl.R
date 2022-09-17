@@ -13,10 +13,10 @@
 #' @usage
 #' mbl(Xr, Yr, Xu, Yu = NULL, k, k_diss, k_range, spike = NULL,
 #'     method = local_fit_wapls(min_pls_c = 3, max_pls_c = min(dim(Xr), 15)),
-#'     diss_method = "pca", diss_usage = "predictors", gh = TRUE, 
+#'     diss_method = "pca", diss_usage = "predictors", gh = TRUE,
 #'     pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
 #'     control = mbl_control(), group = NULL, center = TRUE, scale = FALSE,
-#'     verbose = TRUE, documentation = character(), seed = NULL, ...) 
+#'     verbose = TRUE, documentation = character(), seed = NULL, ...)
 #'
 #' @param Xr a matrix of predictor variables of the reference data
 #' (observations in rows and variables in columns).
@@ -59,27 +59,27 @@
 #'        projection of \code{Xr} and \code{Xu}. PC projection is done using the
 #'        singular value decomposition (SVD) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"pca.nipals"}}{ Mahalanobis distance
 #'        computed on the matrix of scores of a Principal Component (PC)
 #'        projection of \code{Xr} and \code{Xu}. PC projection is done using the
 #'        non-linear iterative partial least squares (nipals) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"pls"}}{ Mahalanobis distance
 #'        computed on the matrix of scores of a partial least squares projection
 #'        of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always
 #'        required. See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"cor"}}{ correlation coefficient
 #'        between observations. See \code{\link{cor_diss}} function.}
-#'
+
 #'        \item{\code{"euclid"}}{ Euclidean distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
+
 #'        \item{\code{"cosine"}}{ Cosine distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
+
 #'        \item{\code{"sid"}}{ spectral information divergence between
 #'        observations. See \code{\link{sid}} function.}
 #'        }
@@ -131,19 +131,19 @@
 #'        combined) indicating the maximum
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
-#'
+
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
-#'
+
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
-#'
+
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and below the minimum dimension of \code{Xr} or
@@ -180,9 +180,9 @@
 #' @param verbose a logical indicating whether or not to print a progress bar
 #' for each observation to be predicted. Default is \code{TRUE}. Note: In case
 #' parallel processing is used, these progress bars will not be printed.
-#' @param seed an integer value containing the random number generator (RNG) 
-#' state for random number generation. This argument can be used for 
-#' reproducibility purposes (for random sampling) in the cross-validation 
+#' @param seed an integer value containing the random number generator (RNG)
+#' state for random number generation. This argument can be used for
+#' reproducibility purposes (for random sampling) in the cross-validation
 #' results. Default is \code{NULL}, i.e. no RNG is applied.
 #' @param documentation an optional character string that can be used to
 #' describe anything related to the \code{mbl} call (e.g. description of the
@@ -493,13 +493,13 @@
 #'
 #' # Example 4
 #' # Running the mbl function in parallel with example 2
-#' 
+#'
 #' n_cores <- 2
-#' 
+#'
 #' if (parallel::detectCores() < 2) {
-#'    n_cores <- 1
+#'   n_cores <- 1
 #' }
-#' 
+#'
 #' # Alternatively:
 #' # n_cores <- parallel::detectCores() - 1
 #' # if (n_cores == 0) {
@@ -673,7 +673,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
                 scale = FALSE,
                 verbose = TRUE,
                 documentation = character(),
-                seed = NULL, 
+                seed = NULL,
                 ...) {
   f_call <- match.call()
 
@@ -684,7 +684,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   if (!is.logical(verbose)) {
     stop("'verbose' must be logical")
   }
-  
+
   if (missing(k)) {
     k <- NULL
   }
@@ -928,7 +928,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       allow_parallel = control$allow_parallel,
       ...
     )
-  
+
     diss_xr_xu <- neighborhoods$dissimilarity
     if (!is.null(neighborhoods$projection)) {
       diss_xr_xu_projection <- neighborhoods$projection
@@ -962,7 +962,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     }
     diss_xr_xu <- diss_method
     diss_method <- "external_matrix"
-    
+
 
     neighborhoods <-
       diss_to_neighbors(
@@ -972,7 +972,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         spike = spike,
         return_dissimilarity = control$return_dissimilarity
       )
-    
+
     if (gh) {
       neighborhoods$gh$projection <- pls_projection(
         Xr = Xr, Xu = Xu,
@@ -1085,14 +1085,14 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   # to_erase <- getOption("width") - pg_bar_width - (2 * nchar(nrow(Xu))) - 2
   to_erase <- pg_bar_width + (2 * nchar(nrow(Xu))) + 8
   to_erase <- paste(rep(" ", to_erase), collapse = "")
-  
-  if (verbose){
+
+  if (verbose) {
     cat("\033[32m\033[3mPredicting...\n\033[23m\033[39m")
   }
   n_iter <- nrow(Xu)
 
   pred_obs <- foreach(
-    i = 1:n_iter, 
+    i = 1:n_iter,
     ith_observation = iter_neighborhoods,
     .inorder = FALSE,
     .export = c(
@@ -1194,7 +1194,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         } else {
           kth_weights <- rep(1, current_k)
         }
-        
+
         # local fit
         i_k_pred <- fit_and_predict(
           x = i_k_xr,
@@ -1212,9 +1212,9 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
           noise_variance = method$noise_variance,
           range_prediction_limits = control$range_prediction_limits,
           pls_max_iter = 1,
-          pls_tol = 1e-6, 
+          pls_tol = 1e-6,
           seed = seed,
-          modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
+          modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only
         )
 
         ith_pred_results$pred[kk] <- i_k_pred$prediction
@@ -1272,7 +1272,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
             pls_max_iter = 1,
             pls_tol = 1e-6,
             seed = seed,
-            modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
+            modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only
           )$prediction
 
           ith_pred_results$y_nearest_pred[kk] <- nearest_pred / kth_weights[1]
@@ -1484,7 +1484,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       Yu_prediction_statistics = pred_res
     ),
     results = results_table,
-    documentation = documentation, 
+    documentation = documentation,
     seed = seed
   )
 

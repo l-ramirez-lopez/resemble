@@ -25,33 +25,32 @@
 #'        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
 #'        done using the singular value decomposition (SVD) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"pca.nipals"}:}{ Mahalanobis distance
 #'        computed on the matrix of scores of a Principal Component (PC)
 #'        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
-#'        done using the non-linear iterative partial least squares (niapls)
+#'        done using the non-linear iterative partial least squares (nipals)
 #'        algorithm. See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"pls"}}:{ Mahalanobis distance
 #'        computed on the matrix of scores of a partial least squares projection
 #'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 #'        always required. See \code{\link{ortho_diss}} function.}
-#'        
+
 #'        \item{\code{"mpls"}}:{ Mahalanobis distance
-#'        computed on the matrix of scores of a modified partial least squares 
+#'        computed on the matrix of scores of a modified partial least squares
 #'        projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
 #'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 #'        always required. See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"cor"}:}{ based on the correlation coefficient
 #'        between observations. See \code{\link{cor_diss}} function.}
-#'
+
 #'        \item{\code{"euclid"}:}{ Euclidean distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
 #'        \item{\code{"cosine"}:}{ Cosine distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
+
 #'        \item{\code{"sid"}:}{ spectral information divergence between
 #'        observations. See \code{\link{sid}} function.}
 #'        }
@@ -87,19 +86,19 @@
 #'        combined) indicating the maximum
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
-#'
+
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
-#'
+
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
-#'
+
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and
@@ -160,18 +159,18 @@
 #' @return A list with the following components:
 #' \itemize{
 #'        \item{\code{dissimilarity}:}{ the resulting dissimilarity matrix.}
-#'
+
 #'        \item{\code{projection}:}{ an \code{ortho_projection} object. Only output
 #'        if \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-#'        \code{diss_method = "pca.nipals"},  \code{diss_method = "pls"} or  
+#'        \code{diss_method = "pca.nipals"},  \code{diss_method = "pls"} or
 #'        \code{diss_method = "mpls"}.
-#'
+
 #'        This object contains the projection used to compute
 #'        the dissimilarity matrix. In case of local dissimilarity matrices,
 #'        the projection corresponds to the global projection used to select the
 #'        neighborhoods (see \code{\link{ortho_diss}} function for further
 #'        details).}
-#'
+
 #'        \item{\code{gh}:}{ a list containing the GH distances as well as the
 #'        pls projection used to compute the GH.}
 #'        }
@@ -180,10 +179,10 @@
 #' calibration procedure for near infrared instruments. Journal of Near Infrared
 #' Spectroscopy, 5, 223-232.
 #'
-#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding 
-#' Wachievements in near infrared spectroscopy: my contributions to 
+#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding
+#' Wachievements in near infrared spectroscopy: my contributions to
 #' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
-#' 
+#'
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #' @examples
 #' library(prospectr)
@@ -248,9 +247,9 @@ dissimilarity <- function(Xr,
   ## - group function to be passed to the opc methods?
 
   result <- list(dissimilarity = NULL)
-  # Mahalanobis is excluded from this list because when used on matrices with 
+  # Mahalanobis is excluded from this list because when used on matrices with
   # highly correlated variables, it returns singular covariance matrices. So it
-  # need to be prevented as it doe snot really make sense to compute mahalanobis 
+  # need to be prevented as it doe snot really make sense to compute mahalanobis
   # on the raw spectra
   avalmethods <- c(
     "pca",

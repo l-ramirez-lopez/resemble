@@ -54,19 +54,19 @@
 #'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
-#'
+
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
-#'
+
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
-#'
+
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and
@@ -93,7 +93,7 @@
 #' \item{\code{"pca.nipals"}}{: principal component analysis using
 #' the non-linear iterative partial least squares algorithm.}
 #' \item{\code{"pls"}}{: partial least squares.}
-#' \item{\code{"mpls"}}{: modified partial least squares (Shenk and Westerhaus, 
+#' \item{\code{"mpls"}}{: modified partial least squares (Shenk and Westerhaus,
 #' 1991 and Westerhaus, 2014).}
 #' }
 #' See the \code{\link{ortho_projection}} function for further details on the

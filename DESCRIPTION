@@ -45,10 +45,10 @@ LinkingTo:
     RcppArmadillo
 RdMacros: mathjaxr
 VignetteBuilder: knitr
-Config/VersionName: Fix-Hodges
 NeedsCompilation: yes
 LazyData: true
 Repository: CRAN
 RoxygenNote: 7.2.1
-Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Config/VersionName: Fix-Hodges
