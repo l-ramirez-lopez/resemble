@@ -96,20 +96,6 @@ more details).}
   \mjdeqn{\hat{y}_{u} = (x_{u}x_{u}^{T}) A}{hat y_{u} = (x_{u} x_{u}^T) A}
 
  }
-<<<<<<< Updated upstream
- }
- }
- 
-The \code{modified} argument in the pls methods (\code{local_fit_pls()} 
-and \code{local_fit_wapls()}) is used to indicate if 
-a modified version of the pls algorithm (modified pls or mpls) is to be used. 
-The modified pls was proposed Shenk and Westerhaus 
-(1991, see also Westerhaus, 2014) and it differs from the standard pls method 
-in the way the weights of the predictors (used to compute the matrix of 
-scores) are obtained. While pls uses the covariance between  response(s) 
-and predictors (and later their deflated versions corresponding at each pls 
-component iteration) to obtain these weights, the modified pls uses the 
-=======
 }
 }
 
@@ -122,7 +108,6 @@ in the way the weights of the predictors (used to compute the matrix of
 scores) are obtained. While pls uses the covariance between  response(s)
 and predictors (and later their deflated versions corresponding at each pls
 component iteration) to obtain these weights, the modified pls uses the
->>>>>>> Stashed changes
 correlation as weights. The authors indicate that by using correlation,
 a larger potion of the response variable(s) can be explained.
 }
