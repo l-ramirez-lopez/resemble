@@ -13,50 +13,51 @@ Functions for memory-based learning
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 }
 \details{
-This is the version \code{2.1} (\code{'piapia'}) of the package. It
-implements a number of \code{R} functions useful for
+This is the version
+2.2.1, Fix-Hodges
+of the package. It implements a number of functions useful for
 modeling complex spectral spectra (e.g. NIR, IR).
 The package includes functions for dimensionality reduction,
 computing spectral dissimilarity matrices, nearest neighbor search,
-and modeling spectral data using memory-based learning. This package builds 
-upon the methods presented in Ramirez-Lopez et al. (2013) <doi:10.1016/j.geoderma.2012.12.014>>.
+and modeling spectral data using memory-based learning. This package builds
+upon the methods presented in Ramirez-Lopez et al. (2013) \url{doi:10.1016/j.geoderma.2012.12.014}>.
 
 Development versions can be found in the github repository of the package
 at \href{https://github.com/l-ramirez-lopez/resemble}{https://github.com/l-ramirez-lopez/resemble}.
 
 The functions available for dimensionality reduction are:
 \itemize{
-  \item{\code{\link{ortho_projection}}}
-  \item{\code{\link{pc_projection}}}
-  \item{\code{\link{pls_projection}}}
-  \item{\code{\link{predict.ortho_projection}}}
-  }
+\item{\code{\link{ortho_projection}}}
+\item{\code{\link{pc_projection}}}
+\item{\code{\link{pls_projection}}}
+\item{\code{\link{predict.ortho_projection}}}
+}
 The functions available for computing dissimilarity matrices are:
 \itemize{
-  \item{\code{\link{dissimilarity}}}
-  \item{\code{\link{f_diss}}}
-  \item{\code{\link{cor_diss}}}
-  \item{\code{\link{sid}}}
-  \item{\code{\link{ortho_diss}}}
-  }
+\item{\code{\link{dissimilarity}}}
+\item{\code{\link{f_diss}}}
+\item{\code{\link{cor_diss}}}
+\item{\code{\link{sid}}}
+\item{\code{\link{ortho_diss}}}
+}
 The functions available for evaluating dissimilarity matrices are:
 \itemize{
-  \item{\code{\link{sim_eval}}}
-  }
+\item{\code{\link{sim_eval}}}
+}
 The functions available for nearest neighbor search:
 \itemize{
-  \item{\code{\link{search_neighbors}}}
-  }
+\item{\code{\link{search_neighbors}}}
+}
 The functions available for modeling spectral data:
 \itemize{
-  \item{\code{\link{mbl}}}
-  \item{\code{\link{mbl_control}}}
-  }
+\item{\code{\link{mbl}}}
+\item{\code{\link{mbl_control}}}
+}
 Other supplementary functions:
 \itemize{
-  \item{\code{\link{plot.mbl}}}
-  \item{\code{\link{plot.ortho_projection}}}
-  }
+\item{\code{\link{plot.mbl}}}
+\item{\code{\link{plot.ortho_projection}}}
+}
 }
 \references{
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
@@ -80,7 +81,7 @@ Authors:
 
 \item Antoine Stevens (\href{https://orcid.org/0000-0002-1588-7519}{ORCID})
 
-\item Claudio Orellano 
+\item Claudio Orellano
 
 \item Raphael Viscarra Rossel (\href{https://orcid.org/0000-0003-1540-4748}{ORCID})
 

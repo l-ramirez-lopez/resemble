@@ -24,13 +24,13 @@ variable, then the kappa index is used. See details.}
 \value{
 \code{sim_eval} returns a list with the following components:
 \itemize{
- \item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or
- the kappa index}
- \item{\code{first_nn}}{ a matrix containing the original side
- informative variable in the first half of the columns, and the side
- informative values of the corresponding nearest neighbors in the second half
- of the columns.}
- }
+\item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or
+the kappa index}
+\item{\code{first_nn}}{ a matrix containing the original side
+informative variable in the first half of the columns, and the side
+informative values of the corresponding nearest neighbors in the second half
+of the columns.}
+}
 }
 \description{
 \loadmathjax
@@ -79,7 +79,7 @@ observations). While \mjeqn{p_o}{p_o} is the relative agreement
 
 This functions accepts vectors to be passed to argument \code{d}, in this
 case, the vector must represent the lower triangle of a dissimilarity matrix
-(e.g. as returned by the [stats::dist()] function of \code{stats}).
+(e.g. as returned by the \code{\link[stats:dist]{stats::dist()}} function of \code{stats}).
 }
 \examples{
 \donttest{

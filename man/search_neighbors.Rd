@@ -24,50 +24,51 @@ be searched in \code{Xu}.}
 \item{diss_method}{a character string indicating the spectral dissimilarity metric
 to be used in the selection of the nearest neighbors of each observation.
 \itemize{
-       \item{\code{"pca"}:}{  Mahalanobis distance
-       computed on the matrix of scores of a Principal Component (PC)
-       projection of \code{Xr} and \code{Xu}. PC projection is done using the
-       singlar value decomposition (SVD) algorithm.
-       See \code{\link{ortho_diss}} function.}
+\item{\code{"pca"}:}{  Mahalanobis distance
+computed on the matrix of scores of a Principal Component (PC)
+projection of \code{Xr} and \code{Xu}. PC projection is done using the
+singlar value decomposition (SVD) algorithm.
+See \code{\link{ortho_diss}} function.}
 
-       \item{\code{"pca.nipals"}}{ Mahalanobis distance
-       computed on the matrix of scores of a Principal Component (PC)
-       projection of \code{Xr} and \code{Xu}. PC projection is done using the
-       non-linear iterative partial least squares (niapls) algorithm.
-       See \code{\link{ortho_diss}} function.}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{   \\item\{\code{"pca.nipals"}\}\{ Mahalanobis distance
+   computed on the matrix of scores of a Principal Component (PC)
+   projection of \code{Xr} and \code{Xu}. PC projection is done using the
+   non-linear iterative partial least squares (niapls) algorithm.
+   See \code{\link{ortho_diss}} function.\}
 
-       \item{\code{"pls"}}{ Mahalanobis distance
-       computed on the matrix of scores of a partial least squares projection
-       of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
-       See \code{\link{ortho_diss}} function.}
-       
-       \item{\code{"mpls"}}:{ Mahalanobis distance
-       computed on the matrix of scores of a modified partial least squares 
-       projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
-       of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
-       always required. See \code{\link{ortho_diss}} function.}
+   \\item\{\code{"pls"}\}\{ Mahalanobis distance
+   computed on the matrix of scores of a partial least squares projection
+   of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
+   See \code{\link{ortho_diss}} function.\}
+   
+   \\item\{\code{"mpls"}\}:\{ Mahalanobis distance
+   computed on the matrix of scores of a modified partial least squares 
+   projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
+   of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
+   always required. See \code{\link{ortho_diss}} function.\}
 
-       \item{\code{"cor"}}{ correlation coefficient
-       between observations. See \code{\link{cor_diss}} function.}
+   \\item\{\code{"cor"}\}\{ correlation coefficient
+   between observations. See \code{\link{cor_diss}} function.\}
 
-       \item{\code{"euclid"}}{ Euclidean distance
-       between observations. See \code{\link{f_diss}} function.}
+   \\item\{\code{"euclid"}\}\{ Euclidean distance
+   between observations. See \code{\link{f_diss}} function.\}
 
-       \item{\code{"cosine"}}{ Cosine distance
-       between observations. See \code{\link{f_diss}} function.}
+   \\item\{\code{"cosine"}\}\{ Cosine distance
+   between observations. See \code{\link{f_diss}} function.\}
 
-       \item{\code{"sid"}}{ spectral information divergence between observations.
-       See \code{\link{sid}} function.}
-       }}
+   \\item\{\code{"sid"}\}\{ spectral information divergence between observations.
+   See \code{\link{sid}} function.\}
+   \}
+}\if{html}{\out{</div>}}}
 
-\item{Yr}{a numeric matrix of `n` observations used as side information of
+\item{Yr}{a numeric matrix of \code{n} observations used as side information of
 \code{Xr} for the \code{\link{ortho_diss}} methods (i.e. \code{pca},
 \code{pca.nipals} or \code{pls}). It is required when:
 \itemize{
-       \item{\code{diss_method = "pls"}}
-       \item{\code{diss_method = "pca"} with \code{"opc"} used as the method
-       in the \code{pc_selection} argument. See [ortho_diss()].}
-       }}
+\item{\code{diss_method = "pls"}}
+\item{\code{diss_method = "pca"} with \code{"opc"} used as the method
+in the \code{pc_selection} argument. See \code{\link[=ortho_diss]{ortho_diss()}}.}
+}}
 
 \item{k}{an integer value indicating the k-nearest neighbors of each
 observation in \code{Xu} that must be selected from \code{Xr}.}
@@ -96,35 +97,37 @@ to be retained. This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} { optimized principal component selection based on
-       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-       (of set of observations) is the one for which its distance matrix
-       minimizes the differences between the \code{Yr} value of each
-       observation and the \code{Yr} value of its closest observation. In this
-       case \code{value} must be a value (larger than 0 and below the
-       minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
-       indicating the maximum number of principal components to be tested.
-       See the \code{\link{ortho_projection}} function for more details.}
+\item{\code{"opc"}:} { optimized principal component selection based on
+Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
+(of set of observations) is the one for which its distance matrix
+minimizes the differences between the \code{Yr} value of each
+observation and the \code{Yr} value of its closest observation. In this
+case \code{value} must be a value (larger than 0 and below the
+minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
+indicating the maximum number of principal components to be tested.
+See the \code{\link{ortho_projection}} function for more details.}
 
-       \item{\code{"cumvar"}:}{ selection of the principal components based
-       on a given cumulative amount of explained variance. In this case,
-       \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of cumulative variance that the
-       combination of retained components should explain.}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{   \\item\{\code{"cumvar"}:\}\{ selection of the principal components based
+   on a given cumulative amount of explained variance. In this case,
+   \code{value} must be a value (larger than 0 and below or equal to 1)
+   indicating the minimum amount of cumulative variance that the
+   combination of retained components should explain.\}
 
-       \item{\code{"var"}:}{ selection of the principal components based
-       on a given amount of explained variance. In this case,
-       \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a single component
-       should explain in order to be retained.}
+   \\item\{\code{"var"}:\}\{ selection of the principal components based
+   on a given amount of explained variance. In this case,
+   \code{value} must be a value (larger than 0 and below or equal to 1)
+   indicating the minimum amount of variance that a single component
+   should explain in order to be retained.\}
 
-       \item{\code{"manual"}:}{ for manually specifying a fix number of
-       principal components. In this case, \code{value} must be a value
-       (larger than 0 and below the
-       minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
-       indicating the minimum amount of variance that a component should
-       explain in order to be retained.}
-       }
+   \\item\{\code{"manual"}:\}\{ for manually specifying a fix number of
+   principal components. In this case, \code{value} must be a value
+   (larger than 0 and below the
+   minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
+   indicating the minimum amount of variance that a component should
+   explain in order to be retained.\}
+   \}
+}\if{html}{\out{</div>}}
+
 The default is \code{list(method = "var", value = 0.01)}.
 
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
@@ -149,8 +152,8 @@ equal to the number of variables (columns), i.e. instead moving correlation,
 the normal correlation will be used. See \code{\link{cor_diss}} function.}
 
 \item{center}{a logical indicating if the \code{Xr} and \code{Xu} matrices
- must be centered. If \code{Xu} is provided the data is centered around the
- mean of the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}). For
+must be centered. If \code{Xu} is provided the data is centered around the
+mean of the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}). For
 dissimilarity computations based on \code{diss_method = pls}, the data is always
 centered.}
 
@@ -171,38 +174,40 @@ function. See details.}
 \value{
 a \code{list} containing the following elements:
 \itemize{
- \item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity socres
- corresponding to the neighbors of each observation in \code{Xu}.
- The neighbor dissimilarity socres are organized by columns and are sorted
- in ascending order.}
- \item{\code{neighbors}}{ a matrix of the \code{Xr} indices corresponding to
- the neighbors of each observation in \code{Xu}. The neighbor indices are
- organized by columns and are sorted in ascending order by their
- dissimilarity score.}
- \item{\code{unique_neighbors}}{ a vector of the indices in \code{Xr}
- identified as neighbors of any observation in \code{Xu}. This is obtained by
- converting the \code{neighbors} matrix into a vector and applying the
- \code{\link[base]{unique}} function.}
- \item{\code{k_diss_info}}{ a \code{data.table} that is returned only if the
- \code{k_diss} argument was used. It comprises three columns, the first one
- (\code{Xu_index}) indicates the index of the observations in \code{Xu},
- the second column (\code{n_k}) indicates the number of neighbors found in
- \code{Xr} and the third column (\code{final_n_k}) indicates the final number
- of neighbors selected bounded by \code{k_range}.
- argument.}
- \item{\code{dissimilarity}}{ If \code{return_dissimilarity = TRUE} the
- dissimilarity object used (as computed by the \code{\link{dissimilarity}}
- function.}
- \item{\code{projection}}{ an \code{ortho_projection} object. Only output if
-       \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-       \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
+\item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity socres
+corresponding to the neighbors of each observation in \code{Xu}.
+The neighbor dissimilarity socres are organized by columns and are sorted
+in ascending order.}
+\item{\code{neighbors}}{ a matrix of the \code{Xr} indices corresponding to
+the neighbors of each observation in \code{Xu}. The neighbor indices are
+organized by columns and are sorted in ascending order by their
+dissimilarity score.}
+\item{\code{unique_neighbors}}{ a vector of the indices in \code{Xr}
+identified as neighbors of any observation in \code{Xu}. This is obtained by
+converting the \code{neighbors} matrix into a vector and applying the
+\code{\link[base]{unique}} function.}
+\item{\code{k_diss_info}}{ a \code{data.table} that is returned only if the
+\code{k_diss} argument was used. It comprises three columns, the first one
+(\code{Xu_index}) indicates the index of the observations in \code{Xu},
+the second column (\code{n_k}) indicates the number of neighbors found in
+\code{Xr} and the third column (\code{final_n_k}) indicates the final number
+of neighbors selected bounded by \code{k_range}.
+argument.}
+\item{\code{dissimilarity}}{ If \code{return_dissimilarity = TRUE} the
+dissimilarity object used (as computed by the \code{\link{dissimilarity}}
+function.}
+\item{\code{projection}}{ an \code{ortho_projection} object. Only output if
+\code{return_projection = TRUE} and if \code{diss_method = "pca"},
+\code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
 
-       This object contains the projection used to compute
-       the dissimilarity matrix. In case of local dissimilarity matrices,
-       the projection corresponds to the global projection used to select the
-       neighborhoods.  (see \code{\link{ortho_diss}} function for further
-       details).}
- }
+\if{html}{\out{<div class="sourceCode">}}\preformatted{   This object contains the projection used to compute
+   the dissimilarity matrix. In case of local dissimilarity matrices,
+   the projection corresponds to the global projection used to select the
+   neighborhoods.  (see \code{\link{ortho_diss}} function for further
+   details).\}
+}\if{html}{\out{</div>}}
+
+}
 }
 \description{
 \loadmathjax
@@ -301,7 +306,7 @@ metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 \seealso{
 \code{\link{dissimilarity}} \code{\link{ortho_diss}}
 \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}
- \code{\link{mbl}}
+\code{\link{mbl}}
 }
 \author{
 \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}

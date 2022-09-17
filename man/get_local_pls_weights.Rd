@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{get_local_pls_weights}
 \alias{get_local_pls_weights}
-\title{Internal Cpp function for computing the weights of the PLS components 
+\title{Internal Cpp function for computing the weights of the PLS components
 necessary for weighted average PLS}
 \usage{
 get_local_pls_weights(projection_mat, 

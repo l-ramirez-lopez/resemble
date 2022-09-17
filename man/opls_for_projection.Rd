@@ -25,27 +25,27 @@ opls_for_projection(X, Y, ncomp, scale,
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 
-\item{pcSelmethod}{if \code{regression = TRUE}, the method for selecting the 
-number of components. 
-Options are: \code{'manual'}, \code{'cumvar'} (for selecting the number of 
-principal components based on a given  cumulative amount of explained 
-variance) and \code{'var'} (for selecting the number of principal components 
+\item{pcSelmethod}{if \code{regression = TRUE}, the method for selecting the
+number of components.
+Options are: \code{'manual'}, \code{'cumvar'} (for selecting the number of
+principal components based on a given  cumulative amount of explained
+variance) and \code{'var'} (for selecting the number of principal components
 based on a given amount of explained variance). Default is \code{'cumvar'}.}
 
-\item{pcSelvalue}{a numerical value that complements the selected method 
-(\code{pcSelmethod}). 
-If \code{'cumvar'} is chosen (default), \code{pcSelvalue} must be a value 
-(larger than 0 and below 1) indicating the maximum amount of cumulative 
-variance that the retained components should explain. Default is 0.99. 
-If \code{'var'} is chosen, \code{pcSelvalue} must be a value (larger than 0 
-and below 1) indicating that components that explain (individually) 
-a variance lower than this threshold must be excluded. If \code{'manual'} 
-is chosen, \code{pcSelvalue} has no effect and the number of components 
+\item{pcSelvalue}{a numerical value that complements the selected method
+(\code{pcSelmethod}).
+If \code{'cumvar'} is chosen (default), \code{pcSelvalue} must be a value
+(larger than 0 and below 1) indicating the maximum amount of cumulative
+variance that the retained components should explain. Default is 0.99.
+If \code{'var'} is chosen, \code{pcSelvalue} must be a value (larger than 0
+and below 1) indicating that components that explain (individually)
+a variance lower than this threshold must be excluded. If \code{'manual'}
+is chosen, \code{pcSelvalue} has no effect and the number of components
 retrieved are the one specified in \code{ncomp}.}
 
-\item{algorithm}{(for weights computation) a character string indicating 
+\item{algorithm}{(for weights computation) a character string indicating
 what method to use. Options are:
-\code{'pls'} for pls (using covariance between X and Y), 
+\code{'pls'} for pls (using covariance between X and Y),
 \code{'mpls'} for modified pls (using correlation between X and Y) or
 \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).}
 
@@ -59,26 +59,26 @@ method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWis
 a list containing the following elements:
 \itemize{
 \item{\code{coefficients}}{ the matrix of regression coefficients.}
-\item{\code{bo}}{ a matrix of one row containing the intercepts for 
+\item{\code{bo}}{ a matrix of one row containing the intercepts for
 each component.}
 \item{\code{scores}}{ the matrix of scores.}
 \item{\code{X_loadings}}{ the matrix of X loadings.}
 \item{\code{Y_loadings}}{ the matrix of Y loadings.}
 \item{\code{projection_mat}}{ the projection matrix.}
 \item{\code{Y}}{ the \code{Y} input.}
-\item{\code{variance}}{ a \code{list} conating two objects: \code{x_var} 
-and \code{y_var}. 
-These objects contain information on the explained variance for the \code{X} 
+\item{\code{variance}}{ a \code{list} conating two objects: \code{x_var}
+and \code{y_var}.
+These objects contain information on the explained variance for the \code{X}
 and \code{Y} matrices respectively.}
-\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} 
-and \code{Xscale}}. 
+\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter}
+and \code{Xscale}}.
 \item{\code{weights}}{ the matrix of wheights.}
 }
 }
 \description{
-Computes orthogonal socres partial least squares (opls) 
+Computes orthogonal socres partial least squares (opls)
 projection with the NIPALS algorithm. It allows multiple response variables.
-Although the main use of the function is for projection, it also retrieves 
+Although the main use of the function is for projection, it also retrieves
 regression coefficients. NOTE: For internal use only!
 }
 \author{

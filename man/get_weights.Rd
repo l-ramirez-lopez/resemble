@@ -12,8 +12,8 @@ get_weights(X, Y, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L)
 \item{Y}{a matrix of one column with the response variable.}
 
 \item{algorithm}{a character string indicating what method to use. Options are:
-\code{'pls'} for pls (using covariance between X and Y), 
-\code{'mpls'} for modified pls (using correlation between X and Y as in 
+\code{'pls'} for pls (using covariance between X and Y),
+\code{'mpls'} for modified pls (using correlation between X and Y as in
 Shenk and Westerhaus, 1991; Westerhaus 2014) or
 \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).}
 
@@ -24,19 +24,19 @@ method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise
 method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).}
 }
 \value{
-a `matrix` of one column containing the weights.
+a \code{matrix} of one column containing the weights.
 }
 \description{
 This is an internal function that computes the wights required for obtaining
 each vector of pls scores. Implementation is done in C++ for improved performance.
 }
 \references{
-Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of 
-near infrared spectra and modified partial least squares regression. 
+Shenk, J. S., & Westerhaus, M. O. (1991). Populations structuring of
+near infrared spectra and modified partial least squares regression.
 Crop Science, 31(6), 1548-1555.
 
-Westerhaus, M. (2014). Eastern Analytical Symposium Award for outstanding 
-Wachievements in near infrared spectroscopy: my contributions to 
+Westerhaus, M. (2014). Eastern Analytical Symposium Award for outstanding
+Wachievements in near infrared spectroscopy: my contributions to
 Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 }
 \author{

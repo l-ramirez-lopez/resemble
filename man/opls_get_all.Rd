@@ -27,9 +27,9 @@ opls_get_all(X,
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 
-\item{algorithm}{(for weights computation) a character string indicating 
+\item{algorithm}{(for weights computation) a character string indicating
 what method to use. Options are:
-\code{'pls'} for pls (using covariance between X and Y), 
+\code{'pls'} for pls (using covariance between X and Y),
 \code{'mpls'} for modified pls (using correlation between X and Y) or
 \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).}
 
@@ -51,15 +51,15 @@ a list containing the following elements:
 \item{\code{vip}}{ the projection matrix.}
 \item{\code{selectivity_ratio}}{ the matrix of selectivity ratio (see Rajalahti, Tarja, et al. 2009).}
 \item{\code{Y}}{ the \code{Y} input.}
-\item{\code{variance}}{ a \code{list} conating two objects: \code{x_var} and \code{y_var}. 
+\item{\code{variance}}{ a \code{list} conating two objects: \code{x_var} and \code{y_var}.
 These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
-\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}.
 \item{\code{weights}}{ the matrix of wheights.}}
 }
 \description{
-Computes orthogonal socres partial least squares (opls_get_all) 
+Computes orthogonal socres partial least squares (opls_get_all)
 regressions with the NIPALS algorithm. It retrives a comprehensive set of
-pls outputs (e.g. vip and sensivity radius). It allows multiple response 
+pls outputs (e.g. vip and sensivity radius). It allows multiple response
 variables. NOTE: For internal use only!
 }
 \author{

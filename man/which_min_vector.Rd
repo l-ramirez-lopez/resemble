@@ -16,8 +16,8 @@ a vector of the indices of the nearest neighbors
 For internal use only
 }
 \details{
-Used internally to find the nearest neighbors. 
-It searches in lower (or upper) triangular matrix. Therefore this must be the format of the 
+Used internally to find the nearest neighbors.
+It searches in lower (or upper) triangular matrix. Therefore this must be the format of the
 input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
 since \code{sqrt} cannot be applied to integers.
 }
