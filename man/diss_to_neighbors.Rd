@@ -10,7 +10,8 @@ diss_to_neighbors(
   k_diss = NULL,
   k_range = NULL,
   spike = NULL,
-  return_dissimilarity = FALSE
+  return_dissimilarity = FALSE,
+  skip_first = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,11 @@ retained when the \code{k_diss} is given.}
 
 \item{return_dissimilarity}{logical indicating if the input dissimilarity
 must be mirroed in the output.}
+
+\item{skip_first}{a logical indicating whether to skip the first neighbor or
+not. Default is \code{FALSE}. This is used when the search is being conducted
+in symmetric matrix of distances (i.e. to avoid that the nearest neighbor of
+each observation is itself).}
 }
 \description{
 internal

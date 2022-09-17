@@ -15,31 +15,32 @@ search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "mpls",
                  documentation = character(), ...)
 }
 \arguments{
-\item{Xr}{a matrix of reference (spectral) observations where the neighbors
-of the observations in \code{Xu} are to be searched.}
+\item{Xr}{a matrix of reference (spectral) observations where the neighbor
+search is to be conducted. See details.}
 
-\item{Xu}{a matrix of (spectral) observations for which its neighbors are to
-be searched in \code{Xu}.}
+\item{Xu}{an optional matrix of (spectral) observations for which its
+neighbors are to be searched in \code{Xr}. Default is \code{NULL}. See details.}
 
 \item{diss_method}{a character string indicating the spectral dissimilarity metric
 to be used in the selection of the nearest neighbors of each observation.
 \itemize{
 \item{\code{"pca"}:}{  Mahalanobis distance
 computed on the matrix of scores of a Principal Component (PC)
-projection of \code{Xr} and \code{Xu}. PC projection is done using the
-singlar value decomposition (SVD) algorithm.
-See \code{\link{ortho_diss}} function.}
+projection of \code{Xr} (and \code{Xu} if supplied).
+PC projection is done using the singular value decomposition (SVD)
+algorithm. See \code{\link{ortho_diss}} function.}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{   \\item\{\code{"pca.nipals"}\}\{ Mahalanobis distance
    computed on the matrix of scores of a Principal Component (PC)
-   projection of \code{Xr} and \code{Xu}. PC projection is done using the
+   projection of \code{Xr} (and \code{Xu} if supplied). 
+   PC projection is done using the
    non-linear iterative partial least squares (niapls) algorithm.
    See \code{\link{ortho_diss}} function.\}
 
    \\item\{\code{"pls"}\}\{ Mahalanobis distance
    computed on the matrix of scores of a partial least squares projection
-   of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
-   See \code{\link{ortho_diss}} function.\}
+   of \code{Xr} (and \code{Xu} if supplied). In this case, \code{Yr} 
+   is always required. See \code{\link{ortho_diss}} function.\}
    
    \\item\{\code{"mpls"}\}:\{ Mahalanobis distance
    computed on the matrix of scores of a modified partial least squares 
@@ -174,21 +175,24 @@ function. See details.}
 \value{
 a \code{list} containing the following elements:
 \itemize{
-\item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity socres
-corresponding to the neighbors of each observation in \code{Xu}.
-The neighbor dissimilarity socres are organized by columns and are sorted
+\item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity scores
+corresponding to the neighbors of each \code{Xr} observation (or \code{Xu}
+observation, in case \code{Xu} was supplied).
+The neighbor dissimilarity scores are organized by columns and are sorted
 in ascending order.}
 \item{\code{neighbors}}{ a matrix of the \code{Xr} indices corresponding to
 the neighbors of each observation in \code{Xu}. The neighbor indices are
 organized by columns and are sorted in ascending order by their
 dissimilarity score.}
 \item{\code{unique_neighbors}}{ a vector of the indices in \code{Xr}
-identified as neighbors of any observation in \code{Xu}. This is obtained by
+identified as neighbors of any observation in \code{Xr} (or in \code{Xu},
+in case it was supplied). This is obtained by
 converting the \code{neighbors} matrix into a vector and applying the
 \code{\link[base]{unique}} function.}
 \item{\code{k_diss_info}}{ a \code{data.table} that is returned only if the
 \code{k_diss} argument was used. It comprises three columns, the first one
-(\code{Xu_index}) indicates the index of the observations in \code{Xu},
+(\code{Xr_index} or \code{Xu_index}) indicates the index of the observations
+in \code{Xr} (or in \code{Xu}, in case it was suppplied),
 the second column (\code{n_k}) indicates the number of neighbors found in
 \code{Xr} and the third column (\code{final_n_k}) indicates the final number
 of neighbors selected bounded by \code{k_range}.
@@ -228,6 +232,11 @@ dissimilarities between \code{Xr} and \code{Xu}. Arguments to
 used inside \code{\link{dissimilarity}} (i.e. \code{\link{ortho_diss}}
 \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}) can be passed to
 those functions as additional arguments (i.e. \code{...}).
+
+If no matrix is passed to \code{Xu}, the neighbor search is conducted for the
+observations in \code{Xr} that are found whiting that matrix. If a matrix is
+passed to \code{Xu},  the neighbors of \code{Xu} are searched in the \code{Xr}
+matrix.
 }
 \examples{
 \donttest{
@@ -309,5 +318,5 @@ metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 \code{\link{mbl}}
 }
 \author{
-\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}.
 }

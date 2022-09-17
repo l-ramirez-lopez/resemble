@@ -333,7 +333,7 @@ some reference observations are known to be somehow related to the ones in
 Guerrero et al. (2010) for an example on the benefits of spiking.
 
 The \code{mbl} function uses the \code{\link{dissimilarity}} function to
-compute the dissimilarities between code{Xr} and \code{Xu}. The dissimilarity
+compute the dissimilarities between \code{Xr} and \code{Xu}. The dissimilarity
 method to be used is specified in the \code{diss_method} argument.
 Arguments to \code{\link{dissimilarity}} as well as further arguments to the
 functions used inside \code{\link{dissimilarity}}
@@ -369,8 +369,8 @@ When \code{diss_usage = "none"} is chosen the dissimilarity information is
 not used.
 
 The global Mahalanobis distance (a.k.a GH) is computed based on the scores
-of a pls projection. A pls projection model is built with \code{Yr} and
-\code{Xr} and this models is used to obtain the pls scores of the \code{Xu}
+of a pls projection. A pls projection model is built with for \code{\{Yr\}, \{Xr\}}
+and this model is used to obtain the pls scores of the \code{Xu}
 observations. The Mahalanobis distance between each \code{Xu} observation in
 (the pls space) and the centre of \code{Xr} is then computed. The number of
 pls components is optimized based on the parameters passed to the
