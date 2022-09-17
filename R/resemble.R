@@ -21,9 +21,9 @@
 #' \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 #'
 #' @details
-#'
-#' This is the version \code{2.1} (\code{'piapia'}) of the package. It
-#' implements a number of \code{R} functions useful for
+#' This is the version 
+#' `r paste(pkg_info()[1:2], collapse = " -- ")`
+#' of the package. It implements a number of functions useful for
 #' modeling complex spectral spectra (e.g. NIR, IR).
 #' The package includes functions for dimensionality reduction,
 #' computing spectral dissimilarity matrices, nearest neighbor search,
