@@ -40,7 +40,7 @@ test_that("mbl works", {
     control = ctrl_1,
     verbose = FALSE
   )
-  
+
   mpls <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
@@ -48,7 +48,7 @@ test_that("mbl works", {
     control = ctrl_1,
     verbose = FALSE
   )
-  
+
   wapls <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k = k_test,
@@ -64,7 +64,7 @@ test_that("mbl works", {
     control = ctrl_1,
     verbose = FALSE
   )
-  
+
   gpr_k_diss <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
     k_diss = k_diss_test, k_range = k_range_test,
@@ -180,7 +180,7 @@ test_that("mbl delivers expeted results", {
     control = ctrl_1,
     verbose = FALSE
   )
-  
+
   set.seed(tseed)
   mpls <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
@@ -189,7 +189,7 @@ test_that("mbl delivers expeted results", {
     control = ctrl_1,
     verbose = FALSE
   )
-  
+
   set.seed(tseed)
   wampls <- mbl(
     Xr = Xr, Yr = Yr, Xu = Xu, Yu = Yu,
@@ -198,7 +198,7 @@ test_that("mbl delivers expeted results", {
     control = ctrl_1,
     verbose = FALSE
   )
-  
+
 
   set.seed(tseed)
   gpr_k_diss <- mbl(
@@ -262,13 +262,13 @@ test_that("mbl delivers expeted results", {
     wapls$validation_results$local_cross_validation$rmse < 1.8,
     wapls$validation_results$local_cross_validation$rmse > 1.4
   )
-  
-  
+
+
   cv_mpls <- c(
     mpls$validation_results$local_cross_validation$rmse < 1.8,
     mpls$validation_results$local_cross_validation$rmse > 1.5
   )
-  
+
   cv_wampls <- c(
     wampls$validation_results$local_cross_validation$rmse < 1.68,
     wampls$validation_results$local_cross_validation$rmse > 1.45
@@ -360,42 +360,43 @@ test_that("mbl delivers expeted results", {
 test_that("mbl with external disstances works", {
   tol <- 1e-10
   nirdata <- data("NIRsoil", package = "prospectr")
-  
+
   # Proprocess the data using detrend plus first derivative with Savitzky and
   # Golay smoothing filter
   sg_det <- savitzkyGolay(
     detrend(NIRsoil$spc,
-            wav = as.numeric(colnames(NIRsoil$spc))
+      wav = as.numeric(colnames(NIRsoil$spc))
     ),
     m = 1,
     p = 1,
     w = 7
   )
-  
+
   NIRsoil$spc_pr <- sg_det
-  
+
   # split into training and testing sets
   test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
   test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
-  
+
   train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
   train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
-  
+
   my_control <- mbl_control(validation_type = "NNv")
-  
+
   ## The neighborhood sizes to test
   ks <- seq(40, 140, by = 20)
-  
+
   ext_d <- dissimilarity(
-    rbind(train_x, test_x),  Xu = rbind(train_x, test_x),
+    rbind(train_x, test_x),
+    Xu = rbind(train_x, test_x),
     diss_method = "cor",
     center = FALSE, scale = FALSE
   )$dissimilarity
-  
+
   dim(ext_d)
   diag(ext_d) <- 0
-  
-  
+
+
   sbl_external_diss <- mbl(
     Xr = train_x,
     Yr = train_y,
@@ -406,10 +407,10 @@ test_that("mbl with external disstances works", {
     diss_method = ext_d,
     diss_usage = "predictors",
     control = my_control,
-    scale = FALSE, 
+    scale = FALSE,
     center = FALSE
   )
-  
+
   sbl_internal_diss <- mbl(
     Xr = train_x,
     Yr = train_y,
@@ -420,12 +421,12 @@ test_that("mbl with external disstances works", {
     diss_method = "cor",
     diss_usage = "predictors",
     control = my_control,
-    scale = FALSE, 
+    scale = FALSE,
     center = FALSE
   )
-  
-  r_ext <- sbl_internal_diss$validation_results$nearest_neighbor_validation 
+
+  r_ext <- sbl_internal_diss$validation_results$nearest_neighbor_validation
   r_int <- sbl_external_diss$validation_results$nearest_neighbor_validation
-  
+
   expect_true(sum(abs(r_ext - r_int)) < tol)
 })
