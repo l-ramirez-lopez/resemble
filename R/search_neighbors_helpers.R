@@ -17,23 +17,22 @@
 #' (and \code{Yr}) must be 'forced' to always be part of all the neighborhoods.
 #' @param return_dissimilarity logical indicating if the input dissimilarity
 #' must be mirroed in the output.
-#' @param skip_first a logical indicating whether to skip the first neighbor or 
-#' not. Default is \code{FALSE}. This is used when the search is being conducted 
-#' in symmetric matrix of distances (i.e. to avoid that the nearest neighbor of 
+#' @param skip_first a logical indicating whether to skip the first neighbor or
+#' not. Default is \code{FALSE}. This is used when the search is being conducted
+#' in symmetric matrix of distances (i.e. to avoid that the nearest neighbor of
 #' each observation is itself).
 #' @description internal
 #' @keywords internal
 diss_to_neighbors <- function(diss_matrix,
                               k = NULL, k_diss = NULL, k_range = NULL,
                               spike = NULL,
-                              return_dissimilarity = FALSE, 
+                              return_dissimilarity = FALSE,
                               skip_first = FALSE) {
-  
   if (!is.null(spike)) {
     f_order_neigh <- function(x, s, skip_first = FALSE) {
       x <- order(x)
       if (skip_first) {
-        x <- x[-1] 
+        x <- x[-1]
       }
       c(s, x[!x %in% s])
     }
@@ -41,8 +40,8 @@ diss_to_neighbors <- function(diss_matrix,
     neighbor_indcs <- apply(diss_matrix,
       MARGIN = 2,
       FUN = f_order_neigh,
-      s = spike, 
-      skip_first =  skip_first
+      s = spike,
+      skip_first = skip_first
     )
     stats <- seq(1,
       nrow(diss_matrix) * ncol(diss_matrix),

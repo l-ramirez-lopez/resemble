@@ -189,15 +189,12 @@ dissimilarity object used (as computed by the \code{\link{dissimilarity}}
 function.}
 \item{\code{projection}}{ an \code{ortho_projection} object. Only output if
 \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-\code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{   This object contains the projection used to compute
-   the dissimilarity matrix. In case of local dissimilarity matrices,
-   the projection corresponds to the global projection used to select the
-   neighborhoods.  (see \code{\link{ortho_diss}} function for further
-   details).\}
-}\if{html}{\out{</div>}}
-
+\code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}. \cr
+This object contains the projection used to compute
+the dissimilarity matrix. In case of local dissimilarity matrices,
+the projection corresponds to the global projection used to select the
+neighborhoods.  (see \code{\link{ortho_diss}} function for further
+details).}
 }
 }
 \description{
