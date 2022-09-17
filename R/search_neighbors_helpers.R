@@ -17,22 +17,32 @@
 #' (and \code{Yr}) must be 'forced' to always be part of all the neighborhoods.
 #' @param return_dissimilarity logical indicating if the input dissimilarity
 #' must be mirroed in the output.
+#' @param skip_first a logical indicating whether to skip the first neighbor or 
+#' not. Default is \code{FALSE}. This is used when the search is being conducted 
+#' in symmetric matrix of distances (i.e. to avoid that the nearest neighbor of 
+#' each observation is itself).
 #' @description internal
 #' @keywords internal
 diss_to_neighbors <- function(diss_matrix,
                               k = NULL, k_diss = NULL, k_range = NULL,
                               spike = NULL,
-                              return_dissimilarity = FALSE) {
+                              return_dissimilarity = FALSE, 
+                              skip_first = FALSE) {
+  
   if (!is.null(spike)) {
-    f_order_neigh <- function(x, s) {
+    f_order_neigh <- function(x, s, skip_first = FALSE) {
       x <- order(x)
+      if (skip_first) {
+        x <- x[-1] 
+      }
       c(s, x[!x %in% s])
     }
 
     neighbor_indcs <- apply(diss_matrix,
       MARGIN = 2,
       FUN = f_order_neigh,
-      s = spike
+      s = spike, 
+      skip_first =  skip_first
     )
     stats <- seq(1,
       nrow(diss_matrix) * ncol(diss_matrix),
@@ -47,6 +57,10 @@ diss_to_neighbors <- function(diss_matrix,
   } else {
     neighbor_indcs <- apply(diss_matrix, MARGIN = 2, FUN = order)
     neighbors_diss <- apply(diss_matrix, MARGIN = 2, FUN = sort)
+    if (skip_first) {
+      neighbor_indcs <- neighbor_indcs[-1, ]
+      neighbors_diss <- neighbors_diss[-1, ]
+    }
   }
 
 
@@ -76,7 +90,7 @@ diss_to_neighbors <- function(diss_matrix,
   rownames(neighbor_indcs) <- paste0("k_", 1:nrow(neighbor_indcs))
   rownames(neighbors_diss) <- rownames(neighbor_indcs)
 
-  colnames(neighbor_indcs) <- paste0("Xu_", 1:ncol(neighbor_indcs))
+  # colnames(neighbor_indcs) <- paste0("Xu_", 1:ncol(neighbor_indcs))
   colnames(neighbors_diss) <- colnames(neighbor_indcs)
 
 
