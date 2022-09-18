@@ -635,24 +635,6 @@
 ##                      first if there is any parallel backend registered
 ## 22.06.2020 Leo     - Updated examples
 
-## TODO:
-##  A bug was detected in  ortho_diss.
-## Use the following code to reproduce it
-# mfr <- read.nircal("C:/raml/polco/FranceMIlk.nir")
-#
-# mfr <- mfr[mfr$Protein < 17,]
-# mfr <- mfr[mfr$Protein >7,]
-# cdist <- ortho_diss(Xr = savitzkyGolay(standardNormalVariate(mfr$spc[,as.character(wavs[wavs<9000])]), m = 1, p = 1, w = 5),
-#                    X2 = savitzkyGolay(standardNormalVariate(colanta$spc[,as.character(wavs[wavs<9000])]), m = 1, p = 1, w = 5),
-#                    Yr = mfr$Moisture,
-#                    pc_selection = list("opc", 10),
-#                    method = "pca",
-#                    local = FALSE,
-#                    center = TRUE, scaled = FALSE,
-#                    compute_all = FALSE, cores = 1)
-## The error thrown is:
-## Error in svd(x = X0) : infinite or missing values in 'x'
-
 mbl <- function(Xr, Yr, Xu, Yu = NULL,
                 k, k_diss, k_range,
                 spike = NULL,
