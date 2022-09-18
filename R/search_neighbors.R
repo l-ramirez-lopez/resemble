@@ -480,8 +480,7 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
     ...
   )
 
-
-  skip_first <- ifelse(is.null(Xu), FALSE, TRUE)
+  skip_first <- ifelse(is.null(Xu), TRUE, FALSE)
 
   results <- diss_to_neighbors(dsm$dissimilarity,
     k = k, k_diss = k_diss, k_range = k_range,
