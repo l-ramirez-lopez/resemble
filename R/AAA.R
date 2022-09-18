@@ -2,21 +2,21 @@
 
 .onAttach <- function(lib, pkg) {
   # assign("gpclib", FALSE, envir=.RESEMBLE_CACHE)
-  # resemble_v <- read.dcf(
+  #   pkg_v <- read.dcf(
   #   file = system.file("DESCRIPTION", package = pkg),
   #   fields = c("Version", "Config/VersionName", "URL")
   # )
-  resemble_v <- pkg_info()
+  pkg_v <- pkg_info()
 
   mss <- paste0(
     "\033[34m",
     pkg, " version ",
-    paste(resemble_v[1:2], collapse = " -- "),
+    paste(pkg_v[1:2], collapse = " \U002D\U002D "),
     "\033[39m"
   )
   mss2 <- paste0(
     "\033[34mcheck the package repository at: ",
-    resemble_v[, "URL"],
+      pkg_v[, "URL"],
     "\033[39m"
   )
   packageStartupMessage(mss)
