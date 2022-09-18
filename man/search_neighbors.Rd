@@ -77,8 +77,9 @@ dissimilarity metric specified in \code{diss_method}. Either \code{k} or
 (first value) and the maximum (second value) number of neighbors to be
 retained when the \code{k_diss} is given.}
 
-\item{spike}{a vector of integers indicating what observations in \code{Xr}
-(and \code{Yr}) must be 'forced' to always be part of all the neighborhoods.}
+\item{spike}{a vector of integers (with positive and/or negative values)
+indicating what observations in \code{Xr}
+(and \code{Yr}) must be forced into or avoided in the neighborhoods.}
 
 \item{pc_selection}{a list of length 2 to be passed onto the
 \code{\link{ortho_diss}} methods. It is required if the method selected in

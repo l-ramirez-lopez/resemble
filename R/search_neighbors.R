@@ -76,8 +76,9 @@
 #' @param k_range an integer vector of length 2 which specifies the minimum
 #' (first value) and the maximum (second value) number of neighbors to be
 #' retained when the \code{k_diss} is given.
-#' @param spike a vector of integers indicating what observations in \code{Xr}
-#' (and \code{Yr}) must be 'forced' to always be part of all the neighborhoods.
+#' @param spike a vector of integers (with positive and/or negative values) 
+#' indicating what observations in \code{Xr}
+#' (and \code{Yr}) must be forced into or avoided in the neighborhoods.
 #' @param pc_selection a list of length 2 to be passed onto the
 #' \code{\link{ortho_diss}} methods. It is required if the method selected in
 #' \code{diss_method} is any of \code{"pca"}, \code{"pca.nipals"} or
