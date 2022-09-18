@@ -1,8 +1,8 @@
 Package: resemble
 Type: Package
 Title: Memory-Based Learning in Spectral Chemometrics
-Version: 2.2.1
-Date: 2022-08-31
+Version: 2.2.2
+Date: 2022-18-09
 Author: Leonardo Ramirez-Lopez [aut, cre], 
     Antoine Stevens [aut, ctb],
     Claudio Orellano [ctb],
@@ -51,4 +51,4 @@ Repository: CRAN
 RoxygenNote: 7.2.1
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Config/VersionName: Fix-Hodges
+Config/VersionName: sky
