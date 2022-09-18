@@ -785,15 +785,16 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   pc_threshold <- pc_selection$value
 
   if (pc_sel_method %in% c("opc", "manual") & pc_selection$value > min(n_total, ncol(Xr))) {
+    pc_threshold <- min(n_total, ncol(Xr))
+    
     warning(paste0(
       "When pc_selection$method is 'opc' or 'manual', the value ",
       "specified in \npc_selection$value cannot be larger than ",
       "min(nrow(Xr) + nrow(Xu), ncol(Xr)) \n(i.e ",
-      min(n_total, ncol(Xr)),
+      pc_threshold,
       "). Therefore the value was reset to ",
-      min(n_total, ncol(Xr))
+      pc_threshold
     ))
-    pc_threshold <- min(n_total, ncol(Xr))
   }
 
 
