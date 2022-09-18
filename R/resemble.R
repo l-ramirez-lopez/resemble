@@ -22,7 +22,7 @@
 #'
 #' @details
 #' This is the version
-#' `r paste(pkg_info()[1:2], collapse = " -- ")`
+#' `r paste(pkg_info()[1:2], collapse = " \U002D\U002D ")`
 #' of the package. It implements a number of functions useful for
 #' modeling complex spectral spectra (e.g. NIR, IR).
 #' The package includes functions for dimensionality reduction,
