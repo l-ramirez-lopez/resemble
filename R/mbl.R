@@ -40,13 +40,16 @@
 #' @param k_range an integer vector of length 2 which specifies the minimum
 #' (first value) and the maximum (second value) number of neighbors to be
 #' retained when the \code{k_diss} is given.
-#' @param spike an integer vector indicating the indices of observations in
-#' \code{Xr} that must be forced into the neighborhoods of every \code{Xu}
-#' observation. Default is \code{NULL} (i.e. no observations are forced). Note
-#' that this argument is not intended for increasing the neighborhood size which
-#' is only controlled by \code{k} or \code{k_diss} and \code{k_range}. By
-#' forcing observations into the neighborhood, some observations will be forced
-#' out of the neighborhood. See details.
+#' @param spike an integer vector (with positive and/or negative values) indicating 
+#' the indices of observations in \code{Xr} that must be either be forced into 
+#' or avoided in the neighborhoods of every \code{Xu} observation. Default is 
+#' \code{NULL} (i.e. no observations are forced or avoided). Note
+#' that this argument is not intended for increasing or reducing the neighborhood
+#'  size which is only controlled by \code{k} or \code{k_diss} and \code{k_range}. 
+#' By forcing observations into the neighborhood, some of the farthest 
+#' observations may be forced out of the neighborhood. In contrast, by avoiding 
+#' observations in the neighborhood,  some of farthest 
+#' observations may be included into the neighborhood. See details.
 #' @param method an object of class \code{\link{local_fit}} which indicates the
 #' type of regression to conduct at each local segment as well as additional
 #' parameters affecting this regression. See \code{\link{local_fit}} function.

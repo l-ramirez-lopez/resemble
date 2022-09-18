@@ -29,20 +29,27 @@ diss_to_neighbors <- function(diss_matrix,
                               return_dissimilarity = FALSE,
                               skip_first = FALSE) {
   if (!is.null(spike)) {
-    f_order_neigh <- function(x, s, skip_first = FALSE) {
+    
+    spike_hold <- spike[spike > 0]
+    spike_rm <- -spike[spike < 0]
+    
+    f_order_neigh <- function(x, s_hold, s_remove, skip_first = FALSE) {
       x <- order(x)
       if (skip_first) {
         x <- x[-1]
       }
-      c(s, x[!x %in% s])
+      x <- c(s_hold, x[!x %in% s_hold])
+      x <- x[!x %in% s_remove]
     }
 
     neighbor_indcs <- apply(diss_matrix,
       MARGIN = 2,
       FUN = f_order_neigh,
-      s = spike,
+      s_hold = spike_hold,
+      s_remove = spike_rm,
       skip_first = skip_first
     )
+
     stats <- seq(1,
       nrow(diss_matrix) * ncol(diss_matrix),
       by = nrow(diss_matrix)
