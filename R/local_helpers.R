@@ -376,9 +376,10 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
 #' execute a local prediction for the mbl function based on a list of neighbors.
 #' Not valid for local dissmilitary (e.g. for ortho_diss(...., .local = TRUE))
 #' @param Xr the Xr matrix in mbl.
-#' @param Xu the Xu matrix in mbl.
+#' @param Xu the Xu matrix in mbl. Default \code{NULL}. If not provided, the 
+#' function will iterate for each \code{\{Yr, Xr\}} to get the respective neighbors.
 #' @param Yr the Yr matrix in mbl.
-#' @param Yu the Yu matrix in mbl.
+#' @param Yu the Yu matrix in mbl. Default \code{NULL}. 
 #' @param diss_usage a character string indicating if the dissimilarity data
 #' will be used as predictors ("predictors") or not ("none").
 #' @param neighbor_indices a matrix with the indices of neighbors of every Xu
@@ -392,21 +393,22 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
 #' itemize{
 #' \item{ith_xr:}{ the Xr data of the neighbors for the ith observation (if
 #' \code{diss_usage = "predictors"}, this data is combined with the local
-#' dissmilarity scores of the neighbors of Xu)}
+#' dissmilarity scores of the neighbors of Xu (or Xr if Xu was not provided))}
 #' \item{ith_yr:}{ the Yr data of the neighbors for the ith observation}
-#' \item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"},
-#' this data is combined with the local dissmilarity scores to its Xr neighbors}
-#' \item{ith_yu:}{ the ith Yu observation}
+#' \item{ith_xu:}{ the ith Xu observation (or Xr if Xu was not provided). 
+#' If \code{diss_usage = "predictors"}, this data is combined with the local 
+#' dissmilarity scores to its Xr neighbors.}
+#' \item{ith_yu:}{ the ith Yu observation (or Yr observation if Xu was not provided).}
 #' \item{ith_neigh_diss:}{ the dissimilarity scores of the neighbors for the ith
-#' observation}
-#' \item{ith_group:}{ the group labels for ith_xr}
-#' \item{n_k:}{ the number of neighbors}
+#' observation.}
+#' \item{ith_group:}{ the group labels for ith_xr.}
+#' \item{n_k:}{ the number of neighbors.}
 #' }
 #' @details isubset will look at the order of knn in each col of D and
 #' re-organize the rows of x accordingly
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
-ith_mbl_neighbor <- function(Xr, Xu, Yr, Yu = NULL,
+ith_mbl_neighbor <- function(Xr, Xu = NULL, Yr, Yu = NULL,
                              diss_usage = "none",
                              neighbor_indices,
                              neighbor_diss = NULL,
@@ -415,8 +417,17 @@ ith_mbl_neighbor <- function(Xr, Xu, Yr, Yu = NULL,
   k_neighbors <- colSums(!is.na(neighbor_indices))
   iter_k_neighbors <- iter(k_neighbors, by = "cell")
   iter_neighbors <- iter(neighbor_indices, by = "col")
-  iter_xu <- iter(Xu, by = "row")
-  iter_yu <- iter(Yu, by = "cell")
+  
+  if (is.null(Xu)) {
+    iter_xu <- iter(Xr, by = "row")
+    iter_yu <- iter(Yr, by = "cell")
+    iterate_yu <- TRUE
+  } else {
+    iter_xu <- iter(Xu, by = "row")
+    iter_yu <- iter(Yu, by = "cell")
+    iterate_yu <- !is.null(Yu)
+  }
+  
   neighbor_diss <- t(neighbor_diss)
   iter_xr_xu_diss <- iter(neighbor_diss, by = "row")
   group
@@ -432,7 +443,7 @@ ith_mbl_neighbor <- function(Xr, Xu, Yr, Yu = NULL,
     ith_xu <- nextElem(iter_xu)
     ith_neigh_diss <- nextElem(iter_xr_xu_diss)[, ith_ks, drop = FALSE]
 
-    if (!is.null(Yu)) {
+    if (iterate_yu) {
       ith_yu <- nextElem(iter_yu)
     } else {
       ith_yu <- NULL
