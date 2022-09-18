@@ -1,4 +1,11 @@
 # `resemble`
+`resemble 2.2.2 (sky)`
+===============
+### New features
+
+* The argument `spike` in the `mbl()` function now accepts negative integers to 
+avoid observations in the neighbrhoods.
+
 
 
 `resemble 2.2.1 (Fix-Hodges)`
