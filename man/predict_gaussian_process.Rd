@@ -7,9 +7,7 @@
 predict_gaussian_process(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
 }
 \arguments{
-\item{Xz}{the final (scaled?) matrix of predictors used to create the regression model in the \code{gaussian_process} function}
-
-\item{alpha}{the alpha matrix corresponding to the regression model in the \code{gaussian_process} function}
+\item{b}{the regression coefficients.}
 
 \item{newdata}{a matrix containing the predictor variables}
 
