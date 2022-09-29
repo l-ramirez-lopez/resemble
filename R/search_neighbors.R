@@ -482,6 +482,17 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
   )
 
   skip_first <- ifelse(is.null(Xu), TRUE, FALSE)
+  
+  if (!is.null(spike)) {
+    spike_hold <- spike[spike > 0]
+    spike_rm <- -spike[spike < 0]
+    
+    spike_problem <- length(intersect(spike_hold, spike_rm)) > 0
+    
+    if (spike_problem) {
+      stop("spike contains contradictory information, some indices to keep and to avoid are the same")
+    }
+  }
 
   results <- diss_to_neighbors(dsm$dissimilarity,
     k = k, k_diss = k_diss, k_range = k_range,
