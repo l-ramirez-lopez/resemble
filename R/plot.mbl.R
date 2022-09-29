@@ -145,7 +145,15 @@ plot.mbl <- function(x,
       yu_prediction_stats <- NULL
     }
 
-    tpl <- rbind(nn_val_stats, local_cv_stats, yu_prediction_stats)
+    if (!is.null(object$validation_results$Yr_fitted_statistics)) {
+      yr_fitted_stats <- cbind(object$validation_results$Yr_fitted_statistics, val = "Yr fitted")
+      col <- c(col, "red")
+    } else {
+      yr_fitted_stats <- NULL
+    }
+    
+    
+    tpl <- rbind(nn_val_stats, local_cv_stats, yu_prediction_stats, yr_fitted_stats)
 
     if (is.null(tpl)) {
       par(mfrow = c(1, 1))
