@@ -324,20 +324,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // predict_gaussian_process
-NumericVector predict_gaussian_process(arma::mat Xz, arma::mat alpha, arma::mat newdata, bool scale, arma::mat Xcenter, arma::mat Xscale, arma::mat Ycenter, arma::mat Yscale);
-RcppExport SEXP _resemble_predict_gaussian_process(SEXP XzSEXP, SEXP alphaSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP, SEXP YcenterSEXP, SEXP YscaleSEXP) {
+NumericVector predict_gaussian_process(arma::mat b, arma::mat newdata, bool scale, arma::mat Xcenter, arma::mat Xscale, arma::mat Ycenter, arma::mat Yscale);
+RcppExport SEXP _resemble_predict_gaussian_process(SEXP bSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP, SEXP YcenterSEXP, SEXP YscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type Xz(XzSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type b(bSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type newdata(newdataSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Ycenter(YcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Yscale(YscaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_gaussian_process(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale));
+    rcpp_result_gen = Rcpp::wrap(predict_gaussian_process(b, newdata, scale, Xcenter, Xscale, Ycenter, Yscale));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -399,7 +398,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 6},
     {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 14},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},
-    {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
+    {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 7},
     {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 7},
     {"_resemble_pca_nipals", (DL_FUNC) &_resemble_pca_nipals, 8},
     {NULL, NULL, 0}
