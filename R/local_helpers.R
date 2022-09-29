@@ -578,8 +578,6 @@ get_ith_local_neighbors <- function(ith_xr, ith_xu, ith_yr, ith_yu = NULL,
     )
   )
 
-
-
   if (is_predictors) {
     indx_xu <- ncol(local_diss$dissimilarity)
 
@@ -657,7 +655,7 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
   }
 
   if (any(get_col_sds(x) == 0)) {
-    warning("One of the variables has zero variance. Data will not be scale")
+    warning("Variables with zero variance. Data will not be scaled")
     scale <- FALSE
   }
 
@@ -695,8 +693,7 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
     }
 
     pred <- predict_gaussian_process(
-      Xz = fit$Xz,
-      alpha = fit$alpha,
+      b = fit$b,
       newdata = newdata,
       scale = fit$is_scaled,
       Xcenter = fit$Xcenter,
