@@ -48,8 +48,8 @@ NumericVector get_col_largest_sd(arma::mat X){
 //' @useDynLib resemble
 // [[Rcpp::export]]
 NumericVector get_column_sds(arma::mat X){
-  arma::mat sds = arma::stddev(X, 0, 0);
-  return Rcpp::wrap(sds);
+ arma::mat sds = arma::stddev(X, 0, 0);
+ return Rcpp::wrap(sds);
 }
 
 
@@ -99,7 +99,6 @@ NumericVector get_column_sums(arma::mat X){
   return Rcpp::wrap(sm);
 }
 
-
 //' @title Computes the weights for pls regressions
 //' @description
 //' This is an internal function that computes the wights required for obtaining
@@ -134,8 +133,7 @@ arma::mat get_weights(arma::mat X,
                       const int xls_min_w = 3, 
                       const int xls_max_w = 15) {
   int n_cols_x = X.n_cols;
-  
-  arma::mat w = arma::zeros<arma::mat>(n_cols_x, 1);
+  arma::mat w;
   
   if (algorithm == "pls") {
     // 1.2 The weights are computed as the cross product of
@@ -143,7 +141,6 @@ arma::mat get_weights(arma::mat X,
     w = trans(X) * Y;
     // Scaling factor
   }
-  
   
   if (algorithm == "mpls") {
     // modified PLS (Shenk and Westerhaus, 1991)
@@ -155,29 +152,11 @@ arma::mat get_weights(arma::mat X,
     // achievements in near infrared spectroscopy: my contributions to near 
     // infrared spectroscopy
     // by: Mark Westerhaus from FOSS)
-    
-    // for (int i = 0; i < n_cols_x; i++) {
-    //   w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
-    // }
-    
-    for (int i = 0; i < n_cols_x; i++) {
-      w(i, 0) = arma::conv_to<double>::from(arma::cor(Y, X.col(i)));
-    }
-    
-    // arma::mat x_center_vec;
-    // x_center_vec = Rcpp::as<arma::mat>(get_column_means(X));
-    // X = X - arma::repmat(x_center_vec, X.n_rows, 1);
-    // 
-    // arma::mat y_center_vec;
-    // y_center_vec = Rcpp::as<arma::mat>(get_column_means(Y));
-    // Y = Y - arma::repmat(y_center_vec, Y.n_rows, 1);
-    // 
-    // w = trans(X) * Y;
-    // 
-    // w = w / trans(sqrt(sum(pow(X, 2), 0)) % arma::repmat(sqrt(sum(pow(Y, 2), 0)), 1, X.n_cols));
+    w = arma::cor(X, Y);
   }
   
   if (algorithm == "xls") {
+    w = arma::zeros<arma::mat>(n_cols_x, 1);
     // as in BUCHI NIRWise PLUS software 
     for (int i = 0; i < n_cols_x; i++) {
       for (int j = i + xls_min_w; j <= std::min(i + xls_max_w, n_cols_x - 1); j++) {
@@ -192,9 +171,6 @@ arma::mat get_weights(arma::mat X,
   w = w / repmat(cr, X.n_cols, 1);
   return (w);
 }
-
-
-
 
 //' @title Internal Cpp function for computing the weights of the PLS components 
 //' necessary for weighted average PLS
@@ -222,41 +198,41 @@ arma::mat get_weights(arma::mat X,
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
-// [[Rcpp::export]]
-Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, 
-                                          arma::mat xloadings,
-                                          arma::mat coefficients,
-                                          arma::mat new_x,
-                                          int min_component, 
-                                          int max_component, 
-                                          bool scale,
-                                          arma::mat Xcenter,
-                                          arma::mat Xscale
-){
-  arma::mat Xz = new_x;
-  arma::mat whgt;
-  
-  if(scale){
-    Xz = Xz / Xscale;
-  }
-  
-  //Necessary to center
-  Xz = Xz - Xcenter;
-  
-  arma::mat xrmsres = arma::zeros(1, max_component);
-  
-  arma::mat sc = Xz * projection_mat.cols(0, max_component - 1);
-  for(int i = (min_component - 1); i < max_component; i++){
-    arma::mat xrec = sc.cols(0,i) * xloadings.rows(0, i);
-    xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
-  }
-  
-  arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
-  arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
-  arma::mat whgtn = pow(rmsb_x, -1);
-  whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);
-  return Rcpp::wrap(whgt);
-}
+ // [[Rcpp::export]]
+ Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, 
+                                           arma::mat xloadings,
+                                           arma::mat coefficients,
+                                           arma::mat new_x,
+                                           int min_component, 
+                                           int max_component, 
+                                           bool scale,
+                                           arma::mat Xcenter,
+                                           arma::mat Xscale
+ ){
+   arma::mat Xz = new_x;
+   arma::mat whgt;
+   
+   if(scale){
+     Xz = Xz / Xscale;
+   }
+   
+   //Necessary to center
+   Xz = Xz - Xcenter;
+   
+   arma::mat xrmsres = arma::zeros(1, max_component);
+   
+   arma::mat sc = Xz * projection_mat.cols(0, max_component - 1);
+   for(int i = (min_component - 1); i < max_component; i++){
+     arma::mat xrec = sc.cols(0,i) * xloadings.rows(0, i);
+     xrmsres.col(i) = sqrt(arma::mean(arma::mean(pow(Xz - xrec, 2), 0), 1));
+   }
+   
+   arma::mat rmsb = sqrt(get_column_means(pow(coefficients.cols(0, max_component - 1), 2)));
+   arma::mat rmsb_x = trans(rmsb.rows(min_component - 1, max_component - 1)) % xrmsres.cols(min_component - 1, max_component - 1);
+   arma::mat whgtn = pow(rmsb_x, -1);
+   whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);
+   return Rcpp::wrap(whgt);
+ }
 
 
 
@@ -469,9 +445,6 @@ List opls_for_projection(arma::mat X,
       } 
     }
   }
-  
-  
-  
   
   arma::uvec pc_indices;
   if (pcSelmethod != "manual") {
@@ -1180,10 +1153,11 @@ Rcpp::NumericMatrix predict_opls(arma::mat bo,
                                  arma::mat newdata,
                                  bool scale,
                                  arma::mat Xscale
-){
+) {
   
   if (scale) {
-    newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
+    // newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
+    newdata = newdata.each_row() / Xscale;
   } 
   
   // Not Necessary to center since b0 is used
@@ -1219,7 +1193,8 @@ Rcpp::NumericMatrix project_opls(arma::mat projection_mat,
 ){
   
   if(scale){
-    newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
+    // newdata = newdata / arma::repmat(Xscale, newdata.n_rows, 1);
+    newdata = newdata.each_row() / Xscale;
   }
   
   //Necessary to center
@@ -1249,19 +1224,30 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
                                          arma::mat xloadings,
                                          bool scale,
                                          arma::mat Xcenter,
-                                         arma::mat Xscale){
+                                         arma::mat Xscale, 
+                                         bool scale_back = false){
   
-  if(scale){
-    x = x / arma::repmat(Xscale, x.n_rows, 1);
+  if (scale){
+    // x = x / arma::repmat(Xscale, x.n_rows, 1);
+    x = x.each_row() / Xscale;
   }
   
-  //Necessary to center
-  x = x - arma::repmat(Xcenter, x.n_rows, 1);
+  // Necessary to center
+  x = x.each_row() - Xcenter;
+  // x = x - arma::repmat(Xcenter, x.n_rows, 1);
   
   arma::mat xrec = x;
   arma::mat xrmse;
   xrec = x * projection_mat * xloadings; 
   
+  if (scale_back) {
+    x = x.each_row() + Xcenter;
+    xrec = xrec.each_row() + Xcenter;
+    if (scale) {
+      x = x.each_row() % Xscale;
+      xrec = xrec.each_row() % Xscale;
+    }
+  }
   // if(scale){
   //   xrec = xrec % arma::repmat(Xscale, x.n_rows, 1);
   // }
@@ -1272,8 +1258,6 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
   xrmse = arma::mean(sqrt(arma::mean(pow(x - xrec, 2), 0)), 1);
   return Rcpp::wrap(xrmse);
 }
-
-
 
 //' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
 //' @description For internal use only!. 
@@ -1626,6 +1610,198 @@ List opls_cv_cpp(arma::mat X,
 }
 
 
+//' @title orthogonal scores algorithm of partial leat squares (opls)
+//' @description Computes orthogonal scores partial least squares (opls) 
+//' regressions with the NIPALS algorithm. It allows multiple response variables. 
+//' It does not return the variance information of the components. NOTE: For 
+//' internal use only!
+//' @usage 
+//' opls_gs(Xr, 
+//'         Yr,
+//'         Xu, 
+//'         ncomp, 
+//'         scale, 
+//'         response = FALSE, 
+//'         reconstruction = TRUE,
+//'         similarity = TRUE, 
+//'         algorithm = "pls")
+//' @param Xr a matrix of predictor variables for the training set.
+//' @param Yr a matrix of a single response variable for the training set.
+//' @param Xu a matrix of predictor variables for the test set.
+//' @param ncomp the number of pls components.
+//' @param scale logical indicating whether \code{X} must be scaled.
+//' @param response logical indicating whether to compute the prediction of \code{Yu}.
+//' @param reconstruction logical indicating whether to compute the reconstruction error of \code{Xu}.
+//' @param similarity logical indicating whether to compute the the distance score between \code{Xr} and \code{Xu} (in the pls space).
+//' @param algorithm (for weights computation) a character string indicating 
+//' what method to use. Options are:
+//' \code{'pls'} for pls (using covariance between X and Y) or
+//' \code{'mpls'} for modified pls (using correlation between X and Y).
+//' @return a list containing the following elements:
+//' \itemize{
+//' \item{\code{ncomp}}{ the number of components.}
+//' \item{\code{pred_response}}{ the response predictions for \code{Xu}.}
+//' \item{\code{rmse_reconstruction}}{ the rmse of the reconstruction for \code{Xu}.}
+//' \item{\code{score_dissimilarity}}{ the distance score between \code{Xr} and \code{Xu}.}} 
+//' @author Leonardo Ramirez-Lopez
+//' @keywords internal 
+//' @useDynLib resemble
+// [[Rcpp::export]]
+List opls_gs(arma::mat Xr, 
+             arma::mat Yr,
+             arma::mat Xu, 
+             int ncomp,
+             bool scale,     
+             bool response = false, 
+             bool reconstruction = true,
+             bool similarity = true,
+             bool fresponse = true,
+             String algorithm = "pls") {
+  
+  int ny = Yr.n_cols;
+  int nynf = ncomp * Yr.n_cols;
+  
+  arma::mat weights = arma::zeros(ncomp, Xr.n_cols);
+  arma::mat scores = arma::zeros(Xr.n_rows, ncomp);
+  arma::mat Xrloadings = arma::zeros(ncomp, Xr.n_cols);
+  arma::vec Yrloadings (ncomp);
+  arma::mat coefficients = arma::zeros(Xr.n_cols, nynf);
+  arma::mat bo = arma::zeros(ny, ncomp);
+  arma::mat Xscale;
+  arma::mat Xcenter;
+  // arma::mat Xr_scale_vec;
+  // arma::mat Xr_center_vec;
+  arma::mat Xrz = Xr;
+  arma::mat Xuz = Xu;
+  if (scale) {
+    Xscale = arma::stddev(Xrz, 0, 0);
+    Xrz = Xrz.each_row() / Xscale;
+    Xuz = Xuz.each_row() / Xscale;
+  }
+  Xcenter = arma::mean(Xrz, 0);
+  Xrz = Xrz.each_row() - Xcenter;
+  Xuz = Xuz.each_row() - Xcenter;
+  
+  // matrices to declare
+  arma::mat Xrpls = Xrz;
+  arma::mat Yrpls = Yr;
+  arma::mat iypls;
+  arma::mat Yrplsb;
+  arma::vec lagest_sd_col;
+  arma::mat lb;
+  arma::mat cr;
+  arma::mat ts;
+  arma::mat w;
+  arma::mat p;
+  arma::mat q;
+  arma::mat cx;
+  arma::mat cy;
+  arma::mat projection_matrix;
+  
+  for (int i = 0; i < ncomp; i++) {
+    Yrplsb = Yrpls;
+    iypls = Yrpls.col(0);
+    w = get_weights(Xrpls, iypls, algorithm, 0, 0);
+    ts = Xrpls * w;
+    p = (trans(Xrpls) * ts) / repmat((trans(ts) * ts), Xrpls.n_cols, 1);
+    q = (trans(Yrplsb) * ts) / repmat((trans(ts) * ts), Yrplsb.n_cols, 1);
+    iypls = (Yrplsb * q) / repmat((trans(q) * q), Xrpls.n_rows, 1) ;
+    cx = ts * trans(p) ;
+    Xrpls = Xrpls - cx;
+    cy = ts * trans(q);
+    Yrpls = Yrpls - cy;
+    weights.row(i) = trans(w);
+    scores.col(i) = ts;
+    Xrloadings.row(i) = trans(p);
+    arma::vec qvec = arma::vectorise(q);
+    Yrloadings(i) = qvec(0);
+  }
+  
+  if (response | reconstruction | similarity) {
+    projection_matrix = trans(weights) * arma::solve(Xrloadings * trans(weights), arma::eye(Xrloadings.n_rows, Xrloadings.n_rows));
+  }
+  
+  // arma::mat yrmse;
+  arma::mat predicted;
+  if (response) {
+    arma::vec ymean;
+    ymean = arma::mean(Yr);
+    coefficients = cumsum(projection_matrix.each_row() % Yrloadings.t(), 1);
+    predicted = Xuz * coefficients.col(ncomp - 1);
+    predicted.for_each( [ymean](arma::mat::elem_type& val) { val += ymean(0); });
+    // yrmse = sqrt(arma::mean(pow(predicted - Yu, 2), 0));
+  }
+  
+  
+  arma::mat residual_variance;
+  if (fresponse) {
+    // residual_variance = arma::mean(pow(Yr - (scores * Yrloadings), 2));
+    residual_variance = pow(arma::cor(Yr, (scores * Yrloadings)), 2);
+    residual_variance.col(0) = 1 - residual_variance.col(0);
+  }
+  
+  
+  arma::mat xrmse;
+  if (reconstruction) {
+    arma::mat xrec = Xuz * projection_matrix * Xrloadings; 
+    xrec = xrec.each_row() + Xcenter;
+    if (scale) {
+      xrec = xrec.each_row() % Xscale;   
+    }
+    xrmse = arma::mean(sqrt(arma::mean(pow(Xu - xrec, 2), 0)), 1);
+  }
+  
+  arma::mat diss_score;
+  arma::mat scores_xu;  
+  if (similarity) {
+    arma::mat covsc;
+    arma::mat U;
+    arma::vec s;
+    arma::mat V;
+    arma::mat sqrt_sm;
+    
+    
+    scores_xu = Xuz * projection_matrix.cols(0, ncomp - 1);
+    if (ncomp > 1) {
+      // project onto a Mahalanobis space (since by adding the scores of Xuz
+      // the jonined matrix of the scores of Xrz and Xuz is not exactly orthogonal
+      // its the covariance matrix is not diagonal
+      covsc = arma::cov(join_cols( scores, scores_xu ));
+      svd_econ(U, s, V, covsc, "left");
+      
+      sqrt_sm = arma::solve(U * diagmat(sqrt(s.col(0))) * U.t(), arma::eye(ncomp, ncomp));
+      scores_xu = scores_xu * sqrt_sm;
+      scores = scores * sqrt_sm;
+    } else {
+      arma::vec scmean;
+      scmean = mean(join_cols( scores, scores_xu ));
+      scores.for_each( [scmean](arma::mat::elem_type& val) { val += scmean(0); });
+      scores_xu.for_each( [scmean](arma::mat::elem_type& val) { val += scmean(0); });
+      
+      arma::vec scscale;
+      scscale = Rcpp::as<arma::mat>(get_column_sds((join_cols( scores, scores_xu ))));
+      scores.for_each( [scscale](arma::mat::elem_type& val) { val /= scscale(0); });
+      scores_xu.for_each( [scscale](arma::mat::elem_type& val) { val /= scscale(0); });
+    }
+    // compute the distance matrix
+    arma::mat diss = arma::ones(scores_xu.n_rows, 1) * arma::sum(arma::square(scores), 1).t() + arma::sum(arma::square(scores_xu), 1)  * arma::ones(1, scores.n_rows) - 2 * scores_xu * scores.t();
+    diss.for_each( [ncomp](arma::mat::elem_type& val) { val /= ncomp; });
+    diss_score = arma::mean(arma::mean(sqrt(diss), 0), 1);
+    
+  }
+  
+  
+  return Rcpp::List::create(
+    Rcpp::Named("ncomp") = ncomp,
+    Rcpp::Named("pred_response") = predicted,
+    Rcpp::Named("rmse_reconstruction") = xrmse,
+    Rcpp::Named("score_dissimilarity") = diss_score,
+    Rcpp::Named("residual_variance") = residual_variance
+  );
+}
+
+
+
 /// Gaussian process regression with linear kernel
 //' @title Gaussian process regression with linear kernel (gaussian_process)
 //' @description Carries out a gaussian process regression with a linear kernel (dot product). For internal use only!
@@ -1729,7 +1905,8 @@ List gaussian_process(arma::mat X,
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-NumericVector predict_gaussian_process(arma::mat b, 
+NumericVector predict_gaussian_process(arma::mat Xz, 
+                                       arma::mat alpha, 
                                        arma::mat newdata,
                                        bool scale,
                                        arma::mat Xcenter,
@@ -1741,11 +1918,11 @@ NumericVector predict_gaussian_process(arma::mat b,
   arma::mat newdatatr = newdata;
   
   if(scale){
-    newdatatr = newdatatr - arma::repmat(Xcenter, newdata.n_rows, 1);
-    newdatatr = newdatatr / arma::repmat(Xscale, newdata.n_rows, 1);
+    newdatatr = newdatatr.each_row() - Xcenter;
+    newdatatr = newdatatr.each_row() / Xscale;
   }
   
-  arma::mat predicted = newdatatr * b;
+  arma::mat predicted = newdatatr * trans(Xz) * alpha;
   
   if(scale){
     predicted = predicted % arma::repmat(Yscale, newdata.n_rows, 1) + arma::repmat(Ycenter, newdata.n_rows, 1);
@@ -1835,7 +2012,7 @@ List gaussian_process_cv(arma::mat X,
     
     arma::mat ypred;
     
-    ypred = Rcpp::as<arma::mat>(predict_gaussian_process(fit["b"], pxmatslice, scale, fit["Xcenter"], fit["Xscale"], fit["Ycenter"], fit["Yscale"]));
+    ypred = Rcpp::as<arma::mat>(predict_gaussian_process(fit["Xz"], fit["alpha"], pxmatslice, scale, fit["Xcenter"], fit["Xscale"], fit["Ycenter"], fit["Yscale"]));
     
     if (!statistics){
       // predictions.row(i) = ypred;
