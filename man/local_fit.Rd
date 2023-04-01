@@ -69,9 +69,10 @@ models. The weight for each component is calculated as follows:
 
 \mjdeqn{w_{j}  =  \frac{1}{s_{1:j}\times g_{j}}}{w_j  =  1/(s_{1:j} xx g_{j})}
 
-where \mjeqn{s_{1:j}}{s_{1:j}} is the root mean square of the spectral residuals of the
-unknown (or target) obasevation(s) when a total of \mjeqn{j}{j} pls components are
-used and \mjeqn{g_{j}}{g_{j}} is the root mean square of the regression coefficients
+where \mjeqn{s_{1:j}}{s_{1:j}} is the root mean square of the
+spectral reconstruction error of the unknown (or target) observation(s)
+when a total of \mjeqn{j}{j} pls components are used and
+\mjeqn{g_{j}}{g_{j}} is the root mean square of the regression coefficients
 corresponding to the \mjeqn{j}{j}th pls component (see Shenk et al., 1997 for
 more details).}
 \item{Gaussian process with dot product covariance (\code{local_fit_gpr):}{
