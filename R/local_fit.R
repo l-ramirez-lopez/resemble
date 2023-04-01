@@ -59,9 +59,9 @@
 #'  where \mjeqn{s_{1:j}}{s_{1:j}} is the root mean square of the 
 #'  spectral reconstruction error of the unknown (or target) observation(s) 
 #'  when a total of \mjeqn{j}{j} pls components are used and 
-#'  \mjeqn{g_{j}}{g_{j}} is the root mean square of the regression coefficients
-#'  corresponding to the \mjeqn{j}{j}th pls component (see Shenk et al., 1997 for
-#'  more details).}
+#'  \mjeqn{g_{j}}{g_{j}} is the root mean square of the squared regression 
+#'  coefficients corresponding to the \mjeqn{j}{j}th pls component (see 
+#'  Shenk et al., 1997 for more details).}
 #'  \item{Gaussian process with dot product covariance (\code{local_fit_gpr):}{
 #'  Gaussian process regression is a probabilistic and non-parametric Bayesian
 #'  method. It is commonly described as a collection of random variables which
