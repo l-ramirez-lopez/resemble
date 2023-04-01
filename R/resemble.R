@@ -21,13 +21,13 @@
 #' \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 #'
 #' @details
-#' This is the version
-#' `r paste(pkg_info()[1:2], collapse = " \U002D\U002D ")`
+#' This is the version 
+#' `r paste(pkg_info()[1:2], collapse = " -- ")`
 #' of the package. It implements a number of functions useful for
 #' modeling complex spectral spectra (e.g. NIR, IR).
 #' The package includes functions for dimensionality reduction,
 #' computing spectral dissimilarity matrices, nearest neighbor search,
-#' and modeling spectral data using memory-based learning. This package builds
+#' and modeling spectral data using memory-based learning. This package builds 
 #' upon the methods presented in Ramirez-Lopez et al. (2013) <doi:10.1016/j.geoderma.2012.12.014>>.
 #'
 #' Development versions can be found in the github repository of the package
@@ -90,13 +90,13 @@
 #' \item Leonardo Ramirez-Lopez (\href{https://orcid.org/0000-0002-5369-5120}{ORCID})
 #'
 #' \item Antoine Stevens (\href{https://orcid.org/0000-0002-1588-7519}{ORCID})
-#'
-#' \item Claudio Orellano
+#' 
+#' \item Claudio Orellano 
 #'
 #' \item Raphael Viscarra Rossel (\href{https://orcid.org/0000-0003-1540-4748}{ORCID})
 #'
 #' \item Zefang Shen
-#'
+#' 
 #' \item Craig Lobsey (\href{https://orcid.org/0000-0001-5416-8640}{ORCID})
 #'
 #' \item Alex Wadoux (\href{https://orcid.org/0000-0001-7325-9716}{ORCID})
