@@ -460,8 +460,8 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale) {
-    .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings, scale, Xcenter, Xscale)
+reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back = FALSE) {
+    .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back)
 }
 
 #' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
@@ -534,6 +534,46 @@ opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, 
     .Call('_resemble_opls_cv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics)
 }
 
+#' @title orthogonal scores algorithm of partial leat squares (opls)
+#' @description Computes orthogonal scores partial least squares (opls) 
+#' regressions with the NIPALS algorithm. It allows multiple response variables. 
+#' It does not return the variance information of the components. NOTE: For 
+#' internal use only!
+#' @usage 
+#' opls_gs(Xr, 
+#'         Yr,
+#'         Xu, 
+#'         ncomp, 
+#'         scale, 
+#'         response = FALSE, 
+#'         reconstruction = TRUE,
+#'         similarity = TRUE, 
+#'         algorithm = "pls")
+#' @param Xr a matrix of predictor variables for the training set.
+#' @param Yr a matrix of a single response variable for the training set.
+#' @param Xu a matrix of predictor variables for the test set.
+#' @param ncomp the number of pls components.
+#' @param scale logical indicating whether \code{X} must be scaled.
+#' @param response logical indicating whether to compute the prediction of \code{Yu}.
+#' @param reconstruction logical indicating whether to compute the reconstruction error of \code{Xu}.
+#' @param similarity logical indicating whether to compute the the distance score between \code{Xr} and \code{Xu} (in the pls space).
+#' @param algorithm (for weights computation) a character string indicating 
+#' what method to use. Options are:
+#' \code{'pls'} for pls (using covariance between X and Y) or
+#' \code{'mpls'} for modified pls (using correlation between X and Y).
+#' @return a list containing the following elements:
+#' \itemize{
+#' \item{\code{ncomp}}{ the number of components.}
+#' \item{\code{pred_response}}{ the response predictions for \code{Xu}.}
+#' \item{\code{rmse_reconstruction}}{ the rmse of the reconstruction for \code{Xu}.}
+#' \item{\code{score_dissimilarity}}{ the distance score between \code{Xr} and \code{Xu}.}} 
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @useDynLib resemble
+opls_gs <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruction = TRUE, similarity = TRUE, fresponse = TRUE, algorithm = "pls") {
+    .Call('_resemble_opls_gs', PACKAGE = 'resemble', Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm)
+}
+
 #' @title Gaussian process regression with linear kernel (gaussian_process)
 #' @description Carries out a gaussian process regression with a linear kernel (dot product). For internal use only!
 #' @usage gaussian_process(X, Y, noisev, scale) 
@@ -575,8 +615,8 @@ gaussian_process <- function(X, Y, noisev = 0.001, scale = TRUE) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-predict_gaussian_process <- function(b, newdata, scale, Xcenter, Xscale, Ycenter, Yscale) {
-    .Call('_resemble_predict_gaussian_process', PACKAGE = 'resemble', b, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
+predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale) {
+    .Call('_resemble_predict_gaussian_process', PACKAGE = 'resemble', Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
 }
 
 #' @title Internal Cpp function for performing leave-group-out cross 
