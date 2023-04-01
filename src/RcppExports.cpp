@@ -270,8 +270,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // reconstruction_error
-Rcpp::NumericMatrix reconstruction_error(arma::mat x, arma::mat projection_mat, arma::mat xloadings, bool scale, arma::mat Xcenter, arma::mat Xscale);
-RcppExport SEXP _resemble_reconstruction_error(SEXP xSEXP, SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
+Rcpp::NumericMatrix reconstruction_error(arma::mat x, arma::mat projection_mat, arma::mat xloadings, bool scale, arma::mat Xcenter, arma::mat Xscale, bool scale_back);
+RcppExport SEXP _resemble_reconstruction_error(SEXP xSEXP, SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP, SEXP scale_backSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -281,7 +281,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale));
+    Rcpp::traits::input_parameter< bool >::type scale_back(scale_backSEXP);
+    rcpp_result_gen = Rcpp::wrap(reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -309,6 +310,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// opls_gs
+List opls_gs(arma::mat Xr, arma::mat Yr, arma::mat Xu, int ncomp, bool scale, bool response, bool reconstruction, bool similarity, bool fresponse, String algorithm);
+RcppExport SEXP _resemble_opls_gs(SEXP XrSEXP, SEXP YrSEXP, SEXP XuSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP responseSEXP, SEXP reconstructionSEXP, SEXP similaritySEXP, SEXP fresponseSEXP, SEXP algorithmSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type Xr(XrSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Yr(YrSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Xu(XuSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp(ncompSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< bool >::type response(responseSEXP);
+    Rcpp::traits::input_parameter< bool >::type reconstruction(reconstructionSEXP);
+    Rcpp::traits::input_parameter< bool >::type similarity(similaritySEXP);
+    Rcpp::traits::input_parameter< bool >::type fresponse(fresponseSEXP);
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    rcpp_result_gen = Rcpp::wrap(opls_gs(Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gaussian_process
 List gaussian_process(arma::mat X, arma::mat Y, float noisev, bool scale);
 RcppExport SEXP _resemble_gaussian_process(SEXP XSEXP, SEXP YSEXP, SEXP noisevSEXP, SEXP scaleSEXP) {
@@ -324,19 +345,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // predict_gaussian_process
-NumericVector predict_gaussian_process(arma::mat b, arma::mat newdata, bool scale, arma::mat Xcenter, arma::mat Xscale, arma::mat Ycenter, arma::mat Yscale);
-RcppExport SEXP _resemble_predict_gaussian_process(SEXP bSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP, SEXP YcenterSEXP, SEXP YscaleSEXP) {
+NumericVector predict_gaussian_process(arma::mat Xz, arma::mat alpha, arma::mat newdata, bool scale, arma::mat Xcenter, arma::mat Xscale, arma::mat Ycenter, arma::mat Yscale);
+RcppExport SEXP _resemble_predict_gaussian_process(SEXP XzSEXP, SEXP alphaSEXP, SEXP newdataSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP, SEXP YcenterSEXP, SEXP YscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type b(bSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Xz(XzSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type newdata(newdataSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Ycenter(YcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Yscale(YscaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_gaussian_process(b, newdata, scale, Xcenter, Xscale, Ycenter, Yscale));
+    rcpp_result_gen = Rcpp::wrap(predict_gaussian_process(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -395,10 +417,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_opls_get_basics", (DL_FUNC) &_resemble_opls_get_basics, 9},
     {"_resemble_predict_opls", (DL_FUNC) &_resemble_predict_opls, 6},
     {"_resemble_project_opls", (DL_FUNC) &_resemble_project_opls, 6},
-    {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 6},
+    {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 7},
     {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 14},
+    {"_resemble_opls_gs", (DL_FUNC) &_resemble_opls_gs, 10},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},
-    {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 7},
+    {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
     {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 7},
     {"_resemble_pca_nipals", (DL_FUNC) &_resemble_pca_nipals, 8},
     {NULL, NULL, 0}
