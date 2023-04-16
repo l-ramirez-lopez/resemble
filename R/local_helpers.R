@@ -693,7 +693,8 @@ fit_and_predict <- function(x, y, pred_method, scale = FALSE, weights = NULL,
     }
 
     pred <- predict_gaussian_process(
-      b = fit$b,
+      Xz = fit$Xz,
+      alpha = fit$alpha,
       newdata = newdata,
       scale = fit$is_scaled,
       Xcenter = fit$Xcenter,
