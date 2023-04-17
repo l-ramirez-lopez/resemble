@@ -14,7 +14,7 @@ Functions for memory-based learning
 }
 \details{
 This is the version
-2.2.2 -- sky
+2.2.2 -- Sky
 of the package. It implements a number of functions useful for
 modeling complex spectral spectra (e.g. NIR, IR).
 The package includes functions for dimensionality reduction,
