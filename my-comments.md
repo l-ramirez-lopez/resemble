@@ -19,6 +19,47 @@ Best regards,
 Leonardo
 
 
+
+## Package was built using: 
+```
+devtools::build(
+  pkg = ".",
+  path = NULL,
+  binary = FALSE,
+  vignettes = TRUE,
+  manual = TRUE,
+  args = NULL,
+  quiet = FALSE
+)
+```
+
+# R win builder checks for release of `resemble 2.2.2` (`Sky`) 17.04.2023 
+passed all the checks without notes.
+
+# Rhub checks for release of `resemble 2.2.2` (`Sky`) 17.04.2023
+The checks were conducted in the following platforms through rhub:
+
+```
+rhub::check(paste0(gsub("/resemble$", "/", getwd()), "resemble_2.2.2.tar.gz"), 
+            platform = c("fedora-gcc-devel"), 
+            email = "ramirez.lopez.leo@gmail.com")
+```
+- "linux-x86_64-rocker-gcc-san" 
+
+- "fedora-gcc-devel"
+
+- "windows-x86_64-devel" 
+
+- "macos-highsierra-release-cran" 
+
+- "windows-x86_64-release" 
+
+- "ubuntu-gcc-release"
+
+- "solaris-x86-patched-ods"
+
+
+
 # version 2.2.1
 
 # submission message:
