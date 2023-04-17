@@ -11,9 +11,9 @@ Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https
 
 <!-- badges: end -->
 
-*Last update: 2022-09-18*
+*Last update: 2023-04-17*
 
-Version: 2.2.1 – Fix-Hodges
+Version: 2.2.2 – Sky
 
 <em>
 <p align="right">
