@@ -1,5 +1,65 @@
 # resemble
 
+# version 2.2.2
+
+# submission message:
+Dear CRAN maintainers,
+I am submitting my package "resemble" to CRAN. This version introduces a new 
+feature in one of the functions. 
+Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
+A first submission of this version failed (for "r-devel-linux-x86_64-debian-gcc"), 
+therefore following platforms were tested for a second submission using Rhub: 
+- Debian Linux, R-devel, GCC ASAN/UBSAN
+- Debian Linux, R-devel, GCC, no long double
+- Debian Linux, R-devel, clang, ISO-8859-15 locale
+- Debian Linux, R-devel, GCC
+For this second submission the package passed all the tests in the above platforms. 
+Reverse dependencies have also been checked. 
+Best regards,
+Leonardo
+
+
+
+## Package was built using: 
+```
+devtools::build(
+  pkg = ".",
+  path = NULL,
+  binary = FALSE,
+  vignettes = TRUE,
+  manual = TRUE,
+  args = NULL,
+  quiet = FALSE
+)
+```
+
+# R win builder checks for release of `resemble 2.2.2` (`Sky`) 17.04.2023 
+passed all the checks without notes.
+
+# Rhub checks for release of `resemble 2.2.2` (`Sky`) 17.04.2023
+The checks were conducted in the following platforms through rhub:
+
+```
+rhub::check(paste0(gsub("/resemble$", "/", getwd()), "resemble_2.2.2.tar.gz"), 
+            platform = c("fedora-gcc-devel"), 
+            email = "ramirez.lopez.leo@gmail.com")
+```
+- "linux-x86_64-rocker-gcc-san" 
+
+- "fedora-gcc-devel"
+
+- "windows-x86_64-devel" 
+
+- "macos-highsierra-release-cran" 
+
+- "windows-x86_64-release" 
+
+- "ubuntu-gcc-release"
+
+- "solaris-x86-patched-ods"
+
+
+
 # version 2.2.1
 
 # submission message:

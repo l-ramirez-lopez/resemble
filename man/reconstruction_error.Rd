@@ -4,7 +4,13 @@
 \alias{reconstruction_error}
 \title{Projection to pls and then re-construction}
 \usage{
-reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale)
+reconstruction_error(x, 
+                            projection_mat, 
+                            xloadings, 
+                            scale, 
+                            Xcenter, 
+                            Xscale, 
+                            scale_back = FALSE)
 }
 \arguments{
 \item{x}{a matrix to project.}
@@ -18,6 +24,9 @@ reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale)
 \item{Xcenter}{a matrix of one row with the centering values}
 
 \item{Xscale}{a matrix of one row with the scaling values}
+
+\item{scale_back}{compute the reconstruction error after de-centering the
+data and de-scaling it.}
 }
 \value{
 a matrix of 1 row and 1 column.

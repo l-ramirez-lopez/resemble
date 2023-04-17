@@ -18,43 +18,43 @@ opls_cv_cpp(X, Y, scale, method,
 
 \item{Y}{a matrix of a single response variable.}
 
-\item{scale}{a logical indicating whether the matrix of predictors 
+\item{scale}{a logical indicating whether the matrix of predictors
 (\code{X}) must be scaled.}
 
-\item{method}{the method used for regression. One of the following options: 
+\item{method}{the method used for regression. One of the following options:
 \code{'pls'} or \code{'wapls'} or \code{'completewapls1p'}.}
 
-\item{mindices}{a matrix with \code{n} rows and \code{m} columns where 
-\code{m} is equivalent to the number of resampling iterations. The elements 
-of each column indicate the indices of the observations to be used for 
+\item{mindices}{a matrix with \code{n} rows and \code{m} columns where
+\code{m} is equivalent to the number of resampling iterations. The elements
+of each column indicate the indices of the observations to be used for
 modeling at each iteration.}
 
-\item{pindices}{a matrix with \code{k} rows and \code{m} columns where 
-\code{m} is equivalent to the number of 
-resampling iterations. The elements of each column indicate the indices of 
+\item{pindices}{a matrix with \code{k} rows and \code{m} columns where
+\code{m} is equivalent to the number of
+resampling iterations. The elements of each column indicate the indices of
 the observations to be used for predicting at each iteration.}
 
-\item{min_component}{an integer indicating the number of minimum pls 
+\item{min_component}{an integer indicating the number of minimum pls
 components (if the \code{method = 'pls'}).}
 
 \item{ncomp}{an integer indicating the number of pls components.}
 
-\item{new_x}{a matrix of one row corresponding to the observation to be 
+\item{new_x}{a matrix of one row corresponding to the observation to be
 predicted (if the \code{method = 'wapls'}).}
 
 \item{maxiter}{maximum number of iterations.}
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 
-\item{wapls_grid}{the grid on which the search for the best combination of 
-minimum and maximum pls factors of \code{'wapls'} is based on in case 
+\item{wapls_grid}{the grid on which the search for the best combination of
+minimum and maximum pls factors of \code{'wapls'} is based on in case
 \code{method = 'completewapls1p'}.}
 
-\item{algorithm}{either pls (\code{'pls'}) or modified pls (\code{'mpls'}). 
+\item{algorithm}{either pls (\code{'pls'}) or modified pls (\code{'mpls'}).
 See \code{get_weigths} function.}
 
-\item{statistics}{a logical value indicating whether the precision and 
-accuracy statistics are to be returned, otherwise the predictions for each 
+\item{statistics}{a logical value indicating whether the precision and
+accuracy statistics are to be returned, otherwise the predictions for each
 validation segment are retrieved.}
 }
 \value{
@@ -63,22 +63,22 @@ if \code{statistics = true} a list containing the following one-row matrices:
 \item{\code{rmse_seg}}{ the RMSEs.}
 \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
 \item{\code{rsq_seg}}{ the coefficients of determination.}
-} 
+}
 
 if \code{statistics = false} a list containing the following one-row matrices:
 \itemize{
-\item{\code{predictions}}{ the predictions of each of the validation 
-segments in \code{pindices}. Each column in \code{pindices} contains the 
+\item{\code{predictions}}{ the predictions of each of the validation
+segments in \code{pindices}. Each column in \code{pindices} contains the
 validation indices of a segment.}
 \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
 \item{\code{rsq_seg}}{ the coefficients of determination.}
-} 
+}
 
-If \code{method = "wapls"}, data of the pls weights are output in this 
+If \code{method = "wapls"}, data of the pls weights are output in this
 list(\code{compweights}).
 
-If \code{method = "completewapls1"}, data of all the combination of 
-components passed in \code{wapls_grid} are 
+If \code{method = "completewapls1"}, data of all the combination of
+components passed in \code{wapls_grid} are
 output in this list(\code{complete_compweights}).
 }
 \description{

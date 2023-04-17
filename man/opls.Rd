@@ -27,9 +27,9 @@ opls(X,
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 
-\item{algorithm}{(for weights computation) a character string indicating 
+\item{algorithm}{(for weights computation) a character string indicating
 what method to use. Options are:
-\code{'pls'} for pls (using covariance between X and Y), 
+\code{'pls'} for pls (using covariance between X and Y),
 \code{'mpls'} for modified pls (using correlation between X and Y) or
 \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).}
 
@@ -49,13 +49,13 @@ a list containing the following elements:
 \item{\code{Y_loadings}}{ the matrix of Y loadings.}
 \item{\code{projection_mat}}{ the projection matrix.}
 \item{\code{Y}}{ the \code{Y} input.}
-\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}.
 \item{\code{weights}}{ the matrix of wheights.}}
 }
 \description{
-Computes orthogonal socres partial least squares (opls) 
-regressions with the NIPALS algorithm. It allows multiple response variables. 
-It does not return the variance information of the components. NOTE: For 
+Computes orthogonal socres partial least squares (opls)
+regressions with the NIPALS algorithm. It allows multiple response variables.
+It does not return the variance information of the components. NOTE: For
 internal use only!
 }
 \author{

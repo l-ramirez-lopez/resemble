@@ -9,4 +9,5 @@ code_ex.R
 ^NEWS\.html$
 logo.R
 ^Rscript*
+README\.Rmd$
 logo_large.png

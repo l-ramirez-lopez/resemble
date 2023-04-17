@@ -17,7 +17,7 @@ fast_diss(X, Y, method)
 a distance matrix
 }
 \description{
-Computes distances between two data matrices using 
+Computes distances between two data matrices using
 "euclid", "cor", "cosine"
 }
 \author{

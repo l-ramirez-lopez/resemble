@@ -33,7 +33,7 @@
 #' \code{validation_type} argument. Default is 10.
 #' @param p a numeric value indicating the percentage of observations to be retained
 #' at each sampling iteration at each local segment when \code{"local_cv"}
-#' is selected in the \code{validation_type} argument. Default is 0.75 (i.e. 75 "\%").
+#' is selected in the \code{validation_type} argument. Default is 0.75 %.
 #' @param range_prediction_limits a logical. It indicates whether the prediction
 #' limits at each local regression are determined by the range of the response
 #' variable within each neighborhood. When the predicted value is outside

@@ -5,7 +5,7 @@
 #' This function searches in a reference set the neighbors of the observations
 #' provided  in another set.
 #' @usage
-#' search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "mpls", 
+#' search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "mpls",
 #'                                          "cor", "euclid", "cosine", "sid"),
 #'                  Yr = NULL, k, k_diss, k_range, spike = NULL,
 #'                  pc_selection = list("var", 0.01),
@@ -14,45 +14,46 @@
 #'                  center = TRUE, scale = FALSE,
 #'                  documentation = character(), ...)
 #'
-#' @param Xr a matrix of reference (spectral) observations where the neighbors
-#' of the observations in \code{Xu} are to be searched.
-#' @param Xu a matrix of (spectral) observations for which its neighbors are to
-#' be searched in \code{Xu}.
+#' @param Xr a matrix of reference (spectral) observations where the neighbor
+#' search is to be conducted. See details.
+#' @param Xu an optional matrix of (spectral) observations for which its
+#' neighbors are to be searched in \code{Xr}. Default is \code{NULL}. See details.
 #' @param diss_method a character string indicating the spectral dissimilarity metric
 #' to be used in the selection of the nearest neighbors of each observation.
 #' \itemize{
 #'        \item{\code{"pca"}:}{  Mahalanobis distance
 #'        computed on the matrix of scores of a Principal Component (PC)
-#'        projection of \code{Xr} and \code{Xu}. PC projection is done using the
-#'        singlar value decomposition (SVD) algorithm.
-#'        See \code{\link{ortho_diss}} function.}
-#'
+#'        projection of \code{Xr} (and \code{Xu} if supplied).
+#'        PC projection is done using the singular value decomposition (SVD)
+#'        algorithm. See \code{\link{ortho_diss}} function.}
+
 #'        \item{\code{"pca.nipals"}}{ Mahalanobis distance
 #'        computed on the matrix of scores of a Principal Component (PC)
-#'        projection of \code{Xr} and \code{Xu}. PC projection is done using the
+#'        projection of \code{Xr} (and \code{Xu} if supplied).
+#'        PC projection is done using the
 #'        non-linear iterative partial least squares (niapls) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"pls"}}{ Mahalanobis distance
 #'        computed on the matrix of scores of a partial least squares projection
-#'        of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always required.
-#'        See \code{\link{ortho_diss}} function.}
-#'        
+#'        of \code{Xr} (and \code{Xu} if supplied). In this case, \code{Yr}
+#'        is always required. See \code{\link{ortho_diss}} function.}
+
 #'        \item{\code{"mpls"}}:{ Mahalanobis distance
-#'        computed on the matrix of scores of a modified partial least squares 
+#'        computed on the matrix of scores of a modified partial least squares
 #'        projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
 #'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 #'        always required. See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"cor"}}{ correlation coefficient
 #'        between observations. See \code{\link{cor_diss}} function.}
-#'
+
 #'        \item{\code{"euclid"}}{ Euclidean distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
+
 #'        \item{\code{"cosine"}}{ Cosine distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
+
 #'        \item{\code{"sid"}}{ spectral information divergence between observations.
 #'        See \code{\link{sid}} function.}
 #'        }
@@ -75,8 +76,9 @@
 #' @param k_range an integer vector of length 2 which specifies the minimum
 #' (first value) and the maximum (second value) number of neighbors to be
 #' retained when the \code{k_diss} is given.
-#' @param spike a vector of integers indicating what observations in \code{Xr}
-#' (and \code{Yr}) must be 'forced' to always be part of all the neighborhoods.
+#' @param spike a vector of integers (with positive and/or negative values) 
+#' indicating what observations in \code{Xr}
+#' (and \code{Yr}) must be forced into or avoided in the neighborhoods.
 #' @param pc_selection a list of length 2 to be passed onto the
 #' \code{\link{ortho_diss}} methods. It is required if the method selected in
 #' \code{diss_method} is any of \code{"pca"}, \code{"pca.nipals"} or
@@ -96,19 +98,19 @@
 #'        minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
 #'        indicating the maximum number of principal components to be tested.
 #'        See the \code{\link{ortho_projection}} function for more details.}
-#'
+
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
-#'
+
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
-#'
+
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and below the
@@ -167,21 +169,24 @@
 #' those functions as additional arguments (i.e. \code{...}).
 #' @return a \code{list} containing the following elements:
 #' \itemize{
-#'  \item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity socres
-#'  corresponding to the neighbors of each observation in \code{Xu}.
-#'  The neighbor dissimilarity socres are organized by columns and are sorted
+#'  \item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity scores
+#'  corresponding to the neighbors of each \code{Xr} observation (or \code{Xu}
+#'  observation, in case \code{Xu} was supplied).
+#'  The neighbor dissimilarity scores are organized by columns and are sorted
 #'  in ascending order.}
 #'  \item{\code{neighbors}}{ a matrix of the \code{Xr} indices corresponding to
 #'  the neighbors of each observation in \code{Xu}. The neighbor indices are
 #'  organized by columns and are sorted in ascending order by their
 #'  dissimilarity score.}
 #'  \item{\code{unique_neighbors}}{ a vector of the indices in \code{Xr}
-#'  identified as neighbors of any observation in \code{Xu}. This is obtained by
+#'  identified as neighbors of any observation in \code{Xr} (or in \code{Xu},
+#'  in case it was supplied). This is obtained by
 #'  converting the \code{neighbors} matrix into a vector and applying the
 #'  \code{\link[base]{unique}} function.}
 #'  \item{\code{k_diss_info}}{ a \code{data.table} that is returned only if the
 #'  \code{k_diss} argument was used. It comprises three columns, the first one
-#'  (\code{Xu_index}) indicates the index of the observations in \code{Xu},
+#'  (\code{Xr_index} or \code{Xu_index}) indicates the index of the observations
+#'  in \code{Xr} (or in \code{Xu}, in case it was suppplied),
 #'  the second column (\code{n_k}) indicates the number of neighbors found in
 #'  \code{Xr} and the third column (\code{final_n_k}) indicates the final number
 #'  of neighbors selected bounded by \code{k_range}.
@@ -191,15 +196,19 @@
 #'  function.}
 #'  \item{\code{projection}}{ an \code{ortho_projection} object. Only output if
 #'        \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-#'        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}.
-#'
+#'        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}. \cr 
 #'        This object contains the projection used to compute
 #'        the dissimilarity matrix. In case of local dissimilarity matrices,
 #'        the projection corresponds to the global projection used to select the
 #'        neighborhoods.  (see \code{\link{ortho_diss}} function for further
 #'        details).}
 #'  }
-#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}.
+#' @details
+#' If no matrix is passed to \code{Xu}, the neighbor search is conducted for the
+#' observations in \code{Xr} that are found whiting that matrix. If a matrix is
+#' passed to \code{Xu},  the neighbors of \code{Xu} are searched in the \code{Xr}
+#' matrix.
 #' @references
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 #' Scholten, T. 2013a. The spectrum-based learner: A new local approach for
@@ -299,7 +308,7 @@
 ##                    - scaled renamed to scale
 ##                    - pcMethod and cores are deprecated
 
-search_neighbors <- function(Xr, Xu, diss_method = c(
+search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
                                "pca",
                                "pca.nipals",
                                "pls",
@@ -472,11 +481,28 @@ search_neighbors <- function(Xr, Xu, diss_method = c(
     ...
   )
 
+  skip_first <- ifelse(is.null(Xu), TRUE, FALSE)
+  
+  if (!is.null(spike)) {
+    spike_hold <- spike[spike > 0]
+    spike_rm <- -spike[spike < 0]
+    
+    spike_problem <- length(intersect(spike_hold, spike_rm)) > 0
+    
+    if (spike_problem) {
+      stop("spike contains contradictory information, some indices to keep and to avoid are the same")
+    }
+  }
+
   results <- diss_to_neighbors(dsm$dissimilarity,
     k = k, k_diss = k_diss, k_range = k_range,
     spike = spike,
-    return_dissimilarity = return_dissimilarity
+    return_dissimilarity = return_dissimilarity,
+    skip_first = skip_first
   )
+
+  mprefix <- ifelse(skip_first, "Xr", "Xu")
+  colnames(results$neighbors) <- paste0(mprefix, 1:ncol(results$neighbors))
 
   if (return_projection & diss_method %in% c("pca", "pca.nipals", "pls")) {
     results$projection <- dsm$projection

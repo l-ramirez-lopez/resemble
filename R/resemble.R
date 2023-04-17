@@ -21,14 +21,14 @@
 #' \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 #'
 #' @details
-#'
-#' This is the version \code{2.1} (\code{'piapia'}) of the package. It
-#' implements a number of \code{R} functions useful for
+#' This is the version 
+#' `r paste(pkg_info()[1:2], collapse = " -- ")`
+#' of the package. It implements a number of functions useful for
 #' modeling complex spectral spectra (e.g. NIR, IR).
 #' The package includes functions for dimensionality reduction,
 #' computing spectral dissimilarity matrices, nearest neighbor search,
 #' and modeling spectral data using memory-based learning. This package builds 
-#' upon the methods presented in Ramirez-Lopez et al. (2013) <doi:10.1016/j.geoderma.2012.12.014>>.
+#' upon the methods presented in Ramirez-Lopez et al. (2013) \doi{10.1016/j.geoderma.2012.12.014}.
 #'
 #' Development versions can be found in the github repository of the package
 #' at \href{https://github.com/l-ramirez-lopez/resemble}{https://github.com/l-ramirez-lopez/resemble}.

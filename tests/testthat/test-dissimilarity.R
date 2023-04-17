@@ -3,19 +3,19 @@ context("test-dissimilarity")
 
 test_that("dissimilarity works", {
   nirdata <- data("NIRsoil", package = "prospectr")
-  
+
   Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
   Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-  
+
   Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
   Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
-  
+
   Xu <- Xu[!is.na(Yu), ][1:20, ]
   Xr <- Xr[!is.na(Yr), ][1:40, ]
-  
+
   Yu <- Yu[!is.na(Yu)][1:20]
   Yr <- Yr[!is.na(Yr)][1:40]
-  
+
   dsm_pca <- dissimilarity(
     Xr = Xr, Xu = Xu,
     diss_method = c("pca"),
@@ -49,15 +49,15 @@ test_that("dissimilarity works", {
     center = TRUE, scale = TRUE
   )
   expected_n_pls_var <- 2
-  
-  
+
+
   dsm_euclid <- dissimilarity(
     Xr = Xr, Xu = Xu,
     diss_method = "euclid",
     return_projection = TRUE,
     center = TRUE, scale = TRUE
   )
-  
+
   dsm_euclid_xu <- dissimilarity(
     Xr = Xu[1:10, ],
     diss_method = "euclid",
@@ -65,7 +65,7 @@ test_that("dissimilarity works", {
   )$dissimilarity
   dsm_euclid_xu <- ((dsm_euclid_xu^2) * ncol(Xu))^0.5
   dist_euclid_xu <- as.matrix(dist(Xu[1:10, ]))
-  
+
   dsm_cor <- dissimilarity(
     Xr = Xr, Xu = Xu,
     diss_method = "cor",
@@ -73,11 +73,11 @@ test_that("dissimilarity works", {
     ws = 11,
     center = TRUE, scale = FALSE
   )
-  
+
   output_names_pca <- names(dsm_pca)
   output_names_pls <- names(dsm_pls)
   expected_names <- c("dissimilarity", "projection", "gh", "documentation")
-  
+
   expect_is(dsm_pca, "list")
   expect_is(dsm_pls, "list")
   expect_is(dsm_pca_var, "list")

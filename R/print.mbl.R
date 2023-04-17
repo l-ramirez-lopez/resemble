@@ -26,6 +26,12 @@ print.mbl <- function(x, ...) {
   } else {
     yu_prediction_stats <- NULL
   }
+  if (!is.null(val$Yr_fitted_statistics)) {
+    yr_fitted_statistics <- val$Yr_fitted_statistics
+  } else {
+    yr_fitted_statistics <- NULL
+  }
+  
   sys_width <- getOption("width")
   bar_width <- 55
 
@@ -43,6 +49,12 @@ print.mbl <- function(x, ...) {
   cat("\n", "Total number of observations predicted:", x$n_predictions, "\n")
   cat(div, "\n")
 
+  if (!is.null(yr_fitted_statistics)) {
+    cat("\n", "Statistics of the fitted Yr", "\n\n")
+    print(yr_fitted_statistics, digits = 3)
+    cat(div, "\n")
+  }
+  
   if (!is.null(nn_val_stats)) {
     cat("\n", "Nearest neighbor validation statistics", "\n\n")
     print(nn_val_stats, digits = 3)

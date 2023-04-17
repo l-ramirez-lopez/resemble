@@ -17,39 +17,71 @@
 #' (and \code{Yr}) must be 'forced' to always be part of all the neighborhoods.
 #' @param return_dissimilarity logical indicating if the input dissimilarity
 #' must be mirroed in the output.
+#' @param skip_first a logical indicating whether to skip the first neighbor or
+#' not. Default is \code{FALSE}. This is used when the search is being conducted
+#' in symmetric matrix of distances (i.e. to avoid that the nearest neighbor of
+#' each observation is itself).
 #' @description internal
 #' @keywords internal
 diss_to_neighbors <- function(diss_matrix,
                               k = NULL, k_diss = NULL, k_range = NULL,
                               spike = NULL,
-                              return_dissimilarity = FALSE) {
+                              return_dissimilarity = FALSE,
+                              skip_first = FALSE) {
   if (!is.null(spike)) {
-    f_order_neigh <- function(x, s) {
+    
+    spike_hold <- spike[spike > 0]
+    spike_rm <- -spike[spike < 0]
+    
+    f_order_neigh <- function(x, s_hold, s_remove, skip_first = FALSE) {
       x <- order(x)
-      c(s, x[!x %in% s])
+      if (skip_first) {
+        x <- x[-1]
+      }
+      x <- c(s_hold, x[!x %in% s_hold])
+      x <- x[!x %in% s_remove]
+      x
     }
-
-    neighbor_indcs <- apply(diss_matrix,
+    
+    neighbor_indcs <- apply(
+      diss_matrix,
       MARGIN = 2,
       FUN = f_order_neigh,
-      s = spike
+      s_hold = spike_hold,
+      s_remove = spike_rm,
+      skip_first = skip_first
     )
+    
+    if (is.list(neighbor_indcs)) {
+      tlength <- sapply(neighbor_indcs, FUN = length)
+      ni <- matrix(NA, max(tlength), ncol(diss_matrix))
+      for (i in 1:ncol(ni)) {
+        ni[1:tlength[i], i] <- neighbor_indcs[[i]]
+      }
+      neighbor_indcs <- ni
+      rm(ni)
+    }
+    
     stats <- seq(1,
-      nrow(diss_matrix) * ncol(diss_matrix),
-      by = nrow(diss_matrix)
+                 nrow(diss_matrix) * ncol(diss_matrix),
+                 by = nrow(diss_matrix)
     ) - 1
     neighbors_diss <- sweep(neighbor_indcs,
-      MARGIN = 2,
-      STATS = stats,
-      FUN = "+"
+                            MARGIN = 2,
+                            STATS = stats,
+                            FUN = "+"
     )
     neighbors_diss[] <- diss_matrix[as.vector(neighbors_diss)]
   } else {
     neighbor_indcs <- apply(diss_matrix, MARGIN = 2, FUN = order)
     neighbors_diss <- apply(diss_matrix, MARGIN = 2, FUN = sort)
+    if (skip_first) {
+      neighbor_indcs <- neighbor_indcs[-1, ]
+      neighbors_diss <- neighbors_diss[-1, ]
+    }
   }
-
-
+  
+  
   if (!is.null(k)) {
     neighbor_indcs <- neighbor_indcs[1:k, , drop = FALSE]
     neighbors_diss <- neighbors_diss[1:k, , drop = FALSE]
@@ -65,8 +97,8 @@ diss_to_neighbors <- function(diss_matrix,
     n_neighbors[original_n_neighbors > k_max] <- k_max
     neighbor_indcs <- neighbor_indcs[1:max(n_neighbors), , drop = FALSE]
     neighbors_diss <- neighbors_diss[1:max(n_neighbors), , drop = FALSE]
-
-
+    
+    
     neigh_list <- lapply(n_neighbors, FUN = function(x) 1:x)
     sts <- (max(n_neighbors) * (1:length(n_neighbors))) - max(n_neighbors)
     neighbor_vec_indcs <- sort(unlist(Map("+", neigh_list, sts)))
@@ -75,17 +107,17 @@ diss_to_neighbors <- function(diss_matrix,
   }
   rownames(neighbor_indcs) <- paste0("k_", 1:nrow(neighbor_indcs))
   rownames(neighbors_diss) <- rownames(neighbor_indcs)
-
-  colnames(neighbor_indcs) <- paste0("Xu_", 1:ncol(neighbor_indcs))
+  
+  # colnames(neighbor_indcs) <- paste0("Xu_", 1:ncol(neighbor_indcs))
   colnames(neighbors_diss) <- colnames(neighbor_indcs)
-
-
+  
+  
   results <- list(
     neighbors_diss = neighbors_diss,
     neighbors = neighbor_indcs,
     unique_neighbors = sort(unique(as.vector(neighbor_indcs)))
   )
-
+  
   if (!is.null(k_diss)) {
     results$k_diss_info <- data.table(
       Xu_index = 1:ncol(diss_matrix),
@@ -93,7 +125,7 @@ diss_to_neighbors <- function(diss_matrix,
       final_n_k = n_neighbors
     )
   }
-
+  
   if (return_dissimilarity) {
     results$dissimilarity <- diss_matrix
   }

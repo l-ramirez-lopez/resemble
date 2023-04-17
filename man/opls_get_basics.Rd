@@ -23,9 +23,9 @@ opls_get_basics(X, Y, ncomp, scale,
 
 \item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
 
-\item{algorithm}{(for weights computation) a character string indicating 
+\item{algorithm}{(for weights computation) a character string indicating
 what method to use. Options are:
-\code{'pls'} for pls (using covariance between X and Y), 
+\code{'pls'} for pls (using covariance between X and Y),
 \code{'mpls'} for modified pls (using correlation between X and Y) or
 \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).}
 
@@ -42,13 +42,13 @@ a list containing the following elements:
 \item{\code{bo}}{ a matrix of one row containing the intercepts for each component.}
 \item{\code{Y_loadings}}{ the matrix of Y loadings.}
 \item{\code{projection_mat}}{ the projection matrix.}
-\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}.
 }
 }
 \description{
-Computes orthogonal socres partial least squares (opls) 
-regressions with the NIPALS algorithm. It allows multiple response variables. 
-In contrast to code{opls} function, this one does not compute unnecessary 
+Computes orthogonal socres partial least squares (opls)
+regressions with the NIPALS algorithm. It allows multiple response variables.
+In contrast to code{opls} function, this one does not compute unnecessary
 data for (local) regression.
 For internal use only!
 }

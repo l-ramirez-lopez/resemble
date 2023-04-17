@@ -2,19 +2,22 @@
 
 .onAttach <- function(lib, pkg) {
   # assign("gpclib", FALSE, envir=.RESEMBLE_CACHE)
-  resemble_v <- read.dcf(
-    file = system.file("DESCRIPTION", package = pkg),
-    fields = "Version"
-  )
+  #   pkg_v <- read.dcf(
+  #   file = system.file("DESCRIPTION", package = pkg),
+  #   fields = c("Version", "Config/VersionName", "URL")
+  # )
+  pkg_v <- pkg_info()
+
   mss <- paste0(
     "\033[34m",
     pkg, " version ",
-    resemble_v,
-    " -- 'Fix-Hodges'\033[39m"
+    paste(pkg_v[1:2], collapse = " \U002D\U002D "),
+    "\033[39m"
   )
   mss2 <- paste0(
     "\033[34mcheck the package repository at: ",
-    "https://github.com/l-ramirez-lopez/resemble/\033[39m"
+      pkg_v[, "URL"],
+    "\033[39m"
   )
   packageStartupMessage(mss)
   packageStartupMessage(mss2)

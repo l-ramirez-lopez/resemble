@@ -13,10 +13,10 @@
 #' @usage
 #' mbl(Xr, Yr, Xu, Yu = NULL, k, k_diss, k_range, spike = NULL,
 #'     method = local_fit_wapls(min_pls_c = 3, max_pls_c = min(dim(Xr), 15)),
-#'     diss_method = "pca", diss_usage = "predictors", gh = TRUE, 
+#'     diss_method = "pca", diss_usage = "predictors", gh = TRUE,
 #'     pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
 #'     control = mbl_control(), group = NULL, center = TRUE, scale = FALSE,
-#'     verbose = TRUE, documentation = character(), seed = NULL, ...) 
+#'     verbose = TRUE, documentation = character(), seed = NULL, ...)
 #'
 #' @param Xr a matrix of predictor variables of the reference data
 #' (observations in rows and variables in columns).
@@ -40,13 +40,16 @@
 #' @param k_range an integer vector of length 2 which specifies the minimum
 #' (first value) and the maximum (second value) number of neighbors to be
 #' retained when the \code{k_diss} is given.
-#' @param spike an integer vector indicating the indices of observations in
-#' \code{Xr} that must be forced into the neighborhoods of every \code{Xu}
-#' observation. Default is \code{NULL} (i.e. no observations are forced). Note
-#' that this argument is not intended for increasing the neighborhood size which
-#' is only controlled by \code{k} or \code{k_diss} and \code{k_range}. By
-#' forcing observations into the neighborhood, some observations will be forced
-#' out of the neighborhood. See details.
+#' @param spike an integer vector (with positive and/or negative values) indicating
+#' the indices of observations in \code{Xr} that must be either be forced into
+#' or avoided in the neighborhoods of every \code{Xu} observation. Default is
+#' \code{NULL} (i.e. no observations are forced or avoided). Note
+#' that this argument is not intended for increasing or reducing the neighborhood
+#'  size which is only controlled by \code{k} or \code{k_diss} and \code{k_range}.
+#' By forcing observations into the neighborhood, some of the farthest
+#' observations may be forced out of the neighborhood. In contrast, by avoiding
+#' observations in the neighborhood,  some of farthest
+#' observations may be included into the neighborhood. See details.
 #' @param method an object of class \code{\link{local_fit}} which indicates the
 #' type of regression to conduct at each local segment as well as additional
 #' parameters affecting this regression. See \code{\link{local_fit}} function.
@@ -59,27 +62,27 @@
 #'        projection of \code{Xr} and \code{Xu}. PC projection is done using the
 #'        singular value decomposition (SVD) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"pca.nipals"}}{ Mahalanobis distance
 #'        computed on the matrix of scores of a Principal Component (PC)
 #'        projection of \code{Xr} and \code{Xu}. PC projection is done using the
 #'        non-linear iterative partial least squares (nipals) algorithm.
 #'        See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"pls"}}{ Mahalanobis distance
 #'        computed on the matrix of scores of a partial least squares projection
 #'        of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always
 #'        required. See \code{\link{ortho_diss}} function.}
-#'
+
 #'        \item{\code{"cor"}}{ correlation coefficient
 #'        between observations. See \code{\link{cor_diss}} function.}
-#'
+
 #'        \item{\code{"euclid"}}{ Euclidean distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
+
 #'        \item{\code{"cosine"}}{ Cosine distance
 #'        between observations. See \code{\link{f_diss}} function.}
-#'
+
 #'        \item{\code{"sid"}}{ spectral information divergence between
 #'        observations. See \code{\link{sid}} function.}
 #'        }
@@ -131,19 +134,19 @@
 #'        combined) indicating the maximum
 #'        number of principal components to be tested. See the
 #'        \code{\link{ortho_projection}} function for more details.}
-#'
+
 #'        \item{\code{"cumvar"}:}{ selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
-#'
+
 #'        \item{\code{"var"}:}{ selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of variance that a single component
 #'        should explain in order to be retained.}
-#'
+
 #'        \item{\code{"manual"}:}{ for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and below the minimum dimension of \code{Xr} or
@@ -180,9 +183,9 @@
 #' @param verbose a logical indicating whether or not to print a progress bar
 #' for each observation to be predicted. Default is \code{TRUE}. Note: In case
 #' parallel processing is used, these progress bars will not be printed.
-#' @param seed an integer value containing the random number generator (RNG) 
-#' state for random number generation. This argument can be used for 
-#' reproducibility purposes (for random sampling) in the cross-validation 
+#' @param seed an integer value containing the random number generator (RNG)
+#' state for random number generation. This argument can be used for
+#' reproducibility purposes (for random sampling) in the cross-validation
 #' results. Default is \code{NULL}, i.e. no RNG is applied.
 #' @param documentation an optional character string that can be used to
 #' describe anything related to the \code{mbl} call (e.g. description of the
@@ -203,7 +206,7 @@
 #' Guerrero et al. (2010) for an example on the benefits of spiking.
 #'
 #' The \code{mbl} function uses the \code{\link{dissimilarity}} function to
-#' compute the dissimilarities between code{Xr} and \code{Xu}. The dissimilarity
+#' compute the dissimilarities between \code{Xr} and \code{Xu}. The dissimilarity
 #' method to be used is specified in the \code{diss_method} argument.
 #' Arguments to \code{\link{dissimilarity}} as well as further arguments to the
 #' functions used inside \code{\link{dissimilarity}}
@@ -239,8 +242,8 @@
 #' not used.
 #'
 #' The global Mahalanobis distance (a.k.a GH) is computed based on the scores
-#' of a pls projection. A pls projection model is built with \code{Yr} and
-#' \code{Xr} and this models is used to obtain the pls scores of the \code{Xu}
+#' of a pls projection. A pls projection model is built with for \code{\{Yr\}, \{Xr\}}
+#' and this model is used to obtain the pls scores of the \code{Xu}
 #' observations. The Mahalanobis distance between each \code{Xu} observation in
 #' (the pls space) and the centre of \code{Xr} is then computed. The number of
 #' pls components is optimized based on the parameters passed to the
@@ -493,13 +496,13 @@
 #'
 #' # Example 4
 #' # Running the mbl function in parallel with example 2
-#' 
+#'
 #' n_cores <- 2
-#' 
+#'
 #' if (parallel::detectCores() < 2) {
-#'    n_cores <- 1
+#'   n_cores <- 1
 #' }
-#' 
+#'
 #' # Alternatively:
 #' # n_cores <- parallel::detectCores() - 1
 #' # if (n_cores == 0) {
@@ -635,25 +638,7 @@
 ##                      first if there is any parallel backend registered
 ## 22.06.2020 Leo     - Updated examples
 
-## TODO:
-##  A bug was detected in  ortho_diss.
-## Use the following code to reproduce it
-# mfr <- read.nircal("C:/raml/polco/FranceMIlk.nir")
-#
-# mfr <- mfr[mfr$Protein < 17,]
-# mfr <- mfr[mfr$Protein >7,]
-# cdist <- ortho_diss(Xr = savitzkyGolay(standardNormalVariate(mfr$spc[,as.character(wavs[wavs<9000])]), m = 1, p = 1, w = 5),
-#                    X2 = savitzkyGolay(standardNormalVariate(colanta$spc[,as.character(wavs[wavs<9000])]), m = 1, p = 1, w = 5),
-#                    Yr = mfr$Moisture,
-#                    pc_selection = list("opc", 10),
-#                    method = "pca",
-#                    local = FALSE,
-#                    center = TRUE, scaled = FALSE,
-#                    compute_all = FALSE, cores = 1)
-## The error thrown is:
-## Error in svd(x = X0) : infinite or missing values in 'x'
-
-mbl <- function(Xr, Yr, Xu, Yu = NULL,
+mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
                 k, k_diss, k_range,
                 spike = NULL,
                 method = local_fit_wapls(
@@ -673,7 +658,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
                 scale = FALSE,
                 verbose = TRUE,
                 documentation = character(),
-                seed = NULL, 
+                seed = NULL,
                 ...) {
   f_call <- match.call()
 
@@ -684,7 +669,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   if (!is.logical(verbose)) {
     stop("'verbose' must be logical")
   }
-  
+
   if (missing(k)) {
     k <- NULL
   }
@@ -723,8 +708,15 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     stop("'scale' argument must be logical")
   }
 
-  if (ncol(Xr) != ncol(Xu)) {
-    stop("The number of predictor variables in Xr must be equal to the number of variables in Xu")
+  
+  if (missing(Xu)) {
+    stop("Xu is missing")
+  }
+  
+  if (!is.null(Xu)) {
+    if (ncol(Xr) != ncol(Xu)) {
+      stop("The number of predictor variables in Xr must be equal to the number of variables in Xu")
+    }
   }
 
   if (ncol(Xr) < 4) {
@@ -735,32 +727,82 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     stop("length(Yr) must be equal to nrow(Xr)")
   }
 
-  if (any(is.na(Yr))) {
-    stop("The current version of the mbl function does not handle NAs in the response variable of the reference observations (Yr)")
+  if (!is.null(Xu)) {
+    if (any(is.na(Yr))) {
+      stop("The current version of the mbl function does not handle NAs in the response variable of the reference observations (Yr)")
+    }
   }
 
+
   Xr <- as.matrix(Xr)
-  Xu <- as.matrix(Xu)
   Yr <- as.matrix(Yr)
 
-  n_xr <- nrow(Xr)
-  n_xu <- nrow(Xu)
-  n_total <- n_xr + n_xu
-
   rownames(Xr) <- 1:nrow(Xr)
-  rownames(Xu) <- 1:nrow(Xu)
 
   if (is.null(colnames(Xr))) {
     colnames(Xr) <- 1:ncol(Xr)
   }
 
-  if (is.null(colnames(Xu))) {
-    colnames(Xu) <- 1:ncol(Xu)
+  validation_type <- control$validation_type
+  is_local_cv <- "local_cv" %in% validation_type
+  is_nnv_val <- "NNv" %in% validation_type
+
+  if (all(c("local_cv", "NNv") %in% control$validation_type)) {
+    validation_type <- "both"
   }
 
-  if (sum(!colnames(Xu) == colnames(Xr)) != 0) {
-    stop("Variable names in Xr do not match those in Xu")
+  if (!is.null(Xu)) {
+    pre_nms_ng <- "Xu_"
+    n_xu <- ln <- nrow(Xu)
+
+    Xu <- as.matrix(Xu)
+    rownames(Xu) <- 1:nrow(Xu)
+
+    if (is.null(colnames(Xu))) {
+      colnames(Xu) <- 1:ncol(Xu)
+    }
+
+    if (sum(!colnames(Xu) == colnames(Xr)) != 0) {
+      stop("Variable names in Xr do not match those in Xu")
+    }
+
+    if (validation_type %in% c("NNv", "both") & nrow(Xu) < 3) {
+      stop(paste0(
+        "For nearest neighbor validation (control$validation_type == 'NNv')",
+        " Xu must contain at least 3 observations"
+      ))
+    }
+
+    if (!is.null(Yu)) {
+      Yu <- as.matrix(Yu)
+      if (length(Yu) != nrow(Xu)) {
+        stop("Number of observations in Yu and Xu differ")
+      }
+    }
+    constellation <- FALSE
+    first_nn <- 1
+    observed <- Yu
+    y_output_name <- "yu_obs"
+    y_hat_output_name <- "pred"
+    val_summary_name <- "Yu_prediction_statistics"
+  } else {
+    pre_nms_ng <- "Xr_"
+    ln <- nrow(Xr)
+
+    n_xu <- 0
+    constellation <- TRUE
+    first_nn <- 2
+    observed <- Yr
+    y_output_name <- "yr_obs"
+    y_hat_output_name <- "fitted"
+    val_summary_name <- "Yr_fitted_statistics"
   }
+
+
+
+  n_xr <- nrow(Xr)
+  n_total <- n_xr + n_xu
+
 
   diss_methods <- c(
     "pca", "pca.nipals", "pls", "cor",
@@ -803,15 +845,28 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   pc_threshold <- pc_selection$value
 
   if (pc_sel_method %in% c("opc", "manual") & pc_selection$value > min(n_total, ncol(Xr))) {
-    warning(paste0(
-      "When pc_selection$method is 'opc' or 'manual', the value ",
-      "specified in \npc_selection$value cannot be larger than ",
-      "min(nrow(Xr) + nrow(Xu), ncol(Xr)) \n(i.e ",
-      min(n_total, ncol(Xr)),
-      "). Therefore the value was reset to ",
-      min(n_total, ncol(Xr))
-    ))
-    pc_threshold <- min(n_total, ncol(Xr))
+    pc_threshold <- min(n_total, ncol(Xr), n_total)
+
+    if (!is.null(Xu)) {
+      message_pc <- paste0(
+        "When pc_selection$method is 'opc' or 'manual', the value ",
+        "specified in \npc_selection$value cannot be larger than ",
+        "min(nrow(Xr) + nrow(Xu), ncol(Xr)) \n(i.e ",
+        pc_threshold,
+        "). Therefore the value was reset to ",
+        pc_threshold
+      )
+    } else {
+      message_pc <- paste0(
+        "When pc_selection$method is 'opc' or 'manual', the value ",
+        "specified in \npc_selection$value cannot be larger than ",
+        "min(dim(Xr)) \n(i.e ",
+        pc_threshold,
+        "). Therefore the value was reset to ",
+        pc_threshold
+      )
+    }
+    warning(message_pc)
   }
 
 
@@ -877,28 +932,6 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     stop("Object passed to method must be of class local_fit")
   }
 
-  validation_type <- control$validation_type
-  is_local_cv <- "local_cv" %in% validation_type
-  is_nnv_val <- "NNv" %in% validation_type
-
-  if (all(c("local_cv", "NNv") %in% control$validation_type)) {
-    validation_type <- "both"
-  }
-
-  if (validation_type %in% c("NNv", "both") & nrow(Xu) < 3) {
-    stop(paste0(
-      "For nearest neighbor validation (control$validation_type == 'NNv')",
-      " Xu must contain at least 3 observations"
-    ))
-  }
-
-  if (!is.null(Yu)) {
-    Yu <- as.matrix(Yu)
-    if (length(Yu) != nrow(Xu)) {
-      stop("Number of observations in Yu and Xu differ")
-    }
-  }
-
   if (!is.null(k)) {
     k <- as.integer(k)
     if (min(k) < 4) {
@@ -914,24 +947,49 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
 
   has_projection <- FALSE
 
+
   if (!is.matrix(diss_method)) {
     # when .local = TRUE, k_max is replaced with k_pre inside get_neighbor_info()
+
+    if (is.null(Xu)) {
+      rdiss <- FALSE
+    } else {
+      rdiss <- control$return_dissimilarity
+    }
+
+    spike <- c(spike, -which(is.na(Yr)))
+    if (length(spike) == 0) {
+      spike <- NULL
+    }
+
     neighborhoods <- get_neighbor_info(
       Xr = Xr, Xu = Xu,
       diss_method = diss_method, Yr = Yr,
       k = k_max, k_diss = k_diss_max,
       k_range = k_range,
-      spike = spike, pc_selection = pc_selection,
-      return_dissimilarity = control$return_dissimilarity,
+      spike = spike,
+      pc_selection = pc_selection,
+      return_dissimilarity = rdiss,
       center = center, scale = scale,
       gh = gh, diss_usage = diss_usage,
       allow_parallel = control$allow_parallel,
       ...
     )
-  
-    diss_xr_xu <- neighborhoods$dissimilarity
+
+    if (is.null(Xu)) {
+      neighborhoods$neighbors <- rbind(
+        k_0 = 1:ncol(neighborhoods$neighbors),
+        neighborhoods$neighbors
+      )
+      neighborhoods$neighbors_diss <- rbind(k_0 = 0, neighborhoods$neighbors_diss)
+      k <- k + 1 # each target observation does not count as a neighbor to itself
+      diss_xr_xtarget <- neighborhoods$diss_xr_xr
+    } else {
+      diss_xr_xtarget <- neighborhoods$dissimilarity
+    }
+
     if (!is.null(neighborhoods$projection)) {
-      diss_xr_xu_projection <- neighborhoods$projection
+      diss_xr_xtarget_projection <- neighborhoods$projection
       has_projection <- TRUE
     }
   } else {
@@ -947,32 +1005,46 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         ))
       }
       diss_xr_xr <- diss_method[1:nrow(Xr), 1:nrow(Xr)]
-      diss_method <- diss_method[1:nrow(Xr), (1 + nrow(Xr)):ncol(diss_method)]
-    }
-    if (diss_usage %in% c("weights", "none")) {
-      if (dim_diss[1] != n_xr & dim_diss[2] != n_xu) {
-        stop(paste0(
-          "If a matrix is passed to 'diss_method' ",
-          "and 'diss_usage' argument is set to either 'weights' or  ",
-          "'none', the number of rows and columns of this matrix ",
-          "must be equal to the number of rows of 'Xr' and the ",
-          "number of rows of 'Xu' respectively"
-        ))
+
+      if (!is.null(Xu)) {
+        diss_method <- diss_method[1:nrow(Xr), (1 + nrow(Xr)):ncol(diss_method)]
+      } else {
+        diss_method <- diss_xr_xr
       }
     }
-    diss_xr_xu <- diss_method
+
+    if (!is.null(Xu)) {
+      if (diss_usage %in% c("weights", "none")) {
+        if (dim_diss[1] != n_xr & dim_diss[2] != n_xu) {
+          stop(paste0(
+            "If a matrix is passed to 'diss_method' ",
+            "and 'diss_usage' argument is set to either 'weights' or  ",
+            "'none', the number of rows and columns of this matrix ",
+            "must be equal to the number of rows of 'Xr' and the ",
+            "number of rows of 'Xu' respectively"
+          ))
+        }
+      }
+    }
+
+    diss_xr_xtarget <- diss_method
     diss_method <- "external_matrix"
-    
 
     neighborhoods <-
       diss_to_neighbors(
-        diss_xr_xu,
+        diss_xr_xtarget,
         k = k_max, k_diss = k_diss_max,
         k_range = k_range,
         spike = spike,
-        return_dissimilarity = control$return_dissimilarity
+        return_dissimilarity = control$return_dissimilarity,
+        skip_first = ifelse(is.null(Xu), TRUE, FALSE)
       )
-    
+
+    if (is.null(Xu)) {
+      neighborhoods$neighbors <- rbind(k_0 = 0, neighborhoods$neighbors)
+      neighborhoods$neighbors_diss <- rbind(k_0 = 0, neighborhoods$neighbors_diss)
+    }
+
     if (gh) {
       neighborhoods$gh$projection <- pls_projection(
         Xr = Xr, Xu = Xu,
@@ -985,7 +1057,12 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         diss_method = "mahalanobis",
         center = FALSE, scale = FALSE
       )
-      neighborhoods$gh$gh_Xu <- neighborhoods$gh$gh_Xr[-c(1:nrow(Xr))]
+      if (!is.null(Xu)) {
+        neighborhoods$gh$gh_Xu <- neighborhoods$gh$gh_Xr[-c(1:nrow(Xr))]
+      } else {
+        neighborhoods$gh$gh_Xu <- NULL
+      }
+
       neighborhoods$gh$gh_Xr <- neighborhoods$gh$gh_Xr[c(1:nrow(Xr))]
       neighborhoods$gh <- neighborhoods$gh[c("gh_Xr", "gh_Xu", "projection")]
     }
@@ -1061,7 +1138,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
 
   r_fields <- c(
     "o_index", "k_diss", "k_original", "k", "npls", "min_pls", "max_pls",
-    "yu_obs", "pred", "yr_min_obs", "yr_max_obs",
+    y_output_name, y_hat_output_name, "yr_min_obs", "yr_max_obs",
     "index_nearest_in_Xr", "index_farthest_in_Xr",
     "y_nearest", "y_nearest_pred",
     "y_farthest", "diss_nearest", "diss_farthest",
@@ -1070,9 +1147,12 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
 
   n_ith_result <- ifelse(is.null(k_diss), length(k), length(k_diss))
 
-  template_pred_results <- data.table(matrix(NA, n_ith_result, length(r_fields),
-    dimnames = list(NULL, r_fields)
-  ))
+  template_pred_results <- data.table(
+    matrix(
+      NA, n_ith_result, length(r_fields),
+      dimnames = list(NULL, r_fields)
+    )
+  )
 
   template_pred_results$rep[1] <- 0
 
@@ -1083,16 +1163,23 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   }
   pg_bar_width <- 10
   # to_erase <- getOption("width") - pg_bar_width - (2 * nchar(nrow(Xu))) - 2
-  to_erase <- pg_bar_width + (2 * nchar(nrow(Xu))) + 8
+  if (!is.null(Xu)) {
+    n_characters <- nchar(n_xu)
+    n_iter <- n_xu
+  } else {
+    n_characters <- nchar(n_xr)
+    n_iter <- n_xr
+  }
+
+  to_erase <- pg_bar_width + (2 * n_characters) + 8
   to_erase <- paste(rep(" ", to_erase), collapse = "")
-  
-  if (verbose){
+
+  if (verbose) {
     cat("\033[32m\033[3mPredicting...\n\033[23m\033[39m")
   }
-  n_iter <- nrow(Xu)
 
   pred_obs <- foreach(
-    i = 1:n_iter, 
+    i = 1:n_iter,
     ith_observation = iter_neighborhoods,
     .inorder = FALSE,
     .export = c(
@@ -1104,6 +1191,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     ith_pred_results <- template_pred_results
     additional_results <- NULL
     ith_pred_results$o_index[] <- i
+
     if (".local" %in% names(input_dots) & diss_method %in% ortho_diss_methods) {
       ith_observation <- get_ith_local_neighbors(
         ith_xr = ith_observation$ith_xr,
@@ -1165,9 +1253,15 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
           i_k_xr <- ith_observation$ith_xr[1:current_k, ]
           i_k_xu <- ith_observation$ith_xu
         }
-        i_k_yr <- ith_observation$ith_yr[1:current_k, , drop = FALSE]
+
+        # for extracting some basic stats
+        i_k_yr <- ith_observation$ith_yr[first_nn:current_k, , drop = FALSE]
+
         i_k_yu <- ith_observation$ith_yu
-        kth_diss <- ith_observation$ith_neigh_diss[1:current_k]
+        kth_diss <- ith_observation$ith_neigh_diss[first_nn:current_k]
+        i_idx <- ith_observation$ith_neig_indices[first_nn:current_k]
+
+
         ith_pred_results$rep[kk] <- 0
         ith_yr_range <- range(i_k_yr)
         ith_pred_results$yr_min_obs[kk] <- ith_yr_range[1]
@@ -1176,8 +1270,11 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         ith_pred_results$diss_nearest[kk] <- min(kth_diss)
         ith_pred_results$y_farthest[kk] <- i_k_yr[which.max(kth_diss)]
         ith_pred_results$y_nearest[kk] <- i_k_yr[which.min(kth_diss)]
-        ith_pred_results$index_nearest_in_Xr[kk] <- ith_observation$ith_neig_indices[which.min(kth_diss)]
-        ith_pred_results$index_farthest_in_Xr[kk] <- ith_observation$ith_neig_indices[which.max(kth_diss)]
+        ith_pred_results$index_nearest_in_Xr[kk] <- i_idx[which.min(kth_diss)]
+        ith_pred_results$index_farthest_in_Xr[kk] <- i_idx[which.max(kth_diss)]
+
+        # use the final y vector (in case Xu was not provided)
+        i_k_yr <- ith_observation$ith_yr[1:current_k, , drop = FALSE]
 
         if (!is.null(group)) {
           i_k_group <- factor(ith_observation$ith_group[1:current_k])
@@ -1186,6 +1283,9 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         }
 
         if (diss_usage == "weights") {
+          if (is.null(Xu)) {
+            stop("'weights' are not yet supported for diss_usage")
+          }
           # Weights are defined according to a tricubic function
           # as in Cleveland and Devlin (1988) and Naes and Isaksson (1990).
           std_kth_diss <- kth_diss / max(kth_diss)
@@ -1194,7 +1294,13 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         } else {
           kth_weights <- rep(1, current_k)
         }
-        
+
+
+
+        # FIXME: WHEN TO HAVE NNv AND HOW... HOW TO GET THE FINAL MODELS --> HOW
+        # TO NOT CONFUSE A FINAL MODEL (WITHOUT VALIDATION) WITH A SINGLE MODEL
+        # DOES REQUIRE VALIDATION?
+        ith_observation$ith_neig_indices
         # local fit
         i_k_pred <- fit_and_predict(
           x = i_k_xr,
@@ -1212,12 +1318,23 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
           noise_variance = method$noise_variance,
           range_prediction_limits = control$range_prediction_limits,
           pls_max_iter = 1,
-          pls_tol = 1e-6, 
+          pls_tol = 1e-6,
           seed = seed,
-          modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
+          modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only
         )
 
-        ith_pred_results$pred[kk] <- i_k_pred$prediction
+        # this first one will rutun the maximum number of components
+        # of the one that was optimized
+
+        i_k_pred$validation$models$coefficients
+
+        # the second one is to rertrieve only NN validation stats
+
+        # for the the first one, there must be one argument that indicates if
+        # model is to be retrieved --> warnings when multiple k are run must be thrown.
+
+
+        ith_pred_results[[y_hat_output_name]][kk] <- i_k_pred$prediction
 
         selected_pls <- NULL
         if (is_local_cv) {
@@ -1272,7 +1389,7 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
             pls_max_iter = 1,
             pls_tol = 1e-6,
             seed = seed,
-            modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only 
+            modified = ifelse(is.null(method$modified), FALSE, method$modified) ## applies to pls only
           )$prediction
 
           ith_pred_results$y_nearest_pred[kk] <- nearest_pred / kth_weights[1]
@@ -1302,18 +1419,27 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     )
   }
 
-  iteration_order <- sapply(pred_obs,
+  iteration_order <- sapply(
+    pred_obs,
     FUN = function(x) x$results$o_index[1]
   )
 
   pred_obs <- pred_obs[order(iteration_order, decreasing = FALSE)]
 
-  results_table <- do.call("rbind", lapply(pred_obs,
-    FUN = function(x) x$results
-  ))
+  results_table <- do.call(
+    "rbind", lapply(pred_obs, FUN = function(x) x$results)
+  )
+
+  if (is.null(Xu) & !is.null(k)) {
+    results_table$k <- results_table$k - 1
+    fix_k <- 1
+  } else {
+    fix_k <- 0
+  }
+
 
   if (".local" %in% names(input_dots) & diss_method %in% ortho_diss_methods) {
-    diss_xr_xu <- do.call(
+    diss_xr_xtarget <- do.call(
       "cbind",
       lapply(iteration_order,
         FUN = function(x, m, ii) {
@@ -1326,10 +1452,11 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
         m = matrix(NA, nrow(Xr), 1)
       )
     )
-    class(diss_xr_xu) <- c("local_ortho_diss", "matrix")
-    dimnames(diss_xr_xu) <- list(
-      paste0("Xr_", 1:nrow(diss_xr_xu)),
-      paste0("Xu_", 1:ncol(diss_xr_xu))
+    class(diss_xr_xtarget) <- c("local_ortho_diss", "matrix")
+
+    dimnames(diss_xr_xtarget) <- list(
+      paste0("Xr_", 1:nrow(diss_xr_xtarget)),
+      paste0(pre_nms_ng, 1:ncol(diss_xr_xtarget))
     )
 
     neighborhoods$neighbors <- do.call(
@@ -1345,8 +1472,9 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     )
   }
 
+
   out <- c(
-    if (is.null(Yu)) {
+    if (is.null(Yu) & !is.null(Xu)) {
       "yu_obs"
     },
     if (all(is.na(results_table$k_original))) {
@@ -1368,15 +1496,23 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
   )
 
   results_table[, (out) := NULL]
+  if (is.null(Xu)) {
+    names(results_table)[names(results_table) %in% "yu_obs"] <- "yr_obs"
+    names(results_table)[names(results_table) %in% "pred"] <- "fitted"
+  }
+
+
   if (!is.null(k_diss)) {
     param <- "k_diss"
-    results_table <- lapply(get(param),
+    results_table <- lapply(
+      get(param),
       FUN = function(x, sel, i) x[x[[sel]] == i, ],
       x = results_table,
       sel = param
     )
     names(results_table) <- paste0("k_diss_", k_diss)
-    p_bounded <- sapply(results_table,
+    p_bounded <- sapply(
+      results_table,
       FUN = function(x, k_range) {
         sum(x$k_original <= k_range[1] | x$k_original >= k_range[2])
       },
@@ -1388,13 +1524,14 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     )
   } else {
     param <- "k"
-    results_table <- lapply(get(param),
+    results_table <- lapply(
+      get(param) - fix_k,
       FUN = function(x, sel, i) x[x[[sel]] == i, ],
       x = results_table,
       sel = param
     )
-    names(results_table) <- paste0("k_", k)
-    col_ks <- data.table(k = k)
+    names(results_table) <- paste0("k_", k - fix_k)
+    col_ks <- data.table(k = k - fix_k)
   }
 
   if (validation_type %in% c("NNv", "both")) {
@@ -1406,7 +1543,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     }
 
     loc_nn_res <- do.call("rbind", lapply(results_table, FUN = nn_stats))
-    loc_nn_res <- cbind(col_ks,
+    loc_nn_res <- cbind(
+      col_ks,
       rmse = loc_nn_res[, "nn_rmse"],
       st_rmse = loc_nn_res[, "nn_st_rmse"],
       r2 = loc_nn_res[, "nn_rsq"]
@@ -1422,7 +1560,8 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
       c(loc_rmse = mean_loc_rmse, loc_st_rmse = mean_loc_st_rmse)
     }
     loc_res <- do.call("rbind", lapply(results_table, mean_loc_res))
-    loc_res <- cbind(col_ks,
+    loc_res <- cbind(
+      col_ks,
       rmse = loc_res[, "loc_rmse"],
       st_rmse = loc_res[, "loc_st_rmse"]
     )
@@ -1430,44 +1569,65 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     loc_res <- NULL
   }
 
-  if (!is.null(Yu)) {
+  if (!is.null(observed)) {
     for (i in 1:length(results_table)) {
-      results_table[[i]]$yu_obs <- Yu
+      results_table[[i]][[y_output_name]] <- observed
     }
-    yu_stats <- function(x) {
-      yu_rmse <- mean((x$yu_obs - x$pred)^2, na.rm = TRUE)^0.5
-      yu_st_rmse <- yu_rmse / diff(range(x$yu_obs, na.rm = TRUE))
-      yu_rsq <- cor(x$yu_obs, x$pred, use = "complete.obs")^2
-      c(yu_rmse = yu_rmse, yu_st_rmse = yu_st_rmse, yu_rsq = yu_rsq)
+    yu_stats <- function(x, y_hat, y) {
+      y_rmse <- mean((x[[y_hat]] - x[[y]])^2, na.rm = TRUE)^0.5
+      y_st_rmse <- y_rmse / diff(range(x[[y_hat]]), na.rm = TRUE)
+      y_rsq <- cor(x[[y_hat]], x[[y]], use = "complete.obs")^2
+      c(rmse = y_rmse, st_rmse = y_st_rmse, rsq = y_rsq)
     }
-    pred_res <- do.call("rbind", lapply(results_table, yu_stats))
-    pred_res <- cbind(col_ks,
-      rmse = pred_res[, "yu_rmse"],
-      st_rmse = pred_res[, "yu_st_rmse"],
-      r2 = pred_res[, "yu_rsq"]
+
+    pred_res <- do.call(
+      "rbind",
+      lapply(results_table, yu_stats, y_hat = y_hat_output_name, y = y_output_name)
+    )
+
+    pred_res <- cbind(
+      col_ks,
+      rmse = pred_res[, "rmse"],
+      st_rmse = pred_res[, "st_rmse"],
+      r2 = pred_res[, "rsq"]
     )
   } else {
     pred_res <- NULL
   }
 
-  if ("local_ortho_diss" %in% class(diss_xr_xu)) {
+  if ("local_ortho_diss" %in% class(diss_xr_xtarget)) {
     diss_method <- paste0(diss_method, " (locally computed)")
   }
 
   if (control$return_dissimilarity) {
     diss_list <- list(
       diss_method = diss_method,
-      diss_xr_xu = diss_xr_xu
+      diss_xr_xu = diss_xr_xtarget
     )
     if (has_projection) {
-      diss_list$global_projection <- diss_xr_xu_projection
+      diss_list$global_projection <- diss_xr_xtarget_projection
     }
   } else {
     diss_list <- NULL
   }
 
-  colnames(neighborhoods$neighbors) <- paste0("Xu_", 1:nrow(Xu))
+  colnames(neighborhoods$neighbors) <- paste0(pre_nms_ng, 1:ln)
   rownames(neighborhoods$neighbors) <- paste0("k_", 1:nrow(neighborhoods$neighbors))
+
+
+  val_list <- structure(
+    list(
+      loc_res,
+      loc_nn_res,
+      pred_res
+    ),
+    names = c(
+      "local_cross_validation",
+      "nearest_neighbor_validation",
+      val_summary_name
+    )
+  )
+
   results_list <- list(
     call = f_call,
     cntrl_param = control,
@@ -1478,15 +1638,15 @@ mbl <- function(Xr, Yr, Xu, Yu = NULL,
     ),
     n_predictions = nrow(Xu),
     gh = neighborhoods$gh,
-    validation_results = list(
-      local_cross_validation = loc_res,
-      nearest_neighbor_validation = loc_nn_res,
-      Yu_prediction_statistics = pred_res
-    ),
+    validation_results = val_list,
     results = results_table,
-    documentation = documentation, 
+    documentation = documentation,
     seed = seed
   )
+
+  if (is.null(Xu)) {
+    names(results_list)[names(results_list) %in% "Xu_neighbors"] <- "Xr_neighbors"
+  }
 
   attr(results_list, "call") <- f_call
   class(results_list) <- c("mbl", "list")

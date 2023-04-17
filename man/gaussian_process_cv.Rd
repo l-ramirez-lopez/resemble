@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gaussian_process_cv}
 \alias{gaussian_process_cv}
-\title{Internal Cpp function for performing leave-group-out cross 
+\title{Internal Cpp function for performing leave-group-out cross
 validations for gaussian process}
 \usage{
 gaussian_process_cv(X, Y, mindices, pindices, noisev = 0.001,  
@@ -13,19 +13,19 @@ scale = TRUE, statistics = TRUE)
 
 \item{Y}{a matrix of a single response variable.}
 
-\item{mindices}{a matrix with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of 
-resampling iterations. The elements of each column indicate the indices of the observations to be used for modeling at each 
+\item{mindices}{a matrix with \code{n} rows and \code{m} columns where \code{m} is equivalent to the number of
+resampling iterations. The elements of each column indicate the indices of the observations to be used for modeling at each
 iteration.}
 
-\item{pindices}{a matrix with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
-resampling iterations. The elements of each column indicate the indices of the observations to be used for predicting at each 
+\item{pindices}{a matrix with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of
+resampling iterations. The elements of each column indicate the indices of the observations to be used for predicting at each
 iteration.}
 
-\item{scale}{a logical indicating whether both the predictors 
+\item{scale}{a logical indicating whether both the predictors
 and the response variable must be scaled to zero mean and unit variance.}
 
-\item{statistics}{a logical value indicating whether the precision and 
-accuracy statistics are to be returned, otherwise the predictions for each 
+\item{statistics}{a logical value indicating whether the precision and
+accuracy statistics are to be returned, otherwise the predictions for each
 validation segment are retrieved.}
 
 \item{ncomp}{an integer indicating the number of pls components.}

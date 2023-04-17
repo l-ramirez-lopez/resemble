@@ -6,7 +6,7 @@
 \usage{
 ith_mbl_neighbor(
   Xr,
-  Xu,
+  Xu = NULL,
   Yr,
   Yu = NULL,
   diss_usage = "none",
@@ -19,11 +19,12 @@ ith_mbl_neighbor(
 \arguments{
 \item{Xr}{the Xr matrix in mbl.}
 
-\item{Xu}{the Xu matrix in mbl.}
+\item{Xu}{the Xu matrix in mbl. Default \code{NULL}. If not provided, the
+function will iterate for each \code{\{Yr, Xr\}} to get the respective neighbors.}
 
 \item{Yr}{the Yr matrix in mbl.}
 
-\item{Yu}{the Yu matrix in mbl.}
+\item{Yu}{the Yu matrix in mbl. Default \code{NULL}.}
 
 \item{diss_usage}{a character string indicating if the dissimilarity data
 will be used as predictors ("predictors") or not ("none").}
@@ -44,15 +45,16 @@ an object of \code{class} iterator giving the following list:
 itemize{
 \item{ith_xr:}{ the Xr data of the neighbors for the ith observation (if
 \code{diss_usage = "predictors"}, this data is combined with the local
-dissmilarity scores of the neighbors of Xu)}
+dissmilarity scores of the neighbors of Xu (or Xr if Xu was not provided))}
 \item{ith_yr:}{ the Yr data of the neighbors for the ith observation}
-\item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"},
-this data is combined with the local dissmilarity scores to its Xr neighbors}
-\item{ith_yu:}{ the ith Yu observation}
+\item{ith_xu:}{ the ith Xu observation (or Xr if Xu was not provided).
+If \code{diss_usage = "predictors"}, this data is combined with the local
+dissmilarity scores to its Xr neighbors.}
+\item{ith_yu:}{ the ith Yu observation (or Yr observation if Xu was not provided).}
 \item{ith_neigh_diss:}{ the dissimilarity scores of the neighbors for the ith
-observation}
-\item{ith_group:}{ the group labels for ith_xr}
-\item{n_k:}{ the number of neighbors}
+observation.}
+\item{ith_group:}{ the group labels for ith_xr.}
+\item{n_k:}{ the number of neighbors.}
 }
 }
 \description{

@@ -102,7 +102,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
   local_d <- foreach(
     i = 1:ncol(k_index_matrix),
     ith_local_subset = ith_subsets,
-    .combine = cbind, 
+    .combine = cbind,
     .inorder = FALSE,
     .export = c(
       "ortho_projection",

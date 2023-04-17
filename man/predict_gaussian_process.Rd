@@ -7,13 +7,9 @@
 predict_gaussian_process(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
 }
 \arguments{
-\item{Xz}{the final (scaled?) matrix of predictors used to create the regression model in the \code{gaussian_process} function}
-
-\item{alpha}{the alpha matrix corresponding to the regression model in the \code{gaussian_process} function}
-
 \item{newdata}{a matrix containing the predictor variables}
 
-\item{scale}{a logical indicating whether the matrix of predictors used to create the regression model 
+\item{scale}{a logical indicating whether the matrix of predictors used to create the regression model
 (in the \code{gaussian_process} function) was scaled}
 
 \item{Xcenter}{if \code{center = TRUE} a matrix of one row with the values that must be used for centering \code{newdata}.}
@@ -23,6 +19,8 @@ predict_gaussian_process(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Ys
 \item{Ycenter}{if \code{center = TRUE} a matrix of one row with the values that must be used for accounting for the centering of the response variable.}
 
 \item{Yscale}{if \code{scale = TRUE} a matrix of one row with the values that must be used  for accounting for the scaling of the response variable.}
+
+\item{b}{the regression coefficients.}
 }
 \value{
 a matrix of predicted values

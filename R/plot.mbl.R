@@ -74,10 +74,9 @@ plot.mbl <- function(x,
                      g = c("validation", "gh"),
                      param = "rmse",
                      pls_c = c(1, 2), ...) {
-
   opar <- par("mfrow", "mar")
   on.exit(par(opar))
-  
+
   if (length(g) != 1 & !is.null(x$gh)) {
     op <- par(mfrow = c(1, 2))
   }
@@ -146,7 +145,15 @@ plot.mbl <- function(x,
       yu_prediction_stats <- NULL
     }
 
-    tpl <- rbind(nn_val_stats, local_cv_stats, yu_prediction_stats)
+    if (!is.null(object$validation_results$Yr_fitted_statistics)) {
+      yr_fitted_stats <- cbind(object$validation_results$Yr_fitted_statistics, val = "Yr fitted")
+      col <- c(col, "red")
+    } else {
+      yr_fitted_stats <- NULL
+    }
+    
+    
+    tpl <- rbind(nn_val_stats, local_cv_stats, yu_prediction_stats, yr_fitted_stats)
 
     if (is.null(tpl)) {
       par(mfrow = c(1, 1))
@@ -158,7 +165,7 @@ plot.mbl <- function(x,
       dt <- !is.element(dtn, opt[!is.element(opt, param)])
       idv <- ifelse("k" %in% colnames(tpl), "k", "k_diss")
       dt <- as.logical(dt * (!dtn %in% "p_bounded"))
-     
+
       to_plot <- data.frame(tpl)[, dt] %>%
         stats::reshape(
           timevar = "val",
@@ -272,7 +279,7 @@ plot.mbl <- function(x,
       points(xu_scores[, pls_c, drop = FALSE], col = xu_col, pch = plot_dots$pch)
       grid(
         nx = NULL, ny = NULL, col = rgb(0.3, 0.3, 0.3, 0.1), lty = 1,
-        lwd =1, equilogs = TRUE
+        lwd = 1, equilogs = TRUE
       )
       legend("topright",
         legend = c("Xr", "Xu"),

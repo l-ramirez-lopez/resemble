@@ -47,36 +47,33 @@ to be retained. This list must contain two elements (in the following order):
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-       \item{\code{"opc"}:} { optimized principal component selection based on
-       Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-       (of a given set of observations) is the one for which its distance
-       matrix minimizes the differences between the \code{Yr} value of each
-       observation and the \code{Yr} value of its closest observation. In this
-       case, \code{value} must be a value (larger than 0 and
-       below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
-       number of principal components to be tested. See the
-       \code{\link{ortho_projection}} function for more details.}
-
-       \item{\code{"cumvar"}:}{ selection of the principal components based
-       on a given cumulative amount of explained variance. In this case,
-       \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of cumulative variance that the
-       combination of retained components should explain.}
-
-       \item{\code{"var"}:}{ selection of the principal components based
-       on a given amount of explained variance. In this case,
-       \code{value} must be a value (larger than 0 and below or equal to 1)
-       indicating the minimum amount of variance that a single component
-       should explain in order to be retained.}
-
-       \item{\code{"manual"}:}{ for manually specifying a fix number of
-       principal components. In this case, \code{value} must be a value
-       (larger than 0 and
-       below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
-       combined).
-       indicating the minimum amount of variance that a component should
-       explain in order to be retained.}
-       }
+\item{\code{"opc"}:} { optimized principal component selection based on
+Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
+(of a given set of observations) is the one for which its distance
+matrix minimizes the differences between the \code{Yr} value of each
+observation and the \code{Yr} value of its closest observation. In this
+case, \code{value} must be a value (larger than 0 and
+below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating the maximum
+number of principal components to be tested. See the
+\code{\link{ortho_projection}} function for more details.}
+\item{\code{"cumvar"}:}{ selection of the principal components based
+on a given cumulative amount of explained variance. In this case,
+\code{value} must be a value (larger than 0 and below or equal to 1)
+indicating the minimum amount of cumulative variance that the
+combination of retained components should explain.}
+\item{\code{"var"}:}{ selection of the principal components based
+on a given amount of explained variance. In this case,
+\code{value} must be a value (larger than 0 and below or equal to 1)
+indicating the minimum amount of variance that a single component
+should explain in order to be retained.}
+\item{\code{"manual"}:}{ for manually specifying a fix number of
+principal components. In this case, \code{value} must be a value
+(larger than 0 and
+below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
+combined).
+indicating the minimum amount of variance that a component should
+explain in order to be retained.}
+}
 Default is \code{list(method = "var", value = 0.01)}.
 
 Optionally, the \code{pc_selection} argument admits \code{"opc"} or
@@ -96,7 +93,7 @@ decomposition algorithm)}
 \item{\code{"pca.nipals"}}{: principal component analysis using
 the non-linear iterative partial least squares algorithm.}
 \item{\code{"pls"}}{: partial least squares.}
-\item{\code{"mpls"}}{: modified partial least squares (Shenk and Westerhaus, 
+\item{\code{"mpls"}}{: modified partial least squares (Shenk and Westerhaus,
 1991 and Westerhaus, 2014).}
 }
 See the \code{\link{ortho_projection}} function for further details on the
@@ -126,7 +123,7 @@ if \code{center = TRUE}, scaling is applied after centering.}
 whether or not the distances between all the elements resulting from the
 pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu} must be computed).}
 
-\item{return_projection}{a logical. If \code{TRUE} the `ortho_projection` object
+\item{return_projection}{a logical. If \code{TRUE} the \code{ortho_projection} object
 on which the dissimilarities are computed will be returned. Default is \code{FALSE}. Note that
 for \code{.local = TRUE} only the initial projection is returned (i.e. local
 projections are not).}
@@ -141,24 +138,24 @@ via \code{\link[foreach]{foreach}} function of the 'foreach' package.}
 \value{
 a \code{list} of class \code{ortho_diss} with the following elements:
 \itemize{
- \item{\code{n_components}}{ the number of components (either principal
- components or partial least squares components) used for computing the
- global dissimilarities.}
- \item{\code{global_variance_info}}{ the information about the expalined
- variance(s) of the projection. When \code{.local = TRUE}, the information
- corresponds to the global projection done prior computing the local
- projections.}
- \item{\code{local_n_components}}{ if \code{.local = TRUE}, a data.table
- which specifies the number of local components (either principal components
- or partial least squares components) used for computing the dissimilarity
- between each target observation and its neighbor observations.}
- \item{\code{dissimilarity}}{ the computed dissimilarity matrix. If
- \code{.local = FALSE} a distance matrix. If \code{.local = TRUE} a matrix of
- class \code{local_ortho_diss}. In this case, each column represent the dissimilarity
- between a target observation and its neighbor observations.}
- \item{\code{projection}}{if \code{return_projection = TRUE},
- an \code{ortho_projection} object.}
- }
+\item{\code{n_components}}{ the number of components (either principal
+components or partial least squares components) used for computing the
+global dissimilarities.}
+\item{\code{global_variance_info}}{ the information about the expalined
+variance(s) of the projection. When \code{.local = TRUE}, the information
+corresponds to the global projection done prior computing the local
+projections.}
+\item{\code{local_n_components}}{ if \code{.local = TRUE}, a data.table
+which specifies the number of local components (either principal components
+or partial least squares components) used for computing the dissimilarity
+between each target observation and its neighbor observations.}
+\item{\code{dissimilarity}}{ the computed dissimilarity matrix. If
+\code{.local = FALSE} a distance matrix. If \code{.local = TRUE} a matrix of
+class \code{local_ortho_diss}. In this case, each column represent the dissimilarity
+between a target observation and its neighbor observations.}
+\item{\code{projection}}{if \code{return_projection = TRUE},
+an \code{ortho_projection} object.}
+}
 }
 \description{
 \loadmathjax

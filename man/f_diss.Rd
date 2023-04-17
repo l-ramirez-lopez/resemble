@@ -40,12 +40,12 @@ dissimilarity measures (a.k.a spectral angle mapper).
 }
 \details{
 The results obtained for Euclidean dissimilarity are equivalent to those
-returned by the [stats::dist()] function, but are scaled
+returned by the \code{\link[stats:dist]{stats::dist()}} function, but are scaled
 differently. However, \code{f_diss} is considerably faster (which can be
 advantageous when computing dissimilarities for very large matrices). The
 final scaling of the dissimilarity scores in \code{f_diss} where
 the number of variables is used to scale the squared dissimilarity scores. See
-the examples section for a comparison between [stats::dist()] and
+the examples section for a comparison between \code{\link[stats:dist]{stats::dist()}} and
 \code{f_diss}.
 
 In the case of both the Euclidean and Mahalanobis distances, the scaled

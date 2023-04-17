@@ -36,7 +36,7 @@ each local segment when \code{"local_cv"} is selected in the
 
 \item{p}{a numeric value indicating the percentage of observations to be retained
 at each sampling iteration at each local segment when \code{"local_cv"}
-is selected in the \code{validation_type} argument. Default is 0.75 (i.e. 75 "\%").}
+is selected in the \code{validation_type} argument. Default is 0.75 \%.}
 
 \item{range_prediction_limits}{a logical. It indicates whether the prediction
 limits at each local regression are determined by the range of the response
@@ -69,36 +69,36 @@ learning process in the \code{mbl} function.
 \details{
 The validation methods available for assessing the predictive performance of
 the memory-based learning method used are described as follows:
- \itemize{
- \item{Leave-nearest-neighbor-out cross-validation (\code{"NNv"}):}{ From
- the group of neighbors of each observation to be predicted, the nearest observation
- (i.e. the most similar observation) is excluded and then a local model is fitted
- using the remaining neighbors. This model is then used to predict the value
- of the target response variable of the nearest observation. These predicted
- values are finally cross validated with the actual values (See Ramirez-Lopez
- et al. (2013a) for additional details). This method is faster than
- \code{"local_cv"}.}
- \item{Local leave-group-out cross-validation (\code{"local_cv"}):}{ The
- group of neighbors of each observation to be predicted is partitioned into
- different equal size subsets. Each partition is selected based on a
- stratified random sampling which takes into account the values of the
- response variable of the corresponding set of neighbors. The selected
- local subset is used as local validation subset and the remaining observations
- are used for fitting a model. This model is used to predict the target
- response variable values of the local validation subset and the local root
- mean square error is computed. This process is repeated \mjeqn{m}{m} times and
- the final local error is computed as the average of the local root mean
- square error of all the \mjeqn{m}{m} iterations. In the \code{mbl} function
- \mjeqn{m}{m} is controlled by the \code{number} argument and the size of the
- subsets is controlled by the \code{p} argument which indicates the
- percentage of observations to be selected from the subset of nearest neighbours.
- The global error of the predictions is computed as the average of the local
- root mean square errors.}
- \item{No validation (\code{"none"}):}{ No validation is carried out.
- If \code{"none"} is seleceted along with \code{"NNv"} and/or
- \code{"local_cv"}, then it will be ignored and the respective
- validation(s) will be carried out.}
- }
+\itemize{
+\item{Leave-nearest-neighbor-out cross-validation (\code{"NNv"}):}{ From
+the group of neighbors of each observation to be predicted, the nearest observation
+(i.e. the most similar observation) is excluded and then a local model is fitted
+using the remaining neighbors. This model is then used to predict the value
+of the target response variable of the nearest observation. These predicted
+values are finally cross validated with the actual values (See Ramirez-Lopez
+et al. (2013a) for additional details). This method is faster than
+\code{"local_cv"}.}
+\item{Local leave-group-out cross-validation (\code{"local_cv"}):}{ The
+group of neighbors of each observation to be predicted is partitioned into
+different equal size subsets. Each partition is selected based on a
+stratified random sampling which takes into account the values of the
+response variable of the corresponding set of neighbors. The selected
+local subset is used as local validation subset and the remaining observations
+are used for fitting a model. This model is used to predict the target
+response variable values of the local validation subset and the local root
+mean square error is computed. This process is repeated \mjeqn{m}{m} times and
+the final local error is computed as the average of the local root mean
+square error of all the \mjeqn{m}{m} iterations. In the \code{mbl} function
+\mjeqn{m}{m} is controlled by the \code{number} argument and the size of the
+subsets is controlled by the \code{p} argument which indicates the
+percentage of observations to be selected from the subset of nearest neighbours.
+The global error of the predictions is computed as the average of the local
+root mean square errors.}
+\item{No validation (\code{"none"}):}{ No validation is carried out.
+If \code{"none"} is seleceted along with \code{"NNv"} and/or
+\code{"local_cv"}, then it will be ignored and the respective
+validation(s) will be carried out.}
+}
 }
 \examples{
 # A control list with the default parameters
