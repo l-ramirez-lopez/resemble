@@ -7,11 +7,12 @@
 opls_gs(Xr, 
         Yr,
         Xu, 
-        ncomp, 
-        scale, 
+        ncomp,
+        scale,     
         response = FALSE, 
         reconstruction = TRUE,
-        similarity = TRUE, 
+        similarity = TRUE,
+        fresponse = TRUE,
         algorithm = "pls")
 }
 \arguments{
@@ -30,6 +31,8 @@ opls_gs(Xr,
 \item{reconstruction}{logical indicating whether to compute the reconstruction error of \code{Xu}.}
 
 \item{similarity}{logical indicating whether to compute the the distance score between \code{Xr} and \code{Xu} (in the pls space).}
+
+\item{fresponse}{logical indicating whether to compute the score of the variance not explained for \code{Yu}.}
 
 \item{algorithm}{(for weights computation) a character string indicating
 what method to use. Options are:
