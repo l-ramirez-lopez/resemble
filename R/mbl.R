@@ -847,7 +847,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
   if (pc_sel_method %in% c("opc", "manual") & pc_selection$value > min(n_total, ncol(Xr))) {
     pc_threshold <- min(n_total, ncol(Xr), n_total)
 
-    if (!is.nul(Xu)) {
+    if (!is.null(Xu)) {
       message_pc <- paste0(
         "When pc_selection$method is 'opc' or 'manual', the value ",
         "specified in \npc_selection$value cannot be larger than ",
@@ -962,7 +962,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
       spike <- NULL
     }
 
-    neighborhoods <- resemble:::get_neighbor_info(
+    neighborhoods <- get_neighbor_info(
       Xr = Xr, Xu = Xu,
       diss_method = diss_method, Yr = Yr,
       k = k_max, k_diss = k_diss_max,
@@ -1031,7 +1031,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
     diss_method <- "external_matrix"
 
     neighborhoods <-
-      resemble:::diss_to_neighbors(
+      diss_to_neighbors(
         diss_xr_xtarget,
         k = k_max, k_diss = k_diss_max,
         k_range = k_range,
@@ -1118,7 +1118,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
 
 
   if (!".local" %in% names(input_dots)) {
-    iter_neighborhoods <- resemble:::ith_mbl_neighbor(
+    iter_neighborhoods <- ith_mbl_neighbor(
       Xr = Xr, Xu = Xu, Yr = Yr, Yu = Yu,
       diss_usage = diss_usage,
       neighbor_indices = neighborhoods$neighbors,
@@ -1127,7 +1127,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
       group = group
     )
   } else {
-    iter_neighborhoods <- resemble:::ith_mbl_neighbor(
+    iter_neighborhoods <- ith_mbl_neighbor(
       Xr = Xr, Xu = Xu, Yr = Yr, Yu = Yu,
       diss_usage = "none",
       neighbor_indices = neighborhoods$neighbors,
@@ -1302,7 +1302,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
         # DOES REQUIRE VALIDATION?
         ith_observation$ith_neig_indices
         # local fit
-        i_k_pred <- resemble:::fit_and_predict(
+        i_k_pred <- fit_and_predict(
           x = i_k_xr,
           y = i_k_yr,
           pred_method = method$method,
@@ -1375,7 +1375,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
             out_group <- ith_observation$local_index_nearest
           }
 
-          nearest_pred <- resemble:::fit_and_predict(
+          nearest_pred <- fit_and_predict(
             x = i_k_xr[-out_group, ],
             y = i_k_yr[-out_group, , drop = FALSE],
             pred_method = method$method,
@@ -1605,7 +1605,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
       diss_xr_xu = diss_xr_xtarget
     )
     if (has_projection) {
-      diss_list$global_projection <- diss_xr_xu_projection
+      diss_list$global_projection <- diss_xr_xtarget_projection
     }
   } else {
     diss_list <- NULL
