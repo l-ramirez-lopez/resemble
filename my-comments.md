@@ -1,5 +1,24 @@
 # resemble
 
+# version 2.2.2
+
+# submission message:
+Dear CRAN maintainers,
+I am submitting my package "resemble" to CRAN. This version introduces a new 
+feature in one of the functions. 
+Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
+A first submission of this version failed (for "r-devel-linux-x86_64-debian-gcc"), 
+therefore following platforms were tested for a second submission using Rhub: 
+- Debian Linux, R-devel, GCC ASAN/UBSAN
+- Debian Linux, R-devel, GCC, no long double
+- Debian Linux, R-devel, clang, ISO-8859-15 locale
+- Debian Linux, R-devel, GCC
+For this second submission the package passed all the tests in the above platforms. 
+Reverse dependencies have also been checked. 
+Best regards,
+Leonardo
+
+
 # version 2.2.1
 
 # submission message:
