@@ -28,7 +28,7 @@
 #' The package includes functions for dimensionality reduction,
 #' computing spectral dissimilarity matrices, nearest neighbor search,
 #' and modeling spectral data using memory-based learning. This package builds 
-#' upon the methods presented in Ramirez-Lopez et al. (2013) <doi:10.1016/j.geoderma.2012.12.014>>.
+#' upon the methods presented in Ramirez-Lopez et al. (2013) \doi{10.1016/j.geoderma.2012.12.014}.
 #'
 #' Development versions can be found in the github repository of the package
 #' at \href{https://github.com/l-ramirez-lopez/resemble}{https://github.com/l-ramirez-lopez/resemble}.
