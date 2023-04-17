@@ -708,6 +708,11 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
     stop("'scale' argument must be logical")
   }
 
+  
+  if (missing(Xu)) {
+    stop("Xu is missing")
+  }
+  
   if (!is.null(Xu)) {
     if (ncol(Xr) != ncol(Xu)) {
       stop("The number of predictor variables in Xr must be equal to the number of variables in Xu")
