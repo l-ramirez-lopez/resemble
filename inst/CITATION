@@ -3,28 +3,32 @@ citHeader("To cite resemble in publications use:")
 year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
 vers <- paste("R package version", meta$Version)
 
-citEntry(
-  entry    = "Manual",
+
+bibentry(
+  bibtype    = "Manual",
   title    = "resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics. ",
-  author = personList(as.person("Leonardo Ramirez-Lopez"),
-                      as.person("Antoine Stevens"),
-                      as.person("Claudio Orellano"),
-                      as.person("Raphael Viscarra Rossel"),
-                      as.person("Zefang Shen"),
-                      as.person("Craig Lobsey"),
-                      as.person("Alex Wadoux")),
+  author = c(
+    person("Leonardo", "Ramirez-Lopez", role = c("aut", "cre")),
+    person("Antoine", "Stevens", role = c("ctb", "cre")),
+    person("Claudio", "Orellano", role = c("ctb")),
+    person("Raphael", "Viscarra Rossel", role = c("ctb")),
+    person("Zefang", "Shen", role = c("ctb")),
+    person("Alex", "Wadoux", role = c("ctb")), 
+    person("Timo", "Breure", role = c("ctb"))
+    ),
   publication = "R package Vignette",
   year = year,
   note = vers,
+  key = "resemble-package",
   url      = "https://CRAN.R-project.org/package=resemble",
   textVersion = paste0("Ramirez-Lopez, L., ",
-      "and Stevens, A., ",
-      "and Viscarra Rossel, R., ",
-      "and Lobsey, C., ",
-      "and Wadoux, A., ",
-      "and Breure, T. ",
-      "(", year, "). ",
-      "resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics. R package Vignette ",
-      vers, 
-      ".")
+                       "and Stevens, A., ",
+                       "and Viscarra Rossel, R., ",
+                       "and Shen, Z., ",
+                       "and Wadoux, A., ",
+                       "and Breure, T. ",
+                       "(", year, "). ",
+                       "resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics. R package Vignette ",
+                       vers, 
+                       ".")
 )
