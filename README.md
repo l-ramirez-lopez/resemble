@@ -313,7 +313,7 @@ Simply type and you will get the info you need:
     Sensing, 10(8), p.1172).
 
 -   2018-01: [Dotto, et
-    al. (2018)](http://ufgrunwald.com/wp-content/uploads/2018/02/Dotto-et-al-2018.-Vis-NIR-Geoderma.pdf)
+    al. (2018)](https://www.sciencedirect.com/science/article/abs/pii/S0016706117308571)
     have implemented memory-based learning with `resemble` to accurately
     predict soil organic Carbon at a region in Brazil. (Dotto, A. C.,
     Dalmolin, R. S. D., ten Caten, A., & Grunwald, S. (2018). A
@@ -371,15 +371,6 @@ Simply type and you will get the info you need:
 -   2014-06: Check [this
     video](https://www.youtube.com/watch?v=7sCIEeNehgE&feature=youtu.be)
     where a renowned NIR scientist talks about local calibrations.
-
--   2014-04: A short note on the resemble and prospectr packages was
-    published in [this
-    newsletter](http://www.pedometrics.org/Pedometron/Pedometron34.pdf).
-    There we provide some examples on representative subset selection
-    and on how to reproduce the LOCAL and spectrum-based learner
-    algorithms. In those examples the dataset of the Chemometric
-    challenge of ‘Chimiométrie 2006’ (included in the prospectr package)
-    is used.
 
 -   2014-03: The package released on CRAN!
 
