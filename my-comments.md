@@ -5,7 +5,8 @@
 # submission message:
 Dear CRAN maintainers,
 I am submitting my package "resemble" to CRAN. This version introduces a new 
-feature in one of the functions. 
+feature in one of the functions and one bug fix.
+In a previous submission, the date in DESCRIPTION was not in the correct format. This has been fixed.
 Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
 A first submission of this version failed (for "r-devel-linux-x86_64-debian-gcc"), 
 therefore following platforms were tested for a second submission using Rhub: 
@@ -33,10 +34,10 @@ devtools::build(
 )
 ```
 
-# R win builder checks for release of `resemble 2.2.2` (`Sky`) 17.04.2023 
+# R win builder checks for release of `resemble 2.2.2` (`Sky`) 19.04.2023 
 passed all the checks without notes.
 
-# Rhub checks for release of `resemble 2.2.2` (`Sky`) 17.04.2023
+# Rhub checks for release of `resemble 2.2.2` (`Sky`) 19.04.2023
 The checks were conducted in the following platforms through rhub:
 
 ```
