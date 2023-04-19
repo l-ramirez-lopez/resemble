@@ -85,6 +85,7 @@
 ##                    around 1e-15 are returned
 
 cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
+
   if (!ncol(Xr) >= 2) {
     stop("For correlation dissimilarity the number of variables must be larger than 1")
   }
@@ -127,6 +128,17 @@ cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
       Xr <- X
     }
     rm(X)
+  }
+  
+  xr_sds <- resemble:::get_col_sds(t(Xr))
+  if (any(xr_sds == 0)) {
+    stop(paste0("Correlation coefficients cannot be computed. Xr contains ", sum(xr_sds == 0), " observation(s) with a standard deviation of zero."))
+  }
+  if (!is.null(Xu)) {
+    xu_sds <- resemble:::get_col_sds(t(Xu))
+    if (any(xr_sds == 0)) {
+      stop(paste0("Correlation coefficients cannot be computed. Xu contains ", sum(xu_sds == 0), "observation(s) with a standard deviation of zero."))
+    }
   }
 
   if (!is.null(ws)) {
