@@ -10,6 +10,9 @@ avoid observations in the neighbrhoods.
 * A sanity check was added to `cor_diss()`. Correlation coefficients for 
 observations with an standard deviation of 0 cannot be computed ([#38]https://github.com/l-ramirez-lopez/resemble/issues/38).
 
+* The `pls_projection()` did not work for more than one 
+response variable and with the methods `'cumvar'` or `'var'` for the selection 
+of the components. This has been fixed ([#37]https://github.com/l-ramirez-lopez/resemble/issues/37).
 
 
 `resemble 2.2.1 (Fix-Hodges)`

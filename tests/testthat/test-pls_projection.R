@@ -11,6 +11,24 @@ test_that("pls_projection works", {
   Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
   Yr_2 <- NIRsoil$Ciso[as.logical(NIRsoil$train)]
   Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+  
+  Xr_3 <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+  Yr_3 <- NIRsoil[as.logical(NIRsoil$train), c("Ciso", "Nt")]
+  
+
+  pls_var_2ys <- pls_projection(
+    Xr = Xr_3,
+    Yr = Yr_3,
+    pc_selection = list("var", 0.01)
+  )
+  expect_true(ncol(pls_var_2ys$scores) == 2)
+  
+  pls_cumvar_2ys <- pls_projection(
+    Xr = Xr_3,
+    Yr = Yr_3,
+    pc_selection = list("cumvar", 0.99)
+  )
+  expect_true(ncol(pls_cumvar_2ys$scores) == 2)
 
   Xu <- Xu[!is.na(Yu), ]
   y_sel <- !is.na(Yr) & !is.na(Yr_2)

@@ -2,6 +2,8 @@
 
 <!-- badges: start -->
 
+[![Travis-CI Build
+Status](https://travis-ci.org/l-ramirez-lopez/resemble.svg?branch=master)](https://travis-ci.org/l-ramirez-lopez/resemble/)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/resemble)](https://CRAN.R-project.org/package=resemble)
 [![Total\_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](https://CRAN.R-project.org/package=resemble)
 
@@ -207,6 +209,21 @@ Simply type and you will get the info you need:
     citation(package = "resemble")
 
 ## News: Memory based learnig (MBL) and `resemble`
+
+-   2023.04: [Zhao et al.,
+    2023](https://www.sciencedirect.com/science/article/abs/pii/S0167198723000855)
+    used MBL (from `resemble`) to quantify soil properties relevant to
+    soil organic carbon biogeochemical cycles using IR spectroscopy.
+
+-   [Sanderman et al.,
+    2022](https://acsess.onlinelibrary.wiley.com/doi/full/10.1002/saj2.20513)
+    used `resemble` to study the transferability of large IR spectral
+    databases across instruments.
+
+-   [Dangal et al.,
+    2022](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2021MS002622)
+    used `resemble` in an study aiming at improving Soil Carbon
+    Estimates.
 
 -   2022.03: [Ng et al.,
     2022](https://www.sciencedirect.com/science/article/pii/S2667006222000107)
