@@ -437,9 +437,6 @@ List opls_for_projection(arma::mat X,
           if (i == 0 && pcSelmethod == "var") {
             throw std::invalid_argument("With the current value in the 'pc_selection' argument, no components are selected. Try another value.");
           }
-          if (pcSelmethod == "cumvar") {
-            ncomp = ncomp + 1;
-          }
           break;
         }
       } 
@@ -452,11 +449,14 @@ List opls_for_projection(arma::mat X,
       if (pcSelmethod == "var") {
         pc_indices = find(explained_var.row(1) >= pcSelvalue); 
       } else {
-        //pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0);
-        pc_indices = find(explained_var.row(2) > 0); 
+        pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0);
+        pc_indices = pc_indices + 1;
+        pc_indices.insert_rows(0, 1);
+        ncomp = ncomp + 1;
       }
       weights = weights.rows(pc_indices);
-      coefficients = coefficients.cols(pc_indices);
+      // keep all the coefficients for all the Ys
+      coefficients = coefficients.cols(0, (ncomp * ny) - 1); 
       bo = bo.cols(pc_indices);
       scores = scores.cols(pc_indices);
       Xloadings = Xloadings.rows(pc_indices);
@@ -498,6 +498,7 @@ List opls_for_projection(arma::mat X,
     }
   }
   
+  //FIXME: For every Y store the coefficients independently
   return Rcpp::List::create(
     Rcpp::Named("ncomp") = ncomp,
     Rcpp::Named("coefficients") = coefficients,
@@ -753,7 +754,7 @@ List opls_get_all(arma::mat X,
   }
   cssw = cssw * sclr;
   vip = pow(cssw / arma::repmat(trans(cumsum(ss)), weights.n_cols, 1), 0.5);
-  
+  //FIXME: For every Y store the coefficients independently
   return Rcpp::List::create(
     Rcpp::Named("ncomp") = ncomp,
     Rcpp::Named("coefficients") = coefficients,
@@ -941,7 +942,7 @@ List opls(arma::mat X,
       idx = idx + 1;
     }
   }
-  
+  //FIXME: For every Y store the coefficients independently
   return Rcpp::List::create(
     Rcpp::Named("ncomp") = ncomp,
     Rcpp::Named("coefficients") = coefficients,
@@ -1109,6 +1110,7 @@ List opls_get_basics(arma::mat X,
   for (int k = 0; k < ny; k++) {
     arma::mat jth_loading = Yloadings.col(k);
     for (int j = 0; j < ncomp; j++) {
+      //FIXME: For every Y store the coefficients independently
       coefficients.col(idx) = projection_matrix.cols(0, j) * jth_loading.rows(0, j);
       y_hat_mean = x_center_vec * coefficients.col(idx);
       y_hat_mean_vec = arma::vectorise(y_hat_mean);
@@ -1116,7 +1118,7 @@ List opls_get_basics(arma::mat X,
       idx = idx + 1;
     }
   }
-  
+  //FIXME: For every Y store the coefficients independently
   return Rcpp::List::create(
     Rcpp::Named("ncomp") = ncomp,
     Rcpp::Named("coefficients") = coefficients,
@@ -2192,8 +2194,10 @@ List pca_nipals(arma::mat X,
   
   if(pcSelmethod == "cumvar") 
   {
-    //pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
-    pc_indices = find(explained_var.row(2) > 0); 
+    pc_indices = find(explained_var.row(2) <= pcSelvalue && explained_var.row(2) > 0); 
+    pc_indices = pc_indices + 1;
+    pc_indices.insert_rows(0, 1);
+    // pc_indices = find(explained_var.row(2) > 0); 
     pc_scores = pc_scores.cols(pc_indices);
     pc_loadings = pc_loadings.cols(pc_indices);
     explained_var = explained_var.cols(pc_indices);
