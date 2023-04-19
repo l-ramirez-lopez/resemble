@@ -130,12 +130,12 @@ cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
     rm(X)
   }
   
-  xr_sds <- resemble:::get_col_sds(t(Xr))
+  xr_sds <- get_col_sds(t(Xr))
   if (any(xr_sds == 0)) {
     stop(paste0("Correlation coefficients cannot be computed. Xr contains ", sum(xr_sds == 0), " observation(s) with a standard deviation of zero."))
   }
   if (!is.null(Xu)) {
-    xu_sds <- resemble:::get_col_sds(t(Xu))
+    xu_sds <- get_col_sds(t(Xu))
     if (any(xr_sds == 0)) {
       stop(paste0("Correlation coefficients cannot be computed. Xu contains ", sum(xu_sds == 0), "observation(s) with a standard deviation of zero."))
     }
