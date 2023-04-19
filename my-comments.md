@@ -44,19 +44,39 @@ rhub::check(paste0(gsub("/resemble$", "/", getwd()), "resemble_2.2.2.tar.gz"),
             platform = c("fedora-gcc-devel"), 
             email = "ramirez.lopez.leo@gmail.com")
 ```
-- "linux-x86_64-rocker-gcc-san" 
+- "linux-x86_64-rocker-gcc-san" Test cannot be executed as the docker failed 
+the error was as follows: ‘RcppArmadillo’ is not available for package ‘resemble’
 
-- "fedora-gcc-devel"
+- "fedora-gcc-devel" NOTE
+* checking installed package size ... NOTE
+  installed size is  9.8Mb
+  sub-directories of 1Mb or more:
+    doc    1.6Mb
+    libs   7.5Mb
 
-- "windows-x86_64-devel" 
+- "windows-x86_64-devel" OK
 
-- "macos-highsierra-release-cran" 
+- "macos-highsierra-release-cran" OK
 
-- "windows-x86_64-release" 
+- "windows-x86_64-release" OK
 
-- "ubuntu-gcc-release"
+- "ubuntu-gcc-release" NOTE
+* checking installed package size ... NOTE
+  installed size is 14.4Mb
+  sub-directories of 1Mb or more:
+    doc    1.6Mb
+    libs  12.2Mb
 
-- "solaris-x86-patched-ods"
+- "solaris-x86-patched-ods" 
+* checking package dependencies ... ERROR
+Packages suggested but not available: 'testthat', 'rmarkdown', 'bookdown'
+
+The suggested packages are required for a complete check.
+Checking can be attempted without them by setting the environment
+variable _R_CHECK_FORCE_SUGGESTS_ to a false value.
+
+See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+manual.
 
 
 
