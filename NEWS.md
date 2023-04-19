@@ -6,6 +6,10 @@
 * The argument `spike` in the `mbl()` function now accepts negative integers to 
 avoid observations in the neighbrhoods.
 
+### Fixes
+* A sanity check was added to `cor_diss()`. Correlation coefficients for 
+observations with an standard deviation of 0 cannot be computed ([#38]https://github.com/l-ramirez-lopez/resemble/issues/38).
+
 
 
 `resemble 2.2.1 (Fix-Hodges)`
