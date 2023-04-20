@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-*Last update: 2023-04-19*
+*Last update: 2023-04-20*
 
 Version: 2.2.2 – Sky
 
@@ -214,12 +214,12 @@ Simply type and you will get the info you need:
     soil organic carbon biogeochemical cycles using IR spectroscopy.
 
 -   [Sanderman et al.,
-    2022](https://acsess.onlinelibrary.wiley.com/doi/full/10.1002/saj2.20513)
+    2022](https://scholar.google.com/scholar?cluster=10278015497543765717&hl=en)
     used `resemble` to study the transferability of large IR spectral
     databases across instruments.
 
 -   [Dangal et al.,
-    2022](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2021MS002622)
+    2022](https://scholar.google.com/scholar?cluster=13081638448793373061&hl=en)
     used `resemble` in an study aiming at improving Soil Carbon
     Estimates.
 
@@ -270,7 +270,7 @@ Simply type and you will get the info you need:
 
 -   2020.01: [Sanderman et al.,
     (2020)](https://scholar.google.ch/scholar?cluster=8189603827145687468&hl=en&as_sdt=0,5&as_vis=1)
-    used `resemble` for the prediction of soil health indicatorsin the
+    used `resemble` for the prediction of soil health indicators in the
     United States.
 
 -   2019-03: I published a [scientific
@@ -311,7 +311,7 @@ Simply type and you will get the info you need:
     near-infrared spectroscopy. Catena, 174, pp.104-116).
 
 -   2018-11: In [this recent scientific
-    paper](https://www.frontiersin.org/articles/10.3389/fpls.2018.01642/full)
+    paper](https://scholar.google.com/scholar?cluster=18203724019039095209&hl=en)
     the authors used `resemble` to predict the chemoical composition of
     Common Beans in Spain. (Rivera, A., Plans, M., Sabaté, J., Casañas,
     F., Casals, J., Rull, A., & Simó, J. (2018). The Spanish core
