@@ -1,7 +1,5 @@
 .Rhistory
-resemble\.Rproj
 .Rproj.user
-resemble.Rproj
 src/*.o
 .RData
 resemble\resemble_logo.png

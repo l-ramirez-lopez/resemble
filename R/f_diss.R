@@ -49,11 +49,11 @@
 #' \mjeqn{M^{-1} = W^{T}W}{M^-1 = W^TW}, where \mjeqn{M}{M} is merely the square root of
 #' \mjeqn{M^{-1}}{M^{-1}} which can be found by using a singular value decomposition.
 #'
-#' Note that when attempting to compute the Mahalanobis distance on a data set
+#' Note that when attempting to compute the Mahalanobis distance on a dataset
 #' with highly correlated variables (i.e. spectral variables) the
 #' variance-covariance matrix may result in a singular matrix which cannot be
 #' inverted and therefore the distance cannot be computed.
-#' This is also the case when the number of observations in the data set is
+#' This is also the case when the number of observations in the dataset is
 #' smaller than the number of variables.
 #'
 #' For the computation of the Mahalanobis distance, the mentioned method is
