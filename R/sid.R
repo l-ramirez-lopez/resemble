@@ -59,7 +59,7 @@
 #' When \code{mode = "density"}, the function first computes the probability
 #' distribution of each spectrum which result in a matrix of density
 #' distribution estimates. The density distributions of all the observations in
-#' the data sets are compared based on the kullback-leibler divergence algorithm.
+#' the datasets are compared based on the kullback-leibler divergence algorithm.
 #' When \code{mode = "feature"}, the kullback-leibler divergence between all
 #' the observations is computed directly on the spectral variables.
 #' The spectral information divergence (SID) algorithm (Chang, 2000) uses the

@@ -8,12 +8,12 @@ sim_eval(d, side_info)
 }
 \arguments{
 \item{d}{a symmetric matrix of dissimilarity scores between observations of
-a given data set. Alternatively, a vector of with the dissimilarity
+a given dataset. Alternatively, a vector of with the dissimilarity
 scores of the lower triangle (without the diagonal values) can be used
 (see details).}
 
 \item{side_info}{a matrix containing the side information corresponding to
-the observations in the data set from which the dissimilarity matrix was
+the observations in the dataset from which the dissimilarity matrix was
 computed. It can be either a numeric matrix with one or multiple
 columns/variables or a matrix with one character variable (discrete variable).
 If it is numeric, the root mean square of differences is used for assessing
@@ -38,7 +38,7 @@ of the columns.}
 \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 
 This function searches for the most similar observation (closest neighbor) of
-each observation in a given data set based on a dissimilarity (e.g. distance
+each observation in a given dataset based on a dissimilarity (e.g. distance
 matrix). The observations are compared against their corresponding closest
 observations in terms of their side information provided. The root mean
 square of differences and the correlation coefficient are used for continuous
