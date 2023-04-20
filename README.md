@@ -53,7 +53,7 @@ either principal component analysis or partial least squares (a.k.a
 projection to latent structures).
 
 **`search_neighbors`**: A function to efficiently retrieve from a
-reference set the k-nearest neighbors of another given data set.
+reference set the k-nearest neighbors of another given dataset.
 
 ## New version
 
@@ -71,7 +71,7 @@ example, the `mbl()` function now allows sample spiking, where a set of
 reference observations can be forced to be included in the
 neighborhhoods of each sample to be predicted. The `serach_neighbors()`
 function efficiently retrieves from a refence set the k-nearest
-neighbors of another given data set. The `dissimilarity()` function
+neighbors of another given dataset. The `dissimilarity()` function
 computes dissimilarity matrices based on various metrics.
 
 ## Installation
@@ -168,7 +168,7 @@ first the basic input data:
     predictor variables) and Yr represents a response variable
     corresponding to Xr.
 
--   **Prediction set** : Data set with *m* samples where the response
+-   **Prediction set** : Dataset with *m* samples where the response
     variable (Yu) is unknown. However it can be predicted by applying a
     spectral model (calibrated by using Xr and Yr) on the spectra of
     these samples (Xu).
@@ -412,7 +412,7 @@ local calibrations. European Journal of Soil Science, 68(6), 840-852.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte,
 J.A.M., Scholten, T. 2013. The spectrum-based learner: A new local
-approach for modeling soil vis-NIR spectra of complex data sets.
+approach for modeling soil vis-NIR spectra of complex datasets.
 Geoderma 195-196, 268-279.
 
 Saul, L. K., & Roweis, S. T. 2003. Think globally, fit locally:
