@@ -53,7 +53,7 @@ either principal component analysis or partial least squares (a.k.a
 projection to latent structures).
 
 **`search_neighbors`**: A function to efficiently retrieve from a
-reference set the k-nearest neighbors of another given data set.
+reference set the k-nearest neighbors of another given dataset.
 
 ## New version
 
