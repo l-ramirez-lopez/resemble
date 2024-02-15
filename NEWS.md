@@ -1,5 +1,5 @@
 # `resemble`
-`resemble 2.2.3 (sky)`
+`resemble 2.2.3 (embrio)`
 ===============
 ### Fixes
 
