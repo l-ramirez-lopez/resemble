@@ -27,8 +27,6 @@ and the response variable must be scaled to zero mean and unit variance.}
 \item{statistics}{a logical value indicating whether the precision and
 accuracy statistics are to be returned, otherwise the predictions for each
 validation segment are retrieved.}
-
-\item{ncomp}{an integer indicating the number of pls components.}
 }
 \value{
 a list containing the following one-row matrices:
