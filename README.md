@@ -9,7 +9,7 @@
 
 <!-- badges: end -->
 
-*Last update: 2023-04-20*
+*Last update: 2024-02-15*
 
 Version: 2.2.2 – Sky
 
