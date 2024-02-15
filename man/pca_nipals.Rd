@@ -31,8 +31,6 @@ amount of cumulative variance that the retained components should explain. If \c
 it must be a value (larger than 0 and below 1) indicating that components that explain (individually)
 a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value
 specifying the desired number of principal components to retain. Default is 0.01.}
-
-\item{Y}{a matrix of either a single or multiple response variables.}
 }
 \value{
 a list containing the following elements:
