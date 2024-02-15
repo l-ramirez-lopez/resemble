@@ -42,12 +42,12 @@
 #' that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.
 #' @param method the method for projecting the data. Options are:
 #' \itemize{
-#' \item{\code{"pca"}:}{ principal component analysis using the singular value
+#' \item{\code{"pca"}: principal component analysis using the singular value
 #' decomposition algorithm.}
-#' \item{\code{"pca.nipals"}:}{ principal component analysis using the
+#' \item{\code{"pca.nipals"}: principal component analysis using the
 #' non-linear iterative partial least squares algorithm.}
-#' \item{\code{"pls"}:}{ partial least squares.}
-#' \item{\code{"mpls"}:}{ modified partial least squares. See details.}
+#' \item{\code{"pls"}: partial least squares.}
+#' \item{\code{"mpls"}: modified partial least squares. See details.}
 #' }
 #' @param pc_selection a list of length 2 which specifies the method to be used
 #' for optimizing the number of components (principal components or pls factors)
@@ -56,7 +56,7 @@
 #' components) and \code{value} (a numerical value that complements the selected
 #' method). The methods available are:
 #' \itemize{
-#'        \item{\code{"opc"}:} { optimized principal component selection based on
+#'        \item{\code{"opc"}: optimized principal component selection based on
 #'        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
 #'        of a given set of observations is the one for which its distance matrix
 #'        minimizes the differences between the \code{Yr} value of each
@@ -65,19 +65,19 @@
 #'        below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating
 #'        the maximum number of principal components to be tested. See details.}
 
-#'        \item{\code{"cumvar"}:}{ selection of the principal components based
+#'        \item{\code{"cumvar"}: selection of the principal components based
 #'        on a given cumulative amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of cumulative variance that the
 #'        combination of retained components should explain.}
 
-#'        \item{\code{"var"}:}{ selection of the principal components based
+#'        \item{\code{"var"}: selection of the principal components based
 #'        on a given amount of explained variance. In this case,
 #'        \code{value} must be a value (larger than 0 and below or equal to 1)
 #'        indicating the minimum amount of variance that a single component should
 #'        explain in order to be retained.}
 
-#'        \item{\code{"manual"}:}{ for manually specifying a fix number of
+#'        \item{\code{"manual"}: for manually specifying a fix number of
 #'        principal components. In this case, \code{value} must be a value
 #'        (larger than 0 and
 #'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
@@ -162,22 +162,22 @@
 #' a \code{list} of class \code{ortho_projection} with the following
 #' components:
 #' \itemize{
-#'  \item{\code{scores}}{ a matrix of scores corresponding to the observations in
+#'  \item{\code{scores}: a matrix of scores corresponding to the observations in
 #'  \code{Xr} (and \code{Xu} if it was provided). The components retrieved
 #'  correspond to the ones optimized or specified.}
-#'  \item{\code{X_loadings}}{ a matrix of loadings corresponding to the
+#'  \item{\code{X_loadings}: a matrix of loadings corresponding to the
 #'  explanatory variables. The components retrieved correspond to the ones
 #'  optimized or specified.}
-#'  \item{\code{Y_loadings}}{ a matrix of partial least squares loadings
+#'  \item{\code{Y_loadings}: a matrix of partial least squares loadings
 #'  corresponding to \code{Yr}. The components retrieved  correspond to the
 #'  ones optimized or specified.
 #'  This object is only returned if the partial least squares algorithm was used.}
-#'  \item{\code{weigths}}{ a matrix of partial least squares ("pls") weights.
+#'  \item{\code{weigths}: a matrix of partial least squares ("pls") weights.
 #'  This object is only returned if the "pls" algorithm was used.}
 #'  \item{\code{projection_mat}}{ a matrix that can be used to project new data
 #'  onto a "pls" space. This object is only returned if the "pls" algorithm was
 #'  used.}
-#'  \item{\code{variance}}{ a list with information on the original variance and
+#'  \item{\code{variance}: a list with information on the original variance and
 #'  the explained variances. This list contains a matrix indicating the amount of
 #'  variance explained by each component (var), the ratio between explained
 #'  variance by each single component and the original variance (explained_var) and
@@ -191,12 +191,12 @@
 #'  component method is used, the this data is  computed on the basis of
 #'  \code{Xr} and \code{Xu} (if it applies) since both  matrices are employed in
 #'  the computation of the projection matrix (loadings  in this case)}.
-#'  \item{\code{sdv}}{ the standard deviation of the retrieved scores. This vector
+#'  \item{\code{sdv}: the standard deviation of the retrieved scores. This vector
 #'  can be different from the "sd" in \code{variance}.}
-#'  \item{\code{n_components}}{ the number of components (either principal
+#'  \item{\code{n_components}: the number of components (either principal
 #'  components or partial least squares components) used for computing the
 #'  global dissimilarity scores.}
-#'  \item{\code{opc_evaluation}}{ a matrix containing the statistics computed
+#'  \item{\code{opc_evaluation}: a matrix containing the statistics computed
 #'  for optimizing the number of principal components based on the variable(s)
 #'  specified in the \code{Yr} argument. If \code{Yr} was a continuous  was a
 #'  continuous vector or matrix then this object indicates the root mean square
@@ -205,7 +205,7 @@
 #'  of components. This object is returned only if \code{"opc"} was used within
 #'  the \code{pc_selection} argument. See the \code{\link{sim_eval}} function for
 #'  more details.}
-#'  \item{\code{method}}{ the \code{ortho_projection} method used.}
+#'  \item{\code{method}: the \code{ortho_projection} method used.}
 #'  }
 #'  \code{predict.ortho_projection}, returns a matrix of scores proprojected for
 #'  \code{newdtata}.
@@ -867,7 +867,7 @@ predict.ortho_projection <- function(object, newdata, ...) {
         Xscale = object$scale
       )
 
-      colnames(predpoj) <- paste0("pls", 1:ncol(predpoj))
+      colnames(predpoj) <- paste0("pls_", 1:ncol(predpoj))
       rownames(predpoj) <- rownames(newdata)
 
       return(predpoj)
