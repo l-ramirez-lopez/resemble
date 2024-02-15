@@ -63,9 +63,9 @@
 #'
 #' @return \code{sim_eval} returns a list with the following components:
 #' \itemize{
-#'  \item{"\code{eval}}{ either the RMSD (and the correlation coefficient) or
+#'  \item{"\code{eval}: either the RMSD (and the correlation coefficient) or
 #'  the kappa index}
-#'  \item{\code{first_nn}}{ a matrix containing the original side
+#'  \item{\code{first_nn}: a matrix containing the original side
 #'  informative variable in the first half of the columns, and the side
 #'  informative values of the corresponding nearest neighbors in the second half
 #'  of the columns.}
