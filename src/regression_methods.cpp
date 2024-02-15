@@ -1957,7 +1957,6 @@ NumericVector predict_gaussian_process(arma::mat Xz,
 //' @param pindices a matrix with \code{k} rows and \code{m} columns where \code{m} is equivalent to the number of 
 //' resampling iterations. The elements of each column indicate the indices of the observations to be used for predicting at each 
 //' iteration.
-//' @param ncomp an integer indicating the number of pls components.
 //' @param scale a logical indicating whether both the predictors 
 //' and the response variable must be scaled to zero mean and unit variance.
 //' @param statistics a logical value indicating whether the precision and 
