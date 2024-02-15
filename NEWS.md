@@ -1,5 +1,5 @@
 # `resemble`
-`resemble 2.2.3 (embrio)`
+`resemble 2.2.3 (embryo)`
 ===============
 ### Fixes
 
