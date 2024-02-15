@@ -16,13 +16,13 @@ get_samples_from_strata(
 \arguments{
 \item{original_order}{a matrix of one column with the response variable.}
 
+\item{strata}{the number of strata.}
+
 \item{sampling_for}{sampling to select the calibration samples ("calibration")
 or sampling to select the validation samples ("validation").}
 
 \item{replacement}{logical indicating if sampling with replacement must be
 done.}
-
-\item{starta}{the number of strata.}
 }
 \value{
 a list with the indices of the calibration and validation samples.
