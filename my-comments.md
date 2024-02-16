@@ -4,16 +4,8 @@
 
 # submission message:
 Dear CRAN maintainers,
-I am submitting my package "resemble" to CRAN. This version introduces a new 
-feature in one of the functions and one bug fix.
-In previous submissions, the date in DESCRIPTION was not in the correct format and there were some broken URL links. These issues have been fixed.
+I am submitting my package "resemble" to CRAN. This version fixes problems with the documentation which were reported in the CRAN checks.
 Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
-A first submission of this version failed (for "r-devel-linux-x86_64-debian-gcc"), 
-therefore following platforms were tested for a second submission using Rhub: 
-- Debian Linux, R-devel, GCC ASAN/UBSAN
-- Debian Linux, R-devel, GCC, no long double
-- Debian Linux, R-devel, clang, ISO-8859-15 locale
-- Debian Linux, R-devel, GCC
 For this second submission the package passed all the tests in the above platforms. 
 Reverse dependencies have also been checked. 
 Best regards,
@@ -34,43 +26,33 @@ devtools::build(
 )
 ```
 
-# R win builder checks for release of `resemble 2.2.3` (`embryo`) 19.04.2023 
+# R win builder checks for release of `resemble 2.2.3` (`embryo`) 15.02.2024 
 passed all the checks without notes.
 
-# Rhub checks for release of `resemble 2.2.2` (`Sky`) 19.04.2023
+# Rhub checks for release of `resemble 2.2.3` (`embryo`) 15.02.2024
 The checks were conducted in the following platforms through rhub:
 
 ```
-rhub::check(paste0(gsub("/resemble$", "/", getwd()), "resemble_2.2.2.tar.gz"), 
+rhub::check(paste0(gsub("/resemble$", "/", getwd()), "resemble_2.2.3.tar.gz"), 
             platform = c("fedora-gcc-devel"), 
             email = "ramirez.lopez.leo@gmail.com")
 ```
-- "linux-x86_64-rocker-gcc-san" Test cannot be executed as the docker failed 
-the error was as follows: ‘RcppArmadillo’ is not available for package ‘resemble’
-
-- "fedora-gcc-devel" NOTE
+- "fedora-gcc-devel"  NOTE
 * checking installed package size ... NOTE
-  installed size is  9.8Mb
+  installed size is 10.1Mb
   sub-directories of 1Mb or more:
-    doc    1.6Mb
-    libs   7.5Mb
+    doc    1.9Mb
+    libs   7.6Mb
 
 - "windows-x86_64-devel" OK
 
-- "macos-highsierra-release-cran" OK
+- "macos-highsierra-release-cran" (not tested)
 
 - "windows-x86_64-release" OK
 
-- "ubuntu-gcc-release" NOTE
-* checking installed package size ... NOTE
-  installed size is 14.4Mb
-  sub-directories of 1Mb or more:
-    doc    1.6Mb
-    libs  12.2Mb
+- "ubuntu-gcc-release" OK
+" 
 
-- "solaris-x86-patched-ods" 
-* checking package dependencies ... ERROR
-Packages suggested but not available: 'testthat', 'rmarkdown', 'bookdown'
 
 The suggested packages are required for a complete check.
 Checking can be attempted without them by setting the environment
