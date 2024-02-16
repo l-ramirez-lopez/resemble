@@ -388,7 +388,7 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
 #' of every Xu found in Xr. This matrix is organized in the same way as
 #' \code{neighbor_indices}.
 #' @param diss_xr_xr a dissimilarity matrix between sampes in Xr.
-#' @param group a factor representing the group labes of Xr.
+#' @param group a factor representing the group labels of Xr.
 #' @return an object of \code{class} iterator giving the following list:
 #' \itemize{
 #' \item{ith_xr: the Xr data of the neighbors for the ith observation (if
@@ -399,7 +399,7 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
 #' If \code{diss_usage = "predictors"}, this data is combined with the local 
 #' dissmilarity scores to its Xr neighbors.}
 #' \item{ith_yu: the ith Yu observation (or Yr observation if Xu was not provided).}
-#' \item{ith_neigh_diss:}{ the dissimilarity scores of the neighbors for the ith
+#' \item{ith_neigh_diss: the dissimilarity scores of the neighbors for the ith
 #' observation.}
 #' \item{ith_group: the group labels for ith_xr.}
 #' \item{n_k: the number of neighbors.}
