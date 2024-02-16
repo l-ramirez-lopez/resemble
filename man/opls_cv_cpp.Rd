@@ -60,18 +60,18 @@ validation segment are retrieved.}
 \value{
 if \code{statistics = true} a list containing the following one-row matrices:
 \itemize{
-\item{\code{rmse_seg}}{ the RMSEs.}
-\item{\code{st_rmse_seg}}{ the standardized RMSEs.}
-\item{\code{rsq_seg}}{ the coefficients of determination.}
+\item{\code{rmse_seg}: the RMSEs.}
+\item{\code{st_rmse_seg}: the standardized RMSEs.}
+\item{\code{rsq_seg}: the coefficients of determination.}
 }
 
 if \code{statistics = false} a list containing the following one-row matrices:
 \itemize{
-\item{\code{predictions}}{ the predictions of each of the validation
+\item{\code{predictions}: the predictions of each of the validation
 segments in \code{pindices}. Each column in \code{pindices} contains the
 validation indices of a segment.}
-\item{\code{st_rmse_seg}}{ the standardized RMSEs.}
-\item{\code{rsq_seg}}{ the coefficients of determination.}
+\item{\code{st_rmse_seg}: the standardized RMSEs.}
+\item{\code{rsq_seg}: the coefficients of determination.}
 }
 
 If \code{method = "wapls"}, data of the pls weights are output in this

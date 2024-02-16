@@ -35,10 +35,10 @@ specifying the desired number of principal components to retain. Default is 0.01
 \value{
 a list containing the following elements:
 \itemize{
-\item{\code{pc_scores}}{ a matrix of principal component scores.}
-\item{\code{pc_loadings}}{ a matrix of of principal component loadings.}
-\item{\code{variance}}{ a matrix of the variance of the principal components.}
-\item{\code{scale}}{ a \code{list} conating two objects: \code{center} and \code{scale}, which correspond to the vectors used to center and scale the input matrix.}
+\item{\code{pc_scores}: a matrix of principal component scores.}
+\item{\code{pc_loadings}: a matrix of of principal component loadings.}
+\item{\code{variance}: a matrix of the variance of the principal components.}
+\item{\code{scale}: a \code{list} conating two objects: \code{center} and \code{scale}, which correspond to the vectors used to center and scale the input matrix.}
 }
 }
 \description{

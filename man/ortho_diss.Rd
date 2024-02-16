@@ -90,7 +90,7 @@ Options are:
 \itemize{
 \item{\code{"pca"}: principal component analysis using the singular value
 decomposition algorithm)}
-\item{\code{"pca.nipals"}}{: principal component analysis using
+\item{\code{"pca.nipals"}: principal component analysis using
 the non-linear iterative partial least squares algorithm.}
 \item{\code{"pls"}: partial least squares.}
 \item{\code{"mpls"}: modified partial least squares (Shenk and Westerhaus,

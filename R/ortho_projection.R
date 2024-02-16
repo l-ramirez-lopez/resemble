@@ -174,7 +174,7 @@
 #'  This object is only returned if the partial least squares algorithm was used.}
 #'  \item{\code{weigths}: a matrix of partial least squares ("pls") weights.
 #'  This object is only returned if the "pls" algorithm was used.}
-#'  \item{\code{projection_mat}}{ a matrix that can be used to project new data
+#'  \item{\code{projection_mat}: a matrix that can be used to project new data
 #'  onto a "pls" space. This object is only returned if the "pls" algorithm was
 #'  used.}
 #'  \item{\code{variance}: a list with information on the original variance and

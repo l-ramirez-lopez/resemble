@@ -31,9 +31,9 @@ validation segment are retrieved.}
 \value{
 a list containing the following one-row matrices:
 \itemize{
-\item{\code{rmse.seg}}{ the RMSEs.}
-\item{\code{st.rmse.seg}}{ the standardized RMSEs.}
-\item{\code{rsq.seg}}{ the coefficients of determination.}
+\item{\code{rmse.seg}: the RMSEs.}
+\item{\code{st.rmse.seg}: the standardized RMSEs.}
+\item{\code{rsq.seg}: the coefficients of determination.}
 }
 }
 \description{

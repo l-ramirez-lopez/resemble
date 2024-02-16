@@ -19,14 +19,14 @@ and the response variable must be scaled to zero mean and unit variance.}
 \value{
 a list containing the following elements:
 \itemize{
-\item{\code{b}}{ the regression coefficients.}
-\item{\code{Xz}}{ the (final transformed) matrix of predictor variables.}
-\item{\code{alpha}}{ the alpha matrix.}
-\item{\code{is.scaled}}{ logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
-\item{\code{Xcenter}}{ if matrix of predictors was scaled, the centering vector used for \code{X}.}
-\item{\code{Xscale}}{ if matrix of predictors was scaled, the scaling vector used for \code{X}.}
-\item{\code{Ycenter}}{ if matrix of predictors was scaled, the centering vector used for \code{Y}.}
-\item{\code{Yscale}}{ if matrix of predictors was scaled, the scaling vector used for \code{Y}.}
+\item{\code{b}: the regression coefficients.}
+\item{\code{Xz}: the (final transformed) matrix of predictor variables.}
+\item{\code{alpha}: the alpha matrix.}
+\item{\code{is.scaled}: logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
+\item{\code{Xcenter}: if matrix of predictors was scaled, the centering vector used for \code{X}.}
+\item{\code{Xscale}: if matrix of predictors was scaled, the scaling vector used for \code{X}.}
+\item{\code{Ycenter}: if matrix of predictors was scaled, the centering vector used for \code{Y}.}
+\item{\code{Yscale}: if matrix of predictors was scaled, the scaling vector used for \code{Y}.}
 }
 }
 \description{

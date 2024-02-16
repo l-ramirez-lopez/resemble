@@ -282,21 +282,21 @@ arma::mat get_weights(arma::mat X,
 //' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
-//' \item{\code{coefficients}}{ the matrix of regression coefficients.}
-//' \item{\code{bo}}{ a matrix of one row containing the intercepts for 
+//' \item{\code{coefficients}: the matrix of regression coefficients.}
+//' \item{\code{bo}: a matrix of one row containing the intercepts for 
 //' each component.}
-//' \item{\code{scores}}{ the matrix of scores.}
-//' \item{\code{X_loadings}}{ the matrix of X loadings.}
-//' \item{\code{Y_loadings}}{ the matrix of Y loadings.}
-//' \item{\code{projection_mat}}{ the projection matrix.}
-//' \item{\code{Y}}{ the \code{Y} input.}
-//' \item{\code{variance}}{ a \code{list} conating two objects: \code{x_var} 
+//' \item{\code{scores}: the matrix of scores.}
+//' \item{\code{X_loadings}: the matrix of X loadings.}
+//' \item{\code{Y_loadings}: the matrix of Y loadings.}
+//' \item{\code{projection_mat}: the projection matrix.}
+//' \item{\code{Y}: the \code{Y} input.}
+//' \item{\code{variance}: a \code{list} conating two objects: \code{x_var} 
 //' and \code{y_var}. 
 //' These objects contain information on the explained variance for the \code{X} 
 //' and \code{Y} matrices respectively.}
-//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} 
+//' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} 
 //' and \code{Xscale}}. 
-//' \item{\code{weights}}{ the matrix of wheights.}
+//' \item{\code{weights}: the matrix of wheights.}
 //' }
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -554,19 +554,20 @@ List opls_for_projection(arma::mat X,
 //' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
-//' \item{\code{ncomp}}{ the number of components used.}
-//' \item{\code{coefficients}}{ the matrix of regression coefficients.}
-//' \item{\code{bo}}{ a matrix of one row containing the intercepts for each component.}
-//' \item{\code{scores}}{ the matrix of scores.}
-//' \item{\code{X_loadings}}{ the matrix of X loadings.}
-//' \item{\code{Y_loadings}}{ the matrix of Y loadings.}
-//' \item{\code{vip}}{ the projection matrix.}
-//' \item{\code{selectivity_ratio}}{ the matrix of selectivity ratio (see Rajalahti, Tarja, et al. 2009).}
-//' \item{\code{Y}}{ the \code{Y} input.}
-//' \item{\code{variance}}{ a \code{list} conating two objects: \code{x_var} and \code{y_var}. 
+//' \item{\code{ncomp}: the number of components used.}
+//' \item{\code{coefficients}: the matrix of regression coefficients.}
+//' \item{\code{bo}: a matrix of one row containing the intercepts for each component.}
+//' \item{\code{scores}: the matrix of scores.}
+//' \item{\code{X_loadings}: the matrix of X loadings.}
+//' \item{\code{Y_loadings}: the matrix of Y loadings.}
+//' \item{\code{vip}: the projection matrix.}
+//' \item{\code{selectivity_ratio}: the matrix of selectivity ratio (see Rajalahti, Tarja, et al. 2009).}
+//' \item{\code{Y}: the \code{Y} input.}
+//' \item{\code{variance}: a \code{list} conating two objects: \code{x_var} and \code{y_var}. 
 //' These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
-//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
-//' \item{\code{weights}}{ the matrix of wheights.}} 
+//' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+//' \item{\code{weights}: the matrix of wheights.}
+//' } 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -812,15 +813,15 @@ List opls_get_all(arma::mat X,
 //' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
-//' \item{\code{coefficients}}{ the matrix of regression coefficients.}
-//' \item{\code{bo}}{ a matrix of one row containing the intercepts for each component.}
-//' \item{\code{scores}}{ the matrix of scores.}
-//' \item{\code{X_loadings}}{ the matrix of X loadings.}
-//' \item{\code{Y_loadings}}{ the matrix of Y loadings.}
-//' \item{\code{projection_mat}}{ the projection matrix.}
-//' \item{\code{Y}}{ the \code{Y} input.}
-//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
-//' \item{\code{weights}}{ the matrix of wheights.}} 
+//' \item{\code{coefficients}: the matrix of regression coefficients.}
+//' \item{\code{bo}: a matrix of one row containing the intercepts for each component.}
+//' \item{\code{scores}: the matrix of scores.}
+//' \item{\code{X_loadings}: the matrix of X loadings.}
+//' \item{\code{Y_loadings}: the matrix of Y loadings.}
+//' \item{\code{projection_mat}: the projection matrix.}
+//' \item{\code{Y}: the \code{Y} input.}
+//' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+//' \item{\code{weights}: the matrix of wheights.}} 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -963,7 +964,7 @@ List opls(arma::mat X,
 //' @title fast orthogonal scores algorithn of partial leat squares (opls)
 //' @description Computes orthogonal socres partial least squares (opls) 
 //' regressions with the NIPALS algorithm. It allows multiple response variables. 
-//' In contrast to code{opls} function, this one does not compute unnecessary 
+//' In contrast to \code{opls} function, this one does not compute unnecessary 
 //' data for (local) regression.
 //' For internal use only!
 //' @usage 
@@ -989,11 +990,11 @@ List opls(arma::mat X,
 //' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
 //' @return a list containing the following elements:
 //' \itemize{
-//' \item{\code{coefficients}}{ the matrix of regression coefficients.}
-//' \item{\code{bo}}{ a matrix of one row containing the intercepts for each component.}
-//' \item{\code{Y_loadings}}{ the matrix of Y loadings.}
-//' \item{\code{projection_mat}}{ the projection matrix.}
-//' \item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
+//' \item{\code{coefficients}: the matrix of regression coefficients.}
+//' \item{\code{bo}: a matrix of one row containing the intercepts for each component.}
+//' \item{\code{Y_loadings}: the matrix of Y loadings.}
+//' \item{\code{projection_mat}: the projection matrix.}
+//' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 //' } 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -1311,18 +1312,18 @@ Rcpp::NumericMatrix reconstruction_error(arma::mat x,
 //' @return 
 //' if \code{statistics = true} a list containing the following one-row matrices:
 //' \itemize{
-//' \item{\code{rmse_seg}}{ the RMSEs.}
-//' \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
-//' \item{\code{rsq_seg}}{ the coefficients of determination.}
+//' \item{\code{rmse_seg}: the RMSEs.}
+//' \item{\code{st_rmse_seg}: the standardized RMSEs.}
+//' \item{\code{rsq_seg}: the coefficients of determination.}
 //' } 
 //' 
 //' if \code{statistics = false} a list containing the following one-row matrices:
 //' \itemize{
-//' \item{\code{predictions}}{ the predictions of each of the validation 
+//' \item{\code{predictions}: the predictions of each of the validation 
 //' segments in \code{pindices}. Each column in \code{pindices} contains the 
 //' validation indices of a segment.}
-//' \item{\code{st_rmse_seg}}{ the standardized RMSEs.}
-//' \item{\code{rsq_seg}}{ the coefficients of determination.}
+//' \item{\code{st_rmse_seg}: the standardized RMSEs.}
+//' \item{\code{rsq_seg}: the coefficients of determination.}
 //' } 
 //' 
 //' If \code{method = "wapls"}, data of the pls weights are output in this 
@@ -1652,10 +1653,10 @@ List opls_cv_cpp(arma::mat X,
 //' \code{'mpls'} for modified pls (using correlation between X and Y).
 //' @return a list containing the following elements:
 //' \itemize{
-//' \item{\code{ncomp}}{ the number of components.}
-//' \item{\code{pred_response}}{ the response predictions for \code{Xu}.}
-//' \item{\code{rmse_reconstruction}}{ the rmse of the reconstruction for \code{Xu}.}
-//' \item{\code{score_dissimilarity}}{ the distance score between \code{Xr} and \code{Xu}.}} 
+//' \item{\code{ncomp}: the number of components.}
+//' \item{\code{pred_response}: the response predictions for \code{Xu}.}
+//' \item{\code{rmse_reconstruction}: the rmse of the reconstruction for \code{Xu}.}
+//' \item{\code{score_dissimilarity}: the distance score between \code{Xr} and \code{Xu}.}} 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
@@ -1826,14 +1827,14 @@ List opls_gs(arma::mat Xr,
 //' and the response variable must be scaled to zero mean and unit variance.
 //' @return a list containing the following elements:
 //' \itemize{
-//' \item{\code{b}}{ the regression coefficients.}
-//' \item{\code{Xz}}{ the (final transformed) matrix of predictor variables.}
-//' \item{\code{alpha}}{ the alpha matrix.}
-//' \item{\code{is.scaled}}{ logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
-//' \item{\code{Xcenter}}{ if matrix of predictors was scaled, the centering vector used for \code{X}.}
-//' \item{\code{Xscale}}{ if matrix of predictors was scaled, the scaling vector used for \code{X}.}
-//' \item{\code{Ycenter}}{ if matrix of predictors was scaled, the centering vector used for \code{Y}.}
-//' \item{\code{Yscale}}{ if matrix of predictors was scaled, the scaling vector used for \code{Y}.}
+//' \item{\code{b}: the regression coefficients.}
+//' \item{\code{Xz}: the (final transformed) matrix of predictor variables.}
+//' \item{\code{alpha}: the alpha matrix.}
+//' \item{\code{is.scaled}: logical indicating whether both the predictors and response variable were scaled to zero mean and unit variance.}
+//' \item{\code{Xcenter}: if matrix of predictors was scaled, the centering vector used for \code{X}.}
+//' \item{\code{Xscale}: if matrix of predictors was scaled, the scaling vector used for \code{X}.}
+//' \item{\code{Ycenter}: if matrix of predictors was scaled, the centering vector used for \code{Y}.}
+//' \item{\code{Yscale}: if matrix of predictors was scaled, the scaling vector used for \code{Y}.}
 //' }
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -1963,9 +1964,9 @@ NumericVector predict_gaussian_process(arma::mat Xz,
 //' validation segment are retrieved.
 //' @return a list containing the following one-row matrices:
 //' \itemize{
-//' \item{\code{rmse.seg}}{ the RMSEs.}
-//' \item{\code{st.rmse.seg}}{ the standardized RMSEs.}
-//' \item{\code{rsq.seg}}{ the coefficients of determination.}
+//' \item{\code{rmse.seg}: the RMSEs.}
+//' \item{\code{st.rmse.seg}: the standardized RMSEs.}
+//' \item{\code{rsq.seg}: the coefficients of determination.}
 //' } 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -2076,10 +2077,10 @@ List gaussian_process_cv(arma::mat X,
 //' specifying the desired number of principal components to retain. Default is 0.01.
 //' @return a list containing the following elements:
 //' \itemize{
-//' \item{\code{pc_scores}}{ a matrix of principal component scores.}
-//' \item{\code{pc_loadings}}{ a matrix of of principal component loadings.}
-//' \item{\code{variance}}{ a matrix of the variance of the principal components.} 
-//' \item{\code{scale}}{ a \code{list} conating two objects: \code{center} and \code{scale}, which correspond to the vectors used to center and scale the input matrix.} 
+//' \item{\code{pc_scores}: a matrix of principal component scores.}
+//' \item{\code{pc_loadings}: a matrix of of principal component loadings.}
+//' \item{\code{variance}: a matrix of the variance of the principal components.} 
+//' \item{\code{scale}: a \code{list} conating two objects: \code{center} and \code{scale}, which correspond to the vectors used to center and scale the input matrix.} 
 //' } 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
