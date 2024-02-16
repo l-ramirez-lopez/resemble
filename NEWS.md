@@ -1,5 +1,4 @@
-# `resemble`
-`resemble 2.2.3 (embryo)`
+# `resemble 2.2.3 (embryo)`
 ===============
 ### Fixes
 
@@ -8,7 +7,6 @@
 * Fixed inconsistent score names between `ortho_projection()` and `ortho_projection.predict()` ([#49](https://github.com/l-ramirez-lopez/resemble/issues/49)). Many thanks to José Lucas Safanelli (zecojls) for reporting this issue. 
 
 
-# `resemble`
 `resemble 2.2.2 (sky)`
 ===============
 ### New features
