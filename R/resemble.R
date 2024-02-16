@@ -66,7 +66,6 @@
 #'   \item{\code{\link{plot.mbl}}}
 #'   \item{\code{\link{plot.ortho_projection}}}
 #'   }
-#' @docType package
 #' @name resemble-package
 #' @aliases resemble-package resemble
 #' @title Overview of the functions in the resemble package
@@ -104,7 +103,7 @@
 #' }
 ######################################################################
 # resemble
-# Copyright (C) 2022 Leonardo Ramirez-Lopez
+# Copyright (C) 2024 Leonardo Ramirez-Lopez
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -116,4 +115,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 ######################################################################
+"_PACKAGE"
 NULL
+

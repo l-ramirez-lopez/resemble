@@ -60,27 +60,27 @@ parameters affecting this regression. See \code{\link{local_fit}} function.}
 metric to be used in the selection of the nearest neighbors of each
 observation. Options are:
 \itemize{
-\item{\code{"pca"} (Default):}{ Mahalanobis distance
+\item{\code{"pca"} (Default): Mahalanobis distance
 computed on the matrix of scores of a Principal Component (PC)
 projection of \code{Xr} and \code{Xu}. PC projection is done using the
 singular value decomposition (SVD) algorithm.
 See \code{\link{ortho_diss}} function.}
-\item{\code{"pca.nipals"}}{ Mahalanobis distance
+\item{\code{"pca.nipals"}: Mahalanobis distance
 computed on the matrix of scores of a Principal Component (PC)
 projection of \code{Xr} and \code{Xu}. PC projection is done using the
 non-linear iterative partial least squares (nipals) algorithm.
 See \code{\link{ortho_diss}} function.}
-\item{\code{"pls"}}{ Mahalanobis distance
+\item{\code{"pls"}: Mahalanobis distance
 computed on the matrix of scores of a partial least squares projection
 of \code{Xr} and \code{Xu}. In this case, \code{Yr} is always
 required. See \code{\link{ortho_diss}} function.}
-\item{\code{"cor"}}{ correlation coefficient
+\item{\code{"cor"}: correlation coefficient
 between observations. See \code{\link{cor_diss}} function.}
-\item{\code{"euclid"}}{ Euclidean distance
+\item{\code{"euclid"}: Euclidean distance
 between observations. See \code{\link{f_diss}} function.}
-\item{\code{"cosine"}}{ Cosine distance
+\item{\code{"cosine"}: Cosine distance
 between observations. See \code{\link{f_diss}} function.}
-\item{\code{"sid"}}{ spectral information divergence between
+\item{\code{"sid"}: spectral information divergence between
 observations. See \code{\link{sid}} function.}
 }
 Alternatively, a matrix of dissimilarities can also be passed to this
@@ -119,7 +119,7 @@ This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-\item{\code{"opc"}:} { optimized principal component selection based
+\item{\code{"opc"}: optimized principal component selection based
 on Ramirez-Lopez et al. (2013a, 2013b). The optimal number of
 components (of set of observations) is the one for which its distance
 matrix minimizes the differences between the \code{Yr} value of each
@@ -129,17 +129,17 @@ below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
 combined) indicating the maximum
 number of principal components to be tested. See the
 \code{\link{ortho_projection}} function for more details.}
-\item{\code{"cumvar"}:}{ selection of the principal components based
+\item{\code{"cumvar"}: selection of the principal components based
 on a given cumulative amount of explained variance. In this case,
 \code{value} must be a value (larger than 0 and below or equal to 1)
 indicating the minimum amount of cumulative variance that the
 combination of retained components should explain.}
-\item{\code{"var"}:}{ selection of the principal components based
+\item{\code{"var"}: selection of the principal components based
 on a given amount of explained variance. In this case,
 \code{value} must be a value (larger than 0 and below or equal to 1)
 indicating the minimum amount of variance that a single component
 should explain in order to be retained.}
-\item{\code{"manual"}:}{ for manually specifying a fix number of
+\item{\code{"manual"}: for manually specifying a fix number of
 principal components. In this case, \code{value} must be a value
 (larger than 0 and below the minimum dimension of \code{Xr} or
 \code{Xr} and \code{Xu} combined).
@@ -204,93 +204,93 @@ a \code{list} of class \code{mbl} with the following components
 (sorted either by \code{k} or \code{k_diss}):
 
 \itemize{
-\item{\code{call}:}{ the call to mbl.}
-\item{\code{cntrl_param}:}{ the list with the control parameters passed to
+\item{\code{call}: the call to mbl.}
+\item{\code{cntrl_param}: the list with the control parameters passed to
 control.}
-\item{\code{Xu_neighbors}:}{ a list containing two elements: a matrix of
+\item{\code{Xu_neighbors}: a list containing two elements: a matrix of
 \code{Xr} indices corresponding to the neighbors of \code{Xu} and a matrix
 of dissimilarities between each \code{Xu} observation and its corresponding
 neighbor in \code{Xr}.}
-\item{\code{dissimilarities}:}{ a list with the method used to obtain the
+\item{\code{dissimilarities}: a list with the method used to obtain the
 dissimilarity matrices and the dissimilarity matrix corresponding to
 \mjeqn{D(Xr, Xu)}{D(Xr, Xu)}. This object is returned only if the
 \code{return_dissimilarity} argument in the \code{control} list was set
 to \code{TRUE}.}
-\item{\code{n_predictions}}{ the total number of observations predicted.}
-\item{\code{gh}:}{ if \code{gh = TRUE}, a list containing the global
+\item{\code{n_predictions}: the total number of observations predicted.}
+\item{\code{gh}: if \code{gh = TRUE}, a list containing the global
 Mahalanobis distance values for the observations in \code{Xr} and \code{Xu}
 as well as the results of the global pls projection object used to obtain
 the GH values.}
-\item{\code{validation_results}:}{ a list of validation results for
+\item{\code{validation_results}: a list of validation results for
 "local cross validation" (returned if the \code{validation_type} in
 \code{control} list was set to \code{"local_cv"}),
 "nearest neighbor validation" (returned if the \code{validation_type}
 in \code{control} list was set to \code{"NNv"}) and
 "Yu prediction statistics" (returned  if \code{Yu} was supplied).}``
-\item{\code{results}:}{ a list of data tables containing the results of the
+\item{\code{results}: a list of data tables containing the results of the
 predictions for each either \code{k} or \code{k_diss}. Each data table
 contains the following columns:}
 \itemize{
-\item{\code{o_index}:}{ The index of the predicted observation.}
-\item{\code{k_diss}:}{ This column is only output if the \code{k_diss}
+\item{\code{o_index}: The index of the predicted observation.}
+\item{\code{k_diss}: This column is only output if the \code{k_diss}
 argument is used. It indicates the corresponding dissimilarity threshold
 for selecting the neighbors.}
-\item{\code{k_original}:}{ This column is only output if the \code{k_diss}
+\item{\code{k_original}: This column is only output if the \code{k_diss}
 argument is used. It indicates the number of neighbors that were originally
 found when the given dissimilarity threshold is used.}
-\item{\code{k}:}{ This column indicates the final number of neighbors
+\item{\code{k}: This column indicates the final number of neighbors
 used.}
-\item{\code{npls}:}{ This column is only output if the \code{pls}
+\item{\code{npls}: This column is only output if the \code{pls}
 regression method was used. It indicates the final number of pls
 components used.}
-\item{\code{min_pls}:}{ This column is only output if \code{wapls}
+\item{\code{min_pls}: This column is only output if \code{wapls}
 regression method was used. It indicates the final number of minimum pls
 components used. If no optimization was set, it retrieves the original
 minimum pls components passed to the \code{method} argument.}
-\item{\code{max_pls}:}{ This column is only output if the \code{wapls}
+\item{\code{max_pls}: This column is only output if the \code{wapls}
 regression method was used. It indicates the final number of maximum pls
 components used. If no optimization was set, it retrieves the original
 maximum pls components passed to the \code{method} argument.}
-\item{\code{yu_obs}:}{ The input values given in \code{Yu} (the response
+\item{\code{yu_obs}: The input values given in \code{Yu} (the response
 variable corresponding to the data to be predicted). If \code{Yu = NULL},
 then \code{NA}s are retrieved.}
-\item{\code{pred}:}{ The predicted Yu values.}
-\item{\code{yr_min_obs}:}{ The minimum reference value (of the response
+\item{\code{pred}: The predicted Yu values.}
+\item{\code{yr_min_obs}: The minimum reference value (of the response
 variable) in the neighborhood.}
-\item{\code{yr_max_obs}:}{ The maximum reference value (of the response
+\item{\code{yr_max_obs}: The maximum reference value (of the response
 variable) in the neighborhood.}
-\item{\code{index_nearest_in_Xr}}{ The index of the nearest neighbor found
+\item{\code{index_nearest_in_Xr}: The index of the nearest neighbor found
 in \code{Xr}.}
-\item{\code{index_farthest_in_Xr}}{ The index of the farthest neighbor
+\item{\code{index_farthest_in_Xr}: The index of the farthest neighbor
 found in \code{Xr}.}
-\item{\code{y_nearest}:}{ The reference value (\code{Yr}) corresponding to
+\item{\code{y_nearest}: The reference value (\code{Yr}) corresponding to
 the nearest neighbor found in \code{Xr}.}
-\item{\code{y_nearest_pred}:}{ This column is only output if the
+\item{\code{y_nearest_pred}: This column is only output if the
 validation method in the object passed to \code{control} was set to
 \code{"NNv"}. It represents the predicted value of the nearest neighbor
 observation found in \code{Xr}. This prediction come from model fitted
 with the remaining observations in the neighborhood of the target
 observation in \code{Xu}.}
-\item{\code{loc_rmse_cv}:}{ This column is only output if the validation
+\item{\code{loc_rmse_cv}: This column is only output if the validation
 method in the object passed to \code{control} was set to
 \code{'local_cv'}. It represents the RMSE of the cross-validation
 computed for the neighborhood of the target observation in \code{Xu}.}
-\item{\code{loc_st_rmse_cv}:}{ This column is only output if the
+\item{\code{loc_st_rmse_cv}: This column is only output if the
 validation method in the object passed to \code{control} was set to
 \code{'local_cv'}. It represents the standardized RMSE of the
 cross-validation computed for the neighborhood of the target observation
 in \code{Xu}.}
-\item{\code{dist_nearest}:}{ The distance to the nearest neighbor.}
-\item{\code{dist_farthest}:}{ The distance to the farthest neighbor.}
-\item{\code{loc_n_components}:}{ This column is only output if the
+\item{\code{dist_nearest}: The distance to the nearest neighbor.}
+\item{\code{dist_farthest}: The distance to the farthest neighbor.}
+\item{\code{loc_n_components}: This column is only output if the
 dissimilarity method used is one of \code{"pca"}, \code{"pca.nipals"} or
 \code{"pls"} and in addition the dissimilarities are requested to be
 computed locally by passing \code{.local = TRUE} to the \code{mbl}
 function.
 See \code{.local} argument in the \code{\link{ortho_diss}} function.}
 }
-\item{\code{seed}}{ a value mirroing the one passed to seed.}
-\item{\code{documentation}:}{ a character string mirroring the one provided
+\item{\code{seed}: a value mirroring the one passed to seed.}
+\item{\code{documentation}: a character string mirroring the one provided
 in the \code{documentation} argument.}
 }
 When the \code{k_diss} argument is used, the printed results show a table

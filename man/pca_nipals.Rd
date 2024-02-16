@@ -31,16 +31,14 @@ amount of cumulative variance that the retained components should explain. If \c
 it must be a value (larger than 0 and below 1) indicating that components that explain (individually)
 a variance lower than this threshold must be excluded. If \code{"manual"} is chosen, it must be a value
 specifying the desired number of principal components to retain. Default is 0.01.}
-
-\item{Y}{a matrix of either a single or multiple response variables.}
 }
 \value{
 a list containing the following elements:
 \itemize{
-\item{\code{pc_scores}}{ a matrix of principal component scores.}
-\item{\code{pc_loadings}}{ a matrix of of principal component loadings.}
-\item{\code{variance}}{ a matrix of the variance of the principal components.}
-\item{\code{scale}}{ a \code{list} conating two objects: \code{center} and \code{scale}, which correspond to the vectors used to center and scale the input matrix.}
+\item{\code{pc_scores}: a matrix of principal component scores.}
+\item{\code{pc_loadings}: a matrix of of principal component loadings.}
+\item{\code{variance}: a matrix of the variance of the principal components.}
+\item{\code{scale}: a \code{list} conating two objects: \code{center} and \code{scale}, which correspond to the vectors used to center and scale the input matrix.}
 }
 }
 \description{

@@ -22,32 +22,32 @@ with \code{p} variables/columns.}
 \item{diss_method}{a character string indicating the method to be used to
 compute the dissimilarities between observations. Options are:
 \itemize{
-\item{\code{"pca"}:}{ Mahalanobis distance
+\item{\code{"pca"}: Mahalanobis distance
 computed on the matrix of scores of a Principal Component (PC)
 projection of \code{Xr} (and \code{Xu} if provided). PC projection is
 done using the singular value decomposition (SVD) algorithm.
 See \code{\link{ortho_diss}} function.}
-\item{\code{"pca.nipals"}:}{ Mahalanobis distance
+\item{\code{"pca.nipals"}: Mahalanobis distance
 computed on the matrix of scores of a Principal Component (PC)
 projection of \code{Xr} (and \code{Xu} if provided). PC projection is
 done using the non-linear iterative partial least squares (nipals)
 algorithm. See \code{\link{ortho_diss}} function.}
-\item{\code{"pls"}}:{ Mahalanobis distance
+\item{\code{"pls"}: Mahalanobis distance
 computed on the matrix of scores of a partial least squares projection
 of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 always required. See \code{\link{ortho_diss}} function.}
-\item{\code{"mpls"}}:{ Mahalanobis distance
+\item{\code{"mpls"}: Mahalanobis distance
 computed on the matrix of scores of a modified partial least squares
 projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
 of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 always required. See \code{\link{ortho_diss}} function.}
-\item{\code{"cor"}:}{ based on the correlation coefficient
+\item{\code{"cor"}: based on the correlation coefficient
 between observations. See \code{\link{cor_diss}} function.}
-\item{\code{"euclid"}:}{ Euclidean distance
+\item{\code{"euclid"}: Euclidean distance
 between observations. See \code{\link{f_diss}} function.}
-\item{\code{"cosine"}:}{ Cosine distance
+\item{\code{"cosine"}: Cosine distance
 between observations. See \code{\link{f_diss}} function.}
-\item{\code{"sid"}:}{ spectral information divergence between
+\item{\code{"sid"}: spectral information divergence between
 observations. See \code{\link{sid}} function.}
 }}
 
@@ -75,7 +75,7 @@ to be retained. This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-\item{\code{"opc"}:} { optimized principal component selection based on
+\item{\code{"opc"}: optimized principal component selection based on
 Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
 (of set of observations) is the one for which its distance matrix
 minimizes the differences between the \code{Yr} value of each
@@ -85,17 +85,17 @@ below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
 combined) indicating the maximum
 number of principal components to be tested. See the
 \code{\link{ortho_projection}} function for more details.}
-\item{\code{"cumvar"}:}{ selection of the principal components based
+\item{\code{"cumvar"}: selection of the principal components based
 on a given cumulative amount of explained variance. In this case,
 \code{value} must be a value (larger than 0 and below or equal to 1)
 indicating the minimum amount of cumulative variance that the
 combination of retained components should explain.}
-\item{\code{"var"}:}{ selection of the principal components based
+\item{\code{"var"}: selection of the principal components based
 on a given amount of explained variance. In this case,
 \code{value} must be a value (larger than 0 and below or equal to 1)
 indicating the minimum amount of variance that a single component
 should explain in order to be retained.}
-\item{\code{"manual"}:}{ for manually specifying a fix number of
+\item{\code{"manual"}: for manually specifying a fix number of
 principal components. In this case, \code{value} must be a value
 (larger than 0 and
 below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
@@ -150,8 +150,8 @@ argument.}
 \value{
 A list with the following components:
 \itemize{
-\item{\code{dissimilarity}:}{ the resulting dissimilarity matrix.}
-\item{\code{projection}:}{ an \code{ortho_projection} object. Only output
+\item{\code{dissimilarity}: the resulting dissimilarity matrix.}
+\item{\code{projection}: an \code{ortho_projection} object. Only output
 if \code{return_projection = TRUE} and if \code{diss_method = "pca"},
 \code{diss_method = "pca.nipals"},  \code{diss_method = "pls"} or
 \code{diss_method = "mpls"}.
@@ -160,7 +160,7 @@ the dissimilarity matrix. In case of local dissimilarity matrices,
 the projection corresponds to the global projection used to select the
 neighborhoods (see \code{\link{ortho_diss}} function for further
 details).}
-\item{\code{gh}:}{ a list containing the GH distances as well as the
+\item{\code{gh}: a list containing the GH distances as well as the
 pls projection used to compute the GH.}
 }
 }

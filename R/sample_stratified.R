@@ -363,7 +363,7 @@ optim_sample_strata <- function(y, n) {
 #' @description for internal use only! This function selects samples
 #' based on provided strata.
 #' @param original_order a matrix of one column with the response variable.
-#' @param starta the number of strata.
+#' @param strata the number of strata.
 #' @param sampling_for sampling to select the calibration samples ("calibration")
 #' or sampling to select the validation samples ("validation").
 #' @param replacement logical indicating if sampling with replacement must be

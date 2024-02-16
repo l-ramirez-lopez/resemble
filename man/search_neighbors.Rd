@@ -24,33 +24,33 @@ neighbors are to be searched in \code{Xr}. Default is \code{NULL}. See details.}
 \item{diss_method}{a character string indicating the spectral dissimilarity metric
 to be used in the selection of the nearest neighbors of each observation.
 \itemize{
-\item{\code{"pca"}:}{  Mahalanobis distance
+\item{\code{"pca"}:  Mahalanobis distance
 computed on the matrix of scores of a Principal Component (PC)
 projection of \code{Xr} (and \code{Xu} if supplied).
 PC projection is done using the singular value decomposition (SVD)
 algorithm. See \code{\link{ortho_diss}} function.}
-\item{\code{"pca.nipals"}}{ Mahalanobis distance
+\item{\code{"pca.nipals"}: Mahalanobis distance
 computed on the matrix of scores of a Principal Component (PC)
 projection of \code{Xr} (and \code{Xu} if supplied).
 PC projection is done using the
 non-linear iterative partial least squares (niapls) algorithm.
 See \code{\link{ortho_diss}} function.}
-\item{\code{"pls"}}{ Mahalanobis distance
+\item{\code{"pls"}: Mahalanobis distance
 computed on the matrix of scores of a partial least squares projection
 of \code{Xr} (and \code{Xu} if supplied). In this case, \code{Yr}
 is always required. See \code{\link{ortho_diss}} function.}
-\item{\code{"mpls"}}:{ Mahalanobis distance
+\item{\code{"mpls"}: Mahalanobis distance
 computed on the matrix of scores of a modified partial least squares
 projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
 of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
 always required. See \code{\link{ortho_diss}} function.}
-\item{\code{"cor"}}{ correlation coefficient
+\item{\code{"cor"}: correlation coefficient
 between observations. See \code{\link{cor_diss}} function.}
-\item{\code{"euclid"}}{ Euclidean distance
+\item{\code{"euclid"}: Euclidean distance
 between observations. See \code{\link{f_diss}} function.}
-\item{\code{"cosine"}}{ Cosine distance
+\item{\code{"cosine"}: Cosine distance
 between observations. See \code{\link{f_diss}} function.}
-\item{\code{"sid"}}{ spectral information divergence between observations.
+\item{\code{"sid"}: spectral information divergence between observations.
 See \code{\link{sid}} function.}
 }}
 
@@ -91,7 +91,7 @@ to be retained. This list must contain two elements in the following order:
 components) and \code{value} (a numerical value that complements the selected
 method). The methods available are:
 \itemize{
-\item{\code{"opc"}:} { optimized principal component selection based on
+\item{\code{"opc"}: optimized principal component selection based on
 Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
 (of set of observations) is the one for which its distance matrix
 minimizes the differences between the \code{Yr} value of each
@@ -100,17 +100,17 @@ case \code{value} must be a value (larger than 0 and below the
 minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
 indicating the maximum number of principal components to be tested.
 See the \code{\link{ortho_projection}} function for more details.}
-\item{\code{"cumvar"}:}{ selection of the principal components based
+\item{\code{"cumvar"}: selection of the principal components based
 on a given cumulative amount of explained variance. In this case,
 \code{value} must be a value (larger than 0 and below or equal to 1)
 indicating the minimum amount of cumulative variance that the
 combination of retained components should explain.}
-\item{\code{"var"}:}{ selection of the principal components based
+\item{\code{"var"}: selection of the principal components based
 on a given amount of explained variance. In this case,
 \code{value} must be a value (larger than 0 and below or equal to 1)
 indicating the minimum amount of variance that a single component
 should explain in order to be retained.}
-\item{\code{"manual"}:}{ for manually specifying a fix number of
+\item{\code{"manual"}: for manually specifying a fix number of
 principal components. In this case, \code{value} must be a value
 (larger than 0 and below the
 minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
@@ -163,21 +163,21 @@ function. See details.}
 \value{
 a \code{list} containing the following elements:
 \itemize{
-\item{\code{neighbors_diss}}{ a matrix of the \code{Xr} dissimilarity scores
+\item{\code{neighbors_diss}: a matrix of the \code{Xr} dissimilarity scores
 corresponding to the neighbors of each \code{Xr} observation (or \code{Xu}
 observation, in case \code{Xu} was supplied).
 The neighbor dissimilarity scores are organized by columns and are sorted
 in ascending order.}
-\item{\code{neighbors}}{ a matrix of the \code{Xr} indices corresponding to
+\item{\code{neighbors}: a matrix of the \code{Xr} indices corresponding to
 the neighbors of each observation in \code{Xu}. The neighbor indices are
 organized by columns and are sorted in ascending order by their
 dissimilarity score.}
-\item{\code{unique_neighbors}}{ a vector of the indices in \code{Xr}
+\item{\code{unique_neighbors}: a vector of the indices in \code{Xr}
 identified as neighbors of any observation in \code{Xr} (or in \code{Xu},
 in case it was supplied). This is obtained by
 converting the \code{neighbors} matrix into a vector and applying the
 \code{\link[base]{unique}} function.}
-\item{\code{k_diss_info}}{ a \code{data.table} that is returned only if the
+\item{\code{k_diss_info}: a \code{data.table} that is returned only if the
 \code{k_diss} argument was used. It comprises three columns, the first one
 (\code{Xr_index} or \code{Xu_index}) indicates the index of the observations
 in \code{Xr} (or in \code{Xu}, in case it was suppplied),
@@ -185,10 +185,10 @@ the second column (\code{n_k}) indicates the number of neighbors found in
 \code{Xr} and the third column (\code{final_n_k}) indicates the final number
 of neighbors selected bounded by \code{k_range}.
 argument.}
-\item{\code{dissimilarity}}{ If \code{return_dissimilarity = TRUE} the
+\item{\code{dissimilarity}: If \code{return_dissimilarity = TRUE} the
 dissimilarity object used (as computed by the \code{\link{dissimilarity}}
 function.}
-\item{\code{projection}}{ an \code{ortho_projection} object. Only output if
+\item{\code{projection}: an \code{ortho_projection} object. Only output if
 \code{return_projection = TRUE} and if \code{diss_method = "pca"},
 \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}. \cr
 This object contains the projection used to compute

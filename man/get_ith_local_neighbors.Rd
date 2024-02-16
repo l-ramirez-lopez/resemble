@@ -64,19 +64,19 @@ at the top of \code{neighbor_indices}.}
 }
 \value{
 a list:
-itemize{
-\item{ith_xr:}{ the new Xr data of the neighbors for the ith observation (if
+\itemize{
+\item{ith_xr: the new Xr data of the neighbors for the ith observation (if
 \code{diss_usage = "predictors"}, this data is combined with the local
 dissmilarity scores of the neighbors of Xu)}
-\item{ith_yr:}{ the new Yr data of the neighbors for the ith observation}
-\item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"},
+\item{ith_yr: the new Yr data of the neighbors for the ith observation}
+\item{ith_xu: the ith Xu observation (if \code{diss_usage = "predictors"},
 this data is combined with the local dissmilarity scores to its Xr neighbors}
-\item{ith_yu:}{ the ith Yu observation}
-\item{ith_neigh_diss:}{ the new dissimilarity scores of the neighbors for the ith
+\item{ith_yu: the ith Yu observation}
+\item{ith_neigh_diss: the new dissimilarity scores of the neighbors for the ith
 observation}
-\item{ith_group:}{ the group labels for the new ith_xr}
-\item{n_k:}{ the number of neighbors}
-\item{ith_components:}{ the number of components used}
+\item{ith_group: the group labels for the new ith_xr}
+\item{n_k: the number of neighbors}
+\item{ith_components: the number of components used}
 }
 }
 \description{

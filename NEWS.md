@@ -1,4 +1,12 @@
-# `resemble`
+# `resemble 2.2.3 (embryo)`
+===============
+### Fixes
+
+* Fixed items in the documentation ([#50](https://github.com/l-ramirez-lopez/resemble/issues/50))
+
+* Fixed inconsistent score names between `ortho_projection()` and `ortho_projection.predict()` ([#49](https://github.com/l-ramirez-lopez/resemble/issues/49)). Many thanks to José Lucas Safanelli (zecojls) for reporting this issue. 
+
+
 `resemble 2.2.2 (sky)`
 ===============
 ### New features
@@ -8,11 +16,11 @@ avoid observations in the neighbrhoods.
 
 ### Fixes
 * A sanity check was added to `cor_diss()`. Correlation coefficients for 
-observations with an standard deviation of 0 cannot be computed ([#38]https://github.com/l-ramirez-lopez/resemble/issues/38).
+observations with an standard deviation of 0 cannot be computed ([#38](https://github.com/l-ramirez-lopez/resemble/issues/38)).
 
 * The `pls_projection()` did not work for more than one 
 response variable and with the methods `'cumvar'` or `'var'` for the selection 
-of the components. This has been fixed ([#37]https://github.com/l-ramirez-lopez/resemble/issues/37).
+of the components. This has been fixed ([#37](https://github.com/l-ramirez-lopez/resemble/issues/37)).
 
 
 `resemble 2.2.1 (Fix-Hodges)`

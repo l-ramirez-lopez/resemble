@@ -42,10 +42,10 @@ what method to use. Options are:
 \value{
 a list containing the following elements:
 \itemize{
-\item{\code{ncomp}}{ the number of components.}
-\item{\code{pred_response}}{ the response predictions for \code{Xu}.}
-\item{\code{rmse_reconstruction}}{ the rmse of the reconstruction for \code{Xu}.}
-\item{\code{score_dissimilarity}}{ the distance score between \code{Xr} and \code{Xu}.}}
+\item{\code{ncomp}: the number of components.}
+\item{\code{pred_response}: the response predictions for \code{Xu}.}
+\item{\code{rmse_reconstruction}: the rmse of the reconstruction for \code{Xu}.}
+\item{\code{score_dissimilarity}: the distance score between \code{Xr} and \code{Xu}.}}
 }
 \description{
 Computes orthogonal scores partial least squares (opls)

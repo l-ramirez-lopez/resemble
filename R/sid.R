@@ -108,19 +108,19 @@
 #' will be possible.
 #' @return a \code{list} with the following components:
 #' \itemize{
-#'  \item{\code{sid}}{ if only \code{"X"} is specified (i.e. \code{Xu = NULL}),
+#'  \item{\code{sid}: if only \code{"X"} is specified (i.e. \code{Xu = NULL}),
 #'  a square symmetric matrix of SID distances between all the components in
 #'  \code{"X"}. If both \code{"X"} and \code{"Xu"} are specified, a matrix
 #'  of SID distances between the components in \code{"X"} and the components
 #'  in \code{"Xu"}) where the rows represent the objects in \code{"X"} and the
 #'  columns represent the objects in \code{"Xu"}}
-#'  \item{\code{Xr}}{ the (centered and/or scaled if specified) spectral
+#'  \item{\code{Xr}: the (centered and/or scaled if specified) spectral
 #'  \code{X} matrix}
-#'  \item{\code{Xu}}{ the (centered and/or scaled if specified) spectral
+#'  \item{\code{Xu}: the (centered and/or scaled if specified) spectral
 #'  \code{Xu} matrix}
-#'  \item{\code{densityDisXr}}{ if \code{mode = "density"}, the computed
+#'  \item{\code{densityDisXr}: if \code{mode = "density"}, the computed
 #'  density distributions of \code{Xr}}
-#'  \item{\code{densityDisXu}}{ if \code{mode = "density"}, the computed
+#'  \item{\code{densityDisXu}: if \code{mode = "density"}, the computed
 #'  density distributions of \code{Xu}}
 #'  }
 #' @references Chang, C.I. 2000. An information theoretic-based approach to
