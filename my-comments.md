@@ -4,7 +4,7 @@
 
 # submission message:
 Dear CRAN maintainers,
-I am submitting my package "resemble" to CRAN. This version fixes problems with the documentation which were reported in the CRAN checks.
+I am resubmitting my package "resemble" to CRAN. This version fixes problems with the documentation which were reported in the CRAN checks. I have addressed a small problem with one of the help pages that was detected in a previous submission. 
 Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
 For this second submission the package passed all the tests in the above platforms. 
 Reverse dependencies have also been checked. 
