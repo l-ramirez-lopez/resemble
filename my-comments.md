@@ -1,12 +1,77 @@
 # resemble
 
+# version 2.2.3
+
+# submission message:
+Dear CRAN maintainers,
+I am resubmitting my package "resemble" to CRAN. This version fixes problems with the documentation which were reported in the CRAN checks. I have addressed a small problem with one of the help pages that was detected in a previous submission. 
+Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
+For this second submission the package passed all the tests in the above platforms. 
+Reverse dependencies have also been checked. 
+Best regards,
+Leonardo
+
+
+
+## Package was built using: 
+```
+devtools::build(
+  pkg = ".",
+  path = NULL,
+  binary = FALSE,
+  vignettes = TRUE,
+  manual = TRUE,
+  args = NULL,
+  quiet = FALSE
+)
+```
+
+# R win builder checks for release of `resemble 2.2.3` (`embryo`) 15.02.2024 
+passed all the checks without notes.
+
+# Rhub checks for release of `resemble 2.2.3` (`embryo`) 15.02.2024
+The checks were conducted in the following platforms through rhub:
+
+```
+rhub::check(paste0(gsub("/resemble$", "/", getwd()), "resemble_2.2.3.tar.gz"), 
+            platform = c("fedora-gcc-devel"), 
+            email = "ramirez.lopez.leo@gmail.com")
+```
+- "fedora-gcc-devel"  NOTE
+* checking installed package size ... NOTE
+  installed size is 10.1Mb
+  sub-directories of 1Mb or more:
+    doc    1.9Mb
+    libs   7.6Mb
+
+- "windows-x86_64-devel" OK
+
+- "macos-highsierra-release-cran" (not tested)
+
+- "windows-x86_64-release" OK
+
+- "ubuntu-gcc-release" OK
+" 
+
+
+The suggested packages are required for a complete check.
+Checking can be attempted without them by setting the environment
+variable _R_CHECK_FORCE_SUGGESTS_ to a false value.
+
+See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+manual.
+
+
+
+
+
 # version 2.2.2
 
 # submission message:
 Dear CRAN maintainers,
 I am submitting my package "resemble" to CRAN. This version introduces a new 
 feature in one of the functions and one bug fix.
-In a previous submission, the date in DESCRIPTION was not in the correct format. This has been fixed.
+In previous submissions, the date in DESCRIPTION was not in the correct format and there were some broken URL links. These issues have been fixed.
 Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
 A first submission of this version failed (for "r-devel-linux-x86_64-debian-gcc"), 
 therefore following platforms were tested for a second submission using Rhub: 

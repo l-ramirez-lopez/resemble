@@ -53,7 +53,7 @@
 #' The validation methods available for assessing the predictive performance of
 #' the memory-based learning method used are described as follows:
 #'  \itemize{
-#'  \item{Leave-nearest-neighbor-out cross-validation (\code{"NNv"}):}{ From
+#'  \item{Leave-nearest-neighbor-out cross-validation (\code{"NNv"}): From
 #'  the group of neighbors of each observation to be predicted, the nearest observation
 #'  (i.e. the most similar observation) is excluded and then a local model is fitted
 #'  using the remaining neighbors. This model is then used to predict the value
@@ -61,7 +61,7 @@
 #'  values are finally cross validated with the actual values (See Ramirez-Lopez
 #'  et al. (2013a) for additional details). This method is faster than
 #'  \code{"local_cv"}.}
-#'  \item{Local leave-group-out cross-validation (\code{"local_cv"}):}{ The
+#'  \item{Local leave-group-out cross-validation (\code{"local_cv"}): The
 #'  group of neighbors of each observation to be predicted is partitioned into
 #'  different equal size subsets. Each partition is selected based on a
 #'  stratified random sampling which takes into account the values of the
@@ -77,7 +77,7 @@
 #'  percentage of observations to be selected from the subset of nearest neighbours.
 #'  The global error of the predictions is computed as the average of the local
 #'  root mean square errors.}
-#'  \item{No validation (\code{"none"}):}{ No validation is carried out.
+#'  \item{No validation (\code{"none"}): No validation is carried out.
 #'  If \code{"none"} is seleceted along with \code{"NNv"} and/or
 #'  \code{"local_cv"}, then it will be ignored and the respective
 #'  validation(s) will be carried out.}

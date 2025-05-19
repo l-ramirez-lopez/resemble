@@ -19,8 +19,6 @@ predict_gaussian_process(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Ys
 \item{Ycenter}{if \code{center = TRUE} a matrix of one row with the values that must be used for accounting for the centering of the response variable.}
 
 \item{Yscale}{if \code{scale = TRUE} a matrix of one row with the values that must be used  for accounting for the scaling of the response variable.}
-
-\item{b}{the regression coefficients.}
 }
 \value{
 a matrix of predicted values

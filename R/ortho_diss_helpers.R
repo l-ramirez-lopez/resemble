@@ -3,8 +3,7 @@
 #' @param xu a second matrix
 #' @param y a matrix of side information
 #' @param kindx a matrix of nearest neighbor indices
-#' @param remove NA indices from kindx (useful when working with dissimilarity
-#' thresholds to select the neighbors (instead of fixed number of neighbors).
+#' @param na_rm logical indicating whether NAs must be removed.
 #' @description internal
 #' @keywords internal
 ith_subsets_ortho_diss <- function(x,

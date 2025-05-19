@@ -38,23 +38,23 @@ of every Xu found in Xr. This matrix is organized in the same way as
 
 \item{diss_xr_xr}{a dissimilarity matrix between sampes in Xr.}
 
-\item{group}{a factor representing the group labes of Xr.}
+\item{group}{a factor representing the group labels of Xr.}
 }
 \value{
 an object of \code{class} iterator giving the following list:
-itemize{
-\item{ith_xr:}{ the Xr data of the neighbors for the ith observation (if
+\itemize{
+\item{ith_xr: the Xr data of the neighbors for the ith observation (if
 \code{diss_usage = "predictors"}, this data is combined with the local
 dissmilarity scores of the neighbors of Xu (or Xr if Xu was not provided))}
-\item{ith_yr:}{ the Yr data of the neighbors for the ith observation}
-\item{ith_xu:}{ the ith Xu observation (or Xr if Xu was not provided).
+\item{ith_yr: the Yr data of the neighbors for the ith observation}
+\item{ith_xu: the ith Xu observation (or Xr if Xu was not provided).
 If \code{diss_usage = "predictors"}, this data is combined with the local
 dissmilarity scores to its Xr neighbors.}
-\item{ith_yu:}{ the ith Yu observation (or Yr observation if Xu was not provided).}
-\item{ith_neigh_diss:}{ the dissimilarity scores of the neighbors for the ith
+\item{ith_yu: the ith Yu observation (or Yr observation if Xu was not provided).}
+\item{ith_neigh_diss: the dissimilarity scores of the neighbors for the ith
 observation.}
-\item{ith_group:}{ the group labels for ith_xr.}
-\item{n_k:}{ the number of neighbors.}
+\item{ith_group: the group labels for ith_xr.}
+\item{n_k: the number of neighbors.}
 }
 }
 \description{

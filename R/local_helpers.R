@@ -388,21 +388,21 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
 #' of every Xu found in Xr. This matrix is organized in the same way as
 #' \code{neighbor_indices}.
 #' @param diss_xr_xr a dissimilarity matrix between sampes in Xr.
-#' @param group a factor representing the group labes of Xr.
+#' @param group a factor representing the group labels of Xr.
 #' @return an object of \code{class} iterator giving the following list:
-#' itemize{
-#' \item{ith_xr:}{ the Xr data of the neighbors for the ith observation (if
+#' \itemize{
+#' \item{ith_xr: the Xr data of the neighbors for the ith observation (if
 #' \code{diss_usage = "predictors"}, this data is combined with the local
 #' dissmilarity scores of the neighbors of Xu (or Xr if Xu was not provided))}
-#' \item{ith_yr:}{ the Yr data of the neighbors for the ith observation}
-#' \item{ith_xu:}{ the ith Xu observation (or Xr if Xu was not provided). 
+#' \item{ith_yr: the Yr data of the neighbors for the ith observation}
+#' \item{ith_xu: the ith Xu observation (or Xr if Xu was not provided). 
 #' If \code{diss_usage = "predictors"}, this data is combined with the local 
 #' dissmilarity scores to its Xr neighbors.}
-#' \item{ith_yu:}{ the ith Yu observation (or Yr observation if Xu was not provided).}
-#' \item{ith_neigh_diss:}{ the dissimilarity scores of the neighbors for the ith
+#' \item{ith_yu: the ith Yu observation (or Yr observation if Xu was not provided).}
+#' \item{ith_neigh_diss: the dissimilarity scores of the neighbors for the ith
 #' observation.}
-#' \item{ith_group:}{ the group labels for ith_xr.}
-#' \item{n_k:}{ the number of neighbors.}
+#' \item{ith_group: the group labels for ith_xr.}
+#' \item{n_k: the number of neighbors.}
 #' }
 #' @details isubset will look at the order of knn in each col of D and
 #' re-organize the rows of x accordingly
@@ -515,19 +515,19 @@ ith_mbl_neighbor <- function(Xr, Xu = NULL, Yr, Yu = NULL,
 #' @param center center the data in the local diss computation?
 #' @param scale scale the data in the local diss computation?
 #' @return a list:
-#' itemize{
-#' \item{ith_xr:}{ the new Xr data of the neighbors for the ith observation (if
+#' \itemize{
+#' \item{ith_xr: the new Xr data of the neighbors for the ith observation (if
 #' \code{diss_usage = "predictors"}, this data is combined with the local
 #' dissmilarity scores of the neighbors of Xu)}
-#' \item{ith_yr:}{ the new Yr data of the neighbors for the ith observation}
-#' \item{ith_xu:}{ the ith Xu observation (if \code{diss_usage = "predictors"},
+#' \item{ith_yr: the new Yr data of the neighbors for the ith observation}
+#' \item{ith_xu: the ith Xu observation (if \code{diss_usage = "predictors"},
 #' this data is combined with the local dissmilarity scores to its Xr neighbors}
-#' \item{ith_yu:}{ the ith Yu observation}
-#' \item{ith_neigh_diss:}{ the new dissimilarity scores of the neighbors for the ith
+#' \item{ith_yu: the ith Yu observation}
+#' \item{ith_neigh_diss: the new dissimilarity scores of the neighbors for the ith
 #' observation}
-#' \item{ith_group:}{ the group labels for the new ith_xr}
-#' \item{n_k:}{ the number of neighbors}
-#' \item{ith_components:}{ the number of components used}
+#' \item{ith_group: the group labels for the new ith_xr}
+#' \item{n_k: the number of neighbors}
+#' \item{ith_components: the number of components used}
 #' }
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal

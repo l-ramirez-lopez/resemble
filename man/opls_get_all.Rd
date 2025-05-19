@@ -42,19 +42,20 @@ method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWis
 \value{
 a list containing the following elements:
 \itemize{
-\item{\code{ncomp}}{ the number of components used.}
-\item{\code{coefficients}}{ the matrix of regression coefficients.}
-\item{\code{bo}}{ a matrix of one row containing the intercepts for each component.}
-\item{\code{scores}}{ the matrix of scores.}
-\item{\code{X_loadings}}{ the matrix of X loadings.}
-\item{\code{Y_loadings}}{ the matrix of Y loadings.}
-\item{\code{vip}}{ the projection matrix.}
-\item{\code{selectivity_ratio}}{ the matrix of selectivity ratio (see Rajalahti, Tarja, et al. 2009).}
-\item{\code{Y}}{ the \code{Y} input.}
-\item{\code{variance}}{ a \code{list} conating two objects: \code{x_var} and \code{y_var}.
+\item{\code{ncomp}: the number of components used.}
+\item{\code{coefficients}: the matrix of regression coefficients.}
+\item{\code{bo}: a matrix of one row containing the intercepts for each component.}
+\item{\code{scores}: the matrix of scores.}
+\item{\code{X_loadings}: the matrix of X loadings.}
+\item{\code{Y_loadings}: the matrix of Y loadings.}
+\item{\code{vip}: the projection matrix.}
+\item{\code{selectivity_ratio}: the matrix of selectivity ratio (see Rajalahti, Tarja, et al. 2009).}
+\item{\code{Y}: the \code{Y} input.}
+\item{\code{variance}: a \code{list} conating two objects: \code{x_var} and \code{y_var}.
 These objects contain information on the explained variance for the \code{X} and \code{Y} matrices respectively.}
-\item{\code{transf}}{ a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}.
-\item{\code{weights}}{ the matrix of wheights.}}
+\item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}.
+\item{\code{weights}: the matrix of wheights.}
+}
 }
 \description{
 Computes orthogonal socres partial least squares (opls_get_all)
