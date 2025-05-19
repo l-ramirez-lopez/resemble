@@ -1,3 +1,11 @@
+# `resemble 2.2.4 (olbap)`
+===============
+
+### Fixes
+
+* Authors and maintainers in the DESCRIPTION file have been updated to comply with CRAN
+  policies.
+
 # `resemble 2.2.3 (embryo)`
 ===============
 ### Fixes

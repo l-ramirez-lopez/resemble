@@ -9,9 +9,9 @@
 
 <!-- badges: end -->
 
-*Last update: 2024-02-16*
+*Last update: 2025-05-19*
 
-Version: 2.2.3 – embryo
+Version: 2.2.4 – olbap
 
 <em>
 <p align="right">
