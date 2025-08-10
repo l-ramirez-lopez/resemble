@@ -335,7 +335,8 @@ where a renowned NIR scientist talks about local calibrations.
 
 You can send an e-mail to the package maintainer (<ramirez.lopez.leo@gmail.com>) or create an [issue](https://github.com/l-ramirez-lopez/resemble/issues) on github. 
 
-## References
+## References 
+
 Lobsey, C. R., Viscarra Rossel, R. A., Roudier, P., & Hedley, C. B. 2017. 
 rs-local data-mines information from spectral libraries to improve local 
 calibrations. European Journal of Soil Science, 68(6), 840-852.

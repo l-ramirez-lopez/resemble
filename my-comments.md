@@ -1,5 +1,13 @@
 # resemble
 
+# version 2.2.4
+
+Dear CRAN maintainers,
+I am submitting my package "resemble" to CRAN. This version fixes problems with the authors field in DESCRIPTION. 
+Prior to this submission, this tarball has been checked with in the winbuilder service. 
+Best regards,
+Leonardo
+
 # version 2.2.3
 
 # submission message:

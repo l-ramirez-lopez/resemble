@@ -5,14 +5,16 @@
 \title{A function that controls some few aspects of the memory-based learning
 process in the \code{mbl} function}
 \usage{
-mbl_control(return_dissimilarity = FALSE,
-            validation_type = c("NNv", "local_cv"),
-            tune_locally = TRUE,
-            number = 10,
-            p = 0.75,
-            range_prediction_limits = TRUE,
-            progress = TRUE,
-            allow_parallel = TRUE)
+mbl_control(
+  return_dissimilarity = FALSE,
+  validation_type = c("NNv", "local_cv"),
+  tune_locally = TRUE,
+  number = 10,
+  p = 0.75,
+  range_prediction_limits = TRUE,
+  progress = TRUE,
+  allow_parallel = TRUE
+)
 }
 \arguments{
 \item{return_dissimilarity}{a logical indicating if the dissimilarity matrix
@@ -26,9 +28,9 @@ below).}
 
 \item{tune_locally}{a logical. It only applies when
 \code{validation_type = "local_cv"} and "pls" or "wapls" fitting algorithms are
-used.  If \code{TRUE}, the the parameters of the local pls-based models
+used.  If \code{TRUE}, the parameters of the local pls-based models
 (i.e. pls factors for the "pls" method and minimum and maximum pls factors
-for the "wapls" method). Default is #' \code{TRUE}.}
+for the "wapls" method). Default is \code{TRUE}.}
 
 \item{number}{an integer indicating the number of sampling iterations at
 each local segment when \code{"local_cv"} is selected in the
@@ -36,7 +38,7 @@ each local segment when \code{"local_cv"} is selected in the
 
 \item{p}{a numeric value indicating the percentage of observations to be retained
 at each sampling iteration at each local segment when \code{"local_cv"}
-is selected in the \code{validation_type} argument. Default is 0.75 \%.}
+is selected in the \code{validation_type} argument. Default is 0.75 (75 \%).}
 
 \item{range_prediction_limits}{a logical. It indicates whether the prediction
 limits at each local regression are determined by the range of the response
@@ -53,7 +55,7 @@ parallel processing is used, these progress bars will not be printed.}
 If \code{TRUE}, this parallelism is applied to the loop in \code{\link{mbl}}
 in which each iteration takes care of a single observation in \code{Xu}. The
 parallelization of this for loop is implemented using the
-\link[foreach]{foreach} function of the \code{\link{foreach}} package.
+\link[foreach:foreach]{foreach} function of the \pkg{foreach} package.
 Default is \code{TRUE}.}
 }
 \value{
@@ -95,7 +97,7 @@ percentage of observations to be selected from the subset of nearest neighbours.
 The global error of the predictions is computed as the average of the local
 root mean square errors.}
 \item{No validation (\code{"none"}): No validation is carried out.
-If \code{"none"} is seleceted along with \code{"NNv"} and/or
+If \code{"none"} is selected along with \code{"NNv"} and/or
 \code{"local_cv"}, then it will be ignored and the respective
 validation(s) will be carried out.}
 }
