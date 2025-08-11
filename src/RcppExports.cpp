@@ -35,16 +35,59 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// moving_cor_diss
-NumericMatrix moving_cor_diss(arma::mat X, arma::mat Y, int w);
-RcppExport SEXP _resemble_moving_cor_diss(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP) {
+// moving_cor_diss_xy_prec
+arma::mat moving_cor_diss_xy_prec(const arma::mat& X, const arma::mat& Y, int w, arma::uword block_x, arma::uword block_y, std::string precision);
+RcppExport SEXP _resemble_moving_cor_diss_xy_prec(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP, SEXP block_xSEXP, SEXP block_ySEXP, SEXP precisionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
     Rcpp::traits::input_parameter< int >::type w(wSEXP);
-    rcpp_result_gen = Rcpp::wrap(moving_cor_diss(X, Y, w));
+    Rcpp::traits::input_parameter< arma::uword >::type block_x(block_xSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type block_y(block_ySEXP);
+    Rcpp::traits::input_parameter< std::string >::type precision(precisionSEXP);
+    rcpp_result_gen = Rcpp::wrap(moving_cor_diss_xy_prec(X, Y, w, block_x, block_y, precision));
+    return rcpp_result_gen;
+END_RCPP
+}
+// moving_cor_diss_self_f64
+arma::mat moving_cor_diss_self_f64(const arma::mat& X, int w, arma::uword block_rows);
+RcppExport SEXP _resemble_moving_cor_diss_self_f64(SEXP XSEXP, SEXP wSEXP, SEXP block_rowsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type block_rows(block_rowsSEXP);
+    rcpp_result_gen = Rcpp::wrap(moving_cor_diss_self_f64(X, w, block_rows));
+    return rcpp_result_gen;
+END_RCPP
+}
+// moving_cor_diss_self_f32
+arma::mat moving_cor_diss_self_f32(const arma::mat& X, int w, arma::uword block_rows);
+RcppExport SEXP _resemble_moving_cor_diss_self_f32(SEXP XSEXP, SEXP wSEXP, SEXP block_rowsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type block_rows(block_rowsSEXP);
+    rcpp_result_gen = Rcpp::wrap(moving_cor_diss_self_f32(X, w, block_rows));
+    return rcpp_result_gen;
+END_RCPP
+}
+// moving_cor_diss_self
+arma::mat moving_cor_diss_self(const arma::mat& X, int w, arma::uword block_rows, std::string precision);
+RcppExport SEXP _resemble_moving_cor_diss_self(SEXP XSEXP, SEXP wSEXP, SEXP block_rowsSEXP, SEXP precisionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type block_rows(block_rowsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type precision(precisionSEXP);
+    rcpp_result_gen = Rcpp::wrap(moving_cor_diss_self(X, w, block_rows, precision));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -401,7 +444,10 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fast_diss", (DL_FUNC) &_resemble_fast_diss, 3},
     {"_resemble_fast_diss_vector", (DL_FUNC) &_resemble_fast_diss_vector, 1},
-    {"_resemble_moving_cor_diss", (DL_FUNC) &_resemble_moving_cor_diss, 3},
+    {"_resemble_moving_cor_diss_xy_prec", (DL_FUNC) &_resemble_moving_cor_diss_xy_prec, 6},
+    {"_resemble_moving_cor_diss_self_f64", (DL_FUNC) &_resemble_moving_cor_diss_self_f64, 3},
+    {"_resemble_moving_cor_diss_self_f32", (DL_FUNC) &_resemble_moving_cor_diss_self_f32, 3},
+    {"_resemble_moving_cor_diss_self", (DL_FUNC) &_resemble_moving_cor_diss_self, 4},
     {"_resemble_which_min", (DL_FUNC) &_resemble_which_min, 1},
     {"_resemble_which_min_vector", (DL_FUNC) &_resemble_which_min_vector, 1},
     {"_resemble_get_col_largest_sd", (DL_FUNC) &_resemble_get_col_largest_sd, 1},
