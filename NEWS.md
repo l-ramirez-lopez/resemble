@@ -1,6 +1,15 @@
 # `resemble 2.2.4 (olbap)`
 ===============
 
+### Improvements
+
+* Considerable gains in computational efficiency of the correlation 
+dissimilarity matrices (including the moving window ones).
+
+
+# `resemble 2.2.4 (olbap)`
+===============
+
 ### Fixes
 
 * Authors and maintainers in the DESCRIPTION file have been updated to comply with CRAN
