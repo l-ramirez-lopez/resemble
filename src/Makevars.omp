@@ -1,0 +1,2 @@
+SHLIB_OPENMP_CXXFLAGS=-fopenmp
+OPENMP_LIBS=-fopenmp
