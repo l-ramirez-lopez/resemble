@@ -1,4 +1,4 @@
-#' @title Correlation and moving correlation dissimilarity measurements (cor_diss)
+#' @title Correlation and moving correlation dissimilarity measurements  
 #' @description
 #' \loadmathjax
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
@@ -19,6 +19,11 @@
 #' @param scale a logical indicating if \code{Xr} (and \code{Xu} if specified)
 #' must be scaled. If \code{Xu} is provided the data is scaled on the basis
 #' of \mjeqn{Xr \cup Xu}{Xr U Xu}.
+#' @param precision a character string indicating the numeric precision to use.
+#' Possible values are \code{"double"} (default, 64-bit floating point) or
+#' \code{"single"} (32-bit floating point). Using \code{"single"} reduces memory
+#' usage and may improve performance for large datasets, at the cost of reduced
+#' numerical precision.
 #' @details
 #' The correlation dissimilarity \mjeqn{d}{d} between two observations
 #' \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's
@@ -60,6 +65,7 @@
 #' }
 #' @export
 
+
 ######################################################################
 # resemble
 # Copyrigth (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
@@ -84,7 +90,16 @@
 ## 03.07.2020 Leo     FIXME: diss between the same observation in some values
 ##                    around 1e-15 are returned
 
-cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
+cor_diss <- function(
+    Xr, 
+    Xu = NULL, 
+    ws = NULL, 
+    center = TRUE, 
+    scale = FALSE, 
+    precision = c("double", "single")
+  ) {
+  
+  pr <- match.arg(precision, c("double", "single"))
 
   if (!ncol(Xr) >= 2) {
     stop("For correlation dissimilarity the number of variables must be larger than 1")
@@ -140,35 +155,91 @@ cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
       stop(paste0("Correlation coefficients cannot be computed. Xu contains ", sum(xu_sds == 0), "observation(s) with a standard deviation of zero."))
     }
   }
-
-  if (!is.null(ws)) {
+  
+  if (is.null(ws)) {
+    ws <- ncol(Xr)
+  } else {
+    
     if (ws < 3 | length(ws) != 1) {
-      stop(paste("'ws' must be an unique odd value larger than 2"))
+      stop(paste("'ws' must be an odd value greater than 2"))
     }
     if ((ws %% 2) == 0) {
       stop("'ws' must be an odd value")
     }
     if (ws >= ncol(Xr)) {
-      stop("'ws' must lower than the number of columns (variables) in Xr")
-    }
-    if (!is.null(Xu)) {
-      rslt <- moving_cor_diss(Xu, Xr, ws)
-      colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
-      rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
-    } else {
-      rslt <- moving_cor_diss(Xr, Xr, ws)
-      rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
-    }
-  } else {
-    if (!is.null(Xu)) {
-      rslt <- fast_diss(Xu, Xr, "cor")
-      colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
-      rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
-    } else {
-      rslt <- fast_diss(Xr, Xr, "cor")
-      rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
+      stop("'ws' must smaller than the number of columns (variables) in Xr")
     }
   }
+  
+  if (!is.null(Xu)) {
+    pr <- match.arg(precision, c("double", "single"))
+    rslt <- moving_cor_diss_xy(
+      Xu, Xr, ws, 
+      compute_block_rows(dim(Xu)),
+      compute_block_rows(dim(Xr)), 
+      precision = pr
+    )
+    colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
+    rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
+  } else {
+    if (pr == "double") {
+      rslt <- moving_cor_diss_self_f64(
+        Xr, ws,
+        compute_block_rows(dim(Xr))
+      )
+    } else  {
+      rslt <- moving_cor_diss_self_f32(
+        Xr, ws,
+        compute_block_rows(dim(Xr))
+      )
+    }
+    rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
+  }
+
   rslt[rslt < 1e-15] <- 0
   rslt
 }
+
+
+# R/block_rows.R
+
+#' Choose a cache-friendly tile size (rows) from m and T (no options/env)
+#'
+#' Heuristic:
+#' - Working-set budget K ≈ 24 MB of doubles → K = 3e6.
+#' - Solve 3*b^2 + 2*T*b ≈ K for b: b_T = (-T + sqrt(T^2 + 3K)) / 3.
+#' - Limit by m via ~12 tiles/axis: b_m = m / 12.
+#' - Pick b* = round_to_64( min( max(64, b_m), b_T ) ), then clamp to [64, min(1024, m)].
+#'
+#' @param dimensions a vector of two integers representing the number of rows 
+#' (samples) and the number of columns (features)
+#' @return integer block_rows (multiple of 64), clamped; if m < 64, returns m
+#' @examples
+#' compute_block_rows(c(2475, 700))   # ~256
+#' compute_block_rows(c(80000, 700))  # ~768..1024 (clamped to 1024 if needed)
+#' compute_block_rows(c(50, 700))     # 50 (since m < 64)
+#' @keywords internal
+compute_block_rows <- function(dimensions) {
+  mm <- as.integer(dimensions[1])
+  tt <- as.integer(dimensions[2])
+  
+  max_block <- min(1024L, mm)
+  if (max_block < 64L) return(max_block)
+  
+  K    <- 3e6                             # ~24 MB in doubles
+  b_m  <- mm / 12
+  b_T  <- (-tt + sqrt(tt*tt + 3*K)) / 3
+  b_raw <- min(max(64, b_m), b_T)
+  
+  block <- round_to_64(b_raw)
+  block <- max(64L, min(as.integer(block), max_block))
+  block
+}
+
+#' @keywords internal
+#' @noRd
+round_to_64 <- function(x) {
+  mult <- 64
+  mult * round(x / mult)
+}
+
