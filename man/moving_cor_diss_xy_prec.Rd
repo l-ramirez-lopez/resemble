@@ -24,7 +24,7 @@ moving_cor_diss_xy_prec(
 
 \item{block_y}{Tile size for rows of Y (default 1024)}
 
-\item{precision}{"double" (default) or "float32"}
+\item{precision}{"double" (default) or "float32"/"single"}
 }
 \value{
 n×m distance matrix (R double matrix)

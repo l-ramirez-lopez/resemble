@@ -13,7 +13,7 @@ moving_cor_diss_self(X, w, block_rows = 1024L, precision = "double")
 
 \item{block_rows}{Tile size (default 1024)}
 
-\item{precision}{"double" (default) or "float32"}
+\item{precision}{"double" (default) or "single (i.e."float32")}
 }
 \value{
 m×m distance matrix (double for R)
