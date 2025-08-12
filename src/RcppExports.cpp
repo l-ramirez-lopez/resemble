@@ -113,6 +113,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mat_mult_cpp
+NumericMatrix mat_mult_cpp(const NumericMatrix& A, const NumericMatrix& B);
+RcppExport SEXP _resemble_mat_mult_cpp(SEXP ASEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(mat_mult_cpp(A, B));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_col_largest_sd
 NumericVector get_col_largest_sd(arma::mat X);
 RcppExport SEXP _resemble_get_col_largest_sd(SEXP XSEXP) {
@@ -450,6 +462,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_moving_cor_diss_self", (DL_FUNC) &_resemble_moving_cor_diss_self, 4},
     {"_resemble_which_min", (DL_FUNC) &_resemble_which_min, 1},
     {"_resemble_which_min_vector", (DL_FUNC) &_resemble_which_min_vector, 1},
+    {"_resemble_mat_mult_cpp", (DL_FUNC) &_resemble_mat_mult_cpp, 2},
     {"_resemble_get_col_largest_sd", (DL_FUNC) &_resemble_get_col_largest_sd, 1},
     {"_resemble_get_column_sds", (DL_FUNC) &_resemble_get_column_sds, 1},
     {"_resemble_overall_var", (DL_FUNC) &_resemble_overall_var, 1},

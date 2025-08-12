@@ -1,0 +1,15 @@
+CXX_STD = CXX17
+
+# Compile-time optimisation + OpenMP (apply to C++ and C sources)
+PKG_CXXFLAGS += -O3 -march=native -ffp-contract=fast -fopenmp
+PKG_CFLAGS   += -O3 -march=native -fopenmp
+
+# Link with OpenMP + your BLAS/LAPACK/Fortran runtimes
+PKG_LIBS += -fopenmp $(BLAS_LIBS) $(LAPACK_LIBS) $(FLIBS)
+
+# ---- BLAS/LAPACK selection (Option B) ----
+# BLAS from OpenBLAS (adjust path if needed)
+override BLAS_LIBS   = -LC:/rtools45/x86_64-w64-mingw32.static.posix/lib -lopenblas
+
+# LAPACK from the R distribution (Rlapack)
+override LAPACK_LIBS = -LC:/PROGRA~1/R/R-45~1.1/bin/x64 -lRlapack
