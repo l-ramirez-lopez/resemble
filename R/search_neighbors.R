@@ -308,27 +308,29 @@
 ##                    - scaled renamed to scale
 ##                    - pcMethod and cores are deprecated
 
-search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
-                               "pca",
-                               "pca.nipals",
-                               "pls",
-                               "mpls",
-                               "cor",
-                               "euclid",
-                               "cosine",
-                               "sid"
-                             ),
-                             Yr = NULL,
-                             k, k_diss, k_range,
-                             spike = NULL,
-                             pc_selection = list("var", 0.01),
-                             return_projection = FALSE,
-                             return_dissimilarity = FALSE,
-                             ws = NULL,
-                             center = TRUE, scale = FALSE,
-                             documentation = character(), ...) {
-
-
+search_neighbors <- function(
+    Xr, Xu = NULL, 
+    diss_method = c(
+      "pca",
+      "pca.nipals",
+      "pls",
+      "mpls",
+      "cor",
+      "euclid",
+      "cosine",
+      "sid"
+    ),
+    Yr = NULL,
+    k, k_diss, k_range,
+    spike = NULL,
+    pc_selection = list("var", 0.01),
+    return_projection = FALSE,
+    return_dissimilarity = FALSE,
+    ws = NULL,
+    center = TRUE, scale = FALSE,
+    documentation = character(), ...) {
+  
+  
   # Sanity checks
   match.arg(diss_method, c(
     "pca",
@@ -340,27 +342,27 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
     "cosine",
     "sid"
   ))
-
+  
   if (missing(k)) {
     k <- NULL
   }
-
+  
   if (missing(k_diss)) {
     k_diss <- NULL
   }
-
+  
   if (missing(k_range)) {
     k_range <- NULL
   }
-
+  
   if (!is.logical(center)) {
     stop("'center' argument must be logical")
   }
-
+  
   if (!is.logical(scale)) {
     stop("'scale' argument must be logical")
   }
-
+  
   if (diss_method == "cor") {
     if (!is.null(ws)) {
       if (ws < 3 | ws > (ncol(Xr) - 1) | length(ws) != 1 | (ws %% 2) == 0) {
@@ -371,18 +373,18 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
       }
     }
   }
-
+  
   if (!is.null(k) & !is.null(k_diss)) {
     # if k and k_diss are not called here, errors are thrown during checks
     k
     k_diss
     stop("Only one of k or k_diss can be specified")
   }
-
+  
   if (is.null(k) & is.null(k_diss)) {
     stop("Either k or k_diss must be specified")
   }
-
+  
   if (!is.null(k)) {
     k <- as.integer(k)
     if (k < 1) {
@@ -396,7 +398,7 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
     }
     kk <- k
   }
-
+  
   if (!is.null(k_diss)) {
     # if k_diss is not called here, errors are thrown during checks
     k_diss
@@ -442,7 +444,7 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
       }
     }
   }
-
+  
   if (!is.null(spike)) {
     if (!is.vector(spike)) {
       stop("spike must be a vector of integers")
@@ -480,7 +482,7 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
     scale = scale,
     ...
   )
-
+  
   skip_first <- ifelse(is.null(Xu), TRUE, FALSE)
   
   if (!is.null(spike)) {
@@ -493,23 +495,23 @@ search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
       stop("spike contains contradictory information, some indices to keep and to avoid are the same")
     }
   }
-
+  
   results <- diss_to_neighbors(dsm$dissimilarity,
-    k = k, k_diss = k_diss, k_range = k_range,
-    spike = spike,
-    return_dissimilarity = return_dissimilarity,
-    skip_first = skip_first
+                               k = k, k_diss = k_diss, k_range = k_range,
+                               spike = spike,
+                               return_dissimilarity = return_dissimilarity,
+                               skip_first = skip_first
   )
-
+  
   mprefix <- ifelse(skip_first, "Xr", "Xu")
   colnames(results$neighbors) <- paste0(mprefix, 1:ncol(results$neighbors))
-
+  
   if (return_projection & diss_method %in% c("pca", "pca.nipals", "pls")) {
     results$projection <- dsm$projection
   }
   if ("gh" %in% names(input_dots)) {
     results$gh <- dsm$gh
   }
-
+  
   results
 }
