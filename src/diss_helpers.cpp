@@ -1,6 +1,8 @@
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <limits>
+#include <vector>
+#include <algorithm>
 #ifdef _OPENMP
  #include <omp.h>
 #endif
@@ -63,19 +65,80 @@ arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]   
-NumericVector fast_diss_vector(NumericVector X){  
+NumericVector fast_diss_vector(NumericVector X) {  
   int nX = X.size();
-  int n = ((nX*nX)-nX)/2;
+  int n = nX * (nX - 1) / 2;
   NumericVector output(n);  
-  // #if defined(_OPENMP) 
-  // #pragma omp parallel for schedule(dynamic)
-  // #endif
-  for(int i = 0; i < nX-1; i++)
-    for(int j = i+1; j < nX; j++){
-      double x = X(j)-X(i);
-      output(nX*i - (i * (i + 3) / 2)  + j  - 1) =  x * x; 
+  
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+  for (int i = 0; i < nX - 1; i++) {
+    for (int j = i + 1; j < nX; j++) {
+      double x = X[j] - X[i];
+      int idx = nX * i - (i * (i + 3) / 2) + j - 1;
+      output[idx] = x * x;
     }
+  }
+  
   return output;         
+}
+
+//' @title Symmetric Euclidean Distance Matrix from a Single Matrix
+//' @description Computes the symmetric pairwise Euclidean distance matrix
+//' from the rows of a single matrix. Only the upper triangle is computed,
+//' then mirrored to the lower triangle to reduce redundant operations.
+//'
+//' Squared distances are calculated first, then square-rooted. Tiny values
+//' below 1e-14 are clamped to zero to ensure numerical stability.
+//'
+//' @param X An `n x p` numeric matrix where each row is a p-dimensional
+//' observation.
+//'
+//' @return An `n x n` symmetric matrix of Euclidean distances.
+//'
+//' @details
+//' This function is designed for efficient in-memory computation of full
+//' distance matrices using only the upper triangle to avoid redundant work.
+//' It applies the square root only once per distance and avoids unnecessary
+//' writes to the diagonal (which is always 0). The implementation leverages
+//' memory locality and avoids data duplication.
+//'
+//' Suitable for moderate to large `n`. If OpenMP is enabled, the upper-triangle
+//' loop can optionally be parallelized for additional speedup on multicore systems.
+//' Note that the function assumes that the input matrix `X` is not empty and
+// [[Rcpp::export]]
+Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
+  const arma::uword n = X.n_rows;
+  const arma::uword p = X.n_cols;
+  const double scale = 1.0 / std::sqrt(static_cast<double>(p));
+  const double eps = 1e-14;
+  
+  arma::mat D(n, n, arma::fill::zeros);
+  
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+  for (arma::sword i = 0; i < static_cast<arma::sword>(n - 1); ++i) {
+    for (arma::uword j = i + 1; j < n; ++j) {
+      const double dist2 = arma::accu(arma::square(X.row(i) - X.row(j)));
+      double d = std::sqrt(dist2) * scale;
+      if (d < eps) d = 0.0;
+      D(i, j) = d;
+    }
+  }
+  
+  // Symmetrize: copy upper triangle to lower triangle
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+  for (arma::sword i = 0; i < static_cast<arma::sword>(n - 1); ++i) {
+    for (arma::uword j = i + 1; j < n; ++j) {
+      D(j, i) = D(i, j);
+    }
+  }
+  
+  return Rcpp::wrap(D);
 }
 
 // //' @title A fast (serial) algorithm of Euclidean (non-squared) cross-distance for vectors written in C++ 
@@ -335,6 +398,9 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
   
   arma::Mat<eT> out(n, m, arma::fill::zeros); // n×m
   
+  arma::Mat<eT> X_sq = arma::square(X);  // m × T
+  arma::Mat<eT> Y_sq = arma::square(Y);  // n × T
+  
 #ifdef _OPENMP
 #pragma omp parallel for collapse(2) schedule(dynamic)
 #endif
@@ -348,17 +414,17 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
       const arma::uword mi = i1 - i0;
       const arma::uword nj = j1 - j0;
       
-      auto Xi = X.rows(i0, i1 - 1);
-      auto Yj = Y.rows(j0, j1 - 1);
-      arma::Mat<eT> Xi_sq = arma::square(Xi);
-      arma::Mat<eT> Yj_sq = arma::square(Yj);
+      auto Xi = X.rows(i0, i1 - 1);  
+      auto Yj = Y.rows(j0, j1 - 1);  
+      auto Xi_sq = X_sq.rows(i0, i1 - 1);
+      auto Yj_sq = Y_sq.rows(j0, j1 - 1);
       
       // First window [0, w-1]
       arma::Col<eT> Sx_i  = arma::sum(Xi.cols(0, w - 1), 1);
       arma::Col<eT> Sy_j  = arma::sum(Yj.cols(0, w - 1), 1);
       arma::Col<eT> Sxx_i = arma::sum(Xi_sq.cols(0, w - 1), 1);
       arma::Col<eT> Syy_j = arma::sum(Yj_sq.cols(0, w - 1), 1);
-      arma::Mat<eT> Sxy   = Xi.cols(0, w - 1) * Yj.cols(0, w - 1).t(); // mi×nj
+      arma::Mat<eT> Sxy = Xi.cols(0, w - 1) * Yj.cols(0, w - 1).t(); 
       
       arma::Mat<eT> sumCorr(mi, nj, arma::fill::zeros);
       arma::Mat<eT> C(mi, nj, arma::fill::none);
@@ -366,8 +432,9 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
       arma::Col<eT> inv_i(mi, arma::fill::none), inv_j(nj, arma::fill::none);
       
       for (int s = 0; s < n_centers; ++s) {
-        corr_tile_xy_fast_t<eT>(C, Sxy, Sx_i, Sy_j, Sxx_i, Syy_j, iw, icv,
-                                var_i, var_j, inv_i, inv_j);
+        corr_tile_xy_fast_t<eT>(
+          C, Sxy, Sx_i, Sy_j, Sxx_i, Syy_j, iw, icv, var_i, var_j, inv_i, inv_j
+        ); 
         sumCorr += C;
         
         if (s + 1 < n_centers) {
@@ -383,12 +450,12 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
       
       // Optional, cheap: clamp the accumulated correlation sums to [-nc, nc]
       const eT nc = static_cast<eT>(n_centers);
-      sumCorr.transform([nc](eT v){ return (v < -nc) ? -nc : (v > nc ? nc : v); });
+      sumCorr = arma::clamp(sumCorr, -nc, nc);
       
       arma::Mat<eT> Dblk = (eT(1) - (sumCorr / nc)) / eT(2);
       
       // Final safety clamp to [0,1]
-      Dblk.transform([](eT d){ return (d < eT(0)) ? eT(0) : (d > eT(1) ? eT(1) : d); });
+      Dblk = arma::clamp(Dblk, eT(0), eT(1));
       
       // disjoint write: Y-rows × X-rows block in output
       out.submat(j0, i0, j1 - 1, i1 - 1) = Dblk.t();
@@ -399,7 +466,7 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 }
 
 
-//' @title Rolling correlation distance between X and Y (templated, OpenMP)
+//' @title Rolling correlation distance between X and Y
 //' @param X Numeric matrix m×T
 //' @param Y Numeric matrix n×T
 //' @param w Window size (odd in [1..T] or exactly T)
@@ -408,13 +475,14 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 //' @param precision "double" (default) or "float32"/"single"
 //' @return n×m distance matrix (R double matrix)
 // [[Rcpp::export]]
-arma::mat moving_cor_diss_xy_prec(const arma::mat &X,
-                                  const arma::mat &Y,
-                                  int w,
-                                  arma::uword block_x = 1024,
-                                  arma::uword block_y = 1024,
-                                  std::string precision = "double")
-{
+arma::mat moving_cor_diss_xy(
+    const arma::mat &X,
+    const arma::mat &Y,
+    int w,
+    arma::uword block_x = 1024,
+    arma::uword block_y = 1024,
+    std::string precision = "double"
+) {
   for (auto &ch : precision) ch = static_cast<char>(std::tolower(ch));
   
   if (precision == "float32" || precision == "float" || precision == "single") {
@@ -863,9 +931,259 @@ NumericVector which_min_vector(NumericVector X){
 }
 
 
+//' @title Top-k Order Indices for Matrix Columns
+//' @description 
+//' Internal helper function. For each column in a numeric matrix, 
+//' returns the indices of the top-\code{k} smallest values (i.e., closest neighbors).
+//'
+//' @details 
+//' This function is implemented in C++ using \code{Rcpp}. It performs a partial sort 
+//' on each column to retrieve the \code{k} smallest elements efficiently. This is 
+//' particularly useful when working with large dissimilarity matrices, where 
+//' performance is critical.
+//'
+//' @param mat A numeric matrix (e.g., dissimilarity matrix).
+//' @param k Integer. Number of top smallest elements to return for each column.
+//'
+//' @return An integer matrix of dimensions \code{k × ncol(mat)}. Each column contains 
+//' the 1-based row indices of the top-\code{k} smallest values in the corresponding column of \code{mat}.
+//'
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export]]
+IntegerMatrix top_k_order(
+    const arma::mat& mat, 
+    int k, 
+    IntegerVector skip = IntegerVector::create()
+) {
+  int nrow = mat.n_rows;
+  int ncol = mat.n_cols;
+  IntegerMatrix result(k, ncol);
+  
+  std::unordered_set<int> skip_set(skip.begin(), skip.end());
+  
+  for (int j = 0; j < ncol; ++j) {
+    std::vector<std::pair<double, int>> values;
+    
+    // Collect finite values with their row indices
+    for (int i = 0; i < nrow; ++i) {
+      double val = mat(i, j);
+      if (std::isnan(val)) continue; // mimic na.last = TRUE
+      values.push_back({val, i + 1}); // R uses 1-based indexing
+    }
+    
+    // Sort all values ascending
+    std::sort(values.begin(), values.end());
+    
+    std::vector<int> selected;
+    for (size_t i = 0; i < values.size(); ++i) {
+      if (i == 0) {
+        // Always keep the first (closest)
+        selected.push_back(values[i].second);
+      } else {
+        if (skip_set.find(values[i].second) == skip_set.end()) {
+          selected.push_back(values[i].second);
+        }
+      }
+      if (selected.size() == (size_t)k) break;
+    }
+    
+    // Fill column
+    for (int i = 0; i < k; ++i) {
+      result(i, j) = (i < (int)selected.size()) ? selected[i] : NA_INTEGER;
+    }
+  }
+  
+  return result;
+}
 
 
+//' @title Extract Column Elements by Row Indices
+//' @description
+//' Efficiently extracts specific elements from each column of a numeric matrix 
+//' based on provided row indices, using Rcpp for performance.
+//'
+//' @param mat A numeric matrix from which values will be extracted.
+//' @param idx An integer matrix of the same number of columns as \code{mat}. 
+//' Each column of \code{idx} contains the row indices to extract from the 
+//' corresponding column of \code{mat}.
+//'
+//' @details
+//' For each column \code{j}, this function returns a vector of values 
+//' \code{mat[idx[, j], j]}. It is implemented in C++ using Rcpp for speed 
+//' and is suitable for large-scale operations (e.g., tens of thousands of rows).
+//'
+//' Indices in \code{idx} are assumed to be 1-based (R-style). Internally, 
+//' they are adjusted for 0-based indexing in C++.
+//'
+//' @return A numeric matrix of the same dimension as \code{idx}, where each 
+//' element is extracted from \code{mat} according to the corresponding 
+//' row and column in \code{idx}.
+//'
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export]]
+NumericMatrix extract_by_index(NumericMatrix mat, IntegerMatrix idx) {
+  int nrow = idx.nrow();
+  int ncol = idx.ncol();
+  NumericMatrix out(nrow, ncol);
+  
+#pragma omp parallel for
+  for (int j = 0; j < ncol; j++) {
+    for (int i = 0; i < nrow; i++) {
+      out(i, j) = mat(idx(i, j) - 1, j);
+    }
+  }
+  
+  return out;
+}
+
+//' @title Group Disparity Mask for Nearest Neighbors (C++)
+//' @description
+//' Internal C++ function that creates a logical matrix indicating whether
+//' each neighbor in `kidxmat` belongs to a different group than the sample.
+//'
+//' @param kidxmat An integer matrix of neighbor indices. Each column
+//'        corresponds to a sample, and each row to a ranked neighbor.
+//'        Indices refer to rows in the `group` vector.
+//' @param group An integer vector representing the group assignment
+//'        for each sample. Its length must match the number of rows
+//'        in the reference data.
+//'
+//' @return
+//' A logical matrix of the same dimensions as `kidxmat`, where each
+//' element is `TRUE` if the corresponding neighbor belongs to a
+//' different group than the target sample, and `FALSE` otherwise.
+//'
+//' @details
+//' For each column in `kidxmat`, corresponding to a sample,
+//' the function:
+//' \itemize{
+//'   \item Extracts the group assignment of the sample.
+//'   \item Checks whether each neighbor (by index) belongs to the same group.
+//'   \item Stores `TRUE` if the neighbor is from a different group,
+//'         `FALSE` otherwise.
+//' }
+//' The result can be used as a mask to filter out same-group neighbors.
+//'
+//' @note
+//' Parallelized using OpenMP for performance.
+//' Assumes 1-based indexing from R (internally adjusted).
+//' @noRd
+//' @keywords internal
+//' @author Leonardo Ramirez-Lopez
+
+// [[Rcpp::export]]
+Rcpp::LogicalMatrix not_in_same_group(
+    const Rcpp::IntegerMatrix& kidxmat,
+    const Rcpp::IntegerVector& group
+) {
+  int nrow = kidxmat.nrow();
+  int ncol = kidxmat.ncol();
+  Rcpp::LogicalMatrix result(nrow, ncol);
+  
+#pragma omp parallel for
+  for (int j = 0; j < ncol; ++j) {
+    int grp_j = group[j];
+    for (int i = 0; i < nrow; ++i) {
+      int idx = kidxmat(i, j) - 1;
+      result(i, j) = (group[idx] != grp_j);
+    }
+  }
+  
+  return result;
+}
 
 
-
-
+//' @title Quantile Statistics from Nearest Neighbors (C++)
+//' @description
+//' Internal C++ function to compute quantiles of response values
+//' among filtered nearest neighbors for each sample.
+//'
+//' @param kidxmat An integer matrix of nearest neighbor indices.
+//'        Each column corresponds to one observation (e.g., in Xu),
+//'        and rows represent the ranks of the neighbors.
+//' @param kidxgrop A logical matrix of the same shape as `kidxmat`
+//'        indicating which neighbors should be retained (`TRUE`)
+//'        based on group membership.
+//' @param Yr A numeric vector of reference response values. The
+//'        values are indexed by `kidxmat` to compute quantiles.
+//' @param k An integer vector of the number of neighbors to use
+//'        for each observation (length must match `ncol(kidxmat)`).
+//' @param probs A numeric vector of probabilities for which to
+//'        compute quantiles (e.g., `c(0, 0.05, 0.5, 0.95, 1)`).
+//'
+//' @return
+//' A numeric matrix of size `(length(k) * ncol(kidxmat)) × length(probs)`
+//' where each row contains the quantiles for a particular observation
+//' and each column corresponds to a probability in `probs`.
+//'
+//' @details
+//' For each observation, the function:
+//' \itemize{
+//'   \item Selects its top-k nearest neighbors.
+//'   \item Filters neighbors based on the logical group mask.
+//'   \item Extracts corresponding values from `Yr`.
+//'   \item Computes requested quantiles.
+//' }
+//' Missing values in `Yr` are ignored. If no valid neighbors are
+//' found for a given sample, all quantiles will be set to `NA`.
+//'
+//' @note
+//' This is an internal function intended for performance-critical
+//' applications. It should not be exported to the user.
+//' @noRd
+//' @keywords internal
+//' @author Leonardo Ramirez-Lopez
+// [[Rcpp::export]]
+NumericMatrix compute_nn_quantiles(
+    const IntegerMatrix& kidxmat,
+    const LogicalMatrix& kidxgrop,
+    const NumericVector& Yr,
+    const IntegerVector& k,
+    const NumericVector& probs
+) {
+  int n_samples = k.size();
+  int n_neighbors = kidxmat.ncol();
+  int n_quantiles = probs.size();
+  
+  NumericMatrix result(n_samples * n_neighbors, n_quantiles);
+  
+#pragma omp parallel for
+  for (int i = 0; i < n_samples; i++) {
+    int ik = k[i];
+    for (int j = 0; j < n_neighbors; j++) {
+      std::vector<double> values;
+      for (int n = 0; n < ik; n++) {
+        if (kidxgrop(n, j)) {
+          int idx = kidxmat(n, j) - 1;
+          if (!NumericVector::is_na(Yr[idx])) {
+            values.push_back(Yr[idx]);
+          }
+        }
+      }
+      
+      NumericVector q(n_quantiles, NA_REAL);
+      if (!values.empty()) {
+        std::sort(values.begin(), values.end());
+        for (int qidx = 0; qidx < n_quantiles; qidx++) {
+          double pos = probs[qidx] * (values.size() - 1);
+          int idx_below = std::floor(pos);
+          int idx_above = std::ceil(pos);
+          double weight = pos - idx_below;
+          if (idx_below == idx_above) {
+            q[qidx] = values[idx_below];
+          } else {
+            q[qidx] = (1 - weight) * values[idx_below] + weight * values[idx_above];
+          }
+        }
+      }
+      
+      for (int qidx = 0; qidx < n_quantiles; qidx++) {
+        result(i * n_neighbors + j, qidx) = q[qidx];
+      }
+    }
+  }
+  
+  return result;
+}

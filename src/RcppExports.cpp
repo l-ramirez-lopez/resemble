@@ -35,9 +35,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// moving_cor_diss_xy_prec
-arma::mat moving_cor_diss_xy_prec(const arma::mat& X, const arma::mat& Y, int w, arma::uword block_x, arma::uword block_y, std::string precision);
-RcppExport SEXP _resemble_moving_cor_diss_xy_prec(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP, SEXP block_xSEXP, SEXP block_ySEXP, SEXP precisionSEXP) {
+// fast_self_euclid
+Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X);
+RcppExport SEXP _resemble_fast_self_euclid(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(fast_self_euclid(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// moving_cor_diss_xy
+arma::mat moving_cor_diss_xy(const arma::mat& X, const arma::mat& Y, int w, arma::uword block_x, arma::uword block_y, std::string precision);
+RcppExport SEXP _resemble_moving_cor_diss_xy(SEXP XSEXP, SEXP YSEXP, SEXP wSEXP, SEXP block_xSEXP, SEXP block_ySEXP, SEXP precisionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -47,7 +58,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::uword >::type block_x(block_xSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type block_y(block_ySEXP);
     Rcpp::traits::input_parameter< std::string >::type precision(precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(moving_cor_diss_xy_prec(X, Y, w, block_x, block_y, precision));
+    rcpp_result_gen = Rcpp::wrap(moving_cor_diss_xy(X, Y, w, block_x, block_y, precision));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -113,15 +124,55 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mat_mult_cpp
-NumericMatrix mat_mult_cpp(const NumericMatrix& A, const NumericMatrix& B);
-RcppExport SEXP _resemble_mat_mult_cpp(SEXP ASEXP, SEXP BSEXP) {
+// top_k_order
+IntegerMatrix top_k_order(const arma::mat& mat, int k, IntegerVector skip);
+RcppExport SEXP _resemble_top_k_order(SEXP matSEXP, SEXP kSEXP, SEXP skipSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(mat_mult_cpp(A, B));
+    Rcpp::traits::input_parameter< const arma::mat& >::type mat(matSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type skip(skipSEXP);
+    rcpp_result_gen = Rcpp::wrap(top_k_order(mat, k, skip));
+    return rcpp_result_gen;
+END_RCPP
+}
+// extract_by_index
+NumericMatrix extract_by_index(NumericMatrix mat, IntegerMatrix idx);
+RcppExport SEXP _resemble_extract_by_index(SEXP matSEXP, SEXP idxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type idx(idxSEXP);
+    rcpp_result_gen = Rcpp::wrap(extract_by_index(mat, idx));
+    return rcpp_result_gen;
+END_RCPP
+}
+// not_in_same_group
+Rcpp::LogicalMatrix not_in_same_group(const Rcpp::IntegerMatrix& kidxmat, const Rcpp::IntegerVector& group);
+RcppExport SEXP _resemble_not_in_same_group(SEXP kidxmatSEXP, SEXP groupSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type kidxmat(kidxmatSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type group(groupSEXP);
+    rcpp_result_gen = Rcpp::wrap(not_in_same_group(kidxmat, group));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_nn_quantiles
+NumericMatrix compute_nn_quantiles(const IntegerMatrix& kidxmat, const LogicalMatrix& kidxgrop, const NumericVector& Yr, const IntegerVector& k, const NumericVector& probs);
+RcppExport SEXP _resemble_compute_nn_quantiles(SEXP kidxmatSEXP, SEXP kidxgropSEXP, SEXP YrSEXP, SEXP kSEXP, SEXP probsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type kidxmat(kidxmatSEXP);
+    Rcpp::traits::input_parameter< const LogicalMatrix& >::type kidxgrop(kidxgropSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type Yr(YrSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type probs(probsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_nn_quantiles(kidxmat, kidxgrop, Yr, k, probs));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -169,6 +220,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_column_maxs
+NumericVector get_column_maxs(arma::mat X);
+RcppExport SEXP _resemble_get_column_maxs(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_column_maxs(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_column_sums
 NumericVector get_column_sums(arma::mat X);
 RcppExport SEXP _resemble_get_column_sums(SEXP XSEXP) {
@@ -196,7 +258,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_local_pls_weights
-Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, arma::mat xloadings, arma::mat coefficients, arma::mat new_x, int min_component, int max_component, bool scale, arma::mat Xcenter, arma::mat Xscale);
+Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, arma::mat xloadings, arma::mat coefficients, arma::mat new_x, int min_component, int max_component, bool scale, arma::rowvec Xcenter, arma::rowvec Xscale);
 RcppExport SEXP _resemble_get_local_pls_weights(SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP coefficientsSEXP, SEXP new_xSEXP, SEXP min_componentSEXP, SEXP max_componentSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -208,8 +270,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type min_component(min_componentSEXP);
     Rcpp::traits::input_parameter< int >::type max_component(max_componentSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type Xcenter(XcenterSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type Xscale(XscaleSEXP);
     rcpp_result_gen = Rcpp::wrap(get_local_pls_weights(projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale));
     return rcpp_result_gen;
 END_RCPP
@@ -452,21 +514,63 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ith_local_fit
+Rcpp::NumericVector ith_local_fit(arma::mat X, arma::mat Y, arma::mat xval, arma::mat emgrid, int max_component, int min_component, bool scale, double maxiter, double tol);
+RcppExport SEXP _resemble_ith_local_fit(SEXP XSEXP, SEXP YSEXP, SEXP xvalSEXP, SEXP emgridSEXP, SEXP max_componentSEXP, SEXP min_componentSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type xval(xvalSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type emgrid(emgridSEXP);
+    Rcpp::traits::input_parameter< int >::type max_component(max_componentSEXP);
+    Rcpp::traits::input_parameter< int >::type min_component(min_componentSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(ith_local_fit(X, Y, xval, emgrid, max_component, min_component, scale, maxiter, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// final_fits_cpp
+Rcpp::List final_fits_cpp(const arma::mat& X, const arma::mat& Y, const arma::mat& new_x, int min_component, int max_component, bool scale, double maxiter, double tol);
+RcppExport SEXP _resemble_final_fits_cpp(SEXP XSEXP, SEXP YSEXP, SEXP new_xSEXP, SEXP min_componentSEXP, SEXP max_componentSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type new_x(new_xSEXP);
+    Rcpp::traits::input_parameter< int >::type min_component(min_componentSEXP);
+    Rcpp::traits::input_parameter< int >::type max_component(max_componentSEXP);
+    Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(final_fits_cpp(X, Y, new_x, min_component, max_component, scale, maxiter, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fast_diss", (DL_FUNC) &_resemble_fast_diss, 3},
     {"_resemble_fast_diss_vector", (DL_FUNC) &_resemble_fast_diss_vector, 1},
-    {"_resemble_moving_cor_diss_xy_prec", (DL_FUNC) &_resemble_moving_cor_diss_xy_prec, 6},
+    {"_resemble_fast_self_euclid", (DL_FUNC) &_resemble_fast_self_euclid, 1},
+    {"_resemble_moving_cor_diss_xy", (DL_FUNC) &_resemble_moving_cor_diss_xy, 6},
     {"_resemble_moving_cor_diss_self_f64", (DL_FUNC) &_resemble_moving_cor_diss_self_f64, 3},
     {"_resemble_moving_cor_diss_self_f32", (DL_FUNC) &_resemble_moving_cor_diss_self_f32, 3},
     {"_resemble_moving_cor_diss_self", (DL_FUNC) &_resemble_moving_cor_diss_self, 4},
     {"_resemble_which_min", (DL_FUNC) &_resemble_which_min, 1},
     {"_resemble_which_min_vector", (DL_FUNC) &_resemble_which_min_vector, 1},
-    {"_resemble_mat_mult_cpp", (DL_FUNC) &_resemble_mat_mult_cpp, 2},
+    {"_resemble_top_k_order", (DL_FUNC) &_resemble_top_k_order, 3},
+    {"_resemble_extract_by_index", (DL_FUNC) &_resemble_extract_by_index, 2},
+    {"_resemble_not_in_same_group", (DL_FUNC) &_resemble_not_in_same_group, 2},
+    {"_resemble_compute_nn_quantiles", (DL_FUNC) &_resemble_compute_nn_quantiles, 5},
     {"_resemble_get_col_largest_sd", (DL_FUNC) &_resemble_get_col_largest_sd, 1},
     {"_resemble_get_column_sds", (DL_FUNC) &_resemble_get_column_sds, 1},
     {"_resemble_overall_var", (DL_FUNC) &_resemble_overall_var, 1},
     {"_resemble_get_column_means", (DL_FUNC) &_resemble_get_column_means, 1},
+    {"_resemble_get_column_maxs", (DL_FUNC) &_resemble_get_column_maxs, 1},
     {"_resemble_get_column_sums", (DL_FUNC) &_resemble_get_column_sums, 1},
     {"_resemble_get_weights", (DL_FUNC) &_resemble_get_weights, 5},
     {"_resemble_get_local_pls_weights", (DL_FUNC) &_resemble_get_local_pls_weights, 9},
@@ -483,6 +587,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
     {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 7},
     {"_resemble_pca_nipals", (DL_FUNC) &_resemble_pca_nipals, 8},
+    {"_resemble_ith_local_fit", (DL_FUNC) &_resemble_ith_local_fit, 9},
+    {"_resemble_final_fits_cpp", (DL_FUNC) &_resemble_final_fits_cpp, 8},
     {NULL, NULL, 0}
 };
 

@@ -363,8 +363,8 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
     min_component = min_component,
     max_component = max_component,
     scale = ifelse(nrow(pls_model$transf$Xscale) == 1, TRUE, FALSE),
-    Xcenter = pls_model$transf$Xcenter,
-    Xscale = pls_model$transf$Xscale
+    Xcenter = pls_model$transf$Xcenter[1, ],
+    Xscale = pls_model$transf$Xscale[1, ]
   )[1, ]
 
   return(whgt)
