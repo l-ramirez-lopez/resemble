@@ -11,22 +11,53 @@
 #'             documentation = character(), ...)
 #' @param Xr a numeric matrix (or data.frame) of predictor variables of dimentions `n * p` corresponding to the reference data (observations in rows and variables in columns). 
 #' @param Yr a numeric vector of length `n` containing the values of the response variable corresponding to the reference data. Missing values might be allowed (see details).
-#' @param diss_method a character string indicating the spectral dissimilarity metric to be used in the selection of the nearest neighbours of each observation. 
-#'        Options are: 
-#'        \itemize{
-#'        \item{`"pc"`: Principal components dissimilarity: Mahalanobis dissimilarity computed on the principal components space.}
-#'        \item{`"cor"`: Correlation dissimilarity.}
-#'        \item{`"pls"`: Partial least squares dissimilarity: Mahalanobis dissimilarity computed on the partial least squares space.}
-#'        \item{`"euclid"`: Euclidean dissimilarity.}
-#'        \item{`"cosine"`: Cosine dissimilarity.}
-#'        \item{`"sidF"`: Spectral information divergence computed on the spectral variables.}
-#'        \item{`"sidD"`: Spectral information divergence computed on the density distributions of the spectra.}
-#'        \item{`"loc.pc"`: Dissimilarity estimation based on local principal components.}
-#'        \item{`"loc.pls"` Dissimilarity estimation based on local partial least squares.}
-#'        }
-#'        The `"pc"` spectral dissimilarity metric is the default. If the `"sidD"` is chosen, the default parameters of the `sid` function are used however they can be specified by passing them them as additional arguments `...`.  
-#'        
-#'        ======= NOT YET IMPLEMENTED!!! ======= --> --> --> Alternatively a squared dissimilarity matrix of size `n * n` can also be passed. In this case, each row of the matrix must correspond to the observations. The nearest neighbors search is conducted column-wise.
+#' @param diss_method Either a character string indicating the dissimilarity
+#'   metric to be used for selecting the nearest neighbors, or a precomputed
+#'   dissimilarity matrix.
+#'
+#'   If a character is provided, it must be one of the following:
+#'
+#'   - `"pca"`: Mahalanobis distance based on principal component (PC) scores
+#'     computed via singular value decomposition (SVD). See [ortho_diss()].
+#'
+#'   - `"pca.nipals"`: Same as `"pca"` but using the NIPALS algorithm. See
+#'     [ortho_diss()].
+#'
+#'   - `"pls"`: Mahalanobis distance based on PLS scores. Requires `Yr`. See
+#'     [ortho_diss()].
+#'
+#'   - `"mpls"`: Mahalanobis distance based on modified PLS scores (Shenk and
+#'     Westerhaus, 1991; Westerhaus, 2014). Requires `Yr`. See [ortho_diss()].
+#'
+#'   - `"cor"`: Dissimilarity based on correlation between observations.
+#'     See [cor_diss()].
+#'
+#'   - `"euclid"`: Euclidean distance. See [f_diss()].
+#'
+#'   - `"cosine"`: Cosine distance. See [f_diss()].
+#'
+#'   - `"sid"`: Spectral information divergence. See [sid()].
+#'
+#'   These options are passed to the [dissimilarity()] function, which performs
+#'   the actual computation. Additional arguments to `dissimilarity()` can be
+#'   passed through `...`.
+#'
+#'   If a matrix is provided, it must represent a precomputed dissimilarity
+#'   structure with constraints depending on whether `anchor_indices` is used:
+#'
+#'   - If `anchor_indices = NULL` (default), `diss_method` must be a square
+#'     matrix of size `n x n`, where `n = nrow(Xr)`. It must be symmetric
+#'     with zeros on the diagonal, representing self-dissimilarity.
+#'
+#'   - If `anchor_indices` is specified (with length `m`), then
+#'     `diss_method` must have dimensions `n x m`, where `n = nrow(Xr)` and
+#'     `m = length(anchor_indices)`. The submatrix `diss_method[anchor_indices, ]`
+#'     must be symmetric with zeros on the diagonal.
+#'
+#'   In all cases, the dissimilarity matrix must be consistent with the order
+#'   of samples in `Xr`. That is, the rows of `diss_method` must correspond
+#'   exactly to the rows of `Xr`, and when used, the elements of
+#'   `anchor_indices` must refer to valid rows in both `Xr` and `diss_method`.
 #' @param k a vector of integers specifying the sequence of k nearest neighbours to be tested. Either `k` or `k_diss` must be specified. This `vector` will be automatically sorted into ascending order. The values of vectors of class numeric, will be coerced to the next upper inetegers.
 #' @param k_diss NOT YET IMPLEMENTED a numeric `vector` specifying the sequence of dissimilarity thresholds to be tested for the selection of the nearest neighbors around each observation. For a given observation, its neighbors are those that exhibit a dissimilarity value equal to or below a given threshold. These thresholds depend on the corresponding dissimilarity measure specified in `sm`. Either `k` or `k_diss` must be specified. 
 #' @param k_range NOT YET IMPLEMENTED a vector of two integers specifying the minimum (first value) and the maximum (second value) number of neighbours allowed when the `k_diss` argument is used. 
@@ -39,7 +70,7 @@
 #' The default method for the `pc_selection` argument is `"opc"` and the maximum number of principal components to be tested is set to `min(dim(Xr), 40)`, where code{Xr} is the matrix of reference predictors in the \code{\link{mbl}} function.
 #' Optionally, the `pc_selection` argument admits `"opc"` or `"cumvar"` or `"var"` or `"manual"` as a single character string. In such a case the default for `"value"` when either `"opc"` or `"manual"` are used is `min(dim(Xr), 40)`. When `"cumvar"` is used the default `"value"` is set to 0.99 and when `"var"` is used the default `"value"` is set to 0.01.
 #' @param group (PUT THE DETAILS OF THE 1_NN VALIDATION IN DETAILS) an optional `factor` (or `vector` that can be coerced to a `factor` by `as.factor`) that assigns to each observation in `Xr` a group/class label (e.g. groups can be given by spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). This is taken into account for internal validation of pls models (and factor optimization) to avoid pseudo-replication. For validation, the model of a given target observation is first fitted based on its neighbors and excluding that observation (and all the samples belonging to its group), then the model is used to predict the response variable of the target observation. See details.
-#' @param build_around NOT YET IMPLEMENTED! a vector of integers of length `m` (`m < n`) indicating the indices of the samples in the reference set for which the local models must be fitted. Default is `NULL` which means that local models are fitted for all the `n` observations in the reference set. See details.
+#' @param anchor_indices An optional integer vector of length `m` (`m < n`) specifying the row indices of the reference samples around which local models should be constructed. If `NULL` (default), local models will be built for all `n` samples in the reference set. See Details.
 #' @param gh a logical indicating whether or not to compute and return the Mahalanobis distance (in the pls space) between each element in `Xr` and the center of `Xr`.
 #' @param center a logical indicating whether or not the predictor variables must be centered at each local segment (before regression).
 #' @param scale a logical indicating whether or not the predictor variables must be scaled to unit variance at each local segment (before regression).
@@ -48,14 +79,56 @@
 #' @param return_best a logical indicating if the final library of functions using the optimal parameters found shall be returned.
 #' @param pls_max_iter (BETTER DESCRIPTION REQUIRED) maximum number of iterations for the partial least squares methods.
 #' @param pls_tol (BETTER DESCRIPTION REQUIRED) for convergence in the partial orthogonal scores partial least squares regressions using the nipals algorithm. Default is 1e-6
+#' @param n_chunks Integer. Specifies the number of chunks into which the data
+#'   should be partitioned. Each chunk is processed independently, which can be
+#'   beneficial for parallel computation. For example, each chunk can be
+#'   dispatched to a separate processor or core, where the samples within the
+#'   chunk are processed sequentially. Defaults to `nrow(Xr)` chunks (i.e., one 
+#'   sample per processor at a time).
 #' @param documentation (BETTER DESCRIPTION REQUIRED) an optional character string for documentating the call to this function.
 #' @param ...  arguments passed to the \code{\link{dissimilarity}} function.
 #' @details
-#' By default, this function fits a local model for each of the `n` observations in the reference set, i.e. a library of `n` fucntions is built. Each local model is fitted with the query observation and its nearest neighbors.
-#' Alternatively, the user may specificy the samples in the reference set around which the library of functions must be built. This is done by indicating in the `build_around` argument the indices of the samples in the reference set. In tis case, each function is fitted by using the nearest neighbors found in the entire set of `n` reference observations. The `build_around` argument may be useful in cases where the number of observations in the reference set is extremely large.
-#' Missing values in `Yr` are allowed. If they exceed 25% of the total number of observations a warning message will be printed. The local model of an observation with missing `Yr` value is fited only with its nearest neighbors (i.e without including this observation).
+#' 
+#' ** Anchor indices **  
+#' 
+#' By default, local models are constructed around all `n` samples in the
+#' reference set. Alternatively, the user may specify a subset of `m` samples
+#' (`m < n`) around which the library of local models should be built. This is
+#' done by supplying their row indices to the `anchor_indices` argument.
+#'
+#' In this configuration, each local model is still constructed using the
+#' nearest neighbors selected from the full set of `n` reference samples, but
+#' only for the `m` anchor samples. This approach is especially useful when the
+#' reference set is very large, as it reduces the total number of models while
+#' retaining representativeness and predictive performance—particularly if the
+#' anchor samples are chosen to reflect the diversity of the dataset.
+#'
+#' This strategy can lead to substantial computational savings and a more
+#' compact library of models. **Note** that when distance calculations rely on
+#' the response variable (e.g., GH distance, PLS distance, or optimized PC
+#' distance), the response values (`Yr`) of the anchor samples themselves are
+#' not used during distance computation. This is done to improve computational
+#' efficiency: dissimilarities are computed between each anchor sample and all
+#' reference samples (excluding the anchor itself), rather than recalculating
+#' the full `n × n` distance matrix. This significantly reduces the number of
+#' response-based distance computations when the number of anchors is small.
+#' Also, **note** that the response values (Yr) of the anchor observations are 
+#' always used during the fitting of  their corresponding local models.
+#' For efficiency, the number of anchor indices must be less than 90% of the
+#' total number of rows in `Xr`. If this threshold is exceeded, consider
+#' building a model for each sample in `Xr` by setting `anchor_indices = NULL`.
+#'
+#' ** Missing values in `Yr` **  
+#' 
+#' Missing values in `Yr` are allowed. If they exceed 25% of the total number
+#' of observations, a warning will be issued. The local model of an observation
+#' with a missing `Yr` value is fitted only using its nearest neighbors (i.e.,
+#' without including the observation itself).
 #' @references 
-#' Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J., & Kvalheim, O. M. (2009). Biomarker discovery in mass spectral profiles by means of selectivity ratio plot. Chemometrics and Intelligent Laboratory Systems, 95(1), 35-48.
+#' Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J., & 
+#' Kvalheim, O. M. (2009). Biomarker discovery in mass spectral profiles by 
+#' means of selectivity ratio plot. Chemometrics and Intelligent Laboratory 
+#' Systems, 95(1), 35-48.
 #'
 #' @return DESCRIOTION REQUIRED
 #' @author Leonardo Ramirez-Lopez
@@ -76,7 +149,7 @@ fit_library <- function(
     pls_c,
     pc_selection = list(method = "var", value = 0.01),
     group,
-    build_around,
+    anchor_indices = NULL,
     gh = TRUE,
     center = TRUE,
     scale = FALSE,
@@ -85,14 +158,13 @@ fit_library <- function(
     return_best = TRUE,
     pls_max_iter = 1,
     pls_tol = 1e-6,
+    optimize_ncomp_range = FALSE,
+    n_chunks = nrow(Xr),
     documentation = character(),
     ...
 ) {
   
   call.f <-(match.call())    
-  
-  
-  ## Insert sanity check HERE
   
   if (is.null(colnames(Xr))) {
     stop("column names are mandatory for Xr")
@@ -108,27 +180,37 @@ fit_library <- function(
   }
   
   
-  if (missing(k) & missing(k_diss)) 
+  if (missing(k) && missing(k_diss)) {
     stop("Either k or k_diss must be specified")
-  
-  if (!missing(k)) {
-    if (!missing(k_diss))
-      stop("Only one of k or k_diss can be specified")  
-    if (!is.numeric(k)) {
-      stop("k must be a vector of integers")
-    }else{
-      k <- unique(sort(ceiling(k)))
-    }
-    k <- sort(k)
   }
   
+  if (!missing(k) && !missing(k_diss)) {
+    stop("Only one of k or k_diss can be specified")
+  }
+  
+  if (!missing(k)) {
+    if (!is.numeric(k)) {
+      stop("k must be a numeric vector")
+    }
+    k <- sort(unique(ceiling(k)))
+  }
   
   if (!missing(k_diss)) {
     dtc <- k.diss
-    if (missing(k_range))
-      stop("If the k_diss argument is used, k_range must be specified")
-    if (length(k_range) != 2 | !is.numeric(k_range) | diff(k_range) < 0)
-      stop("k_range must be a vector of two 2 integer values specifying the minimum (first value) and the maximum (second value) number of neighbours") 
+    if (missing(k_range)) {
+      stop("When using k_diss, 'k_range' must be specified")
+    }
+    
+    if (!is.numeric(k_range) || length(k_range) != 2 || any(is.na(k_range))) {
+      stop("'k_range' must be a numeric vector of length 2")
+    }
+    
+    k_range <- ceiling(k_range)
+    
+    if (k_range[1] > k_range[2]) {
+      stop("In 'k_range', the first value must be <= the second value")
+    }
+    
     k.min <- as.integer(k.range[1])
     k.max <- as.integer(k.range[2])
     if (k.min < 10)
@@ -139,112 +221,217 @@ fit_library <- function(
     dtc <- NULL
   }
   
+  pc_selection <- check_pc_arguments(
+    n_rows_x = nrow(Xr), 
+    n_cols_x = ncol(Xr),  
+    pc_selection = pc_selection
+  )$pc_selection_checked
   
-  if (pcSel %in% c("cumvar", "var"))
-  {
-    if (length(pc_selection) == 1) {
-      if (pcSel == "cumvar") {
-        pc_selection <- list("cumvar", 0.99)
-        message(paste("Since the value of the 'pc_selection' argument is missing, the amount of cumulative variance that the components to be retained should explain was automatically set to 0.99 (99%)"))
-      }else{
-        pc_selection <- list("var", 0.01)
-        message(paste("Since the value of the 'pc_selection' argument is missing, the amount of variance that the last component to be retained should explain was automatically set to 0.01 (1%)"))
+  if (!is.null(anchor_indices)) {
+    if (!is.numeric(anchor_indices) || any(anchor_indices < 1) || any(anchor_indices > nrow(Xr))) {
+      stop("anchor_indices must be a numeric vector with valid row indices of Xr")
+    }
+    if (length(anchor_indices) > floor(nrow(Xr) * 0.90)) {
+      stop(
+        paste0(
+          "Too many anchor indices specified: must be less than 90% of the rows ",  
+          "in Xr. Consider building a model for each sample in Xr by ", 
+          "setting 'anchor_indices = NULL'."
+        )
+      )
+    }
+  }
+  
+  if (is.matrix(diss_method)) {
+    if (nrow(diss_method) != nrow(Xr)) {
+      stop(
+        "If 'diss_method' is a matrix, it must have the same number of rows ",
+        "as 'Xr'."
+      )
+    }
+    
+    if (!is.null(anchor_indices)) {
+      if (ncol(diss_method) != length(anchor_indices)) {
+        stop(
+          "If 'diss_method' is a matrix and 'anchor_indices' is provided, ",
+          "it must have the same number of columns as the length of ",
+          "'anchor_indices'."
+        )
       }
-      names(pc_selection) <- c("method", "value")
+      
+      if (any(abs(diag(diss_method[anchor_indices, ])) > 1e-8)) {
+        stop(
+          "'diss_method[anchor_indices, ]' must be symmetric with zeros on ", 
+          "the diagonal. Ensure the dissimilarity matrix is correctly defined ", 
+          "for the selected anchor samples."
+        )
+      }
+      
     } else {
-      if (!is.list(pc_selection))
-        stop("The 'pc_selection' argument must be a list in which the first object indicates the selection method and the second object indicates the parameter value of the method. Optionally, instead a list, a character string specifying only the method can be used, in this case the parameter value is set automatically")     
-      pc_selection <- list(pc_selection[[1]], pc_selection[[2]])
-      names(pc_selection) <- c("method", "value")
-      if (!is.numeric(pc_selection$value)) 
-        stop("The second object in 'pc_selection' must be a numeric value")
-      if (pc_selection$value > 1 | pc_selection$value <= 0) 
-        stop(paste("When the method for 'pc_selection' is either 'var' or 'cumvar' the value in 'pc_selection' must be a number larger than 0 and below or equal to 1"))
+      if (ncol(diss_method) != nrow(Xr)) {
+        stop(
+          "If 'diss_method' is a matrix and 'anchor_indices' is NULL, ",
+          "it must be square with dimensions equal to 'nrow(Xr)'."
+        )
+      }
+      
+      if (any(abs(diag(diss_method)) > 1e-8)) {
+        stop(
+          "The diagonal of 'diss_method' must contain only zeros ",
+          "(i.e., self-dissimilarities must be zero)."
+        )
+      }
     }
-  }
-  
-  
-  if (pcSel == "manual")
-  {
-    if (is.list(pc_selection)) {
-      if (pc_selection$value < 2) 
-        stop(paste("the number of principal components must be an integer value larger than 1")) 
-    } else{
-      pc_selection <- list(method = "manual", value = 3)
-      message(paste("the number of principal components to be retained was set to 3.", "\n", "Note: An user-defined number of principal components to be retained can be specified in the pc_selection argument with a list in which the first object indicates the method 'manual' and the second object indicates the number of principal components"))
-    }
-  }
-  
-  
-  cat("Computing dissimilarities... \n")
-  dsm <- dissimilarity(
-    Xr = Xr,
-    diss_method = diss_method,
-    Yr = Yr,
-    center = center,
-    scale = scale,
-    gh = gh,
-    pc_selection = pc_selection,
-    return_projection = TRUE,
-    ws = ws
-  )
-  
-  dsm <- dsm[!names(dsm) %in% "documentation"]
-  sml <- list(diss_method = diss_method)
-  dsm <- append(sml, dsm)
-  names(dsm)
-  
-  
-  if (any(is.na(Yr))) {
+    dsm <- list()
+    dsm$dissimilarity <- diss_method
+    rm(diss_method)
+    gc()
+    sml <- list(diss_method = "Precomputed dissimilarity matrix")
+    dsm <- append(sml, dsm)
+  } else if (is.character(diss_method)) {
+    diss_method <- match.arg(
+      diss_method,
+      c("pca", "pca.nipals", "pls", "mpls", "cor", "euclid", "cosine", "sid")
+    )
+
+    cat("Computing dissimilarities... \n")
     
-    orderf <- function(x, mk, skip = which(is.na(Yr))) {
-      ord <- order(x, na.last = TRUE)
-      ord <- ord[c(TRUE, !ord[-1] %in% skip)][1:mk]
-      ord
+    if (!is.null(anchor_indices)) {
+      Yr_anchor <- Yr[anchor_indices, , drop = FALSE]
+      if (sum(is.na(Yr_anchor)) < 3) {
+        stop("At least 3 non-missing values in Yr are required for the anchor indices")
+      }
+      
+      dsm <- dissimilarity(
+        Xr = Xr[-anchor_indices, , drop = FALSE],
+        Xu = Xr[anchor_indices, , drop = FALSE],
+        diss_method = diss_method,
+        Yr = Yr[-anchor_indices, , drop = FALSE],
+        center = center,
+        scale = scale,
+        gh = gh,
+        pc_selection = pc_selection,
+        return_projection = TRUE,
+        ws = ws
+      )
+      gh_c <- rep(NA, nrow(Xr))
+      gh_c[-anchor_indices] <- dsm$gh$gh_Xr
+      gh_c[anchor_indices] <- dsm$gh$gh_Xu
+      dsm$gh$gh_Xr <- gh_c
+      dsm$gh <- dsm$gh[!names(dsm$gh) %in% "gh_Xu"]
+      
+      new_mat <- matrix(NA_real_, nrow(Xr), ncol(dsm$dissimilarity))
+      new_mat[-anchor_indices, ] <- dsm$dissimilarity
+      
+      # Assign
+      dsm$dissimilarity <- new_mat
+      rm(new_mat)
+      gc() 
+      
+      if (diss_method %in% c("pca", "pca.nipals", "pls", "mpls")) {
+        z_anchor <- dsm$projection$scores[-(1:(nrow(Xr) - length(anchor_indices))), ] 
+        z_anchor <- scale(
+          z_anchor, 
+          center = FALSE, 
+          scale = dsm$projection$scores_sd
+        )
+        z_diss <- fast_self_euclid(z_anchor)
+        dsm$dissimilarity[anchor_indices, ] <- z_diss
+        rm(z_diss, z_anchor)
+        gc() 
+      } else {
+        z_anchor <- Xr[anchor_indices, , drop = FALSE]
+        if (center || scale) {
+          z_anchor <- scale(
+            z_anchor,
+            center = if (center) get_column_means(Xr) else FALSE,
+            scale  = if (scale)  get_column_sds(Xr)  else FALSE
+          )
+        }
+        dsm_anchor <- dissimilarity(
+          Xr = Xr[anchor_indices, , drop = FALSE],
+          diss_method = diss_method,
+          Yr = Yr[-anchor_indices, , drop = FALSE],
+          center = FALSE,
+          scale = FALSE,
+          gh = FALSE,
+          pc_selection = NULL,
+          return_projection = FALSE,
+          ws = ws
+        )
+        
+        dsm$dissimilarity[anchor_indices, ] <- dsm_anchor$dissimilarity
+        rm(dsm_anchor, z_anchor)
+        gc() 
+      }
+      
+    } else {
+      Yr_anchor <- Yr
+      dsm <- dissimilarity(
+        Xr = Xr,
+        diss_method = diss_method,
+        Yr = Yr,
+        center = center,
+        scale = scale,
+        gh = gh,
+        pc_selection = pc_selection,
+        return_projection = TRUE,
+        ws = ws
+      )
     }
-    
+    dsm <- dsm[!names(dsm) %in% "documentation"]
+    sml <- list(diss_method = diss_method)
+    dsm <- append(sml, dsm)
+  } else {
+    stop("diss_method must be a character string or a precomputed matrix")
+  }
+
+  if (anyNA(Yr)) {
     if (sum(!is.na(Yr)) < max(k)) {
-      stop(paste("the amount of maximum neighbors selected (", max(k), ") is larger than the number of non-NA observations in Yr. Try with less neighbors.", sep = ""))
-    }
-  }else{
-    orderf <- function(x, mk) {
-      ord <- order(x, na.last = TRUE)[1:mk]
-      ord
+      stop(
+        paste0(
+          "The maximum number of neighbors selected (", max(k), 
+          ") exceeds the number of non-missing observations in 'Yr' (", 
+          sum(!is.na(Yr)), "). Please reduce the number of neighbors."
+        )
+      )
     }
   }
   
   ## find the indices of the nearest neighbors
-  kidxmat <- apply(dsm$dissimilarity, 
-                   MARGIN = 2, 
-                   FUN = orderf,
-                   mk = max(k))
+  kidxmat <- top_k_order(
+    dsm$dissimilarity, k = max(k), skip = which(is.na(Yr))
+  )
   
-  kdissmat <- sapply(1:ncol(dsm$dissimilarity), 
-                     FUN = function(x, y, ..i..) {
-                       x[,..i..][y[,..i..]]
-                     },
-                     x = dsm$dissimilarity,
-                     y = kidxmat)
+  kdissmat <- extract_by_index(dsm$dissimilarity, kidxmat)
   
-  #browser()
   ## for each sample in Xu show what of its
   ## nearest neighbors samples belong to its group
-  kidxgrop <- sapply(1:ncol(kidxmat),
-                     FUN = function(..i.., kidxmat, group) {
-                       gmat <- which(group[..i..] == group)
-                       return(!kidxmat[,..i..] %in% gmat)
-                     }, 
-                     group = group,
-                     kidxmat = kidxmat)
+  if (is.null(group)) {
+    kidxgrop <- matrix(TRUE, nrow = nrow(kidxmat), ncol = ncol(kidxmat))
+    kidxgrop[1, ] <- FALSE
+  } else {
+    kidxgrop <- not_in_same_group(kidxmat, group = group)
+  }
   
-  nnstats <- lapply(1:length(k),
-                    FUN = i_nn_stats,
-                    kidxgrop = kidxgrop,
-                    kidxmat = kidxmat,
-                    Yr = Yr,
-                    k = k)
+  probs <- c(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1.00)
+  dnms <- list(
+    1:ncol(kidxgrop), 
+    paste0(probs * 100, "%")
+  )
+  nnstats <- vector("list", length(k))
+  for (ii in seq_along(k)) {
+    nnstats[[ii]] <- compute_nn_quantiles(
+      kidxmat = kidxmat,
+      kidxgrop = kidxgrop,
+      Yr = Yr,
+      k = k[ii],
+      probs = probs
+    ) 
+    dimnames(nnstats[[ii]]) <- dnms
+  }
+  names(nnstats) <- paste0("k.", k)
   
-  names(nnstats) <- paste("k.", k, sep = "")
   
   ## RMSE/(q"75%" - q"25%")
   ## Similar to the ratio of performance to 
@@ -255,14 +442,13 @@ fit_library <- function(
   # used for assessing the quality of the prediction of 
   # soil attributes by NIR spectroscopy. TrAC Trends 
   # in Analytical Chemistry, 29(9), pp.1073-1081.
-  itq <- abs(sapply(nnstats,
-                    FUN = function(x) {
-                      x[,"75%"] - x[,"25%"]
-                    }))
+  itq <- vapply(nnstats, function(x) {
+    x[, "75%"] - x[, "25%"]
+  }, numeric(nrow(nnstats[[1]])))
   
   if (diss_predictors) {
     dssm <- dsm$dissimilarity
-  }else{
+  } else {
     dssm <- NULL
     npredictors <- ncol(Xr)
   }
@@ -271,56 +457,73 @@ fit_library <- function(
   
   pb <- txtProgressBar(min = 0, max = length(k) + addit, char = "-")
   
-  minF <- min(pls_c)
-  maxF <- max(pls_c)
-  sgrid <- expand.grid(minpls = minF:maxF, maxpls = minF:maxF)
-  sgrid <- sgrid[sgrid$minpls <= sgrid$maxpls,]
-  row.names(sgrid) <- 1:nrow(sgrid)
   
-  emgrid <- t(sapply(1:nrow(sgrid),
-                     FUN = function(q, x, wv) {
-                       wv[x[q, 1]:x[q, 2]] <- 1
-                       wv
-                     },
-                     x = sgrid,
-                     wv = rep(0, maxF)))
-  emgrid <- emgrid[,minF:maxF]
+  if (optimize_ncomp_range) {
+    # what this grid does is to describe the possible combinations of min factor 
+    # and max factors, this for optimizing the min and max pls factors 
+    minF <- min(pls_c)
+    maxF <- max(pls_c)
+    sgrid <- expand.grid(minpls = minF:maxF, maxpls = minF:maxF)
+    sgrid <- sgrid[sgrid$minpls <= sgrid$maxpls, ]
+    row.names(sgrid) <- 1:nrow(sgrid)
+    
+    # here the combinations of min and max pls factors is translated into a binary 
+    # grid to switch on and off some factoes
+    emgrid <- t(
+      sapply(
+        1:nrow(sgrid),
+        FUN = function(q, x, wv) {
+          wv[x[q, 1]:x[q, 2]] <- 1
+          wv
+        },
+        x = sgrid,
+        wv = rep(0, maxF)
+      )
+    )
+    emgrid <- emgrid[, minF:maxF]
+  } else {
+    emgrid <- matrix(1, nrow= 1, length(minF:maxF))
+  }
   
   
   cat("Fitting models... \n")
-  
-  ## perform the nearest neghbor predictions  
-  nnpreds <- sapply(1:length(k), 
-                    FUN = .get_all_fits,
-                    Xr = Xr, 
-                    Yr = Yr, 
-                    k = k,
-                    min_component = minF, 
-                    max_component = maxF, 
-                    emgrid = emgrid,
-                    scale = scale, 
-                    maxiter = pls_max_iter, 
-                    tol = pls_tol, 
-                    regression = TRUE, 
-                    pc_selection = pc_selection,
-                    kidxmat = kidxmat,
-                    kidxgrop = kidxgrop,
-                    dissimilarity_mat = dssm,
-                    pb = pb)
+  ## perform the nearest neighbor predictions  
+  nnpreds <- sapply(
+    1:length(k), 
+    FUN = .get_all_fits,
+    Xr = Xr, 
+    Yr = Yr, 
+    k = k,
+    min_component = minF, 
+    max_component = maxF, 
+    emgrid = emgrid,
+    scale = scale, 
+    maxiter = pls_max_iter, 
+    tol = pls_tol, 
+    regression = TRUE, 
+    pc_selection = pc_selection,
+    kidxmat = kidxmat,
+    kidxgrop = kidxgrop,
+    dissimilarity_mat = dssm,
+    pb = pb,
+    n_chunks = n_chunks
+  )
   
   ## Organize the results (in nnpreds)
   pparam <- matrix(NA, nrow(emgrid), 4)
   sstats <- function(y, yhat, itqk, pparam) {
     me <- sweep(-yhat, MARGIN = 1, STATS = y, FUN = "+", check.margin = FALSE)
-    pparam[,1] <- cor(y, yhat, use = "complete.obs")^2
-    pparam[,2] <- colMeans(me^2, na.rm = TRUE)^0.5
-    pparam[,3] <- colMeans(me, na.rm = TRUE)
-    pparam[,4] <- colMeans(sweep(me, 
-                                 MARGIN = 1, 
-                                 STATS = itqk, 
-                                 FUN = "/", 
-                                 check.margin = FALSE)^2, 
-                           na.rm = TRUE)^0.5
+    pparam[, 1] <- cor(y, yhat, use = "complete.obs")^2
+    pparam[, 2] <- colMeans(me^2, na.rm = TRUE)^0.5
+    pparam[, 3] <- colMeans(me, na.rm = TRUE)
+    pparam[, 4] <- colMeans(
+      sweep(me, 
+            MARGIN = 1, 
+            STATS = itqk, 
+            FUN = "/", 
+            check.margin = FALSE)^2, 
+      na.rm = TRUE
+    )^0.5
     return(pparam)
   }
   
@@ -333,32 +536,38 @@ fit_library <- function(
   }
   
   itr <- isubset3Row(x1 = nnpreds, x2 = itq)
-  
-  kpredstats <- function(..k.., 
-                         itr,
-                         pparam,
-                         y) {
-    
+  kpredstats <- function(
+    ..k.., 
+    itr,
+    pparam,
+    y
+  ) {
     ne <- itr$nextElem(..k..)
-    statsresults <- sstats(y = y, 
-                           yhat = t(matrix(ne$x1, nrow(pparam))), 
-                           itqk = ne$x2, 
-                           pparam = pparam)  
+    statsresults <- sstats(
+      y = y, 
+      yhat = t(matrix(ne$x1, nrow(pparam))), 
+      itqk = ne$x2, 
+      pparam = pparam
+    )  
     statsresults
   }
   
-  predperformance <- lapply(1:ncol(nnpreds), 
-                            FUN = kpredstats,
-                            itr = itr,
-                            pparam = pparam,
-                            y = Yr)
+  predperformance <- lapply(
+    1:ncol(nnpreds), 
+    FUN = kpredstats,
+    itr = itr,
+    pparam = pparam,
+    y = Yr_anchor
+  )
   
   predperformance <- data.frame(do.call("rbind", predperformance))
   colnames(predperformance) <- c("r2", "rmse", "me", "st.rmse")
-  predperformance <- data.frame(minpls = rep(sgrid$minpls, times = length(k)),
-                                maxpls = rep(sgrid$maxpls, times = length(k)),
-                                k = rep(k, each = nrow(pparam)),
-                                predperformance)
+  predperformance <- data.frame(
+    minpls = rep(sgrid$minpls, times = length(k)),
+    maxpls = rep(sgrid$maxpls, times = length(k)),
+    k = rep(k, each = nrow(pparam)),
+    predperformance
+  )
   
   
   # ## store results
@@ -372,11 +581,11 @@ fit_library <- function(
   # find optinmal parameters
   
   if (metric == c("rmse")) {
-    bestp <- predperformance[which.min(predperformance[,metric]),][1,]
+    bestp <- predperformance[which.min(predperformance[, metric]), ][1, ]
   }
   
   if (metric == c("r2")) {
-    bestp <- predperformance[which.max(predperformance[,metric]),][1,]
+    bestp <- predperformance[which.max(predperformance[, metric]), ][1, ]
   }
   
   optimalk <- bestp$k
@@ -386,16 +595,17 @@ fit_library <- function(
   
   ## Extract the vector of predictions corresponding to the best predictions
   ## (optimal k, optimal pls range)
-  plsitemn <- which(sgrid$minpls == optimalminpls & sgrid$maxpls == optimalmaxpls)
-  plsitemn <- seq(plsitemn, by = nrow(pparam), length.out = nrow(Xr))
+  plsitemn <- which(
+    sgrid$minpls == optimalminpls & sgrid$maxpls == optimalmaxpls
+  )
+  plsitemn <- seq(plsitemn, by = nrow(pparam), length.out = length(Yr_anchor))
   bestpreds <- itr$nextElem(which(k == optimalk))$x1[plsitemn]
-  bestpredsresiduals <- Yr - bestpreds   
+  bestpredsresiduals <- Yr_anchor - bestpreds   
   
   # ithbarrio <- ith_subsets(x = Xr,
   #                          y = Yr,
   #                          kindx = kidxmat[1:optimalk,],
   #                          D = dssm)
-  
   
   if (return_best) {
     ## build the pls librarby
@@ -409,32 +619,62 @@ fit_library <- function(
     #                  tol = pls_tol, 
     #                  pc_selection = pc_selection)
     
-    plslib <- foreach(i = 1:nrow(Xr), 
-                      .export = c("i_nn_stats",
-                                  "ith_pred_subsets",
-                                  "ith_subsets",
-                                  "ith_subsets_by_group",
-                                  ".get_all_fits",
-                                  "ith_local_fit"),
-                      ithbarrio = ith_subsets(x = Xr, y = Yr, kindx = kidxmat[1:optimalk,], D = dssm)) %dopar%{ 
-                        
-                        iplslib <- final_fits(
-                          ilocalsubset = ithbarrio,
-                          min_component = optimalminpls, 
-                          max_component = optimalmaxpls, 
-                          scale = group, 
-                          maxiter = pls_max_iter, 
-                          tol = pls_tol
-                        )
-                        
-                        # print(format(object.size(iplslib), "b"))
-                        iplslib
-                      }
-    
+    if (diss_predictors) {
+      n_var <- 1 + (5 * (optimalk + ncol(Xr)))
+    } else {
+      n_var <- 1 + (5 * ncol(Xr))
+    }
+    plslib_template <- matrix(
+      NA, 
+      nrow = n_var, 
+      ncol = ceiling(nrow(Xr) / n_chunks)
+    )
+    plslib <- foreach(
+      i = 1:ncol(kidxmat), 
+      .export = c(
+        "ith_pred_subsets",
+        "ith_subsets_list",
+        "ith_subsets_by_group",
+        ".get_all_fits",
+        "ith_local_fit", 
+        "final_fits_cpp"
+      ),
+      ithbarrio = ith_subsets_list(
+        x = Xr, y = Yr, kindx = kidxmat[1:optimalk, ], D = dssm, n_chunks = n_chunks
+      )
+    ) %dopar% { 
+      iplslib <- plslib_template
+      for (j in 1:length(ithbarrio)) {
+        ij_pls <- final_fits_cpp(
+          X = ithbarrio[[j]]$x,
+          Y = ithbarrio[[j]]$y,
+          new_x = ithbarrio[[j]]$x[1, , drop = FALSE],
+          min_component = optimalminpls, 
+          max_component = optimalmaxpls, 
+          scale = scale, 
+          maxiter = pls_max_iter, 
+          tol = pls_tol
+        )
+      
+      # ij_pls <- final_fits(
+      #   ilocalsubset = ithbarrio,
+      #   min_component = optimalminpls, 
+      #   max_component = optimalmaxpls, 
+      #   scale = scale, 
+      #   maxiter = pls_max_iter, 
+      #   tol = pls_tol
+      # )
+      iplslib[, j] <- unlist(ij_pls, recursive = FALSE, use.names = FALSE)
+      }
+      if (j < ncol(iplslib))  {
+        iplslib <- iplslib[, 1:j]
+      }
+      iplslib
+    }
+
     plslib <- do.call("cbind", plslib)
     
     setTxtProgressBar(pb, length(k) + 1)
-    
     
     plslib <- t(plslib)
     
@@ -443,94 +683,116 @@ fit_library <- function(
       npredictors <- optimalk + ncol(Xr)
       namesk <- paste("k", 1:optimalk, sep = "")
     }
-    
-    if (group) {
-      xscale <- plslib[ ,-c(1:((3 * npredictors) + 1))]
-      plslib <- plslib[ ,c(1:((3 * npredictors) + 1))]
-    }else{
-      xscale <- matrix(1, nrow(plslib), npredictors)
+    if (!diss_predictors) {
+      npredictors <- ncol(Xr)
     }
+    
+    xscale <- plslib[ , -c(1:((4 * npredictors) + 1))]
+    plslib <- plslib[ , c(1:((4 * npredictors) + 1))]
+    
+    xcenter <- plslib[ , -c(1:((3 * npredictors) + 1))]    
+    plslib <- plslib[ , c(1:((3 * npredictors) + 1))]
+    
     plsvips <- plslib[ ,-c(1:(npredictors + 1), (ncol(plslib) - npredictors + 1):ncol(plslib))]
     plssratios <- plslib[ ,c((ncol(plslib) - npredictors + 1):ncol(plslib))]
-    plslib <- plslib[ ,c(1:(npredictors + 1))]
+    plslib <- plslib[ , c(1:(npredictors + 1))]
     
     colnames(plslib) <- c("b0", namesk, colnames(Xr))
-    colnames(xscale) <- c(namesk, colnames(Xr))
+    colnames(xcenter) <- colnames(xscale) <- c(namesk, colnames(Xr))
     colnames(plssratios) <- colnames(plsvips) <- c(namesk, colnames(Xr))
     
     if (diss_predictors) {
-      bs <- list(B0 = plslib[,1],
-                 B = plslib[,colnames(plslib) %in% colnames(Xr)],
-                 Bk = plslib[,colnames(plslib) %in% namesk])
-      
-    }else{
-      bs <- list(B0 = plslib[,1],
-                 B = plslib[,colnames(plslib) %in% colnames(Xr)])
+      bs <- list(
+        B0 = plslib[,1],
+        B = plslib[,colnames(plslib) %in% colnames(Xr)],
+        Bk = plslib[,colnames(plslib) %in% namesk]
+      )
+    } else {
+      bs <- list(
+        B0 = plslib[,1],
+        B = plslib[,colnames(plslib) %in% colnames(Xr)]
+      )
     }
     
     if (center) {
-      center <- colMeans(Xr)
-    }else{
+      center <- get_column_means(Xr)
+    } else{
       center <- rep(0, ncol(Xr))
     }
     
-    if (group) {
-      gscale <- colSds(Xr)
-    }else{
+    if (scale) {
+      gscale <- get_column_sds(Xr)
+    } else {
       gscale <- rep(1, ncol(Xr))
     }
     
-    iscale <- list(centre = center,
-                   scale = gscale,
-                   local.x.scale = xscale[ ,colnames(xscale) %in% colnames(Xr)])
+    iscale <- list(
+      centre = center,
+      scale = gscale,
+      local.x.center = xcenter[ , colnames(xscale) %in% colnames(Xr)],
+      local.x.scale = xscale[ , colnames(xscale) %in% colnames(Xr)]
+    )
     if (diss_predictors) {
       iscale$local.diss.scale <- xscale[ ,colnames(xscale) %in% namesk]
     }
     
     if (diss_method %in% c("pca", "pls")) {
-      fresults <- list(dissimilatity = dsm[!names(dsm) %in% "gh"],
-                       gh = dsm$gh, 
-                       results = predperformance,
-                       best = bestp,
-                       sel.param = list(optimalk = optimalk,
-                                        optimal.factors = c(min.pls = bestp$minpls, 
-                                                            max.pls = bestp$maxpls)),
-                       residuals = bestpredsresiduals,
-                       functionlibrary = bs,
-                       functionvips = plsvips,
-                       functionselectivityrs = plssratios,
-                       scale =  iscale,
-                       yu.nnstats = nnstats,
-                       documentation = documentation)
-    }else{
-      fresults <- list(dissimilatity = dsm[!names(dsm) %in% "gh"],
-                       gh = dsm$gh, 
-                       results = predperformance,
-                       best = bestp,
-                       sel.param = list(optimalk = optimalk,
-                                        optimal.factors = c(min.pls = bestp$minpls, 
-                                                            max.pls = bestp$maxpls)),
-                       residuals = bestpredsresiduals,
-                       functionlibrary = bs,
-                       functionvips = plsvips,
-                       functionselectivityrs = plssratios,
-                       scale = iscale,
-                       Xr = Xr,
-                       yu.nnstats = nnstats,
-                       documentation = documentation)
+      fresults <- list(
+        dissimilatity = dsm[!names(dsm) %in% "gh"],
+        gh = dsm$gh, 
+        results = predperformance,
+        best = bestp,
+        sel.param = list(
+          optimalk = optimalk,
+          optimal.factors = c(min.pls = bestp$minpls, max.pls = bestp$maxpls)
+        ),
+        residuals = bestpredsresiduals,
+        functionlibrary = bs,
+        functionvips = plsvips,
+        functionselectivityrs = plssratios,
+        scale =  iscale,
+        yu.nnstats = nnstats,
+        documentation = documentation
+      )
+    } else {
+      fresults <- list(
+        dissimilatity = dsm[!names(dsm) %in% "gh"],
+        gh = dsm$gh, 
+        results = predperformance,
+        best = bestp,
+        sel.param = list(
+          optimalk = optimalk,
+          optimal.factors = c(min.pls = bestp$minpls, max.pls = bestp$maxpls)
+        ),
+        residuals = bestpredsresiduals,
+        functionlibrary = bs,
+        functionvips = plsvips,
+        functionselectivityrs = plssratios,
+        scale = iscale,
+        # Xr = Xr,
+        yu.nnstats = nnstats,
+        documentation = documentation
+      )
     }
     
     if (!is.null(rownames(Xr))) {
       namesrows <- rownames(Xr)
-    }else{
+    } else{
       namesrows <- 1:nrow(Xr)
     }
     
-    fresults$yu.nnstats <- lapply(fresults$yu.nnstats, 
-                                  FUN = function(x, nms) {
-                                    rownames(x) <- nms
-                                    x}, 
-                                  nms = namesrows)
+    if (!is.null(anchor_indices)) {
+      namesrows <- namesrows[anchor_indices]
+    }
+    
+    fresults$yu.nnstats <- lapply(
+      fresults$yu.nnstats, 
+      FUN = function(x, nms) {
+        rownames(x) <- nms
+        x
+      }, 
+      nms = namesrows
+    )
     
     rownames(fresults$functionvips) <- 
       rownames(fresults$functionselectivityrs) <- 
@@ -540,33 +802,41 @@ fit_library <- function(
     if (!is.null(fresults$functionlibrary$Bk))
       rownames(fresults$functionlibrary$Bk) <- namesrows
     class(fresults) <- c("funlib","list")
-  }else{
+  } else {
     
-    fresults <- list(dissimilatity = dsm[!names(dsm) %in% "gh"],
-                     gh = dsm$gh, 
-                     results = predperformance,
-                     best = bestp,
-                     residuals = bestpredsresiduals,
-                     yu.nnstats = nnstats,
-                     documentation = documentation)
+    fresults <- list(
+      dissimilatity = dsm[!names(dsm) %in% "gh"],
+      gh = dsm$gh, 
+      results = predperformance,
+      best = bestp,
+      residuals = bestpredsresiduals,
+      yu.nnstats = nnstats,
+      documentation = documentation
+    )
     
     if (!is.null(rownames(Xr))) {
       namesrows <- rownames(Xr)
-    }else{
+    } else{
       namesrows <- 1:nrow(Xr)
     }
     
-    fresults$yu.nnstats <- lapply(fresults$yu.nnstats, 
-                                  FUN = function(x, nms) {
-                                    rownames(x) <- nms
-                                    x}, 
-                                  nms = namesrows)
+    if (!is.null(anchor_indices)) {
+      namesrows <- namesrows[anchor_indices]
+    }
+    
+    fresults$yu.nnstats <- lapply(
+      fresults$yu.nnstats, 
+      FUN = function(x, nms) {
+        rownames(x) <- nms
+        x
+      }, 
+      nms = namesrows
+    )
     
     rownames(fresults$residuals) <- namesrows
     class(fresults) <- c("validationfunlib","list")
   }
   
-  cat("\nDone!")
   attr(fresults, "call") <- call.f
   return(fresults)
 }

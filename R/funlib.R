@@ -109,6 +109,97 @@ ith_subsets_by_group <- function(
 }
 
 
+#' @title Grouped KNN Subset Iterator with Chunking
+#'
+#' @description
+#' Creates an iterator over grouped subsets of rows from `x` and `y` based on
+#' nearest neighbor indices (`kindx`) and group selectors (`kgroup`). The
+#' iteration is performed in `n_chunks` of columns from the input matrices, and
+#' optionally incorporates a dissimilarity matrix `D`.
+#'
+#' @param x A numeric matrix (n × p) representing the full reference dataset.
+#' @param y A numeric matrix or vector (n × 1) of associated response values.
+#' @param kindx An integer matrix (k × n) where each column contains indices of
+#'   the `k` nearest neighbors for the corresponding observation.
+#' @param kgroup A logical or integer matrix (k × n) indicating a group
+#'   (subset) of rows from `kindx` to be selected for each observation.
+#' @param D Optional numeric matrix (n × n) representing a dissimilarity or
+#'   distance matrix. If provided, its values for selected neighbors will be
+#'   embedded into the `xval` vector.
+#' @param n_chunks Integer. The number of column-wise chunks to partition the
+#'   iteration over. Defaults to 5.
+#'
+#' @return An iterator object that returns, at each call of `nextElem()`, a list
+#'   of lists. Each inner list contains:
+#'   - `x`: the reference subset (`k × p` or `k × (p + k)` if `D` used),
+#'   - `y`: the corresponding responses (`k × 1`),
+#'   - `xval`: the target sample (`1 × p`) or extended with dissimilarities.
+#'
+#' @details
+#' This iterator is useful when local models need to be built for each
+#' observation using a selected group of its neighbors (`kgroup`) from `kindx`,
+#' and optionally enhanced with pairwise distances via `D`.
+#'
+#' When `D` is provided, the function will include the distances between the
+#' target observation and its selected neighbors in the `xval` element of each
+#' result.
+#'
+#' @seealso [iterators::iter()], [nextElem()]
+#'
+#' @keywords internal
+ith_subsets_by_group_list <- function(
+    x, 
+    y, 
+    kindx,
+    kgroup,
+    D = NULL,
+    n_chunks = 1
+) {
+  stopifnot(ncol(kindx) == ncol(kgroup))
+  
+  n_cols <- ncol(kindx)
+  chunk_size <- ceiling(n_cols / n_chunks)
+  col_indices <- split(seq_len(n_cols), ceiling(seq_len(n_cols) / chunk_size))
+  it_index <- iter(col_indices)
+  
+  nextEl <- function() {
+    idx <- nextElem(it_index)
+    
+    kindx_sub <- kindx[, idx, drop = FALSE]
+    kgroup_sub <- kgroup[, idx, drop = FALSE]
+    xval_sub <- x[idx, , drop = FALSE]
+    
+    chunks <- vector("list", length(idx))
+    
+    for (i in seq_along(idx)) {
+      knns <- kindx_sub[kgroup_sub[, i], i]
+      if (is.null(D)) {
+        chunks[[i]] <- list(
+          x = x[knns, , drop = FALSE],
+          y = y[knns, , drop = FALSE],
+          xval = xval_sub[i, , drop = FALSE]
+        )
+      } else {
+        idsm <- D[knns, knns, drop = FALSE]
+        xdata <- cbind(idsm, x[knns, , drop = FALSE])
+        chunks[[i]] <- list(
+          x = xdata,
+          y = y[knns, , drop = FALSE],
+          xval = t(c(D[idx[i], knns], xval_sub[i, , drop = FALSE]))
+        )
+      }
+    }
+    
+    chunks
+  }
+  
+  obj <- list(nextElem = nextEl)
+  class(obj) <- c("isubsetgroup", "abstractiter", "iter")
+  obj
+}
+
+
+
 #' @title Iterator for Subsets by Index
 #' @description
 #' Internal helper to iterate over subsets of `x` and `y` based on `kindx`
@@ -141,7 +232,6 @@ ith_subsets <- function(
     kindx,
     D = NULL
 ){
-  
   it_kindx <- iter(kindx, by = "column")
   it_xval <- iter(x, by = "row")
   it_D <- iter(D, by = "row")
@@ -150,16 +240,104 @@ ith_subsets <- function(
     knns <- nextElem(it_kindx)
     ixr <- x[knns, ]
     iyr <- y[knns, , drop = FALSE]
-    if(!is.null(D)){
+    if (!is.null(D)) {
       ixr <- cbind(D[knns, knns], ixr)
     }
-    list(x = ixr[!is.na(iyr), ], 
-         y = iyr[!is.na(iyr), , drop = FALSE])
+    list(
+      x = ixr[!is.na(iyr), ], 
+      y = iyr[!is.na(iyr), , drop = FALSE]
+    )
   }
   obj <- list(nextElem = nextEl)
   class(obj) <- c("isubset", "abstractiter", "iter")
   obj
 }
+
+
+
+#' @title Chunked Iterator for Subsetting by Nearest Neighbors
+#' @description
+#' Creates an iterator that returns batched subsets of observations for
+#' local modeling. Each batch corresponds to a set of indices (rows) grouped
+#' into `n_chunks`, and for each observation in the chunk, its corresponding
+#' nearest neighbors are used to extract the `x`, `y`, and optional `D` values.
+#'
+#' @param x A numeric matrix of predictors (n × p), where `n` is the number of
+#'   observations and `p` the number of features.
+#' @param y A numeric vector or matrix of responses of length `n` or
+#'   dimension `n × 1`.
+#' @param kindx An integer matrix of size `k × n`, where each column contains
+#'   the indices of the `k` nearest neighbors for the corresponding observation.
+#' @param D Optional numeric matrix of pairwise dissimilarities (n × n).
+#'   If provided, for each subset the dissimilarities among the selected
+#'   neighbors are prepended as additional columns to the predictors.
+#' @param n_chunks Integer. Number of batches over which to partition the
+#'   `n` observations. Each iteration of the returned iterator will yield one
+#'   such batch, containing a list of nearest-neighbor subsets.
+#'
+#' @return An iterator object compatible with `nextElem()` from the
+#'   **iterators** package. Each call to `nextElem()` returns a list of
+#'   sublists (one per observation in the chunk), where each sublist contains:
+#'   - `x`: predictor matrix for that local subset (with optional dissimilarity)
+#'   - `y`: response vector/matrix for that local subset
+#'
+#' @examples
+#' \dontrun{
+#' library(iterators)
+#' it <- ith_subsets_list(Xr, Yr, kindx, D, n_chunks = 5)
+#' 
+#' while (TRUE) {
+#'   chunk <- tryCatch(nextElem(it), error = function(e) {
+#'     if (inherits(e, "StopIteration")) return(NULL)
+#'     stop(e)
+#'   })
+#'   if (is.null(chunk)) break
+#'   print(length(chunk))  # Number of subsets in the chunk
+#' }
+#' }
+#'
+#' @keywords internal
+ith_subsets_list <- function(x, y, kindx, D = NULL, n_chunks = 1) {
+  stopifnot(nrow(x) == nrow(y))
+  stopifnot(ncol(kindx) == nrow(x))
+  if (!is.null(D)) stopifnot(nrow(D) == nrow(x), ncol(D) == nrow(x))
+  
+  n <- nrow(x)
+  
+  # # Indices to split by chunks
+  # chunk_indices <- split(seq_len(n), cut(seq_len(n), breaks = n_chunks, labels = FALSE))
+  # 
+  chunk_size <- ceiling(n / n_chunks)
+  chunk_indices <- split(seq_len(n), ceiling(seq_len(n) / chunk_size))
+  
+  it_chunks <- iterators::iter(chunk_indices)
+  
+  nextEl <- function() {
+    idx <- iterators::nextElem(it_chunks)
+    
+    subset_list <- lapply(idx, function(i) {
+      knns <- kindx[, i]
+      ixr <- x[knns, , drop = FALSE]
+      iyr <- y[knns, , drop = FALSE]
+      
+      if (!is.null(D)) {
+        ixr <- cbind(D[knns, knns, drop = FALSE], ixr)
+      }
+      
+      list(
+        x = ixr[!is.na(iyr), , drop = FALSE],
+        y = iyr[!is.na(iyr), , drop = FALSE]
+      )
+    })
+    
+    subset_list 
+  }
+  
+  obj <- list(nextElem = nextEl)
+  class(obj) <- c("chunked_isubset", "abstractiter", "iter")
+  obj
+}
+
 
 
 
@@ -197,13 +375,12 @@ ith_pred_subsets <- function(
     xscale,
     dxrxu = NULL
 ){
-  
   it_xunn <- iter(xunn, by = "column")
   it_xu <- iter(Xu, by = "row")
   
-  if(!is.null(dxrxu)){
+  if (!is.null(dxrxu)) {
     it_dxrxu <- iter(dxrxu, by = "column")
-  }else{
+  } else {
     it_dxrxu <- NULL
   }
   
@@ -211,10 +388,10 @@ ith_pred_subsets <- function(
     ixunn <- nextElem(it_xunn)
     ixu <- nextElem(it_xu)
     
-    if(!is.null(it_dxrxu)){
+    if (!is.null(it_dxrxu)) {
       idxrxu <- nextElem(it_dxrxu)
       idxrxu <- idxrxu[ixunn]
-    }else{
+    } else {
       idxrxu <- NULL
     }
     
@@ -244,45 +421,45 @@ ith_pred_subsets <- function(
 
 
 
-#' @title Quantile Stats of Neighbor Responses
-#' @description
-#' Computes quantiles of the response values among the filtered
-#' nearest neighbors for a specific sample.
-#'
-#' @param ..i.. Index of the sample being analyzed.
-#' @param kidxmat Matrix of nearest neighbor indices (rows = neighbors).
-#' @param kidxgrop Matrix mask to filter out same-group neighbors (TRUE = keep).
-#' @param Yr Numeric response vector or 1-col matrix.
-#' @param k Vector of neighbor counts for each sample.
-#'
-#' @return
-#' A matrix of quantiles (0%, 5%, 25%, 50%, 75%, 95%, 100%) of the
-#' response values among the valid nearest neighbors.
-#'
-#' @details
-#' For the i-th sample, this function selects the top-k neighbors for
-#' each sample, filters using the group mask, and computes quantile
-#' statistics from their corresponding response values in `Yr`.
-#' @author Leonardo Ramirez-Lopez
-#' @keywords internal
-i_nn_stats <- function(..i.., kidxmat, kidxgrop, Yr, k) {
-  ik <- k[..i..]
-  
-  jstats <- sapply(
-    1:ncol(kidxmat),
-    FUN = function(..j.., kidxmat, kidxgrop, Yr, ik){
-      inn <- kidxmat[1:ik,..j..]
-      inn <- inn[kidxgrop[1:ik,..j..]]
-      quantile(Yr[inn,], c(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1.00))
-      #sd(Yr[inn,])
-    }, 
-    kidxgrop = kidxgrop,
-    kidxmat = kidxmat,
-    Yr = Yr,
-    ik = ik
-  )
-  t(jstats)
-}
+#' #' @title Quantile Stats of Neighbor Responses
+#' #' @description
+#' #' Computes quantiles of the response values among the filtered
+#' #' nearest neighbors for a specific sample.
+#' #'
+#' #' @param ..i.. Index of the sample being analyzed.
+#' #' @param kidxmat Matrix of nearest neighbor indices (rows = neighbors).
+#' #' @param kidxgrop Matrix mask to filter out same-group neighbors (TRUE = keep).
+#' #' @param Yr Numeric response vector or 1-col matrix.
+#' #' @param k Vector of neighbor counts for each sample.
+#' #'
+#' #' @return
+#' #' A matrix of quantiles (0%, 5%, 25%, 50%, 75%, 95%, 100%) of the
+#' #' response values among the valid nearest neighbors.
+#' #'
+#' #' @details
+#' #' For the i-th sample, this function selects the top-k neighbors for
+#' #' each sample, filters using the group mask, and computes quantile
+#' #' statistics from their corresponding response values in `Yr`.
+#' #' @author Leonardo Ramirez-Lopez
+#' #' @keywords internal
+#' i_nn_stats <- function(..i.., kidxmat, kidxgrop, Yr, k) {
+#'   ik <- k[..i..]
+#'   
+#'   jstats <- sapply(
+#'     1:ncol(kidxmat),
+#'     FUN = function(..j.., kidxmat, kidxgrop, Yr, ik){
+#'       inn <- kidxmat[1:ik,..j..]
+#'       inn <- inn[kidxgrop[1:ik,..j..]]
+#'       quantile(Yr[inn,], c(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1.00))
+#'       #sd(Yr[inn,])
+#'     }, 
+#'     kidxgrop = kidxgrop,
+#'     kidxmat = kidxmat,
+#'     Yr = Yr,
+#'     ik = ik
+#'   )
+#'   t(jstats)
+#' }
 
 #' @title Internal: Fit weighted local PLS models for all reference samples
 #'
@@ -353,319 +530,209 @@ i_nn_stats <- function(..i.., kidxmat, kidxgrop, Yr, k) {
     kidxgrop, 
     dissimilarity_mat = NULL,
     pb,
+    n_chunks,
     ...
 ) {
   ik <- seq_len(k[..k..])
   
   setTxtProgressBar(pb, ..k..)
   
-  # ---- Optionally build subsets ----
-  # ksubsets <- ith_subsets_by_group(
-  #   x = Xr, 
-  #   y = Yr, 
-  #   kindx = kidxmat[ik, ],
-  #   kgroup = kidxgrop[ik, ], 
-  #   D = dissimilarity_mat
-  # )
-  
-  # ---- Optionally run sequential version (non-parallel) ----
-  # innpreds <- lapply(
-  #   1:nrow(Xr),
-  #   FUN = function(i) {
-  #     ith_local_fit(
-  #       ilocalsubset = ksubsets,
-  #       min_component = min_component,
-  #       max_component = max_component,
-  #       emgrid = emgrid,
-  #       scale = scale,
-  #       maxiter = maxiter,
-  #       tol = tol,
-  #       pc_selection = pc_selection
-  #     )
-  #   }
-  # )
-  
-  # ---- Optionally test with future_lapply (parallel-safe alternative) ----
-  # innpreds <- future.apply::future_lapply(
-  #   1:nrow(Xr),
-  #   FUN = function(i) {
-  #     ith_local_fit(
-  #       ilocalsubset = ksubsets,
-  #       min_component = min_component,
-  #       max_component = max_component,
-  #       emgrid = emgrid,
-  #       scale = scale,
-  #       maxiter = maxiter,
-  #       tol = tol,
-  #       pc_selection = pc_selection
-  #     )
-  #   }
-  # )
-  
   # ---- Optionally setup parallel backend ----
   # n.cores <- 20
   # clust <- parallel::makeCluster(n.cores)
   # doParallel::registerDoParallel(clust)
   
+  # ith_preds_template <- matrix(
+  #   NA, 
+  #   nrow = nrow(emgrid), 
+  #   ncol = ceiling(nrow(Xr) / n_chunks)
+  # )
   # ---- Parallel foreach execution (default mode) ----
-  ksubsets <- ith_subsets_by_group(
-    x = Xr, 
-    y = Yr, 
-    kindx = kidxmat[ik, ], 
-    kgroup = kidxgrop[ik, ], 
-    D = dissimilarity_mat
+  n_xr <- nrow(Xr)
+  ith_preds_template <- matrix(
+    NA,
+    nrow = nrow(emgrid),
+    ncol = ceiling(n_xr / n_chunks)
   )
-  
   innpreds <- foreach(
     i = 1:nrow(Xr), 
     .export = c(
-      "i_nn_stats",
       "ith_pred_subsets",
       "ith_subsets",
       "ith_subsets_by_group",
       ".get_all_fits",
       "ith_local_fit",
       "opls"
+    ), 
+    ksubsets = ith_subsets_by_group_list(
+      x = Xr, 
+      y = Yr, 
+      kindx = kidxmat[ik, ], 
+      kgroup = kidxgrop[ik, ], 
+      D = dissimilarity_mat, 
+      n_chunks = n_chunks
     )
-  ) %dopar% { 
-    ith_local_fit(
-      ilocalsubset = ksubsets,
-      min_component = min_component,
-      max_component = max_component,
-      emgrid = emgrid,
-      scale = scale,
-      maxiter = maxiter,
-      tol = tol,
-      pc_selection = pc_selection
-    )
+  ) %dopar% {
+    ith_preds <- ith_preds_template
+    for (j in 1:length(ksubsets)) {
+      ith_preds[, j] <- ith_local_fit(
+        X = ksubsets[[j]]$x,
+        Y = ksubsets[[j]]$y,
+        xval = ksubsets[[j]]$xval,
+        emgrid = emgrid,
+        max_component = max_component,
+        min_component = min_component,
+        scale = scale,
+        maxiter = maxiter,
+        tol = tol
+      )
+    }
+    if (j < ncol(ith_preds)) { 
+      ith_preds <- ith_preds[, 1:j]
+    } 
+    ith_preds
   }
-  
   innpreds <- do.call("cbind", innpreds)
-  
-  # ---- Optionally measure time ----
-  # ftime2 <- proc.time() - stime2
-  # print(ftime2)
-  
   return(innpreds)
 }
 
-#' @title Internal: Fit a local weighted PLS model and predict for a query point
-#'
-#' @description
-#' Fits a local Partial Least Squares (PLS) model using a neighborhood subset
-#' and computes a weighted prediction for a target sample. The weighting is
-#' done over multiple components using a provided evaluation grid.
-#'
-#' @param ilocalsubset A list with elements:
-#' \itemize{
-#'   \item{\code{x}}: matrix of predictors from the local neighborhood.
-#'   \item{\code{y}}: vector or 1-col matrix of corresponding responses.
-#'   \item{\code{xval}}: query sample (usually one row) to predict.
-#' }
-#' @param min_component Minimum number of PLS components to use in prediction.
-#' @param max_component Maximum number of PLS components to fit.
-#' @param emgrid A numeric matrix used to weight component-wise predictions.
-#' @param scale Logical; whether to scale predictors before PLS fitting.
-#' @param maxiter Maximum number of iterations for the PLS algorithm.
-#' @param tol Convergence tolerance for the PLS algorithm.
-#' @param pc_selection A list defining the principal component selection
-#'        strategy. (Included for consistency, not used directly here.)
-#' @param ... Additional arguments (currently unused).
-#'
-#' @return
-#' A numeric matrix of weighted predictions (rows = grid rows, 1 column).
-#'
-#' @details
-#' The function performs the following steps:
-#' \enumerate{
-#'   \item Fits a PLS model on `ilocalsubset$x` and `ilocalsubset$y` with
-#'         up to `max_component` components.
-#'   \item Computes component weights for `ilocalsubset$xval` using
-#'         \code{get_local_pls_weights()}.
-#'   \item Predicts component-wise responses using \code{predict_opls()}.
-#'   \item Applies a weighted average of predictions using `emgrid` and the
-#'         component weights.
-#' }
-#' The output is a matrix of weighted predictions using the weighted model grid.
-#'
-#' @author Leonardo Ramirez-Lopez
-#'
-#' @keywords internal
-ith_local_fit <- function(
-    ilocalsubset,
-    min_component,
-    max_component,
-    emgrid,
-    scale, 
-    maxiter, 
-    tol, 
-    pc_selection,
-    ...
-){ 
-  
-  ipls <- opls(
-    X = ilocalsubset$x,
-    Y = ilocalsubset$y,
-    ncomp = max_component,
-    scale = scale,
-    maxiter = maxiter,
-    tol = tol
-  )
-  
-  pcweights <- get_local_pls_weights(
-    projection_mat = ipls$projection_mat, 
-    xloadings = ipls$X_loadings,
-    coefficients = ipls$coefficients,
-    new_x = ilocalsubset$xval,
-    min_component = min_component,
-    max_component = max_component,
-    scale = scale,
-    Xcenter = ipls$transf$Xcenter,
-    Xscale = ipls$transf$Xscale
-  )
-  
-  preds <- predict_opls(
-    bo = ipls$bo, 
-    b = ipls$coefficients, 
-    ncomp = max_component,
-    newdata = ilocalsubset$xval,
-    scale = scale,
-    Xscale = ipls$transf$Xscale
-  )
-  
-  wmgrid <- sweep(
-    emgrid,
-    MARGIN = 2,
-    STATS = pcweights,
-    FUN = "*",
-    check.margin = FALSE
-  )
-  
-  wmgrid <- sweep(wmgrid, MARGIN = 1, STATS = rowSums(wmgrid), FUN = "/")
-  
-  ipreds <- mat_mult_cpp(wmgrid, preds[, min_component:max_component])
-  # ipreds <-  rowSums(sweep(wmgrid, MARGIN = 2, STATS = preds[,minF:maxF], FUN = "*"))
-  ipreds
-}
+# #' @title Internal: Fit a local weighted PLS model and predict for a query point
+# #'
+# #' @description
+# #' Fits a local Partial Least Squares (PLS) model using a neighborhood subset
+# #' and computes a weighted prediction for a target sample. The weighting is
+# #' done over multiple components using a provided evaluation grid.
+# #'
+# #' @param ilocalsubset A list with elements:
+# #' \itemize{
+# #'   \item{\code{x}}: matrix of predictors from the local neighborhood.
+# #'   \item{\code{y}}: vector or 1-col matrix of corresponding responses.
+# #'   \item{\code{xval}}: query sample (usually one row) to predict.
+# #' }
+# #' @param min_component Minimum number of PLS components to use in prediction.
+# #' @param max_component Maximum number of PLS components to fit.
+# #' @param emgrid A numeric matrix used to weight component-wise predictions.
+# #' @param scale Logical; whether to scale predictors before PLS fitting.
+# #' @param maxiter Maximum number of iterations for the PLS algorithm.
+# #' @param tol Convergence tolerance for the PLS algorithm.
+# #' @param pc_selection A list defining the principal component selection
+# #'        strategy. (Included for consistency, not used directly here.)
+# #' @param ... Additional arguments (currently unused).
+# #'
+# #' @return
+# #' A numeric matrix of weighted predictions (rows = grid rows, 1 column).
+# #'
+# #' @details
+# #' The function performs the following steps:
+# #' \enumerate{
+# #'   \item Fits a PLS model on `ilocalsubset$x` and `ilocalsubset$y` with
+# #'         up to `max_component` components.
+# #'   \item Computes component weights for `ilocalsubset$xval` using
+# #'         \code{get_local_pls_weights()}.
+# #'   \item Predicts component-wise responses using \code{predict_opls()}.
+# #'   \item Applies a weighted average of predictions using `emgrid` and the
+# #'         component weights.
+# #' }
+# #' The output is a matrix of weighted predictions using the weighted model grid.
+# #'
+# #' @author Leonardo Ramirez-Lopez
+# #'
+# #' @keywords internal
+# ith_local_fit <- function(
+    #     ilocalsubset,
+#     min_component,
+#     max_component,
+#     emgrid,
+#     scale, 
+#     maxiter, 
+#     tol, 
+#     pc_selection,
+#     ...
+# ){ 
+#   
+#   ipreds <- run_ipls_prediction(
+#     X = ilocalsubset$x,
+#     Y = ilocalsubset$y,
+#     xval = ilocalsubset$xval,
+#     emgrid = emgrid,
+#     max_component = max_component,
+#     min_component = min_component,
+#     scale = scale,
+#     maxiter = maxiter,
+#     tol = tol
+#   )
+#   ipreds
+# }
 
 
-#' @title Internal: Compute weighted final PLS model outputs
-#'
-#' @description
-#' Fits a PLS model on a local neighborhood and computes a weighted combination
-#' of regression coefficients, intercept, VIP scores, selectivity ratios, and
-#' predictor scales based on component-specific weights.
-#'
-#' @param ilocalsubset A list with local subset data:
-#' \itemize{
-#'   \item \code{x}: matrix of predictors from the local neighborhood.
-#'   \item \code{y}: response vector or 1-col matrix for local samples.
-#' }
-#' @param min_component Integer; minimum number of components used for output.
-#' @param max_component Integer; maximum number of components to fit in PLS.
-#' @param scale Logical; whether to scale predictors before PLS fitting.
-#' @param maxiter Integer; maximum number of iterations for the PLS algorithm.
-#' @param tol Numeric; convergence tolerance for the PLS algorithm.
-#' @param ... Additional arguments (currently unused).
-#'
-#' @return
-#' A numeric vector containing the following, in order:
-#' \itemize{
-#'   \item Intercept term (weighted average of component intercepts)
-#'   \item Weighted regression coefficients
-#'   \item Weighted VIP scores (normalized by column SDs)
-#'   \item Weighted selectivity ratios (normalized by column SDs)
-#'   \item Predictor scaling values (from training transformation)
-#' }
-#'
-#' @details
-#' This function fits a PLS model on the local neighborhood using
-#' \code{opls_get_all()}, computes local weights with
-#' \code{get_local_pls_weights()}, and combines all component-wise metrics
-#' into a final weighted output.
-#'
-#' Component indices are selected using the range
-#' \code{min_component:max_component}. Weighting is applied to each component
-#' across coefficients, VIPs, and selectivity ratios. All component-wise scores
-#' are normalized before aggregation. The result can be used as a compressed
-#' representation of the final prediction model.
-#'
-#' Note: the prediction target is assumed to be \code{x[1, ]} of the subset.
-#'
-#' @author Leonardo Ramirez-Lopez
-#' 
-#' @keywords internal
-final_fits <- function(
-    ilocalsubset,
-    min_component, 
-    max_component, 
-    scale, 
-    maxiter, 
-    tol, 
-    ...
-){
-  
-  ipls <- opls_get_all(
-    X = ilocalsubset$x,
-    Y = ilocalsubset$y,
-    ncomp = max_component,
-    scale = scale,
-    maxiter = maxiter,
-    tol = tol
-  )
-  
-  pcweights <- get_local_pls_weights(
-    projection_mat = ipls$projection_mat, 
-    xloadings = ipls$X_loadings,
-    coefficients = ipls$coefficients,
-    new_x = ilocalsubset$x[1, , drop = FALSE],
-    min_component = min_component,
-    max_component = max_component,
-    scale = scale,
-    Xcenter = ipls$transf$Xcenter,
-    Xscale = ipls$transf$Xscale
-  )
-  
-  # ibs <- rowSums(sweep(ipls$coefficients[,minF:maxF], 
-  #                      MARGIN = 2, 
-  #                      STATS = pcweights, 
-  #                      FUN = "*",
-  #                      check.margin = FALSE))
-  # ivips <- rowSums(sweep(ipls$vip[,minF:maxF], 
-  #                        MARGIN = 2, 
-  #                        STATS = pcweights, 
-  #                        FUN = "*"))
-  
-  idx_comp <- min_component:max_component
-  pcweights <- t(pcweights)
-  ibs <- mat_mult_cpp(
-    ipls$coefficients[, idx_comp], pcweights
-  )
-  
-  # ibs <- ipls$coefficients[,minF:maxF] %*% t(pcweights)
-  ib0 <- sum(ipls$bo[idx_comp] * pcweights)
-  
-  ivips <- mat_mult_cpp(
-    sweep(
-      ipls$vip[, idx_comp],
-      MARGIN = 2,
-      FUN = "/",
-      STATS = get_column_sds(ipls$vip[, idx_comp])[1, ]
-    ),
-    pcweights
-  )
-  isratio <- mat_mult_cpp(
-    sweep(
-      ipls$selectivityR[, idx_comp],
-      MARGIN = 2,
-      FUN = "/",
-      STATS = get_column_sds(ipls$selectivityR[, idx_comp])[1,]),
-    pcweights
-  )
-  
-  ifunction <- c(ib0, ibs, ivips, isratio, ipls$transf$Xscale)
-  ifunction
-}
+# #' @title Internal: Compute weighted final PLS model outputs
+# #' 
+# #' @description
+# #' Fits a PLS model on a local neighborhood and computes a weighted combination
+# #' of regression coefficients, intercept, VIP scores, selectivity ratios, and
+# #' predictor scales based on component-specific weights.
+# #' 
+# #' @param ilocalsubset A list with local subset data:
+# #' \itemize{
+# #'   \item \code{x}: matrix of predictors from the local neighborhood.
+# #'   \item \code{y}: response vector or 1-col matrix for local samples.
+# #' }
+# #' @param min_component Integer; minimum number of components used for output.
+# #' @param max_component Integer; maximum number of components to fit in PLS.
+# #' @param scale Logical; whether to scale predictors before PLS fitting.
+# #' @param maxiter Integer; maximum number of iterations for the PLS algorithm.
+# #' @param tol Numeric; convergence tolerance for the PLS algorithm.
+# #' @param ... Additional arguments (currently unused).
+# #' 
+# #' @return
+# #' A numeric vector containing the following, in order:
+# #' \itemize{
+# #'   \item Intercept term (weighted average of component intercepts)
+# #'   \item Weighted regression coefficients
+# #'   \item Weighted VIP scores (normalized by column SDs)
+# #'   \item Weighted selectivity ratios (normalized by column SDs)
+# #'   \item Predictor scaling values (from training transformation)
+# #' }
+# #' 
+# #' @details
+# #' This function fits a PLS model on the local neighborhood using
+# #' \code{opls_get_all()}, computes local weights with
+# #' \code{get_local_pls_weights()}, and combines all component-wise metrics
+# #' into a final weighted output.
+# #' 
+# #' Component indices are selected using the range
+# #' \code{min_component:max_component}. Weighting is applied to each component
+# #' across coefficients, VIPs, and selectivity ratios. All component-wise scores
+# #' are normalized before aggregation. The result can be used as a compressed
+# #' representation of the final prediction model.
+# #' 
+# #' Note: the prediction target is assumed to be \code{x[1, ]} of the subset.
+# #' 
+# #' @author Leonardo Ramirez-Lopez
+# #' 
+# #' @keywords internal
+# final_fits <- function(
+    #     ilocalsubset,
+#     min_component, 
+#     max_component, 
+#     scale, 
+#     maxiter, 
+#     tol, 
+#     ...
+# ){
+#   
+#   result <- final_fits_cpp(
+#     X = ilocalsubset$x,
+#     Y = ilocalsubset$y,
+#     new_x = ilocalsubset$x[1, , drop = FALSE],
+#     min_component,
+#     max_component,
+#     scale = scale,
+#     maxiter = maxiter,
+#     tol = tol
+#   )
+#   unlist(result, recursive = FALSE, use.names = FALSE)
+# }
 
 
 #' @title Internal: Predict using local PLS coefficients and optional
@@ -795,7 +862,24 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 #' @author Leonardo Ramirez-Lopez
 #' @export
 
-predict.funlib <- function(object, newdata, weighting = "triweight", range.pred.lim = FALSE){
+predict.funlib <- function(
+    object, 
+    newdata, 
+    weighting = "triweight", 
+    range.pred.lim = FALSE, 
+    local = TRUE, 
+    diss_method = object$dissimilatity$diss_method
+) {
+  
+  if (diss_method == "Precomputed dissimilarity matrix") {
+    stop(
+      "The models were built using a precomputed dissimilarity matrix. ",
+      "To select models, you must explicitly specify a dissimilarity method ",
+      "in the 'diss_method' argument. Valid options include: ",
+      "'pca', 'pca.nipals', 'pls', 'mpls', ",
+      "'cor', 'euclid', 'cosine', or 'sid'."
+    )
+  }
   
   if(!"funlib" %in% class(object)){
     stop("object must be of class 'funlib'")
@@ -805,27 +889,33 @@ predict.funlib <- function(object, newdata, weighting = "triweight", range.pred.
     stop("missing predictor variables in newdata")
   }
   
-  newdata <- newdata[,colnames(newdata) %in% colnames(object$functionlibrary$B)]
+  newdata <- newdata[, colnames(newdata) %in% colnames(object$functionlibrary$B)]
   
   ghd <- NULL
-  if(object$dissimilatity$sm %in% c("pca", "pls")){
-    scnew <- predict(object$dissimilatity$diss.projection, newdata)
+  if (object$dissimilatity$diss_method %in% c("pca", "pls")) {
+    scnew <- predict(object$dissimilatity$projection, newdata)
     dsmxu <- dissimilarity(
       Xr = object$dissimilatity$diss.projection$scores,
-      X2 = scnew,
-      method = "euclid",
+      Xu = scnew,
+      diss_method = "euclid",
       center = TRUE,
       scaled = TRUE,
       gh = FALSE
     )
     
-    
-    
   } else {
+    
     dsmxu <- dissimilarity(
-      Xr = scale(object$Xr, center = object$scale$centre, scale = object$scale$scale),
-      X2 = scale(newdata, center = object$scale$centre, scale = object$scale$scale),
-      method = object$dissimilatity$sm,
+      Xr = scale(
+        object$scale$local.x.center, 
+        center = object$scale$centre, scale = object$scale$scale
+      ),
+      Xu = scale(
+        newdata, 
+        center = object$scale$centre, 
+        scale = object$scale$scale
+      ),
+      diss_method = object$dissimilatity$diss_method,
       center = FALSE,
       scaled = FALSE,
       gh = FALSE,
@@ -834,25 +924,32 @@ predict.funlib <- function(object, newdata, weighting = "triweight", range.pred.
     
   }
   
-  if(!is.null(object$gh)){
-    if(object$dissimilatity$sm != "pls"){
+  if (!is.null(object$gh)) {
+    if (object$dissimilatity$diss_method != "pls") {
       scnew <- predict(object$gh$projection, newdata)
     }
-    ghd <- dissimilarity(Xr = scnew,
-                         X2 = t(colMeans(object$gh$projection$scores)),
-                         method = "euclid",
-                         center = TRUE,
-                         scaled = TRUE,
-                         gh = FALSE)$dissimilarity
+    ghd <- dissimilarity(
+      Xr = scnew,
+      Xu = t(colMeans(object$gh$projection$scores)),
+      diss_method = "euclid",
+      center = TRUE,
+      scaled = TRUE,
+      gh = FALSE
+    )$dissimilarity
     ghd <- as.vector(ghd)
   }
   
   # Weights are defined according to a tricubic function 
   # as in Cleveland and Devlin (1988) and Naes and Isaksson (1990).
-  xunn <- apply(dsmxu$dissimilarity, MARGIN = 2, FUN = order)[1:object$sel.param$optimalk,]
-  xudss <- apply(dsmxu$dissimilarity, 
-                 MARGIN = 2, 
-                 FUN = sort)[1:object$sel.param$optimalk,]
+  xunn <- apply(
+    dsmxu$dissimilarity, MARGIN = 2, FUN = order
+  )[1:object$sel.param$optimalk,]
+  
+  xudss <- apply(
+    dsmxu$dissimilarity, 
+    MARGIN = 2, 
+    FUN = sort
+  )[1:object$sel.param$optimalk,]
   
   
   ## this might become an argument to cancel models with high residuals (rd > xx)
@@ -867,65 +964,81 @@ predict.funlib <- function(object, newdata, weighting = "triweight", range.pred.
   ## this deactivates model cancelling (for the moment)
   res[] <- FALSE 
   
-  xudss2 <- sapply(1:ncol(xunn),
-                   FUN = function(diss, nn, cs, ..i..){
-                     d1 <- diss[nn[,..i..],..i..]
-                     d2 <- cs[nn[,..i..]]
-                     d1[d2] <- max(d1)
-                     d1
-                   },
-                   diss = dsmxu$dissimilarity, 
-                   nn = xunn,
-                   cs = res)[1:object$sel.param$optimalk,]
+  xudss2 <- sapply(
+    1:ncol(xunn),
+    FUN = function(diss, nn, cs, ..i..){
+      d1 <- diss[nn[,..i..],..i..]
+      d2 <- cs[nn[,..i..]]
+      d1[d2] <- max(d1)
+      d1
+    },
+    diss = dsmxu$dissimilarity, 
+    nn = xunn,
+    cs = res
+  )[1:object$sel.param$optimalk, ]
   
-  dweights <- sweep(xudss2, MARGIN = 2, STATS = colMaxs(xudss2), FUN = "/", check.margin = FALSE)
+  dweights <- sweep(
+    xudss2, 
+    MARGIN = 2, 
+    STATS = get_column_maxs(xudss2), 
+    FUN = "/", 
+    check.margin = FALSE
+  )
   
   
   
-  if(weighting == "triweight"){
+  if (weighting == "triweight") {
     # Triweight 
     dweights <- (1 - dweights^2)^3
     #curve((1 - x^2)^3, from = 0, to = 1, ylab = "parabolic")
   }
   
-  if(weighting == "tricube"){
+  if (weighting == "tricube") {
     dweights <- (1 - dweights^3)^3
     #curve((1 - x^3)^3, from = 0, to = 1, ylab = "parabolic")
   }
   
-  if(weighting == "triangular"){
+  if (weighting == "triangular"){
     # Triweight 
     dweights <- (1 - dweights)
     #curve((1 - x), from = 0, to = 1, ylab = "parabolic")
   }
   
-  if(weighting == "quartic"){
+  if (weighting == "quartic") {
     dweights <- (1 - dweights^2)^2
     #curve((1 - x^2)^2, from = 0, to = 1, ylab = "parabolic")
   }
   
-  if(weighting == "parabolic"){
+  if (weighting == "parabolic") { 
     dweights <- (1 - dweights^2)
     #curve((1 - x^2),from = 0, to = 1, ylab = "parabolic")
   }
   
-  if(weighting == "gaussian"){
+  if (weighting == "gaussian") {
     dweights <- exp(-dweights^2)
     #curve(exp(-x^2), from = 0, to = 1, ylab = "gaussian")
   }
   
-  dweights <- sweep(dweights, MARGIN = 2, STATS = colSums(dweights), FUN = "/", check.margin = FALSE)
+  dweights <- sweep(
+    dweights, 
+    MARGIN = 2, STATS = colSums(dweights), FUN = "/", 
+    check.margin = FALSE
+  )
   
   
-  if("Bk" %in% names(object$functionlibrary)){
-    plslib <- cbind(object$functionlibrary$B0,
-                    object$functionlibrary$Bk,
-                    object$functionlibrary$B)
+  if ("Bk" %in% names(object$functionlibrary)) {
+    plslib <- cbind(
+      object$functionlibrary$B0,
+      object$functionlibrary$Bk,
+      object$functionlibrary$B
+    )
     localscale <- cbind(object$scale$local.diss.scale, object$scale$local.x.scale)
     xudiss <- dsmxu$dissimilarity
-  }else{
-    plslib <- cbind(object$functionlibrary$B0,
-                    object$functionlibrary$B)
+  } else {
+    plslib <- cbind(
+      object$functionlibrary$B0,
+      object$functionlibrary$B
+    )
     localscale <- object$scale$local.x.scale
     xudiss <- NULL
   }
@@ -938,46 +1051,54 @@ predict.funlib <- function(object, newdata, weighting = "triweight", range.pred.
     dxrxu = xudiss
   )
   
-  yupreds <- foreach(i = 1:nrow(newdata), 
-                     .export = c("i_nn_stats",
-                                 "ith_pred_subsets",
-                                 "ith_subsets",
-                                 "ith_subsets_by_group",
-                                 ".get_all_fits",
-                                 "ith_local_fit",
-                                 "ith_pred"),
-                     iset = localset) %dopar%{ 
-                       
-                       ipd <- ith_pred(plslib = iset$iplslib, 
-                                       xscale = iset$ixscale, 
-                                       Xu = iset$ixu, 
-                                       xunn = iset$ixunn,
-                                       dxrxu = iset$idxrxu)
-                       ipd
-                     }
-  
+  yupreds <- foreach(
+    i = 1:nrow(newdata), 
+    .export = c(
+      "ith_pred_subsets",
+      "ith_subsets",
+      "ith_subsets_by_group",
+      ".get_all_fits",
+      "ith_local_fit",
+      "ith_pred"
+    ),
+    iset = localset
+  ) %dopar% { 
+    ipd <- ith_pred(
+      plslib = iset$iplslib, 
+      xscale = iset$ixscale, 
+      Xu = iset$ixu, 
+      xunn = iset$ixunn,
+      dxrxu = iset$idxrxu
+    )
+    ipd
+  }
   yupreds <- do.call("rbind", yupreds)
   
   ## weighted standard deviation
   xixm <- sweep(yupreds, MARGIN = 1, STATS = rowMeans(yupreds), FUN = "-", check.margin = FALSE)^2
   a <- rowSums(xixm * t(dweights))
-  b <- (colSums(!dweights == 0) - 1)/colSums(!dweights == 0)
-  wsd <- (a/b)^0.5
+  b <- (colSums(!dweights == 0) - 1) / colSums(!dweights == 0)
+  wsd <- (a / b)^0.5
   
   yupreds <- yupreds * t(dweights)
   
-  preds <- data.frame(pred = rowSums(yupreds), 
-                      pred.sd = wsd)
+  preds <- data.frame(
+    pred = rowSums(yupreds), 
+    pred.sd = wsd
+  )
+  
   preds$gh <- ghd
   
-  if(!is.null(rownames(newdata))){
+  if (!is.null(rownames(newdata))) {
     rownames(preds) <- rownames(newdata)
   }
   
   
   preds <- list(predictions = preds)
-  preds$neighbour.list <- list(indices = xunn, 
-                               diss.scores = xudss)
+  preds$neighbour.list <- list(
+    indices = xunn, 
+    diss.scores = xudss
+  )
   
   stst <- object$yu.nnstats[[paste("k.",object$sel.param$optimalk, sep = "")]]
   
@@ -990,7 +1111,7 @@ predict.funlib <- function(object, newdata, weighting = "triweight", range.pred.
   preds$predictions$below.lower.lim <- preds$predictions$pred < preds$predictions$min.yr.in.neighborhood
   preds$predictions$above.upper.lim <- preds$predictions$pred > preds$predictions$max.yr.in.neighborhood
   
-  if(range.pred.lim){
+  if (range.pred.lim) {
     preds$predictions$pred[preds$predictions$below.lower.lim] <- preds$predictions$min.yr.in.neighborhood[preds$predictions$below.lower.lim]
     preds$predictions$pred[preds$predictions$above.upper.lim] <- preds$predictions$max.yr.in.neighborhood[preds$predictions$above.upper.lim]
   }
