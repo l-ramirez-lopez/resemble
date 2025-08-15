@@ -299,7 +299,6 @@ ith_subsets <- function(
 #' @keywords internal
 ith_subsets_list <- function(x, y, kindx, D = NULL, n_chunks = 1) {
   stopifnot(nrow(x) == nrow(y))
-  stopifnot(ncol(kindx) == nrow(x))
   if (!is.null(D)) stopifnot(nrow(D) == nrow(x), ncol(D) == nrow(x))
   
   n <- nrow(x)
