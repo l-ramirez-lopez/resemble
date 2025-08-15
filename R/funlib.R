@@ -594,9 +594,9 @@ ith_pred_subsets <- function(
         tol = tol
       )
     }
-    if (j < ncol(ith_preds)) { 
-      ith_preds <- ith_preds[, 1:j]
-    } 
+    if (j < ncol(ith_preds)) {
+      ith_preds <- ith_preds[, 1:j, drop = FALSE]
+    }
     ith_preds
   }
   innpreds <- do.call("cbind", innpreds)
