@@ -5,8 +5,11 @@
 #'
 #' Computes correlation and moving correlation dissimilarity matrices.
 #' @usage
-#' cor_diss(Xr, Xu = NULL, ws = NULL,
-#'          center = TRUE, scale = FALSE)
+#' cor_diss(
+#'   Xr, Xu = NULL, ws = NULL, 
+#'   center = TRUE, scale = FALSE, 
+#'   precision = c("double", "single")
+#' )
 #' @param Xr a matrix.
 #' @param Xu an optional matrix containing data of a second set of observations.
 #' @param ws for moving correlation dissimilarity, an odd integer value which
