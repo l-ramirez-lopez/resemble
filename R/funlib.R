@@ -109,25 +109,27 @@ ith_subsets_by_group <- function(
 }
 
 
-#' @title Grouped KNN Subset Iterator with Chunking
+#' @title Grouped KNN Subset Iterator with Chunk Size
 #'
 #' @description
 #' Creates an iterator over grouped subsets of rows from `x` and `y` based on
 #' nearest neighbor indices (`kindx`) and group selectors (`kgroup`). The
-#' iteration is performed in `n_chunks` of columns from the input matrices, and
-#' optionally incorporates a dissimilarity matrix `D`.
+#' iteration is performed in consecutive column batches of size up to
+#' `chunk_size` from the input matrices, and optionally incorporates a
+#' dissimilarity matrix `D`.
 #'
 #' @param x A numeric matrix (n × p) representing the full reference dataset.
 #' @param y A numeric matrix or vector (n × 1) of associated response values.
-#' @param kindx An integer matrix (k × n) where each column contains indices of
+#' @param kindx An integer matrix (k × m) where each column contains indices of
 #'   the `k` nearest neighbors for the corresponding observation.
-#' @param kgroup A logical or integer matrix (k × n) indicating a group
+#' @param kgroup A logical or integer matrix (k × m) indicating a group
 #'   (subset) of rows from `kindx` to be selected for each observation.
 #' @param D Optional numeric matrix (n × n) representing a dissimilarity or
 #'   distance matrix. If provided, its values for selected neighbors will be
 #'   embedded into the `xval` vector.
-#' @param n_chunks Integer. The number of column-wise chunks to partition the
-#'   iteration over. Defaults to 5.
+#' @param chunk_size Integer. The maximum number of columns from `kindx` and
+#'   `kgroup` to include in each batch. Defaults to 1. The last batch may be
+#'   smaller if the total number of columns is not a multiple of `chunk_size`.
 #'
 #' @return An iterator object that returns, at each call of `nextElem()`, a list
 #'   of lists. Each inner list contains:
@@ -153,17 +155,19 @@ ith_subsets_by_group_list <- function(
     kindx,
     kgroup,
     D = NULL,
-    n_chunks = 1
+    chunk_size = 1
 ) {
   stopifnot(ncol(kindx) == ncol(kgroup))
   
   n_cols <- ncol(kindx)
-  chunk_size <- ceiling(n_cols / n_chunks)
+  chunk_size <- as.integer(chunk_size)
+  stopifnot(chunk_size > 0L)
+  
   col_indices <- split(seq_len(n_cols), ceiling(seq_len(n_cols) / chunk_size))
-  it_index <- iter(col_indices)
+  it_index <- iterators::iter(col_indices)
   
   nextEl <- function() {
-    idx <- nextElem(it_index)
+    idx <- iterators::nextElem(it_index)
     
     kindx_sub <- kindx[, idx, drop = FALSE]
     kgroup_sub <- kgroup[, idx, drop = FALSE]
@@ -258,9 +262,10 @@ ith_subsets <- function(
 #' @title Chunked Iterator for Subsetting by Nearest Neighbors
 #' @description
 #' Creates an iterator that returns batched subsets of observations for
-#' local modeling. Each batch corresponds to a set of indices (rows) grouped
-#' into `n_chunks`, and for each observation in the chunk, its corresponding
-#' nearest neighbors are used to extract the `x`, `y`, and optional `D` values.
+#' local modeling. Each batch corresponds to a set of consecutive indices
+#' (rows) of size up to `chunk_size`. For each observation in the batch,
+#' its corresponding nearest neighbors are used to extract the `x`, `y`,
+#' and optional `D` values.
 #'
 #' @param x A numeric matrix of predictors (n × p), where `n` is the number of
 #'   observations and `p` the number of features.
@@ -271,20 +276,20 @@ ith_subsets <- function(
 #' @param D Optional numeric matrix of pairwise dissimilarities (n × n).
 #'   If provided, for each subset the dissimilarities among the selected
 #'   neighbors are prepended as additional columns to the predictors.
-#' @param n_chunks Integer. Number of batches over which to partition the
-#'   `n` observations. Each iteration of the returned iterator will yield one
-#'   such batch, containing a list of nearest-neighbor subsets.
+#' @param chunk_size Integer. Maximum number of observations per batch.
+#'   The `n` observations are split into consecutive batches of size
+#'   `chunk_size`, except for the final batch which may be smaller.
 #'
 #' @return An iterator object compatible with `nextElem()` from the
 #'   **iterators** package. Each call to `nextElem()` returns a list of
-#'   sublists (one per observation in the chunk), where each sublist contains:
+#'   sublists (one per observation in the batch), where each sublist contains:
 #'   - `x`: predictor matrix for that local subset (with optional dissimilarity)
 #'   - `y`: response vector/matrix for that local subset
 #'
 #' @examples
 #' \dontrun{
 #' library(iterators)
-#' it <- ith_subsets_list(Xr, Yr, kindx, D, n_chunks = 5)
+#' it <- ith_subsets_list(Xr, Yr, kindx, D, chunk_size = 100)
 #' 
 #' while (TRUE) {
 #'   chunk <- tryCatch(nextElem(it), error = function(e) {
@@ -292,44 +297,43 @@ ith_subsets <- function(
 #'     stop(e)
 #'   })
 #'   if (is.null(chunk)) break
-#'   print(length(chunk))  # Number of subsets in the chunk
+#'   print(length(chunk))  # Number of subsets in the batch
 #' }
 #' }
 #'
 #' @keywords internal
-ith_subsets_list <- function(x, y, kindx, D = NULL, n_chunks = 1) {
+ith_subsets_list <- function(x, y, kindx, D = NULL, chunk_size = 1) {
   stopifnot(nrow(x) == nrow(y))
   if (!is.null(D)) stopifnot(nrow(D) == nrow(x), ncol(D) == nrow(x))
   
-  n <- nrow(x)
+  # We iterate over columns of kindx (one local model per column)
+  m <- ncol(kindx)
+  stopifnot(is.numeric(chunk_size), length(chunk_size) == 1L)
+  chunk_size <- as.integer(chunk_size)
+  stopifnot(chunk_size > 0L)
   
-  # # Indices to split by chunks
-  # chunk_indices <- split(seq_len(n), cut(seq_len(n), breaks = n_chunks, labels = FALSE))
-  # 
-  chunk_size <- ceiling(n / n_chunks)
-  chunk_indices <- split(seq_len(n), ceiling(seq_len(n) / chunk_size))
-  
-  it_chunks <- iterators::iter(chunk_indices)
+  # Build consecutive column-index chunks of size `chunk_size`
+  col_chunks <- split(seq_len(m), ceiling(seq_len(m) / chunk_size))
+  it_chunks <- iterators::iter(col_chunks)
   
   nextEl <- function() {
-    idx <- iterators::nextElem(it_chunks)
+    idx <- iterators::nextElem(it_chunks)  # indices of columns in `kindx`
     
-    subset_list <- lapply(idx, function(i) {
-      knns <- kindx[, i]
-      ixr <- x[knns, , drop = FALSE]
-      iyr <- y[knns, , drop = FALSE]
+    lapply(idx, function(i) {
+      knns <- as.integer(kindx[, i])
+      ixr  <- x[knns, , drop = FALSE]
+      iyr  <- y[knns, , drop = FALSE]
       
       if (!is.null(D)) {
         ixr <- cbind(D[knns, knns, drop = FALSE], ixr)
       }
       
+      keep <- !is.na(iyr)
       list(
-        x = ixr[!is.na(iyr), , drop = FALSE],
-        y = iyr[!is.na(iyr), , drop = FALSE]
+        x = ixr[keep, , drop = FALSE],
+        y = iyr[keep, , drop = FALSE]
       )
     })
-    
-    subset_list 
   }
   
   obj <- list(nextElem = nextEl)
@@ -529,7 +533,7 @@ ith_pred_subsets <- function(
     kidxgrop, 
     dissimilarity_mat = NULL,
     pb,
-    n_chunks,
+    chunk_size,
     ...
 ) {
   ik <- seq_len(k[..k..])
@@ -547,11 +551,14 @@ ith_pred_subsets <- function(
   #   ncol = ceiling(nrow(Xr) / n_chunks)
   # )
   # ---- Parallel foreach execution (default mode) ----
+  
+  n_chunks <- nrow(Xr) / chunk_size 
+  
   n_xr <- nrow(Xr)
   ith_preds_template <- matrix(
     NA,
     nrow = nrow(emgrid),
-    ncol = ceiling(n_xr / n_chunks)
+    ncol = chunk_size 
   )
   innpreds <- foreach(
     i = 1:nrow(Xr), 
@@ -569,7 +576,7 @@ ith_pred_subsets <- function(
       kindx = kidxmat[ik, ], 
       kgroup = kidxgrop[ik, ], 
       D = dissimilarity_mat, 
-      n_chunks = n_chunks
+      chunk_size = chunk_size
     )
   ) %dopar% {
     ith_preds <- ith_preds_template
@@ -810,7 +817,7 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 #'
 #' Makes predictions using a local ensemble model from a \code{funlib} object.  
 #' Dissimilarity-based neighborhood selection is used for each new sample, and  
-#' predictions are made via a weighted combination of local models.
+#' predictions are made via ado weighted combination of local models.
 #'
 #' @param object A fitted object of class \code{"funlib"}, typically created by
 #'   a function that builds a local function library.

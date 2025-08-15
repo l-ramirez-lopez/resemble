@@ -79,12 +79,15 @@
 #' @param return_best a logical indicating if the final library of functions using the optimal parameters found shall be returned.
 #' @param pls_max_iter (BETTER DESCRIPTION REQUIRED) maximum number of iterations for the partial least squares methods.
 #' @param pls_tol (BETTER DESCRIPTION REQUIRED) for convergence in the partial orthogonal scores partial least squares regressions using the nipals algorithm. Default is 1e-6
-#' @param n_chunks Integer. Specifies the number of chunks into which the data
-#'   should be partitioned. Each chunk is processed independently, which can be
-#'   beneficial for parallel computation. For example, each chunk can be
-#'   dispatched to a separate processor or core, where the samples within the
-#'   chunk are processed sequentially. Defaults to `nrow(Xr)` chunks (i.e., one 
-#'   sample per processor at a time).
+#' @param chunk_size Integer. Specifies the maximum number of samples
+#'   (rows or columns, depending on context) to include in each chunk.
+#'   Each chunk is processed independently, which can be beneficial
+#'   for parallel computation. For example, each chunk can be dispatched
+#'   to a separate processor or core, where the samples within the chunk
+#'   are processed sequentially. Defaults to `1` (i.e., one sample per
+#'   chunk). The value of `chunk_size` cannot exceed the total number of
+#'   available samples for the given context (e.g., `nrow(Xr)` or 
+#'   `length(anchor_indices)` when provided).
 #' @param documentation (BETTER DESCRIPTION REQUIRED) an optional character string for documentating the call to this function.
 #' @param ...  arguments passed to the \code{\link{dissimilarity}} function.
 #' @details
@@ -159,7 +162,7 @@ fit_library <- function(
     pls_max_iter = 1,
     pls_tol = 1e-6,
     optimize_ncomp_range = FALSE,
-    n_chunks = nrow(Xr),
+    chunk_size = 1,
     documentation = character(),
     ...
 ) {
@@ -221,6 +224,20 @@ fit_library <- function(
     dtc <- NULL
   }
   
+  if (!is.numeric(chunk_size) || length(chunk_size) != 1 || chunk_size < 1) {
+    stop("chunk_size must be a single numeric value larger than 0")
+  }
+  
+  min_size <- if (!is.null(anchor_indices)) {
+    min(nrow(Xr), length(anchor_indices))
+  } else {
+    nrow(Xr)
+  }
+  
+  if (chunk_size > min_size) {
+    stop("chunk_size cannot exceed ", min_size, " in this context")
+  }
+    
   pc_selection <- check_pc_arguments(
     n_rows_x = nrow(Xr), 
     n_cols_x = ncol(Xr),  
@@ -303,7 +320,7 @@ fit_library <- function(
     
     if (!is.null(anchor_indices)) {
       Yr_anchor <- Yr[anchor_indices, , drop = FALSE]
-      if (sum(is.na(Yr_anchor)) < 3) {
+      if (sum(!is.na(Yr_anchor)) < 3) {
         stop("At least 3 non-missing values in Yr are required for the anchor indices")
       }
       
@@ -511,9 +528,9 @@ fit_library <- function(
     kidxgrop = kidxgrop,
     dissimilarity_mat = dssm,
     pb = pb,
-    n_chunks = n_chunks
+    chunk_size = chunk_size
   )
-  
+
   ## Organize the results (in nnpreds)
   pparam <- matrix(NA, nrow(emgrid), 4)
   sstats <- function(y, yhat, itqk, pparam) {
@@ -632,10 +649,11 @@ fit_library <- function(
     plslib_template <- matrix(
       NA, 
       nrow = n_var, 
-      ncol = ceiling(nrow(Xr) / n_chunks)
+      ncol = chunk_size
     )
+    n_iter <- ceiling(ncol(dsm$dissimilarity) / chunk_size)
     plslib <- foreach(
-      i = 1:ncol(kidxmat), 
+      i = 1:n_iter, 
       .export = c(
         "ith_pred_subsets",
         "ith_subsets_list",
@@ -645,7 +663,7 @@ fit_library <- function(
         "final_fits_cpp"
       ),
       ithbarrio = ith_subsets_list(
-        x = Xr, y = Yr, kindx = kidxmat[1:optimalk, ], D = dssm, n_chunks = n_chunks
+        x = Xr, y = Yr, kindx = kidxmat[1:optimalk, ], D = dssm, chunk_size = chunk_size
       )
     ) %dopar% { 
       iplslib <- plslib_template
