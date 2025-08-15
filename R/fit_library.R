@@ -288,6 +288,11 @@ fit_library <- function(
     gc()
     sml <- list(diss_method = "Precomputed dissimilarity matrix")
     dsm <- append(sml, dsm)
+    if (!is.null(anchor_indices)) {
+      Yr_anchor <- Yr[anchor_indices, , drop = FALSE]
+    } else {
+      Yr_anchor <- Y
+    }
   } else if (is.character(diss_method)) {
     diss_method <- match.arg(
       diss_method,

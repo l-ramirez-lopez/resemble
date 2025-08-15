@@ -100,8 +100,8 @@ Optionally, the \code{pc_selection} argument admits \code{"opc"} or \code{"cumva
 should be partitioned. Each chunk is processed independently, which can be
 beneficial for parallel computation. For example, each chunk can be
 dispatched to a separate processor or core, where the samples within the
-chunk are processed sequentially. Defaults to half the number of available
-CPU cores (i.e., \code{floor(detectCores() / 2)}).}
+chunk are processed sequentially. Defaults to \code{nrow(Xr)} chunks (i.e., one
+sample per processor at a time).}
 
 \item{documentation}{(BETTER DESCRIPTION REQUIRED) an optional character string for documentating the call to this function.}
 
