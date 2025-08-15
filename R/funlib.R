@@ -896,12 +896,12 @@ predict.funlib <- function(
   }
   
   newdata <- newdata[, colnames(newdata) %in% colnames(object$functionlibrary$B)]
-  
+
   ghd <- NULL
   if (object$dissimilatity$diss_method %in% c("pca", "pls")) {
     scnew <- predict(object$dissimilatity$projection, newdata)
     dsmxu <- dissimilarity(
-      Xr = object$dissimilatity$diss.projection$scores,
+      Xr = object$dissimilatity$projection$scores,
       Xu = scnew,
       diss_method = "euclid",
       center = TRUE,
