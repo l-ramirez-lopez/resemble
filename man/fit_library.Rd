@@ -17,23 +17,47 @@ fit_library(Xr, Yr, sm, k, k_diss, k_range, ws = NULL, pls_c,
 
 \item{Yr}{a numeric vector of length \code{n} containing the values of the response variable corresponding to the reference data. Missing values might be allowed (see details).}
 
-\item{diss_method}{a character string indicating the spectral dissimilarity metric to be used in the selection of the nearest neighbours of each observation.
-Options are:
-\itemize{
-\item{\code{"pc"}: Principal components dissimilarity: Mahalanobis dissimilarity computed on the principal components space.}
-\item{\code{"cor"}: Correlation dissimilarity.}
-\item{\code{"pls"}: Partial least squares dissimilarity: Mahalanobis dissimilarity computed on the partial least squares space.}
-\item{\code{"euclid"}: Euclidean dissimilarity.}
-\item{\code{"cosine"}: Cosine dissimilarity.}
-\item{\code{"sidF"}: Spectral information divergence computed on the spectral variables.}
-\item{\code{"sidD"}: Spectral information divergence computed on the density distributions of the spectra.}
-\item{\code{"loc.pc"}: Dissimilarity estimation based on local principal components.}
-\item{\code{"loc.pls"} Dissimilarity estimation based on local partial least squares.}
-}
-The \code{"pc"} spectral dissimilarity metric is the default. If the \code{"sidD"} is chosen, the default parameters of the \code{sid} function are used however they can be specified by passing them them as additional arguments \code{...}.
+\item{diss_method}{Either a character string indicating the dissimilarity
+metric to be used for selecting the nearest neighbors, or a precomputed
+dissimilarity matrix.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{   ======= NOT YET IMPLEMENTED!!! ======= --> --> --> Alternatively a squared dissimilarity matrix of size `n * n` can also be passed. In this case, each row of the matrix must correspond to the observations. The nearest neighbors search is conducted column-wise.
-}\if{html}{\out{</div>}}}
+If a character is provided, it must be one of the following:
+\itemize{
+\item \code{"pca"}: Mahalanobis distance based on principal component (PC) scores
+computed via singular value decomposition (SVD). See \code{\link[=ortho_diss]{ortho_diss()}}.
+\item \code{"pca.nipals"}: Same as \code{"pca"} but using the NIPALS algorithm. See
+\code{\link[=ortho_diss]{ortho_diss()}}.
+\item \code{"pls"}: Mahalanobis distance based on PLS scores. Requires \code{Yr}. See
+\code{\link[=ortho_diss]{ortho_diss()}}.
+\item \code{"mpls"}: Mahalanobis distance based on modified PLS scores (Shenk and
+Westerhaus, 1991; Westerhaus, 2014). Requires \code{Yr}. See \code{\link[=ortho_diss]{ortho_diss()}}.
+\item \code{"cor"}: Dissimilarity based on correlation between observations.
+See \code{\link[=cor_diss]{cor_diss()}}.
+\item \code{"euclid"}: Euclidean distance. See \code{\link[=f_diss]{f_diss()}}.
+\item \code{"cosine"}: Cosine distance. See \code{\link[=f_diss]{f_diss()}}.
+\item \code{"sid"}: Spectral information divergence. See \code{\link[=sid]{sid()}}.
+}
+
+These options are passed to the \code{\link[=dissimilarity]{dissimilarity()}} function, which performs
+the actual computation. Additional arguments to \code{dissimilarity()} can be
+passed through \code{...}.
+
+If a matrix is provided, it must represent a precomputed dissimilarity
+structure with constraints depending on whether \code{anchor_indices} is used:
+\itemize{
+\item If \code{anchor_indices = NULL} (default), \code{diss_method} must be a square
+matrix of size \verb{n x n}, where \code{n = nrow(Xr)}. It must be symmetric
+with zeros on the diagonal, representing self-dissimilarity.
+\item If \code{anchor_indices} is specified (with length \code{m}), then
+\code{diss_method} must have dimensions \verb{n x m}, where \code{n = nrow(Xr)} and
+\code{m = length(anchor_indices)}. The submatrix \code{diss_method[anchor_indices, ]}
+must be symmetric with zeros on the diagonal.
+}
+
+In all cases, the dissimilarity matrix must be consistent with the order
+of samples in \code{Xr}. That is, the rows of \code{diss_method} must correspond
+exactly to the rows of \code{Xr}, and when used, the elements of
+\code{anchor_indices} must refer to valid rows in both \code{Xr} and \code{diss_method}.}
 
 \item{k}{a vector of integers specifying the sequence of k nearest neighbours to be tested. Either \code{k} or \code{k_diss} must be specified. This \code{vector} will be automatically sorted into ascending order. The values of vectors of class numeric, will be coerced to the next upper inetegers.}
 
@@ -54,7 +78,7 @@ Optionally, the \code{pc_selection} argument admits \code{"opc"} or \code{"cumva
 
 \item{group}{(PUT THE DETAILS OF THE 1_NN VALIDATION IN DETAILS) an optional \code{factor} (or \code{vector} that can be coerced to a \code{factor} by \code{as.factor}) that assigns to each observation in \code{Xr} a group/class label (e.g. groups can be given by spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). This is taken into account for internal validation of pls models (and factor optimization) to avoid pseudo-replication. For validation, the model of a given target observation is first fitted based on its neighbors and excluding that observation (and all the samples belonging to its group), then the model is used to predict the response variable of the target observation. See details.}
 
-\item{build_around}{NOT YET IMPLEMENTED! a vector of integers of length \code{m} (\code{m < n}) indicating the indices of the samples in the reference set for which the local models must be fitted. Default is \code{NULL} which means that local models are fitted for all the \code{n} observations in the reference set. See details.}
+\item{anchor_indices}{An optional integer vector of length \code{m} (\code{m < n}) specifying the row indices of the reference samples around which local models should be constructed. If \code{NULL} (default), local models will be built for all \code{n} samples in the reference set. See Details.}
 
 \item{gh}{a logical indicating whether or not to compute and return the Mahalanobis distance (in the pls space) between each element in \code{Xr} and the center of \code{Xr}.}
 
@@ -72,6 +96,13 @@ Optionally, the \code{pc_selection} argument admits \code{"opc"} or \code{"cumva
 
 \item{pls_tol}{(BETTER DESCRIPTION REQUIRED) for convergence in the partial orthogonal scores partial least squares regressions using the nipals algorithm. Default is 1e-6}
 
+\item{n_chunks}{Integer. Specifies the number of chunks into which the data
+should be partitioned. Each chunk is processed independently, which can be
+beneficial for parallel computation. For example, each chunk can be
+dispatched to a separate processor or core, where the samples within the
+chunk are processed sequentially. Defaults to half the number of available
+CPU cores (i.e., \code{floor(detectCores() / 2)}).}
+
 \item{documentation}{(BETTER DESCRIPTION REQUIRED) an optional character string for documentating the call to this function.}
 
 \item{...}{arguments passed to the \code{\link{dissimilarity}} function.}
@@ -83,9 +114,41 @@ DESCRIOTION REQUIRED
 This function builds a library of predictive functions based on memory-based learning
 }
 \details{
-By default, this function fits a local model for each of the \code{n} observations in the reference set, i.e. a library of \code{n} fucntions is built. Each local model is fitted with the query observation and its nearest neighbors.
-Alternatively, the user may specificy the samples in the reference set around which the library of functions must be built. This is done by indicating in the \code{build_around} argument the indices of the samples in the reference set. In tis case, each function is fitted by using the nearest neighbors found in the entire set of \code{n} reference observations. The \code{build_around} argument may be useful in cases where the number of observations in the reference set is extremely large.
-Missing values in \code{Yr} are allowed. If they exceed 25\% of the total number of observations a warning message will be printed. The local model of an observation with missing \code{Yr} value is fited only with its nearest neighbors (i.e without including this observation).
+** Anchor indices **
+
+By default, local models are constructed around all \code{n} samples in the
+reference set. Alternatively, the user may specify a subset of \code{m} samples
+(\code{m < n}) around which the library of local models should be built. This is
+done by supplying their row indices to the \code{anchor_indices} argument.
+
+In this configuration, each local model is still constructed using the
+nearest neighbors selected from the full set of \code{n} reference samples, but
+only for the \code{m} anchor samples. This approach is especially useful when the
+reference set is very large, as it reduces the total number of models while
+retaining representativeness and predictive performance—particularly if the
+anchor samples are chosen to reflect the diversity of the dataset.
+
+This strategy can lead to substantial computational savings and a more
+compact library of models. \strong{Note} that when distance calculations rely on
+the response variable (e.g., GH distance, PLS distance, or optimized PC
+distance), the response values (\code{Yr}) of the anchor samples themselves are
+not used during distance computation. This is done to improve computational
+efficiency: dissimilarities are computed between each anchor sample and all
+reference samples (excluding the anchor itself), rather than recalculating
+the full \verb{n × n} distance matrix. This significantly reduces the number of
+response-based distance computations when the number of anchors is small.
+Also, \strong{note} that the response values (Yr) of the anchor observations are
+always used during the fitting of  their corresponding local models.
+For efficiency, the number of anchor indices must be less than 90\% of the
+total number of rows in \code{Xr}. If this threshold is exceeded, consider
+building a model for each sample in \code{Xr} by setting \code{anchor_indices = NULL}.
+
+** Missing values in \code{Yr} **
+
+Missing values in \code{Yr} are allowed. If they exceed 25\% of the total number
+of observations, a warning will be issued. The local model of an observation
+with a missing \code{Yr} value is fitted only using its nearest neighbors (i.e.,
+without including the observation itself).
 }
 \examples{
 \dontrun{
@@ -93,7 +156,10 @@ Missing values in \code{Yr} are allowed. If they exceed 25\% of the total number
 }
 }
 \references{
-Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J., & Kvalheim, O. M. (2009). Biomarker discovery in mass spectral profiles by means of selectivity ratio plot. Chemometrics and Intelligent Laboratory Systems, 95(1), 35-48.
+Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J., &
+Kvalheim, O. M. (2009). Biomarker discovery in mass spectral profiles by
+means of selectivity ratio plot. Chemometrics and Intelligent Laboratory
+Systems, 95(1), 35-48.
 }
 \author{
 Leonardo Ramirez-Lopez

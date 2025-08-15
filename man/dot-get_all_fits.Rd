@@ -20,6 +20,7 @@
   kidxgrop,
   dissimilarity_mat = NULL,
   pb,
+  n_chunks,
   ...
 )
 }
@@ -80,6 +81,46 @@ the reference set \code{Xr}, based on its nearest neighbors and optionally using
 a dissimilarity matrix as extra predictive information.
 }
 \details{
+#' @title Quantile Stats of Neighbor Responses
+#' @description
+#' Computes quantiles of the response values among the filtered
+#' nearest neighbors for a specific sample.
+#'
+#' @param ..i.. Index of the sample being analyzed.
+#' @param kidxmat Matrix of nearest neighbor indices (rows = neighbors).
+#' @param kidxgrop Matrix mask to filter out same-group neighbors (TRUE = keep).
+#' @param Yr Numeric response vector or 1-col matrix.
+#' @param k Vector of neighbor counts for each sample.
+#'
+#' @return
+#' A matrix of quantiles (0\%, 5\%, 25\%, 50\%, 75\%, 95\%, 100\%) of the
+#' response values among the valid nearest neighbors.
+#'
+#' @details
+#' For the i-th sample, this function selects the top-k neighbors for
+#' each sample, filters using the group mask, and computes quantile
+#' statistics from their corresponding response values in \code{Yr}.
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal
+i_nn_stats <- function(..i.., kidxmat, kidxgrop, Yr, k) {
+ik <- k\link{..i..}
+
+jstats <- sapply(
+1:ncol(kidxmat),
+FUN = function(..j.., kidxmat, kidxgrop, Yr, ik){
+inn <- kidxmat\link{1:ik,..j..}
+inn <- inn[kidxgrop\link{1:ik,..j..}]
+quantile(Yr\link{inn,}, c(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1.00))
+#sd(Yr\link{inn,})
+},
+kidxgrop = kidxgrop,
+kidxmat = kidxmat,
+Yr = Yr,
+ik = ik
+)
+t(jstats)
+}
+
 For each reference observation in \code{Xr}, the function builds a local
 training subset using the \code{ith_subsets_by_group()} function, fits a local
 weighted PLS model via \code{ith_local_fit()}, and produces predictions based on

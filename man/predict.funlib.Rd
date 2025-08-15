@@ -4,7 +4,14 @@
 \alias{predict.funlib}
 \title{Predict from a funlib object}
 \usage{
-\method{predict}{funlib}(object, newdata, weighting = "triweight", range.pred.lim = FALSE)
+\method{predict}{funlib}(
+  object,
+  newdata,
+  weighting = "triweight",
+  range.pred.lim = FALSE,
+  local = TRUE,
+  diss_method = object$dissimilatity$diss_method
+)
 }
 \arguments{
 \item{object}{A fitted object of class \code{"funlib"}, typically created by
