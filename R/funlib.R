@@ -579,7 +579,7 @@ ith_pred_subsets <- function(
       "ith_local_fit",
       "opls"
     )
-  ) %do% {
+  ) %dopar% {
     ith_preds <- ith_preds_template
     for (j in 1:length(ksubsets)) {
       ith_preds[, j] <- ith_local_fit(
