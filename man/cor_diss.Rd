@@ -4,8 +4,11 @@
 \alias{cor_diss}
 \title{Correlation and moving correlation dissimilarity measurements}
 \usage{
-cor_diss(Xr, Xu = NULL, ws = NULL,
-         center = TRUE, scale = FALSE)
+cor_diss(
+  Xr, Xu = NULL, ws = NULL, 
+  center = TRUE, scale = FALSE, 
+  precision = c("double", "single")
+)
 }
 \arguments{
 \item{Xr}{a matrix.}
