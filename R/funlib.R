@@ -150,33 +150,34 @@ ith_subsets_by_group <- function(
 #'
 #' @keywords internal
 ith_subsets_by_group_list <- function(
-    x, 
-    y, 
-    kindx,
-    kgroup,
-    D = NULL,
-    chunk_size = 1
+    x, y, kindx, kgroup, D = NULL, chunk_size = 1
 ) {
-  stopifnot(ncol(kindx) == ncol(kgroup))
+  stopifnot(nrow(x) == nrow(y), ncol(kindx) == ncol(kgroup))
+  if (!is.null(D)) stopifnot(nrow(D) == nrow(x), ncol(D) == nrow(x))
   
-  n_cols <- ncol(kindx)
-  chunk_size <- as.integer(chunk_size)
-  stopifnot(chunk_size > 0L)
+  m <- ncol(kindx)
+  chunk_size <- as.integer(chunk_size); stopifnot(chunk_size > 0L)
   
-  col_indices <- split(seq_len(n_cols), ceiling(seq_len(n_cols) / chunk_size))
+  col_indices <- split(seq_len(m), ceiling(seq_len(m) / chunk_size))
   it_index <- iterators::iter(col_indices)
   
   nextEl <- function() {
     idx <- iterators::nextElem(it_index)
     
-    kindx_sub <- kindx[, idx, drop = FALSE]
+    kindx_sub  <- kindx[,  idx, drop = FALSE]
     kgroup_sub <- kgroup[, idx, drop = FALSE]
-    xval_sub <- x[idx, , drop = FALSE]
+    
+    # Anchor sample per column = first row of kindx
+    anchor_idx <- as.integer(kindx_sub[1L, ])
+    xval_sub   <- x[anchor_idx, , drop = FALSE]
     
     chunks <- vector("list", length(idx))
-    
     for (i in seq_along(idx)) {
-      knns <- kindx_sub[kgroup_sub[, i], i]
+      sel <- as.logical(kgroup_sub[, i]); sel[is.na(sel)] <- FALSE
+      sel[1L] <- FALSE  # never include anchor among neighbours
+      
+      knns <- as.integer(kindx_sub[sel, i])
+      
       if (is.null(D)) {
         chunks[[i]] <- list(
           x = x[knns, , drop = FALSE],
@@ -184,16 +185,15 @@ ith_subsets_by_group_list <- function(
           xval = xval_sub[i, , drop = FALSE]
         )
       } else {
-        idsm <- D[knns, knns, drop = FALSE]
+        idsm  <- D[knns, knns, drop = FALSE]
         xdata <- cbind(idsm, x[knns, , drop = FALSE])
         chunks[[i]] <- list(
           x = xdata,
           y = y[knns, , drop = FALSE],
-          xval = t(c(D[idx[i], knns], xval_sub[i, , drop = FALSE]))
+          xval = t(c(D[anchor_idx[i], knns], xval_sub[i, , drop = FALSE]))
         )
       }
     }
-    
     chunks
   }
   
@@ -201,6 +201,7 @@ ith_subsets_by_group_list <- function(
   class(obj) <- c("isubsetgroup", "abstractiter", "iter")
   obj
 }
+
 
 
 
@@ -562,14 +563,6 @@ ith_pred_subsets <- function(
   )
   innpreds <- foreach(
     i = 1:nrow(Xr), 
-    .export = c(
-      "ith_pred_subsets",
-      "ith_subsets",
-      "ith_subsets_by_group",
-      ".get_all_fits",
-      "ith_local_fit",
-      "opls"
-    ), 
     ksubsets = ith_subsets_by_group_list(
       x = Xr, 
       y = Yr, 
@@ -577,8 +570,16 @@ ith_pred_subsets <- function(
       kgroup = kidxgrop[ik, ], 
       D = dissimilarity_mat, 
       chunk_size = chunk_size
+    ),
+    .export = c(
+      "ith_pred_subsets",
+      "ith_subsets",
+      "ith_subsets_by_group",
+      ".get_all_fits",
+      "ith_local_fit",
+      "opls"
     )
-  ) %dopar% {
+  ) %do% {
     ith_preds <- ith_preds_template
     for (j in 1:length(ksubsets)) {
       ith_preds[, j] <- ith_local_fit(
@@ -955,7 +956,7 @@ predict.funlib <- function(
     dsmxu$dissimilarity, 
     MARGIN = 2, 
     FUN = sort
-  )[1:object$sel.param$optimalk,]
+  )[1:object$sel.param$optimalk, ]
   
   
   ## this might become an argument to cancel models with high residuals (rd > xx)

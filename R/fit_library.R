@@ -308,7 +308,7 @@ fit_library <- function(
     if (!is.null(anchor_indices)) {
       Yr_anchor <- Yr[anchor_indices, , drop = FALSE]
     } else {
-      Yr_anchor <- Y
+      Yr_anchor <- Yr
     }
   } else if (is.character(diss_method)) {
     diss_method <- match.arg(
@@ -323,7 +323,6 @@ fit_library <- function(
       if (sum(!is.na(Yr_anchor)) < 3) {
         stop("At least 3 non-missing values in Yr are required for the anchor indices")
       }
-      
       dsm <- dissimilarity(
         Xr = Xr[-anchor_indices, , drop = FALSE],
         Xu = Xr[anchor_indices, , drop = FALSE],
@@ -336,11 +335,15 @@ fit_library <- function(
         return_projection = TRUE,
         ws = ws
       )
-      gh_c <- rep(NA, nrow(Xr))
-      gh_c[-anchor_indices] <- dsm$gh$gh_Xr
-      gh_c[anchor_indices] <- dsm$gh$gh_Xu
-      dsm$gh$gh_Xr <- gh_c
-      dsm$gh <- dsm$gh[!names(dsm$gh) %in% "gh_Xu"]
+      if (gh) {
+        gh_c <- rep(NA, nrow(Xr))
+        gh_c[-anchor_indices] <- dsm$gh$gh_Xr
+        gh_c[anchor_indices] <- dsm$gh$gh_Xu
+        dsm$gh$gh_Xr <- gh_c
+        dsm$gh <- dsm$gh[!names(dsm$gh) %in% "gh_Xu"]
+      } else {
+        dsm$gh <- NULL
+      }
       
       new_mat <- matrix(NA_real_, nrow(Xr), ncol(dsm$dissimilarity))
       new_mat[-anchor_indices, ] <- dsm$dissimilarity
@@ -373,7 +376,7 @@ fit_library <- function(
         dsm_anchor <- dissimilarity(
           Xr = Xr[anchor_indices, , drop = FALSE],
           diss_method = diss_method,
-          Yr = Yr[-anchor_indices, , drop = FALSE],
+          Yr = Yr[anchor_indices, , drop = FALSE],
           center = FALSE,
           scale = FALSE,
           gh = FALSE,
@@ -424,8 +427,9 @@ fit_library <- function(
   kidxmat <- top_k_order(
     dsm$dissimilarity, k = max(k), skip = which(is.na(Yr))
   )
-  
+
   kdissmat <- extract_by_index(dsm$dissimilarity, kidxmat)
+  
   
   ## for each sample in Xu show what of its
   ## nearest neighbors samples belong to its group
@@ -479,12 +483,12 @@ fit_library <- function(
   
   pb <- txtProgressBar(min = 0, max = length(k) + addit, char = "-")
   
+  minF <- min(pls_c)
+  maxF <- max(pls_c)
   
   if (optimize_ncomp_range) {
     # what this grid does is to describe the possible combinations of min factor 
     # and max factors, this for optimizing the min and max pls factors 
-    minF <- min(pls_c)
-    maxF <- max(pls_c)
     sgrid <- expand.grid(minpls = minF:maxF, maxpls = minF:maxF)
     sgrid <- sgrid[sgrid$minpls <= sgrid$maxpls, ]
     row.names(sgrid) <- 1:nrow(sgrid)
@@ -505,6 +509,10 @@ fit_library <- function(
     emgrid <- emgrid[, minF:maxF]
   } else {
     emgrid <- matrix(1, nrow= 1, length(minF:maxF))
+    sgrid <- data.frame(
+      minpls = minF,
+      maxpls = maxF
+    )
   }
   
   
@@ -558,6 +566,7 @@ fit_library <- function(
   }
   
   itr <- isubset3Row(x1 = nnpreds, x2 = itq)
+  
   kpredstats <- function(
     ..k.., 
     itr,
@@ -584,6 +593,7 @@ fit_library <- function(
   
   predperformance <- data.frame(do.call("rbind", predperformance))
   colnames(predperformance) <- c("r2", "rmse", "me", "st.rmse")
+  
   predperformance <- data.frame(
     minpls = rep(sgrid$minpls, times = length(k)),
     maxpls = rep(sgrid$maxpls, times = length(k)),
