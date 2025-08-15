@@ -96,12 +96,15 @@ Optionally, the \code{pc_selection} argument admits \code{"opc"} or \code{"cumva
 
 \item{pls_tol}{(BETTER DESCRIPTION REQUIRED) for convergence in the partial orthogonal scores partial least squares regressions using the nipals algorithm. Default is 1e-6}
 
-\item{n_chunks}{Integer. Specifies the number of chunks into which the data
-should be partitioned. Each chunk is processed independently, which can be
-beneficial for parallel computation. For example, each chunk can be
-dispatched to a separate processor or core, where the samples within the
-chunk are processed sequentially. Defaults to \code{nrow(Xr)} chunks (i.e., one
-sample per processor at a time).}
+\item{chunk_size}{Integer. Specifies the maximum number of samples
+(rows or columns, depending on context) to include in each chunk.
+Each chunk is processed independently, which can be beneficial
+for parallel computation. For example, each chunk can be dispatched
+to a separate processor or core, where the samples within the chunk
+are processed sequentially. Defaults to \code{1} (i.e., one sample per
+chunk). The value of \code{chunk_size} cannot exceed the total number of
+available samples for the given context (e.g., \code{nrow(Xr)} or
+\code{length(anchor_indices)} when provided).}
 
 \item{documentation}{(BETTER DESCRIPTION REQUIRED) an optional character string for documentating the call to this function.}
 

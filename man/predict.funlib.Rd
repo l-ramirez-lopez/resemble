@@ -52,7 +52,7 @@ whether the prediction falls outside these limits.
 \description{
 Makes predictions using a local ensemble model from a \code{funlib} object.
 Dissimilarity-based neighborhood selection is used for each new sample, and
-predictions are made via a weighted combination of local models.
+predictions are made via ado weighted combination of local models.
 }
 \details{
 This function uses dissimilarity-based local modeling to compute

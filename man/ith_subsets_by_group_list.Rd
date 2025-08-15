@@ -2,27 +2,28 @@
 % Please edit documentation in R/funlib.R
 \name{ith_subsets_by_group_list}
 \alias{ith_subsets_by_group_list}
-\title{Grouped KNN Subset Iterator with Chunking}
+\title{Grouped KNN Subset Iterator with Chunk Size}
 \usage{
-ith_subsets_by_group_list(x, y, kindx, kgroup, D = NULL, n_chunks = 1)
+ith_subsets_by_group_list(x, y, kindx, kgroup, D = NULL, chunk_size = 1)
 }
 \arguments{
 \item{x}{A numeric matrix (n × p) representing the full reference dataset.}
 
 \item{y}{A numeric matrix or vector (n × 1) of associated response values.}
 
-\item{kindx}{An integer matrix (k × n) where each column contains indices of
+\item{kindx}{An integer matrix (k × m) where each column contains indices of
 the \code{k} nearest neighbors for the corresponding observation.}
 
-\item{kgroup}{A logical or integer matrix (k × n) indicating a group
+\item{kgroup}{A logical or integer matrix (k × m) indicating a group
 (subset) of rows from \code{kindx} to be selected for each observation.}
 
 \item{D}{Optional numeric matrix (n × n) representing a dissimilarity or
 distance matrix. If provided, its values for selected neighbors will be
 embedded into the \code{xval} vector.}
 
-\item{n_chunks}{Integer. The number of column-wise chunks to partition the
-iteration over. Defaults to 5.}
+\item{chunk_size}{Integer. The maximum number of columns from \code{kindx} and
+\code{kgroup} to include in each batch. Defaults to 1. The last batch may be
+smaller if the total number of columns is not a multiple of \code{chunk_size}.}
 }
 \value{
 An iterator object that returns, at each call of \code{nextElem()}, a list
@@ -36,8 +37,9 @@ of lists. Each inner list contains:
 \description{
 Creates an iterator over grouped subsets of rows from \code{x} and \code{y} based on
 nearest neighbor indices (\code{kindx}) and group selectors (\code{kgroup}). The
-iteration is performed in \code{n_chunks} of columns from the input matrices, and
-optionally incorporates a dissimilarity matrix \code{D}.
+iteration is performed in consecutive column batches of size up to
+\code{chunk_size} from the input matrices, and optionally incorporates a
+dissimilarity matrix \code{D}.
 }
 \details{
 This iterator is useful when local models need to be built for each

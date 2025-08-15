@@ -4,7 +4,7 @@
 \alias{ith_subsets_list}
 \title{Chunked Iterator for Subsetting by Nearest Neighbors}
 \usage{
-ith_subsets_list(x, y, kindx, D = NULL, n_chunks = 1)
+ith_subsets_list(x, y, kindx, D = NULL, chunk_size = 1)
 }
 \arguments{
 \item{x}{A numeric matrix of predictors (n × p), where \code{n} is the number of
@@ -20,14 +20,14 @@ the indices of the \code{k} nearest neighbors for the corresponding observation.
 If provided, for each subset the dissimilarities among the selected
 neighbors are prepended as additional columns to the predictors.}
 
-\item{n_chunks}{Integer. Number of batches over which to partition the
-\code{n} observations. Each iteration of the returned iterator will yield one
-such batch, containing a list of nearest-neighbor subsets.}
+\item{chunk_size}{Integer. Maximum number of observations per batch.
+The \code{n} observations are split into consecutive batches of size
+\code{chunk_size}, except for the final batch which may be smaller.}
 }
 \value{
 An iterator object compatible with \code{nextElem()} from the
 \strong{iterators} package. Each call to \code{nextElem()} returns a list of
-sublists (one per observation in the chunk), where each sublist contains:
+sublists (one per observation in the batch), where each sublist contains:
 \itemize{
 \item \code{x}: predictor matrix for that local subset (with optional dissimilarity)
 \item \code{y}: response vector/matrix for that local subset
@@ -35,14 +35,15 @@ sublists (one per observation in the chunk), where each sublist contains:
 }
 \description{
 Creates an iterator that returns batched subsets of observations for
-local modeling. Each batch corresponds to a set of indices (rows) grouped
-into \code{n_chunks}, and for each observation in the chunk, its corresponding
-nearest neighbors are used to extract the \code{x}, \code{y}, and optional \code{D} values.
+local modeling. Each batch corresponds to a set of consecutive indices
+(rows) of size up to \code{chunk_size}. For each observation in the batch,
+its corresponding nearest neighbors are used to extract the \code{x}, \code{y},
+and optional \code{D} values.
 }
 \examples{
 \dontrun{
 library(iterators)
-it <- ith_subsets_list(Xr, Yr, kindx, D, n_chunks = 5)
+it <- ith_subsets_list(Xr, Yr, kindx, D, chunk_size = 100)
 
 while (TRUE) {
   chunk <- tryCatch(nextElem(it), error = function(e) {
@@ -50,7 +51,7 @@ while (TRUE) {
     stop(e)
   })
   if (is.null(chunk)) break
-  print(length(chunk))  # Number of subsets in the chunk
+  print(length(chunk))  # Number of subsets in the batch
 }
 }
 

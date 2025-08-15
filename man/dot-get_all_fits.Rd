@@ -20,7 +20,7 @@
   kidxgrop,
   dissimilarity_mat = NULL,
   pb,
-  n_chunks,
+  chunk_size,
   ...
 )
 }
