@@ -237,7 +237,7 @@ fit_library <- function(
   if (chunk_size > min_size) {
     stop("chunk_size cannot exceed ", min_size, " in this context")
   }
-    
+  
   pc_selection <- check_pc_arguments(
     n_rows_x = nrow(Xr), 
     n_cols_x = ncol(Xr),  
@@ -260,6 +260,7 @@ fit_library <- function(
   }
   
   if (is.matrix(diss_method)) {
+    diss_method_type <- "Precomputed dissimilarity matrix"
     if (nrow(diss_method) != nrow(Xr)) {
       stop(
         "If 'diss_method' is a matrix, it must have the same number of rows ",
@@ -311,11 +312,11 @@ fit_library <- function(
       Yr_anchor <- Yr
     }
   } else if (is.character(diss_method)) {
-    diss_method <- match.arg(
+    diss_method_type <- match.arg(
       diss_method,
       c("pca", "pca.nipals", "pls", "mpls", "cor", "euclid", "cosine", "sid")
     )
-
+    
     cat("Computing dissimilarities... \n")
     
     if (!is.null(anchor_indices)) {
@@ -326,7 +327,7 @@ fit_library <- function(
       dsm <- dissimilarity(
         Xr = Xr[-anchor_indices, , drop = FALSE],
         Xu = Xr[anchor_indices, , drop = FALSE],
-        diss_method = diss_method,
+        diss_method = diss_method_type,
         Yr = Yr[-anchor_indices, , drop = FALSE],
         center = center,
         scale = scale,
@@ -353,7 +354,7 @@ fit_library <- function(
       rm(new_mat)
       gc() 
       
-      if (diss_method %in% c("pca", "pca.nipals", "pls", "mpls")) {
+      if (diss_method_type %in% c("pca", "pca.nipals", "pls", "mpls")) {
         z_anchor <- dsm$projection$scores[-(1:(nrow(Xr) - length(anchor_indices))), ] 
         z_anchor <- scale(
           z_anchor, 
@@ -381,7 +382,7 @@ fit_library <- function(
         }
         dsm_anchor <- dissimilarity(
           Xr = Xr[anchor_indices, , drop = FALSE],
-          diss_method = diss_method,
+          diss_method = diss_method_type,
           Yr = Yr[anchor_indices, , drop = FALSE],
           center = FALSE,
           scale = FALSE,
@@ -399,7 +400,7 @@ fit_library <- function(
       Yr_anchor <- Yr
       dsm <- dissimilarity(
         Xr = Xr,
-        diss_method = diss_method,
+        diss_method = diss_method_type,
         Yr = Yr,
         center = center,
         scale = scale,
@@ -411,12 +412,12 @@ fit_library <- function(
     }
     
     dsm <- dsm[!names(dsm) %in% "documentation"]
-    sml <- list(diss_method = diss_method)
+    sml <- list(diss_method = diss_method_type)
     dsm <- append(sml, dsm)
   } else {
     stop("diss_method must be a character string or a precomputed matrix")
   }
-
+  
   if (anyNA(Yr)) {
     if (sum(!is.na(Yr)) < max(k)) {
       stop(
@@ -433,7 +434,7 @@ fit_library <- function(
   kidxmat <- top_k_order(
     dsm$dissimilarity, k = max(k), skip = which(is.na(Yr))
   )
-
+  
   kdissmat <- extract_by_index(dsm$dissimilarity, kidxmat)
   
   
@@ -544,7 +545,7 @@ fit_library <- function(
     pb = pb,
     chunk_size = chunk_size
   )
-
+  
   ## Organize the results (in nnpreds)
   pparam <- matrix(NA, nrow(emgrid), 4)
   sstats <- function(y, yhat, itqk, pparam) {
@@ -694,23 +695,23 @@ fit_library <- function(
           maxiter = pls_max_iter, 
           tol = pls_tol
         )
-      
-      # ij_pls <- final_fits(
-      #   ilocalsubset = ithbarrio,
-      #   min_component = optimalminpls, 
-      #   max_component = optimalmaxpls, 
-      #   scale = scale, 
-      #   maxiter = pls_max_iter, 
-      #   tol = pls_tol
-      # )
-      iplslib[, j] <- unlist(ij_pls, recursive = FALSE, use.names = FALSE)
+        
+        # ij_pls <- final_fits(
+        #   ilocalsubset = ithbarrio,
+        #   min_component = optimalminpls, 
+        #   max_component = optimalmaxpls, 
+        #   scale = scale, 
+        #   maxiter = pls_max_iter, 
+        #   tol = pls_tol
+        # )
+        iplslib[, j] <- unlist(ij_pls, recursive = FALSE, use.names = FALSE)
       }
       if (j < ncol(iplslib))  {
         iplslib <- iplslib[, 1:j]
       }
       iplslib
     }
-
+    
     plslib <- do.call("cbind", plslib)
     
     setTxtProgressBar(pb, length(k) + 1)
@@ -775,7 +776,7 @@ fit_library <- function(
       iscale$local.diss.scale <- xscale[ ,colnames(xscale) %in% namesk]
     }
     
-    if (diss_method %in% c("pca", "pls")) {
+    if (diss_method_type %in% c("pca", "pls")) {
       fresults <- list(
         dissimilatity = dsm[!names(dsm) %in% "gh"],
         gh = dsm$gh, 
