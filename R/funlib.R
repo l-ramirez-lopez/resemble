@@ -975,12 +975,16 @@ predict.funlib <- function(
   ## this might become an argument to cancel models with high residuals (rd > xx)
   rd <- residual_cutoff
   ## this is for cancelling models with high residuals (rd > xx)
-  res <- object$residuals
-  # res <- abs(scale(res, center = TRUE, scale = TRUE))
-  plot(res)
-  res[res < rd] <- 0
-  res[res >= rd] <- 1
-  res <- as.logical(res)
+  if (!is.null(object$residuals)) {
+    res <- object$residuals
+    # res <- abs(scale(res, center = TRUE, scale = TRUE))
+    plot(res)
+    res[res < rd] <- 0
+    res[res >= rd] <- 1
+    res <- as.logical(res)
+  } else {
+    res <- rep(FALSE, ncol(xunn))
+  }
   ## this deactivates model cancelling (for the moment)
   # res[] <- FALSE 
   
