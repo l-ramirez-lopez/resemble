@@ -875,12 +875,11 @@ predict.funlib <- function(
     range.pred.lim = FALSE, 
     local = TRUE, 
     residual_cutoff = Inf,
-    diss_method = object$dissimilatity$diss_method, 
-    ws, 
+    diss_method = NULL, 
     ...
 ) {
   
-  if (diss_method == "Precomputed dissimilarity matrix") {
+  if (object$dissimilatity$diss_method == "Precomputed dissimilarity matrix" & is.null(diss_method)) {
     stop(
       "The models were built using a precomputed dissimilarity matrix. ",
       "To select models, you must explicitly specify a dissimilarity method ",
@@ -888,8 +887,17 @@ predict.funlib <- function(
       "'pca', 'pca.nipals', 'pls', 'mpls', ",
       "'cor', 'euclid', 'cosine', or 'sid'."
     )
+  } else {
+    diss_method_type <- object$dissimilatity$diss_method
   }
   
+  if (!is.null(diss_method)) {
+    diss_method_type <- match.arg(
+      diss_method, 
+      c("pca", "pca.nipals", "pls", "mpls", "cor", "euclid", "cosine", "sid")
+    )
+  }
+
   if(!"funlib" %in% class(object)){
     stop("object must be of class 'funlib'")
   }
@@ -901,7 +909,7 @@ predict.funlib <- function(
   newdata <- newdata[, colnames(newdata) %in% colnames(object$functionlibrary$B)]
 
   ghd <- NULL
-  if (diss_method %in% c("pca", "pls")) {
+  if (diss_method_type %in% c("pca", "pls")) {
     scnew <- predict(object$dissimilatity$projection, newdata)
     zcenter <- resemble:::get_column_means(object$dissimilatity$projection$scores) 
     zscale <- resemble:::get_column_sds(object$dissimilatity$projection$scores)
@@ -924,7 +932,7 @@ predict.funlib <- function(
     )
     
   } else {
-    
+
     dsmxu <- dissimilarity(
       Xr = scale(
         object$scale$local.x.center, 
@@ -935,17 +943,17 @@ predict.funlib <- function(
         center = object$scale$centre, 
         scale = object$scale$scale
       ),
-      diss_method = object$dissimilatity$diss_method,
+      diss_method = diss_method_type,
       center = FALSE,
       scaled = FALSE,
       gh = FALSE,
-      ws = ws
+      ...
     )
     
   }
   
   if (!is.null(object$gh)) {
-    if (diss_method != "pls") {
+    if (diss_method_type != "pls") {
       scnew <- predict(object$gh$projection, newdata)
     }
     ghd <- dissimilarity(
@@ -959,6 +967,18 @@ predict.funlib <- function(
     ghd <- as.vector(ghd)
   }
   
+  dots <- list(...)
+  if (diss_method_type == "cor") {
+    if (!"ws" %in% names(dots)) {
+      cat(
+        "Retriving models using correlation dissimilarity with a window isze of ", ws, "...\n"
+      )
+    } else {
+      cat("Retriving models using correlation dissimilarity with full window...\n")
+    }
+  } else {
+    cat("Retriving models using ", diss_method_type, " dissimilarity...\n")
+  }
   # Weights are defined according to a tricubic function 
   # as in Cleveland and Devlin (1988) and Naes and Isaksson (1990).
   xunn <- apply(
@@ -1075,6 +1095,7 @@ predict.funlib <- function(
     dxrxu = xudiss
   )
   
+  cat("Computing predictions...\n")
   yupreds <- foreach(
     i = 1:nrow(newdata), 
     .export = c(
