@@ -364,6 +364,12 @@ fit_library <- function(
         dsm$dissimilarity[anchor_indices, ] <- z_diss
         rm(z_diss, z_anchor)
         gc() 
+        real_order <- order(c((1:nrow(Xr))[-anchor_indices], anchor_indices))
+        dsm$projection$scores <- dsm$projection$scores[real_order, ]
+        rownames(dsm$projection$scores) <- paste0("Xr_", 1:nrow(Xr))
+        
+        dsm$projection$scores[real_order, ][anchor_indices, ] |> rownames()
+        
       } else {
         z_anchor <- Xr[anchor_indices, , drop = FALSE]
         if (center || scale) {
@@ -389,7 +395,6 @@ fit_library <- function(
         rm(dsm_anchor, z_anchor)
         gc() 
       }
-      
     } else {
       Yr_anchor <- Yr
       dsm <- dissimilarity(
@@ -404,6 +409,7 @@ fit_library <- function(
         ws = ws
       )
     }
+    
     dsm <- dsm[!names(dsm) %in% "documentation"]
     sml <- list(diss_method = diss_method)
     dsm <- append(sml, dsm)
@@ -869,6 +875,7 @@ fit_library <- function(
     rownames(fresults$residuals) <- namesrows
     class(fresults) <- c("validationfunlib","list")
   }
+  fresults$anchor_indices <- anchor_indices
   
   attr(fresults, "call") <- call.f
   return(fresults)

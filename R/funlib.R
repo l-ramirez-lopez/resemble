@@ -900,14 +900,12 @@ predict.funlib <- function(
   ghd <- NULL
   if (object$dissimilatity$diss_method %in% c("pca", "pls")) {
     scnew <- predict(object$dissimilatity$projection, newdata)
-    scnew <- predict(object$gh$projection, newdata)
-    
     zcenter <- resemble:::get_column_means(object$dissimilatity$projection$scores) 
     zscale <- resemble:::get_column_sds(object$dissimilatity$projection$scores)
     
     dsmxu <- dissimilarity(
       Xr = scale(
-        object$dissimilatity$projection$scores, 
+        object$dissimilatity$projection$scores[object$anchor_indices, ], 
         center = zcenter, 
         scale = zscale
       ),
