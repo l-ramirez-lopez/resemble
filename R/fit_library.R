@@ -161,6 +161,7 @@ fit_library <- function(
     return_best = TRUE,
     pls_max_iter = 1,
     pls_tol = 1e-6,
+    nearest_neighbor_val= TRUE,
     optimize_ncomp_range = FALSE,
     chunk_size = 1,
     documentation = character(),
@@ -525,127 +526,137 @@ fit_library <- function(
   
   cat("Fitting models... \n")
   ## perform the nearest neighbor predictions  
-  nnpreds <- sapply(
-    1:length(k), 
-    FUN = .get_all_fits,
-    Xr = Xr, 
-    Yr = Yr, 
-    k = k,
-    min_component = minF, 
-    max_component = maxF, 
-    emgrid = emgrid,
-    scale = scale, 
-    maxiter = pls_max_iter, 
-    tol = pls_tol, 
-    regression = TRUE, 
-    pc_selection = pc_selection,
-    kidxmat = kidxmat,
-    kidxgrop = kidxgrop,
-    dissimilarity_mat = dssm,
-    pb = pb,
-    chunk_size = chunk_size
-  )
   
-  ## Organize the results (in nnpreds)
-  pparam <- matrix(NA, nrow(emgrid), 4)
-  sstats <- function(y, yhat, itqk, pparam) {
-    me <- sweep(-yhat, MARGIN = 1, STATS = y, FUN = "+", check.margin = FALSE)
-    pparam[, 1] <- cor(y, yhat, use = "complete.obs")^2
-    pparam[, 2] <- colMeans(me^2, na.rm = TRUE)^0.5
-    pparam[, 3] <- colMeans(me, na.rm = TRUE)
-    pparam[, 4] <- colMeans(
-      sweep(me, 
-            MARGIN = 1, 
-            STATS = itqk, 
-            FUN = "/", 
-            check.margin = FALSE)^2, 
-      na.rm = TRUE
-    )^0.5
-    return(pparam)
-  }
-  
-  isubset3Row <- function(x1, x2, x3, x4) {
-    sargs <- names(match.call())[-1]
-    nextEl <- function(..ii..) {
-      sapply(sargs, FUN = function(x) get(x)[,..ii..], simplify = FALSE)
+  if (nearest_neighbor_val) {
+    
+    nnpreds <- sapply(
+      1:length(k), 
+      FUN = .get_all_fits,
+      Xr = Xr, 
+      Yr = Yr, 
+      k = k,
+      min_component = minF, 
+      max_component = maxF, 
+      emgrid = emgrid,
+      scale = scale, 
+      maxiter = pls_max_iter, 
+      tol = pls_tol, 
+      regression = TRUE, 
+      pc_selection = pc_selection,
+      kidxmat = kidxmat,
+      kidxgrop = kidxgrop,
+      dissimilarity_mat = dssm,
+      pb = pb,
+      chunk_size = chunk_size
+    )
+    
+    ## Organize the results (in nnpreds)
+    pparam <- matrix(NA, nrow(emgrid), 4)
+    sstats <- function(y, yhat, itqk, pparam) {
+      me <- sweep(-yhat, MARGIN = 1, STATS = y, FUN = "+", check.margin = FALSE)
+      pparam[, 1] <- cor(y, yhat, use = "complete.obs")^2
+      pparam[, 2] <- colMeans(me^2, na.rm = TRUE)^0.5
+      pparam[, 3] <- colMeans(me, na.rm = TRUE)
+      pparam[, 4] <- colMeans(
+        sweep(me, 
+              MARGIN = 1, 
+              STATS = itqk, 
+              FUN = "/", 
+              check.margin = FALSE)^2, 
+        na.rm = TRUE
+      )^0.5
+      return(pparam)
     }
-    obj <- list(nextElem = nextEl)
-  }
-  
-  itr <- isubset3Row(x1 = nnpreds, x2 = itq)
-  
-  kpredstats <- function(
+    
+    isubset3Row <- function(x1, x2, x3, x4) {
+      sargs <- names(match.call())[-1]
+      nextEl <- function(..ii..) {
+        sapply(sargs, FUN = function(x) get(x)[,..ii..], simplify = FALSE)
+      }
+      obj <- list(nextElem = nextEl)
+    }
+    
+    itr <- isubset3Row(x1 = nnpreds, x2 = itq)
+    
+    kpredstats <- function(
     ..k.., 
     itr,
     pparam,
     y
-  ) {
-    ne <- itr$nextElem(..k..)
-    statsresults <- sstats(
-      y = y, 
-      yhat = t(matrix(ne$x1, nrow(pparam))), 
-      itqk = ne$x2, 
-      pparam = pparam
-    )  
-    statsresults
+    ) {
+      ne <- itr$nextElem(..k..)
+      statsresults <- sstats(
+        y = y, 
+        yhat = t(matrix(ne$x1, nrow(pparam))), 
+        itqk = ne$x2, 
+        pparam = pparam
+      )  
+      statsresults
+    }
+    
+    predperformance <- lapply(
+      1:ncol(nnpreds), 
+      FUN = kpredstats,
+      itr = itr,
+      pparam = pparam,
+      y = Yr_anchor
+    )
+    
+    predperformance <- data.frame(do.call("rbind", predperformance))
+    colnames(predperformance) <- c("r2", "rmse", "me", "st.rmse")
+    
+    predperformance <- data.frame(
+      minpls = rep(sgrid$minpls, times = length(k)),
+      maxpls = rep(sgrid$maxpls, times = length(k)),
+      k = rep(k, each = nrow(pparam)),
+      predperformance
+    )
+    
+    
+    # ## store results
+    # kresults <- data.frame(k = k, 
+    #                        r2 = cor(nnpreds , Yr[,], use = "complete.obs")^2,
+    #                        rmse = colMeans(me^2, na.rm = TRUE)^0.5,
+    #                        rmse.st = colMeans((me/itq)^2, na.rm = TRUE)^0.5,
+    #                        check.names = FALSE)
+    # plot(kresults$k, kresults$rmse)
+    
+    # find optinmal parameters
+    
+    if (metric == c("rmse")) {
+      bestp <- predperformance[which.min(predperformance[, metric]), ][1, ]
+    }
+    
+    if (metric == c("r2")) {
+      bestp <- predperformance[which.max(predperformance[, metric]), ][1, ]
+    }
+    
+    optimalk <- bestp$k
+    optimalminpls <- bestp$minpls
+    optimalmaxpls <- bestp$maxpls
+    
+    
+    ## Extract the vector of predictions corresponding to the best predictions
+    ## (optimal k, optimal pls range)
+    plsitemn <- which(
+      sgrid$minpls == optimalminpls & sgrid$maxpls == optimalmaxpls
+    )
+    plsitemn <- seq(plsitemn, by = nrow(pparam), length.out = length(Yr_anchor))
+    bestpreds <- itr$nextElem(which(k == optimalk))$x1[plsitemn]
+    bestpredsresiduals <- Yr_anchor - bestpreds   
+    
+    # ithbarrio <- ith_subsets(x = Xr,
+    #                          y = Yr,
+    #                          kindx = kidxmat[1:optimalk,],
+    #                          D = dssm)
+  } else {
+    optimalk <- max(k)
+    optimalminpls <- min(pls_c)
+    optimalmaxpls <- max(pls_c)
+    bestpredsresiduals <- bestp <- predperformance <- NULL
+    setTxtProgressBar(pb, 1)
   }
-  
-  predperformance <- lapply(
-    1:ncol(nnpreds), 
-    FUN = kpredstats,
-    itr = itr,
-    pparam = pparam,
-    y = Yr_anchor
-  )
-  
-  predperformance <- data.frame(do.call("rbind", predperformance))
-  colnames(predperformance) <- c("r2", "rmse", "me", "st.rmse")
-  
-  predperformance <- data.frame(
-    minpls = rep(sgrid$minpls, times = length(k)),
-    maxpls = rep(sgrid$maxpls, times = length(k)),
-    k = rep(k, each = nrow(pparam)),
-    predperformance
-  )
-  
-  
-  # ## store results
-  # kresults <- data.frame(k = k, 
-  #                        r2 = cor(nnpreds , Yr[,], use = "complete.obs")^2,
-  #                        rmse = colMeans(me^2, na.rm = TRUE)^0.5,
-  #                        rmse.st = colMeans((me/itq)^2, na.rm = TRUE)^0.5,
-  #                        check.names = FALSE)
-  # plot(kresults$k, kresults$rmse)
-  
-  # find optinmal parameters
-  
-  if (metric == c("rmse")) {
-    bestp <- predperformance[which.min(predperformance[, metric]), ][1, ]
-  }
-  
-  if (metric == c("r2")) {
-    bestp <- predperformance[which.max(predperformance[, metric]), ][1, ]
-  }
-  
-  optimalk <- bestp$k
-  optimalminpls <- bestp$minpls
-  optimalmaxpls <- bestp$maxpls
-  
-  
-  ## Extract the vector of predictions corresponding to the best predictions
-  ## (optimal k, optimal pls range)
-  plsitemn <- which(
-    sgrid$minpls == optimalminpls & sgrid$maxpls == optimalmaxpls
-  )
-  plsitemn <- seq(plsitemn, by = nrow(pparam), length.out = length(Yr_anchor))
-  bestpreds <- itr$nextElem(which(k == optimalk))$x1[plsitemn]
-  bestpredsresiduals <- Yr_anchor - bestpreds   
-  
-  # ithbarrio <- ith_subsets(x = Xr,
-  #                          y = Yr,
-  #                          kindx = kidxmat[1:optimalk,],
-  #                          D = dssm)
-  
+
   if (return_best) {
     ## build the pls librarby
     # plslib <- sapply(1:nrow(Xr), 
@@ -836,7 +847,6 @@ fit_library <- function(
     
     rownames(fresults$functionvips) <- 
       rownames(fresults$functionselectivityrs) <- 
-      rownames(fresults$residuals) <- 
       rownames(fresults$functionlibrary$B) <- 
       names(fresults$functionlibrary$B0) <- namesrows
     if (!is.null(fresults$functionlibrary$Bk))
@@ -872,11 +882,13 @@ fit_library <- function(
       }, 
       nms = namesrows
     )
-    
-    rownames(fresults$residuals) <- namesrows
     class(fresults) <- c("validationfunlib","list")
   }
   fresults$anchor_indices <- anchor_indices
+  
+  if (nearest_neighbor_val) {
+    rownames(fresults$residuals) <- namesrows
+  }
   
   attr(fresults, "call") <- call.f
   return(fresults)
