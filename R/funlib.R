@@ -398,7 +398,7 @@ ith_pred_subsets <- function(
     } else {
       idxrxu <- NULL
     }
-    
+
     ixscale <- xscale[ixunn, ]
     iplslib <- plslib[ixunn, ]
     
@@ -777,16 +777,15 @@ ith_pred_subsets <- function(
 #'
 #' @keywords internal
 ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
-  
-  if(is.null(dxrxu)){
+  if (is.null(dxrxu)) {
     ixus <- sweep(xscale, MARGIN = 2, STATS =  Xu, FUN = "/" )
     ixus <- 1 / ixus
-    ipred <- plslib[,1] + rowSums(plslib[, -1] * ixus)
-  }else{
+    ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
+  } else {
     dxu <- c(dxrxu, Xu)
     ixus <- sweep(xscale, MARGIN = 2, STATS =  dxu, FUN = "/" )
     ixus <- 1 / ixus
-    ipred <- plslib[,1] + rowSums(plslib[, -1] * ixus)
+    ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
   }
   ipred
 }
@@ -901,12 +900,25 @@ predict.funlib <- function(
   ghd <- NULL
   if (object$dissimilatity$diss_method %in% c("pca", "pls")) {
     scnew <- predict(object$dissimilatity$projection, newdata)
+    scnew <- predict(object$gh$projection, newdata)
+    
+    zcenter <- resemble:::get_column_means(object$dissimilatity$projection$scores) 
+    zscale <- resemble:::get_column_sds(object$dissimilatity$projection$scores)
+    
     dsmxu <- dissimilarity(
-      Xr = object$dissimilatity$projection$scores,
-      Xu = scnew,
+      Xr = scale(
+        object$dissimilatity$projection$scores, 
+        center = zcenter, 
+        scale = zscale
+      ),
+      Xu = scale(
+        scnew, 
+        center = zcenter, 
+        scale = zscale
+      ),
       diss_method = "euclid",
-      center = TRUE,
-      scaled = TRUE,
+      center = FALSE,
+      scaled = FALSE,
       gh = FALSE
     )
     
@@ -969,7 +981,7 @@ predict.funlib <- function(
   res[res >= rd] <- 1
   res <- as.logical(res)
   ## this deactivates model cancelling (for the moment)
-  res[] <- FALSE 
+  # res[] <- FALSE 
   
   xudss2 <- sapply(
     1:ncol(xunn),
