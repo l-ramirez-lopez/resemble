@@ -969,9 +969,9 @@ predict.funlib <- function(
   
   dots <- list(...)
   if (diss_method_type == "cor") {
-    if (!"ws" %in% names(dots)) {
+    if ("ws" %in% names(dots)) {
       cat(
-        "Retriving models using correlation dissimilarity with a window isze of ", ws, "...\n"
+        "Retriving models using correlation dissimilarity with a window size of ", ws, "...\n"
       )
     } else {
       cat("Retriving models using correlation dissimilarity with full window...\n")
