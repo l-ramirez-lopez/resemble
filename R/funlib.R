@@ -874,6 +874,7 @@ predict.funlib <- function(
     weighting = "triweight", 
     range.pred.lim = FALSE, 
     local = TRUE, 
+    residual_cutoff = Inf,
     diss_method = object$dissimilatity$diss_method, 
     ws, 
     ...
@@ -972,7 +973,7 @@ predict.funlib <- function(
   
   
   ## this might become an argument to cancel models with high residuals (rd > xx)
-  rd <- 2.5
+  rd <- residual_cutoff
   ## this is for cancelling models with high residuals (rd > xx)
   res <- object$residuals
   # res <- abs(scale(res, center = TRUE, scale = TRUE))
