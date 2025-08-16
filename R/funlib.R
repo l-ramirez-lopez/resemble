@@ -874,7 +874,9 @@ predict.funlib <- function(
     weighting = "triweight", 
     range.pred.lim = FALSE, 
     local = TRUE, 
-    diss_method = object$dissimilatity$diss_method
+    diss_method = object$dissimilatity$diss_method, 
+    ws, 
+    ...
 ) {
   
   if (diss_method == "Precomputed dissimilarity matrix") {
@@ -898,7 +900,7 @@ predict.funlib <- function(
   newdata <- newdata[, colnames(newdata) %in% colnames(object$functionlibrary$B)]
 
   ghd <- NULL
-  if (object$dissimilatity$diss_method %in% c("pca", "pls")) {
+  if (diss_method %in% c("pca", "pls")) {
     scnew <- predict(object$dissimilatity$projection, newdata)
     zcenter <- resemble:::get_column_means(object$dissimilatity$projection$scores) 
     zscale <- resemble:::get_column_sds(object$dissimilatity$projection$scores)
@@ -936,13 +938,13 @@ predict.funlib <- function(
       center = FALSE,
       scaled = FALSE,
       gh = FALSE,
-      ws = object$dissimilatity$ws
+      ws = ws
     )
     
   }
   
   if (!is.null(object$gh)) {
-    if (object$dissimilatity$diss_method != "pls") {
+    if (diss_method != "pls") {
       scnew <- predict(object$gh$projection, newdata)
     }
     ghd <- dissimilarity(
