@@ -174,6 +174,11 @@ fit_library <- function(
     stop("column names are mandatory for Xr")
   }
   
+  if (missing(k)) {
+    stop("'k' is missing... at the mooment 'k_diss' is not active")
+  }
+  
+  
   if (missing(group)) {
     group <- as.factor(paste("g", 1:nrow(Xr), sep = ""))
   }
@@ -200,7 +205,7 @@ fit_library <- function(
   }
   
   if (!missing(k_diss)) {
-    dtc <- k.diss
+    dtc <- k_diss
     if (missing(k_range)) {
       stop("When using k_diss, 'k_range' must be specified")
     }
@@ -215,8 +220,8 @@ fit_library <- function(
       stop("In 'k_range', the first value must be <= the second value")
     }
     
-    k.min <- as.integer(k.range[1])
-    k.max <- as.integer(k.range[2])
+    k.min <- as.integer(k_range[1])
+    k.max <- as.integer(k_range[2])
     if (k.min < 10)
       stop("Minimum number of nearest neighbours allowed is 10")
     if (k.max > nrow(Xr))
@@ -419,11 +424,12 @@ fit_library <- function(
     stop("diss_method must be a character string or a precomputed matrix")
   }
   
+  max_k <- ifelse(missing(k), max(k_range), max(k))
   if (anyNA(Yr)) {
-    if (sum(!is.na(Yr)) < max(k)) {
+    if (sum(!is.na(Yr)) < max_k) {
       stop(
         paste0(
-          "The maximum number of neighbors selected (", max(k), 
+          "The maximum number of neighbors selected (", max_k, 
           ") exceeds the number of non-missing observations in 'Yr' (", 
           sum(!is.na(Yr)), "). Please reduce the number of neighbors."
         )
@@ -433,7 +439,7 @@ fit_library <- function(
   
   ## find the indices of the nearest neighbors
   kidxmat <- top_k_order(
-    dsm$dissimilarity, k = max(k), skip = which(is.na(Yr))
+    dsm$dissimilarity, k = max_k, skip = which(is.na(Yr))
   )
   
   kdissmat <- extract_by_index(dsm$dissimilarity, kidxmat)
