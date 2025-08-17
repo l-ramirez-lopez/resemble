@@ -112,10 +112,11 @@
 #'
 #' Rasmussen, C.E., Williams, C.K. Gaussian Processes for Machine Learning.
 #' Massachusetts Institute of Technology: MIT-Press, 2006.
-#'
-#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding
-#' Wachievements in near infrared spectroscopy: my contributions to
-#' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+#' 
+#' Westerhaus, M. 2014. Eastern analytical symposium award for outstanding 
+#' achievements in near infrared spectroscopy: my contributions to near 
+#' infrared spectroscopy. NIR news, 25(8), 16-20.
+#' 
 #' @seealso \code{\link{mbl}}
 #' @examples
 #' local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
