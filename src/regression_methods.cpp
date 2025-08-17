@@ -2319,7 +2319,8 @@ Rcpp::NumericVector ith_local_fit(
   
   // Step 5: Multiply emgrid with pcweights (column-wise)
   arma::mat wmgrid = emgrid;
-  wmgrid.each_row() %= pcweights;  // ✅ equivalent to sweep(..., MARGIN = 2)
+  // uivalent to sweep(..., MARGIN = 2)
+  wmgrid.each_row() %= pcweights;  
   
   // Step 6: Normalize rows (equivalent to sweep(..., MARGIN = 1))
   arma::vec rowsums = arma::sum(wmgrid, 1);
