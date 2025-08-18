@@ -815,47 +815,61 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 
 #' Predict from a funlib object
 #'
-#' Makes predictions using a local ensemble model from a \code{funlib} object.  
-#' Dissimilarity-based neighborhood selection is used for each new sample, and  
-#' predictions are made via ado weighted combination of local models.
+#' Generate predictions using a local ensemble model from a \code{funlib} object.  
+#' For each new sample, a neighbourhood of local models is retrieved based on  
+#' dissimilarity, and predictions are obtained via a weighted combination of  
+#' these models.
 #'
 #' @param object A fitted object of class \code{"funlib"}, typically created by
-#'   a function that builds a local function library.
+#'   a function that builds a function library of local models.
 #' @param newdata A data frame or matrix containing new predictor values.
-#'   Must include all required predictors used in \code{object}.
-#' @param weighting Character string specifying the weighting function used 
-#'   to weight neighbors in the prediction. Options are: 
+#'   Must include all predictors required by \code{object}.
+#' @param weighting Character string specifying the kernel weighting function 
+#'   applied to neighbours when combining predictions. Options are: 
 #'   \code{"triweight"} (default), \code{"tricube"}, \code{"triangular"}, 
 #'   \code{"quartic"}, \code{"parabolic"}, or \code{"gaussian"}.
-#' @param range.pred.lim Logical. If \code{TRUE}, predictions falling outside
-#'   the range of the neighborhood will be clipped to the 5–95% interval 
-#'   observed in that neighborhood.
+#' @param probs A numeric vector of probabilities in \[0, 1\]. 
+#'   (Currently not implemented.) Intended to specify weighted quantiles of the  
+#'   predictions across models to provide an empirical approximation to  
+#'   prediction intervals. Default is \code{seq(0, 1, 0.25)}.
+#' @param range_pred_lim Logical. If \code{TRUE}, predictions falling outside
+#'   the 5–95% range of neighbour target values are clipped to those limits.
+#' @param local Logical; if \code{TRUE}, predictions are based on local models.
+#' @param residual_cutoff Numeric. Threshold for excluding models with residuals
+#'   greater than this value. Default is \code{Inf} (no exclusion).
+#' @param diss_method Optional character string specifying the dissimilarity 
+#'   method to use when retrieving models. Valid options include 
+#'   \code{"pca"}, \code{"pca.nipals"}, \code{"pls"}, \code{"mpls"}, 
+#'   \code{"cor"}, \code{"euclid"}, \code{"cosine"}, or \code{"sid"}.
+#' @param ... Further arguments passed to the dissimilarity computation.
 #'
-#' @return A list with:
+#' @return A list with the following elements:
 #' \describe{
-#'   \item{predictions}{A data frame with the following columns: 
-#'     \itemize{
-#'       \item \code{pred}: predicted values,
-#'       \item \code{pred.sd}: weighted standard deviation of predictions,
-#'       \item \code{gh}: (if applicable) global heterogeneity dissimilarity score,
-#'       \item \code{min.yr.in.neighborhood}: 5th percentile of neighbor targets,
-#'       \item \code{max.yr.in.neighborhood}: 95th percentile of neighbor targets,
-#'       \item \code{below.lower.lim}, \code{above.upper.lim}: logicals indicating
-#'         whether the prediction falls outside these limits.
-#'     }}
-#'   \item{neighbour.list}{A list with:
-#'     \itemize{
-#'       \item \code{indices}: indices of the selected neighbors,
-#'       \item \code{diss.scores}: their dissimilarity scores.
-#'     }}
+#'   \item{\code{predictions}}{A data frame with the following columns:
+#'     \describe{
+#'       \item{\code{pred}}{Predicted values}
+#'       \item{\code{pred_sdev}}{Weighted standard deviation of predictions}
+#'       \item{\code{q[probability]}}{Weighted quantiles of predictions}
+#'       \item{\code{gh}}{(if available) Global heterogeneity dissimilarity score}
+#'       \item{\code{min_yr_in_neighborhood}}{Minimum neighbour response (5th percentile)}
+#'       \item{\code{max_yr_in_neighborhood}}{Maximum neighbour response (95th percentile)}
+#'       \item{\code{below_lower_lim}, \code{above_upper_lim}}{Logicals indicating 
+#'         whether the prediction falls outside these limits}
+#'     }
+#'   }
+#'   \item{\code{neighbour_list}}{A list with components:
+#'     \describe{
+#'       \item{\code{indices}}{Indices of the selected neighbours}
+#'       \item{\code{diss_scores}}{Their dissimilarity scores}
+#'     }
+#'   }
 #' }
-#'
 #' @details
-#' This function uses dissimilarity-based local modeling to compute 
-#' ensemble predictions for new data. For each new sample, a neighborhood of 
-#' \code{optimalk} samples is selected based on the dissimilarity metric 
-#' defined in the \code{funlib} object. The predictions are weighted according 
-#' to the selected kernel function.
+#' This function applies dissimilarity-based local modelling to compute 
+#' ensemble predictions for new data. For each query sample, a neighbourhood of 
+#' \code{optimalk} local models is selected using the specified dissimilarity 
+#' method. Predictions from these models are then combined using the selected 
+#' kernel weighting function.
 #'
 #' @references
 #' Cleveland, W. S., & Devlin, S. J. (1988). Locally weighted regression: 
@@ -865,14 +879,16 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 #' Næs, T., & Isaksson, T. (1990). Locally weighted regression and scatter 
 #' correction methods in practical spectroscopy. \emph{Applied Spectroscopy}, 
 #' 44(3), 378–383.
+#'
 #' @author Leonardo Ramirez-Lopez
 #' @export
 
 predict.funlib <- function(
     object, 
     newdata, 
-    weighting = "triweight", 
-    range.pred.lim = FALSE, 
+    weighting = "triweight",
+    probs = seq(0, 1, 0.25),
+    range_pred_lim = FALSE, 
     local = TRUE, 
     residual_cutoff = Inf,
     diss_method = NULL, 
@@ -1120,16 +1136,31 @@ predict.funlib <- function(
   yupreds <- do.call("rbind", yupreds)
   
   ## weighted standard deviation
-  xixm <- sweep(yupreds, MARGIN = 1, STATS = rowMeans(yupreds), FUN = "-", check.margin = FALSE)^2
-  a <- rowSums(xixm * t(dweights))
-  b <- (colSums(!dweights == 0) - 1) / colSums(!dweights == 0)
-  wsd <- (a / b)^0.5
-  
+  # xixm <- sweep(
+  #   yupreds, 
+  #   MARGIN = 1, 
+  #   STATS = rowMeans(yupreds), 
+  #   FUN = "-", 
+  #   check.margin = FALSE
+  # )^2
+  # a <- rowSums(xixm * t(dweights))
+  # b <- (colSums(!dweights == 0) - 1) / colSums(!dweights == 0)
+  # weighted_sdev <- (a / b)^0.5
+
+  # weighted mean per row
   yupreds <- yupreds * t(dweights)
+  # weighted variance per row
+  wvar <- rowSums(
+    (sweep(yupreds, 2, wmean, "-")^2) * matrix(rep(w, nrow(yupreds)), nrow = nrow(yupreds), byrow = TRUE)
+  )
   
+  weighted_sdev <- sqrt(wvar)
+  wquantiles <- weighted_quantile(yupreds, w = dweights, probs = probs)
+    
   preds <- data.frame(
     pred = rowSums(yupreds), 
-    pred.sd = wsd
+    pred_sdev = weighted_sdev, 
+    pred_quantiles = weighted_quantile
   )
   
   preds$gh <- ghd
@@ -1140,9 +1171,9 @@ predict.funlib <- function(
   
   
   preds <- list(predictions = preds)
-  preds$neighbour.list <- list(
+  preds$neighbour_list <- list(
     indices = xunn, 
-    diss.scores = xudss
+    diss_scores = xudss
   )
   
   stst <- object$yu.nnstats[[paste("k.",object$sel.param$optimalk, sep = "")]]
@@ -1150,15 +1181,15 @@ predict.funlib <- function(
   liminf <- sapply(1:nrow(newdata), FUN = function(x, ni, ..i..) min(x[ni[,..i..], "5%"]), x = stst, ni = xunn)
   limsup <- sapply(1:nrow(newdata), FUN = function(x, ni, ..i..) max(x[ni[,..i..], "95%"]), x = stst, ni = xunn)
   
-  preds$predictions$min.yr.in.neighborhood <- liminf
-  preds$predictions$max.yr.in.neighborhood <- limsup
+  preds$predictions$min_yr_in_neighborhood <- liminf
+  preds$predictions$max_yr_in_neighborhood <- limsup
   
-  preds$predictions$below.lower.lim <- preds$predictions$pred < preds$predictions$min.yr.in.neighborhood
-  preds$predictions$above.upper.lim <- preds$predictions$pred > preds$predictions$max.yr.in.neighborhood
+  preds$predictions$below_lower_lim <- preds$predictions$pred < preds$predictions$min_yr_in_neighborhood
+  preds$predictions$above_upper_lim <- preds$predictions$pred > preds$predictions$max_yr_in_neighborhood
   
   if (range.pred.lim) {
-    preds$predictions$pred[preds$predictions$below.lower.lim] <- preds$predictions$min.yr.in.neighborhood[preds$predictions$below.lower.lim]
-    preds$predictions$pred[preds$predictions$above.upper.lim] <- preds$predictions$max.yr.in.neighborhood[preds$predictions$above.upper.lim]
+    preds$predictions$pred[preds$predictions$below_lower_lim] <- preds$predictions$min_yr_in_neighborhood[preds$predictions$below_lower_lim]
+    preds$predictions$pred[preds$predictions$above_upper_lim] <- preds$predictions$max_yr_in_neighborhood[preds$predictions$above_upper_lim]
   }
   
   return(preds)
@@ -1196,3 +1227,43 @@ predict.funlib <- function(
   }  
   return(stdb)
 }
+
+
+#' Compute weighted quantiles
+#'
+#' This internal function computes weighted quantiles of a numeric vector.
+#' Observations are ordered, weights are normalised to sum to one,
+#' and cumulative weights are used to determine the quantile positions.
+#'
+#' @param x A numeric vector of observations.
+#' @param w A numeric vector of non-negative weights, the same length as `x`.
+#'   Weights are normalised internally to sum to 1.
+#' @param probs A numeric vector of probabilities in [0, 1],
+#'   giving the quantiles to compute (e.g. `c(0.25, 0.5, 0.75)`).
+#'
+#' @return A numeric vector of weighted quantiles corresponding to `probs`.
+#'
+#' @details
+#' This function implements a simple weighted quantile calculation by
+#' sorting observations and applying cumulative weighted sums.
+#' It is intended for internal use within the package and is not exported.
+#'
+#' @examples
+#' x <- c(1, 2, 3, 4, 5)
+#' w <- c(1, 1, 2, 2, 4)
+#' weighted_quantile(x, w, probs = c(0.25, 0.5, 0.75))
+#'
+#' @keywords internal
+weighted_quantile <- function(x, w, probs = c(0.25, 0.5, 0.75)) {
+  ord <- order(x)
+  x <- x[ord]
+  w <- w[ord] / sum(w)
+  cumw <- cumsum(w)
+  
+  res <- sapply(probs, function(p) {
+    x[which(cumw >= p)[1]]
+  })
+  
+  setNames(res, paste0("q", probs))
+}
+

@@ -8,58 +8,81 @@
   object,
   newdata,
   weighting = "triweight",
-  range.pred.lim = FALSE,
+  probs = seq(0, 1, 0.25),
+  range_pred_lim = FALSE,
   local = TRUE,
-  diss_method = object$dissimilatity$diss_method
+  residual_cutoff = Inf,
+  diss_method = NULL,
+  ...
 )
 }
 \arguments{
 \item{object}{A fitted object of class \code{"funlib"}, typically created by
-a function that builds a local function library.}
+a function that builds a function library of local models.}
 
 \item{newdata}{A data frame or matrix containing new predictor values.
-Must include all required predictors used in \code{object}.}
+Must include all predictors required by \code{object}.}
 
-\item{weighting}{Character string specifying the weighting function used
-to weight neighbors in the prediction. Options are:
+\item{weighting}{Character string specifying the kernel weighting function
+applied to neighbours when combining predictions. Options are:
 \code{"triweight"} (default), \code{"tricube"}, \code{"triangular"},
 \code{"quartic"}, \code{"parabolic"}, or \code{"gaussian"}.}
 
-\item{range.pred.lim}{Logical. If \code{TRUE}, predictions falling outside
-the range of the neighborhood will be clipped to the 5–95\% interval
-observed in that neighborhood.}
+\item{probs}{A numeric vector of probabilities in [0, 1].
+(Currently not implemented.) Intended to specify weighted quantiles of the
+predictions across models to provide an empirical approximation to
+prediction intervals. Default is \code{seq(0, 1, 0.25)}.}
+
+\item{range_pred_lim}{Logical. If \code{TRUE}, predictions falling outside
+the 5–95\% range of neighbour target values are clipped to those limits.}
+
+\item{local}{Logical; if \code{TRUE}, predictions are based on local models.}
+
+\item{residual_cutoff}{Numeric. Threshold for excluding models with residuals
+greater than this value. Default is \code{Inf} (no exclusion).}
+
+\item{diss_method}{Optional character string specifying the dissimilarity
+method to use when retrieving models. Valid options include
+\code{"pca"}, \code{"pca.nipals"}, \code{"pls"}, \code{"mpls"},
+\code{"cor"}, \code{"euclid"}, \code{"cosine"}, or \code{"sid"}.}
+
+\item{...}{Further arguments passed to the dissimilarity computation.}
 }
 \value{
-A list with:
+A list with the following elements:
 \describe{
-\item{predictions}{A data frame with the following columns:
-\itemize{
-\item \code{pred}: predicted values,
-\item \code{pred.sd}: weighted standard deviation of predictions,
-\item \code{gh}: (if applicable) global heterogeneity dissimilarity score,
-\item \code{min.yr.in.neighborhood}: 5th percentile of neighbor targets,
-\item \code{max.yr.in.neighborhood}: 95th percentile of neighbor targets,
-\item \code{below.lower.lim}, \code{above.upper.lim}: logicals indicating
-whether the prediction falls outside these limits.
-}}
-\item{neighbour.list}{A list with:
-\itemize{
-\item \code{indices}: indices of the selected neighbors,
-\item \code{diss.scores}: their dissimilarity scores.
-}}
+\item{\code{predictions}}{A data frame with the following columns:
+\describe{
+\item{\code{pred}}{Predicted values}
+\item{\code{pred_sdev}}{Weighted standard deviation of predictions}
+\item{\code{q[probability]}}{Weighted quantiles of predictions}
+\item{\code{gh}}{(if available) Global heterogeneity dissimilarity score}
+\item{\code{min_yr_in_neighborhood}}{Minimum neighbour response (5th percentile)}
+\item{\code{max_yr_in_neighborhood}}{Maximum neighbour response (95th percentile)}
+\item{\code{below_lower_lim}, \code{above_upper_lim}}{Logicals indicating
+whether the prediction falls outside these limits}
+}
+}
+\item{\code{neighbour_list}}{A list with components:
+\describe{
+\item{\code{indices}}{Indices of the selected neighbours}
+\item{\code{diss_scores}}{Their dissimilarity scores}
+}
+}
 }
 }
 \description{
-Makes predictions using a local ensemble model from a \code{funlib} object.
-Dissimilarity-based neighborhood selection is used for each new sample, and
-predictions are made via ado weighted combination of local models.
+Generate predictions using a local ensemble model from a \code{funlib} object.
+For each new sample, a neighbourhood of local models is retrieved based on
+dissimilarity, and predictions are obtained via a weighted combination of
+these models.
 }
 \details{
-This function uses dissimilarity-based local modeling to compute
-ensemble predictions for new data. For each new sample, a neighborhood of
-\code{optimalk} samples is selected based on the dissimilarity metric
-defined in the \code{funlib} object. The predictions are weighted according
-to the selected kernel function.
+This function applies dissimilarity-based local modelling to compute
+ensemble predictions for new data. For each query sample, a neighbourhood of
+\code{optimalk} local models is selected using the specified dissimilarity
+method. Predictions from these models are then combined using the selected
+kernel weighting function.
 }
 \references{
 Cleveland, W. S., & Devlin, S. J. (1988). Locally weighted regression:
