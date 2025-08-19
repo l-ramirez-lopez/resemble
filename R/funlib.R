@@ -1153,7 +1153,7 @@ predict.funlib <- function(
   weighted_yu_preds <- yupreds * dweights
   
   # Weighted mean per row
-  wpredictions <- rowSums(yupreds * dweights)
+  wpredictions <- rowSums(weighted_yu_preds)
   
   # Centered deviations (from original, unweighted predictions)
   centered_dev <- sweep(yupreds, 1, wpredictions, FUN = "-")^2
