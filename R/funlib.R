@@ -1147,20 +1147,27 @@ predict.funlib <- function(
   # b <- (colSums(!dweights == 0) - 1) / colSums(!dweights == 0)
   # weighted_sdev <- (a / b)^0.5
 
-  # weighted mean per row
-  yupreds <- yupreds * t(dweights)
-  # weighted variance per row
-  wvar <- rowSums(
-    (sweep(yupreds, 2, wmean, "-")^2) * matrix(rep(w, nrow(yupreds)), nrow = nrow(yupreds), byrow = TRUE)
-  )
   
+  # Transpose weights 
+  dweights <- t(dweights)
+  
+  # Weighted mean per row
+  wpredictions <- rowSums(yupreds * dweights)
+  
+  # Centered deviations (from original, unweighted predictions)
+  centered_dev <- sweep(yupreds, 1, wpredictions, FUN = "-")^2
+  
+  # Apply weights to squared deviations
+  wvar <- rowSums(centered_dev * dweights)
+  
+  # Standard deviation = sqrt(variance)
   weighted_sdev <- sqrt(wvar)
-  wquantiles <- weighted_quantile(yupreds, w = dweights, probs = probs)
+  wquantiles <- weighted_quantiles(yupreds[, -ncol(dweights)], w = dweights[, -ncol(dweights)], probs = probs)
     
   preds <- data.frame(
-    pred = rowSums(yupreds), 
+    pred = rowSums(weighted_yu_preds), 
     pred_sdev = weighted_sdev, 
-    pred_quantiles = weighted_quantile
+    pred_quantiles = wquantiles
   )
   
   preds$gh <- ghd
@@ -1187,7 +1194,7 @@ predict.funlib <- function(
   preds$predictions$below_lower_lim <- preds$predictions$pred < preds$predictions$min_yr_in_neighborhood
   preds$predictions$above_upper_lim <- preds$predictions$pred > preds$predictions$max_yr_in_neighborhood
   
-  if (range.pred.lim) {
+  if (range_pred_lim) {
     preds$predictions$pred[preds$predictions$below_lower_lim] <- preds$predictions$min_yr_in_neighborhood[preds$predictions$below_lower_lim]
     preds$predictions$pred[preds$predictions$above_upper_lim] <- preds$predictions$max_yr_in_neighborhood[preds$predictions$above_upper_lim]
   }
@@ -1206,9 +1213,11 @@ predict.funlib <- function(
   if(!"funlib" %in% class(object)){
     stop("object is not of class 'funlib'")
   }
-  nf <- ifelse(is.null(object$functionlibrary$Bk), 
-               ncol(object$functionlibrary$B), 
-               ncol(object$functionlibrary$B) + ncol(object$functionlibrary$Bk))
+  nf <- ifelse(
+    is.null(object$functionlibrary$Bk), 
+    ncol(object$functionlibrary$B), 
+    ncol(object$functionlibrary$B) + ncol(object$functionlibrary$Bk)
+  )
   
   b0 <- object$functionlibrary$B0/nf 
   
@@ -1231,39 +1240,97 @@ predict.funlib <- function(
 
 #' Compute weighted quantiles
 #'
-#' This internal function computes weighted quantiles of a numeric vector.
-#' Observations are ordered, weights are normalised to sum to one,
-#' and cumulative weights are used to determine the quantile positions.
+#' Computes weighted quantiles from a numeric vector and associated weights.
+#' Observations are sorted, weights are normalized to sum to 1, and
+#' cumulative weights are used to determine quantile positions via linear
+#' interpolation.
 #'
 #' @param x A numeric vector of observations.
 #' @param w A numeric vector of non-negative weights, the same length as `x`.
-#'   Weights are normalised internally to sum to 1.
-#' @param probs A numeric vector of probabilities in [0, 1],
-#'   giving the quantiles to compute (e.g. `c(0.25, 0.5, 0.75)`).
+#'   Weights are internally normalized to sum to 1.
+#' @param probs A numeric vector of probabilities in [0, 1] specifying the
+#'   quantile levels to compute (e.g., `c(0.25, 0.5, 0.75)`).
 #'
 #' @return A numeric vector of weighted quantiles corresponding to `probs`.
 #'
 #' @details
-#' This function implements a simple weighted quantile calculation by
-#' sorting observations and applying cumulative weighted sums.
-#' It is intended for internal use within the package and is not exported.
+#' The function uses a weighted version of the empirical cumulative
+#' distribution function (CDF). It sorts `x` and applies normalized weights
+#' to compute cumulative sums, which are then used to interpolate the
+#' quantiles at specified `probs`. Ties in cumulative weights are averaged.
+#'
+#' This function is designed for internal use and is not exported.
 #'
 #' @examples
 #' x <- c(1, 2, 3, 4, 5)
 #' w <- c(1, 1, 2, 2, 4)
-#' weighted_quantile(x, w, probs = c(0.25, 0.5, 0.75))
+#' weighted_quantiles(x, w, probs = c(0.25, 0.5, 0.75))
 #'
 #' @keywords internal
-weighted_quantile <- function(x, w, probs = c(0.25, 0.5, 0.75)) {
-  ord <- order(x)
-  x <- x[ord]
-  w <- w[ord] / sum(w)
-  cumw <- cumsum(w)
+weighted_quantiles <- function(
+    x,
+    weights,
+    probs = c(0.05, 0.25, 0.5, 0.75, 0.95)
+) {
+  stopifnot(is.matrix(x), is.matrix(weights))
+  stopifnot(all(dim(x) == dim(weights)))
+  stopifnot(all(probs >= 0 & probs <= 1))
   
-  res <- sapply(probs, function(p) {
-    x[which(cumw >= p)[1]]
-  })
+  n_rows <- nrow(x)
+  n_probs <- length(probs)
+  result <- matrix(NA_real_, nrow = n_rows, ncol = n_probs)
+  colnames(result) <- paste0("q", probs * 100)
   
-  setNames(res, paste0("q", probs))
+  # Collapse duplicate weights by averaging associated x values
+  collapse_duplicates <- function(w, x) {
+    uw <- unique(w)
+    agg_x <- vapply(uw, function(wi) {
+      mean(x[w == wi])
+    }, numeric(1))
+    list(w = uw, x = agg_x)
+  }
+  
+  for (i in seq_len(n_rows)) {
+    xi <- x[i, ]
+    wi <- weights[i, ]
+    
+    # Remove NA values
+    valid <- !(is.na(xi) | is.na(wi))
+    xi <- xi[valid]
+    wi <- wi[valid]
+    
+    if (length(xi) == 0 || sum(wi) == 0) next
+    
+    # Order by xi
+    ord <- order(xi)
+    xi <- xi[ord]
+    wi <- wi[ord]
+    
+    # Normalize weights
+    w_cum <- cumsum(wi) / sum(wi)
+    
+    # Collapse duplicated cumulative weights
+    if (any(duplicated(w_cum))) {
+      collapsed <- collapse_duplicates(w_cum, xi)
+      w_cum <- collapsed$w
+      xi <- collapsed$x
+    }
+    
+    # Compute quantiles via interpolation
+    qvals <- numeric(n_probs)
+    for (j in seq_along(probs)) {
+      p <- probs[j]
+      if (p <= min(w_cum)) {
+        qvals[j] <- xi[1]
+      } else if (p >= max(w_cum)) {
+        qvals[j] <- xi[length(xi)]
+      } else {
+        qvals[j] <- approx(w_cum, xi, xout = p)$y
+      }
+    }
+    
+    result[i, ] <- qvals
+  }
+  
+  return(result)
 }
-
