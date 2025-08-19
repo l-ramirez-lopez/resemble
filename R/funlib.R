@@ -1147,9 +1147,10 @@ predict.funlib <- function(
   # b <- (colSums(!dweights == 0) - 1) / colSums(!dweights == 0)
   # weighted_sdev <- (a / b)^0.5
 
-  
   # Transpose weights 
   dweights <- t(dweights)
+  
+  weighted_yu_preds <- yupreds * dweights
   
   # Weighted mean per row
   wpredictions <- rowSums(yupreds * dweights)
