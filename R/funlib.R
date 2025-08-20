@@ -1009,38 +1009,38 @@ predict.funlib <- function(
   
   
   ## this might become an argument to cancel models with high residuals (rd > xx)
-  rd <- residual_cutoff
-  ## this is for cancelling models with high residuals (rd > xx)
   if (!is.null(object$residuals)) {
-    res <- object$residuals
+    abs_res <- abs(object$residuals)
     # res <- abs(scale(res, center = TRUE, scale = TRUE))
-    plot(res)
-    res[res < rd] <- 0
-    res[res >= rd] <- 1
-    res <- as.logical(res)
+    plot(abs_res)
+    abs_res[abs_res < residual_cutoff] <- 0
+    abs_res[abs_res >= residual_cutoff] <- 1
+    remove_model <- as.logical(abs_res)
+    remove_model[is.na(remove_model)] <- TRUE
   } else {
-    res <- rep(FALSE, ncol(xunn))
+    remove_model <- rep(FALSE, ncol(xunn))
   }
   ## this deactivates model cancelling (for the moment)
   # res[] <- FALSE 
   
-  xudss2 <- sapply(
+  xu_diss <- sapply(
     1:ncol(xunn),
-    FUN = function(diss, nn, cs, ..i..){
-      d1 <- diss[nn[,..i..],..i..]
-      d2 <- cs[nn[,..i..]]
-      d1[d2] <- max(d1)
+    FUN = function(diss, nn, cs, index){
+      d1 <- diss[nn[, index], index]
+      d2 <- cs[nn[, index]]
+      # assign the max dissimilarity to make sure the model is not selected
+      d1[d2] <- max(d1) 
       d1
     },
     diss = dsmxu$dissimilarity, 
     nn = xunn,
-    cs = res
+    cs = remove_model
   )[1:object$sel.param$optimalk, ]
   
   dweights <- sweep(
-    xudss2, 
+    xu_diss, 
     MARGIN = 2, 
-    STATS = get_column_maxs(xudss2), 
+    STATS = get_column_maxs(xu_diss), 
     FUN = "/", 
     check.margin = FALSE
   )
