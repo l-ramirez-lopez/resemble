@@ -1127,7 +1127,7 @@ predict.funlib <- function(
   # res[] <- FALSE 
   
   dweights <- sweep(
-    xu_diss, 
+    xudss, 
     MARGIN = 2, 
     STATS = get_column_maxs(xudss), 
     FUN = "/", 
