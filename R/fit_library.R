@@ -899,3 +899,431 @@ fit_library <- function(
   attr(fresults, "call") <- call.f
   return(fresults)
 }
+
+
+
+#' Predict from a funlib object
+#'
+#' Generate predictions using a local ensemble model from a \code{funlib} object.  
+#' For each new sample, a neighbourhood of local models is retrieved based on  
+#' dissimilarity, and predictions are obtained via a weighted combination of  
+#' these models.
+#'
+#' @param object A fitted object of class \code{"funlib"}, typically created by
+#'   a function that builds a function library of local models.
+#' @param newdata A data frame or matrix containing new predictor values.
+#'   Must include all predictors required by \code{object}.
+#' @param weighting Character string specifying the kernel weighting function 
+#'   applied to neighbours when combining predictions. Options are: 
+#'   \code{"triweight"} (default), \code{"tricube"}, \code{"triangular"}, 
+#'   \code{"quartic"}, \code{"parabolic"}, or \code{"gaussian"}.
+#' @param probs A numeric vector of probabilities in \[0, 1\]. 
+#'   (Currently not implemented.) Intended to specify weighted quantiles of the  
+#'   predictions across models to provide an empirical approximation to  
+#'   prediction intervals. Default is \code{seq(0, 1, 0.25)}.
+#' @param range_pred_lim Logical. If \code{TRUE}, predictions falling outside
+#'   the 5–95% range of neighbour target values are clipped to those limits.
+#' @param local Logical; if \code{TRUE}, predictions are based on local models.
+#' @param residual_cutoff Numeric. Threshold for excluding models with residuals
+#'   greater than this value. Default is \code{Inf} (no exclusion).
+#' @param diss_method Optional character string specifying the dissimilarity 
+#'   method to use when retrieving models. Valid options include 
+#'   \code{"pca"}, \code{"pca.nipals"}, \code{"pls"}, \code{"mpls"}, 
+#'   \code{"cor"}, \code{"euclid"}, \code{"cosine"}, or \code{"sid"}.
+#' @param ... Further arguments passed to the dissimilarity computation.
+#'
+#' @return A list with the following elements:
+#' \describe{
+#'   \item{\code{predictions}}{A data frame with the following columns:
+#'     \describe{
+#'       \item{\code{pred}}{Predicted values}
+#'       \item{\code{pred_sdev}}{Weighted standard deviation of predictions}
+#'       \item{\code{q[probability]}}{Weighted quantiles of predictions}
+#'       \item{\code{gh}}{(if available) Global heterogeneity dissimilarity score}
+#'       \item{\code{min_yr_in_neighborhood}}{Minimum neighbour response (5th percentile)}
+#'       \item{\code{max_yr_in_neighborhood}}{Maximum neighbour response (95th percentile)}
+#'       \item{\code{below_lower_lim}, \code{above_upper_lim}}{Logicals indicating 
+#'         whether the prediction falls outside these limits}
+#'     }
+#'   }
+#'   \item{\code{neighbour_list}}{A list with components:
+#'     \describe{
+#'       \item{\code{indices}}{Indices of the selected neighbours}
+#'       \item{\code{diss_scores}}{Their dissimilarity scores}
+#'     }
+#'   }
+#' }
+#' @details
+#' This function applies dissimilarity-based local modelling to compute 
+#' ensemble predictions for new data. For each query sample, a neighbourhood of 
+#' \code{optimalk} local models is selected using the specified dissimilarity 
+#' method. Predictions from these models are then combined using the selected 
+#' kernel weighting function.
+#'
+#' @references
+#' Cleveland, W. S., & Devlin, S. J. (1988). Locally weighted regression: 
+#' An approach to regression analysis by local fitting. 
+#' \emph{Journal of the American Statistical Association}, 83(403), 596–610.
+#'
+#' Næs, T., & Isaksson, T. (1990). Locally weighted regression and scatter 
+#' correction methods in practical spectroscopy. \emph{Applied Spectroscopy}, 
+#' 44(3), 378–383.
+#'
+#' @author Leonardo Ramirez-Lopez
+#' @export
+
+predict.funlib <- function(
+    object, 
+    newdata, 
+    weighting = "triweight",
+    probs = seq(0, 1, 0.25),
+    range_pred_lim = FALSE, 
+    local = TRUE, 
+    residual_cutoff = NULL,
+    diss_method = NULL, 
+    ...
+) {
+  
+  if (object$dissimilatity$diss_method == "Precomputed dissimilarity matrix" & is.null(diss_method)) {
+    stop(
+      "The models were built using a precomputed dissimilarity matrix. ",
+      "To select models, you must explicitly specify a dissimilarity method ",
+      "in the 'diss_method' argument. Valid options include: ",
+      "'pca', 'pca.nipals', 'pls', 'mpls', ",
+      "'cor', 'euclid', 'cosine', or 'sid'."
+    )
+  } else {
+    diss_method_type <- object$dissimilatity$diss_method
+  }
+  
+  if (!is.null(diss_method)) {
+    diss_method_type <- match.arg(
+      diss_method, 
+      c("pca", "pca.nipals", "pls", "mpls", "cor", "euclid", "cosine", "sid")
+    )
+  }
+  
+  if(!"funlib" %in% class(object)){
+    stop("object must be of class 'funlib'")
+  }
+  
+  if(!all(colnames(object$functionlibrary$B) %in% colnames(newdata))){
+    stop("missing predictor variables in newdata")
+  }
+  
+  newdata <- newdata[, colnames(newdata) %in% colnames(object$functionlibrary$B)]
+  
+  ghd <- NULL
+  if (diss_method_type %in% c("pca", "pls")) {
+    scnew <- predict(object$dissimilatity$projection, newdata)
+    zcenter <- resemble:::get_column_means(object$dissimilatity$projection$scores) 
+    zscale <- resemble:::get_column_sds(object$dissimilatity$projection$scores)
+    
+    dsmxu <- dissimilarity(
+      Xr = scale(
+        object$dissimilatity$projection$scores[object$anchor_indices, ], 
+        center = zcenter, 
+        scale = zscale
+      ),
+      Xu = scale(
+        scnew, 
+        center = zcenter, 
+        scale = zscale
+      ),
+      diss_method = "euclid",
+      center = FALSE,
+      scaled = FALSE,
+      gh = FALSE
+    )
+    
+  } else {
+    
+    dsmxu <- dissimilarity(
+      Xr = scale(
+        object$scale$local.x.center, 
+        center = object$scale$centre, scale = object$scale$scale
+      ),
+      Xu = scale(
+        newdata, 
+        center = object$scale$centre, 
+        scale = object$scale$scale
+      ),
+      diss_method = diss_method_type,
+      center = FALSE,
+      scaled = FALSE,
+      gh = FALSE,
+      ...
+    )
+    
+  }
+  
+  if (!is.null(object$gh)) {
+    if (diss_method_type != "pls") {
+      scnew <- predict(object$gh$projection, newdata)
+    }
+    ghd <- dissimilarity(
+      Xr = scnew,
+      Xu = t(colMeans(object$gh$projection$scores)),
+      diss_method = "euclid",
+      center = TRUE,
+      scaled = TRUE,
+      gh = FALSE
+    )$dissimilarity
+    ghd <- as.vector(ghd)
+  }
+  
+  dots <- list(...)
+  if (diss_method_type == "cor") {
+    if ("ws" %in% names(dots)) {
+      cat(
+        "Retriving models using correlation dissimilarity with a window size of ", ws, "...\n"
+      )
+    } else {
+      cat("Retriving models using correlation dissimilarity with full window...\n")
+    }
+  } else {
+    cat("Retriving models using ", diss_method_type, " dissimilarity...\n")
+  }
+  # Weights are defined according to a tricubic function 
+  # as in Cleveland and Devlin (1988) and Naes and Isaksson (1990).
+  xunn <- apply(
+    dsmxu$dissimilarity, MARGIN = 2, FUN = order
+  )[1:object$sel.param$optimalk, ]
+  
+
+  ## this might become an argument to cancel models with high residuals (rd > xx)
+  if (!is.null(object$residuals) & !is.null(residual_cutoff)) {
+    abs_res <- abs(object$residuals)
+    # res <- abs(scale(res, center = TRUE, scale = TRUE))
+    plot(abs_res)
+    abs_res[abs_res < residual_cutoff] <- 0
+    abs_res[abs_res >= residual_cutoff] <- 1
+    high_residual_model <- as.logical(abs_res)
+    high_residual_model[is.na(high_residual_model)] <- TRUE
+    
+    xudss <- sapply(
+      1:ncol(xunn),
+      FUN = function(diss, nn, cs, index){
+        d1 <- diss[nn[, index], index]
+        d2 <- cs[nn[, index]]
+        # assign the max dissimilarity to make sure the model is not selected
+        d1[d2] <- max(d1) 
+        d1
+      },
+      diss = dsmxu$dissimilarity, 
+      nn = xunn,
+      cs = high_residual_model
+    )[1:object$sel.param$optimalk, ]
+  } else {
+    xudss <- apply(
+      dsmxu$dissimilarity, 
+      MARGIN = 2, 
+      FUN = sort
+    )[1:object$sel.param$optimalk, ]
+    
+    high_residual_model <- rep(FALSE, ncol(xunn))
+  }
+  ## this deactivates model cancelling (for the moment)
+  # res[] <- FALSE 
+  
+  dweights <- sweep(
+    xu_diss, 
+    MARGIN = 2, 
+    STATS = get_column_maxs(xudss), 
+    FUN = "/", 
+    check.margin = FALSE
+  )
+  
+  
+  
+  if (weighting == "triweight") {
+    # Triweight 
+    dweights <- (1 - dweights^2)^3
+    #curve((1 - x^2)^3, from = 0, to = 1, ylab = "parabolic")
+  }
+  
+  if (weighting == "tricube") {
+    dweights <- (1 - dweights^3)^3
+    #curve((1 - x^3)^3, from = 0, to = 1, ylab = "parabolic")
+  }
+  
+  if (weighting == "triangular"){
+    # Triweight 
+    dweights <- (1 - dweights)
+    #curve((1 - x), from = 0, to = 1, ylab = "parabolic")
+  }
+  
+  if (weighting == "quartic") {
+    dweights <- (1 - dweights^2)^2
+    #curve((1 - x^2)^2, from = 0, to = 1, ylab = "parabolic")
+  }
+  
+  if (weighting == "parabolic") { 
+    dweights <- (1 - dweights^2)
+    #curve((1 - x^2),from = 0, to = 1, ylab = "parabolic")
+  }
+  
+  if (weighting == "gaussian") {
+    dweights <- exp(-dweights^2)
+    #curve(exp(-x^2), from = 0, to = 1, ylab = "gaussian")
+  }
+  
+  dweights <- sweep(
+    dweights, 
+    MARGIN = 2, STATS = colSums(dweights), FUN = "/", 
+    check.margin = FALSE
+  )
+  
+  
+  if ("Bk" %in% names(object$functionlibrary)) {
+    plslib <- cbind(
+      object$functionlibrary$B0,
+      object$functionlibrary$Bk,
+      object$functionlibrary$B
+    )
+    localscale <- cbind(object$scale$local.diss.scale, object$scale$local.x.scale)
+    xudiss <- dsmxu$dissimilarity
+  } else {
+    plslib <- cbind(
+      object$functionlibrary$B0,
+      object$functionlibrary$B
+    )
+    localscale <- object$scale$local.x.scale
+    xudiss <- NULL
+  }
+  
+  localset <- ith_pred_subsets(
+    plslib = plslib,
+    Xu = newdata,
+    xunn = xunn,
+    xscale = localscale,
+    dxrxu = xudiss
+  )
+  
+  cat("Computing predictions...\n")
+  yupreds <- foreach(
+    i = 1:nrow(newdata), 
+    .export = c(
+      "ith_pred_subsets",
+      "ith_subsets",
+      "ith_subsets_by_group",
+      ".get_all_fits",
+      "ith_local_fit",
+      "ith_pred"
+    ),
+    iset = localset
+  ) %dopar% { 
+    ipd <- ith_pred(
+      plslib = iset$iplslib, 
+      xscale = iset$ixscale, 
+      Xu = iset$ixu, 
+      xunn = iset$ixunn,
+      dxrxu = iset$idxrxu
+    )
+    ipd
+  }
+  yupreds <- do.call("rbind", yupreds)
+  
+  ## weighted standard deviation
+  # xixm <- sweep(
+  #   yupreds, 
+  #   MARGIN = 1, 
+  #   STATS = rowMeans(yupreds), 
+  #   FUN = "-", 
+  #   check.margin = FALSE
+  # )^2
+  # a <- rowSums(xixm * t(dweights))
+  # b <- (colSums(!dweights == 0) - 1) / colSums(!dweights == 0)
+  # weighted_sdev <- (a / b)^0.5
+  
+  # Transpose weights 
+  dweights <- t(dweights)
+  
+  weighted_yu_preds <- yupreds * dweights
+  
+  # Weighted mean per row
+  wpredictions <- rowSums(weighted_yu_preds)
+  
+  # Centered deviations (from original, unweighted predictions)
+  centered_dev <- sweep(yupreds, 1, wpredictions, FUN = "-")^2
+  
+  # Apply weights to squared deviations
+  wvar <- rowSums(centered_dev * dweights)
+  
+  # Standard deviation = sqrt(variance)
+  weighted_sdev <- sqrt(wvar)
+  wquantiles <- weighted_quantiles(yupreds[, -ncol(dweights)], w = dweights[, -ncol(dweights)], probs = probs)
+  
+  preds <- data.frame(
+    pred = rowSums(weighted_yu_preds), 
+    pred_sdev = weighted_sdev, 
+    pred_quantiles = wquantiles
+  )
+  
+  preds$gh <- ghd
+  
+  if (!is.null(rownames(newdata))) {
+    rownames(preds) <- rownames(newdata)
+  }
+  
+  
+  preds <- list(predictions = preds)
+  preds$neighbour_list <- list(
+    indices = xunn, 
+    diss_scores = xudss
+  )
+  
+  stst <- object$yu.nnstats[[paste("k.",object$sel.param$optimalk, sep = "")]]
+  
+  liminf <- sapply(1:nrow(newdata), FUN = function(x, ni, ..i..) min(x[ni[,..i..], "5%"]), x = stst, ni = xunn)
+  limsup <- sapply(1:nrow(newdata), FUN = function(x, ni, ..i..) max(x[ni[,..i..], "95%"]), x = stst, ni = xunn)
+  
+  preds$predictions$min_yr_in_neighborhood <- liminf
+  preds$predictions$max_yr_in_neighborhood <- limsup
+  
+  preds$predictions$below_lower_lim <- preds$predictions$pred < preds$predictions$min_yr_in_neighborhood
+  preds$predictions$above_upper_lim <- preds$predictions$pred > preds$predictions$max_yr_in_neighborhood
+  
+  if (range_pred_lim) {
+    preds$predictions$pred[preds$predictions$below_lower_lim] <- preds$predictions$min_yr_in_neighborhood[preds$predictions$below_lower_lim]
+    preds$predictions$pred[preds$predictions$above_upper_lim] <- preds$predictions$max_yr_in_neighborhood[preds$predictions$above_upper_lim]
+  }
+  
+  return(preds)
+}
+
+
+# predict.validationfunlib <- function(object,...){
+#   stop("this object only contains validation data")
+# }
+
+
+
+.get_coefficient_sds <- function(object){
+  if(!"funlib" %in% class(object)){
+    stop("object is not of class 'funlib'")
+  }
+  nf <- ifelse(
+    is.null(object$functionlibrary$Bk), 
+    ncol(object$functionlibrary$B), 
+    ncol(object$functionlibrary$B) + ncol(object$functionlibrary$Bk)
+  )
+  
+  b0 <- object$functionlibrary$B0/nf 
+  
+  stdb <- NULL
+  stdb$b <- sweep(object$functionlibrary$B,
+                  MARGIN = 1,
+                  FUN = "+",
+                  STATS = b0)
+  
+  
+  if(!is.null(object$functionlibrary$Bk)){
+    stdb$bk <- sweep(object$functionlibrary$Bk,
+                     MARGIN = 1,
+                     FUN = "+",
+                     STATS = b0)
+  }  
+  return(stdb)
+}
+
