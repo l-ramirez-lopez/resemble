@@ -1011,6 +1011,10 @@ predict.funlib <- function(
     stop("missing predictor variables in newdata")
   }
   
+  if (!is.numeric(probs) || any(probs < 0 | probs > 1)) {
+    stop("'probs' must be a numeric vector with values between 0 and 1.")
+  }
+  
   newdata <- newdata[, colnames(newdata) %in% colnames(object$functionlibrary$B)]
   
   ghd <- NULL
