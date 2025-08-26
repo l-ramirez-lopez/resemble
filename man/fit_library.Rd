@@ -82,9 +82,9 @@ Optionally, the \code{pc_selection} argument admits \code{"opc"} or \code{"cumva
 
 \item{gh}{a logical indicating whether or not to compute and return the Mahalanobis distance (in the pls space) between each element in \code{Xr} and the center of \code{Xr}.}
 
-\item{center}{a logical indicating whether or not the predictor variables must be centered at each local segment (before regression).}
+\item{center}{a logical indicating whether or not the predictor variables must be centered at each local segment (before regression). For PLS methods centering is always done internally. If \code{TRUE}, a global centering is also applied globally for computing the dissimilarities.}
 
-\item{scale}{a logical indicating whether or not the predictor variables must be scaled to unit variance at each local segment (before regression).}
+\item{scale}{a logical indicating whether or not the predictor variables must be scaled to unit variance at each local segment (before regression). If \code{TRUE}, a global scaling is also applied globally for computing the dissimilarities.}
 
 \item{diss_predictors}{a logical indicating if the local (square symmetric) dissimilarity matrix corresponding the selected neighbourhood shall be used as source of additional predictors (i.e the columns of this local matrix are treated as predictor variables). In some cases this may result in an improvement  of the prediction performance (Ramirez-Lopez et al., 2013a).}
 
