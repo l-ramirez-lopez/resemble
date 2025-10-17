@@ -3,7 +3,7 @@
 
 ### Fixes
 
-* This release addresses deprecated dependncies for the latest version of `RcppArmadillo`.
+* This release addresses deprecated dependencies for the latest version of `RcppArmadillo`.
   
   
 # `resemble 2.2.4 (olbap)`
