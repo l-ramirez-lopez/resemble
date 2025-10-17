@@ -201,7 +201,7 @@ Simply type and you will get the info you need:
 citation(package = "resemble")
 ```
 
-## News: Memory based learnig (MBL) and `resemble`
+## News: Memory based learning (MBL) and `resemble`
 
 
 * **2025.10:** [Summerauer et al., 2025](https://doi.org/10.5194/egusphere-2025-4625)
