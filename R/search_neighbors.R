@@ -158,7 +158,7 @@
 #' very large. In some cases the number of observations in the reference set
 #' can be reduced by removing irrelevant observations (i.e. observations that are not
 #' neighbors of a particular target set). For example, this function can be
-#' used to reduce the size of the reference set before before  running the
+#' used to reduce the size of the reference set before running the
 #' \code{\link{mbl}} function.
 #'
 #' This function uses the \code{\link{dissimilarity}} function to compute the

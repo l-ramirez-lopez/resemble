@@ -62,9 +62,9 @@ with a new version of our package. This new `resemble` 2.0 comes with
 MAJOR improvements and new functions! For these improvements major
 changes were required. The most evident changes are in the function and
 argument names. These have been now adapted to properly follow the
-[tydiverse style guide](https://style.tidyverse.org/). A number of
+[tidyverse style guide](https://style.tidyverse.org/). A number of
 changes have been implemented for the sake of computational efficiency.
-These changes are documented in `inst\changes.md`.
+These changes are documented in `inst/changes.md`.
 
 New interesting functions and functionality are also available, for
 example, the `mbl()` function now allows sample spiking, where a set of
