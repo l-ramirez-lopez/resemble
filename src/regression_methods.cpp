@@ -160,8 +160,9 @@ arma::mat get_weights(arma::mat X,
     // as in BUCHI NIRWise PLUS software 
     for (int i = 0; i < n_cols_x; i++) {
       for (int j = i + xls_min_w; j <= std::min(i + xls_max_w, n_cols_x - 1); j++) {
-        w(i, 0) += arma::conv_to<double>::from(arma::cor(Y, X.col(i) - X.col(j)));
-        w(j, 0) -= arma::conv_to<double>::from(arma::cor(Y, X.col(i) - X.col(j)));
+        double corr_val = arma::as_scalar(arma::cor(Y, X.col(i) - X.col(j)));
+        w(i, 0) += corr_val;
+        w(j, 0) -= corr_val;
       }
     }
   }

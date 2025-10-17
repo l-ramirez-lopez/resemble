@@ -230,10 +230,9 @@ NumericVector which_min(NumericMatrix X){
   for(int i = 0; i < nX; i++){
     arma::rowvec x = XX.row(i);
     x(i) = arma::datum::nan; // remove diag
-    x.min(index); // don't assign result to a value since we are interested only in the index
-    vindex[i] = index;    
+    vindex[i] = x.index_min();    
   }
-  return wrap(vindex +1);   
+  return wrap(vindex + 1);   
 }
 
 
@@ -277,8 +276,7 @@ NumericVector which_min_vector(NumericVector X){
       x[j] = X(k2);             
     }
     x[i] = arma::datum::nan; // remove diag
-    x.min(index); // don't assign result to a value since we are interested only in the index
-    vindex[i] = index;    
+    vindex[i] = x.index_min();   
   }
   return wrap(vindex + 1);
 }
