@@ -359,7 +359,7 @@ Rcpp. These platforms were:
  
  - "linux-x86_64-rocker-gcc-san" 
  
-The remaining platforms were passing all the tests sucessfully. For the above 
+The remaining platforms were passing all the tests successfully. For the above 
 three platforms, the solution was to disable OPENMP.
 
 All platforms pass the checks successfully for the release. 

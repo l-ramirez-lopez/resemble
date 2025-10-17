@@ -82,8 +82,8 @@ observation}
 \description{
 internal function. This function is used to obtain the local
 neighbors based on dissimilarity matrices from orthogonal projections. These
-neighbors are obatin from an orthogonal projection on a set of precomputed
-neighbors. This function is used internally by the mbl fucntion.
+neighbors are obtain from an orthogonal projection on a set of precomputed
+neighbors. This function is used internally by the mbl function.
 ortho_diss(, .local = TRUE) operates in the same way, however for mbl, it is
 more efficient to do the re-search of the neighbors inside its main for loop
 }

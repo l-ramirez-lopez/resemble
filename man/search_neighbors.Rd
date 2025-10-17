@@ -207,11 +207,11 @@ provided  in another set.
 This function may be specially useful when the reference set (\code{Xr}) is
 very large. In some cases the number of observations in the reference set
 can be reduced by removing irrelevant observations (i.e. observations that are not
-neighbors of a particular target set). For example, this fucntion can be
+neighbors of a particular target set). For example, this function can be
 used to reduce the size of the reference set before before  running the
 \code{\link{mbl}} function.
 
-This function uses the \code{\link{dissimilarity}} fucntion to compute the
+This function uses the \code{\link{dissimilarity}} function to compute the
 dissimilarities between \code{Xr} and \code{Xu}. Arguments to
 \code{\link{dissimilarity}} as well as further arguments to the functions
 used inside \code{\link{dissimilarity}} (i.e. \code{\link{ortho_diss}}

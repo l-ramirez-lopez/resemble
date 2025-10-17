@@ -124,9 +124,9 @@
 ## History:
 ## 28.05.2020 Leo     Hello world!
 ## 19.07.2020 Leo     arguments pls_max_iter and pls_tol were removed fas they
-##                    are only required when modleing for more than one response
+##                    are only required when modeling for more than one response
 ##                    variable, i.e. pls2 (which is not implemented for mbl)
-## 20.09.2020 Leo     max_iter and tol were added to pls obajects
+## 20.09.2020 Leo     max_iter and tol were added to pls objects
 
 local_fit_pls <- function(pls_c, modified = FALSE, max_iter = 100, tol = 1e-6) {
   if (missing(pls_c)) {

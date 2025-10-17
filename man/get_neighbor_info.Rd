@@ -24,8 +24,8 @@ get_neighbor_info(
 )
 }
 \description{
-This fucntion gathers information of all neighborhoods of the
-\code{Xu} observations found in \code{Xr}. This information is equired during
+This function gathers information of all neighborhoods of the
+\code{Xu} observations found in \code{Xr}. This information is required during
 local regressions.
 }
 \details{

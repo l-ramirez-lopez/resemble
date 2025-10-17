@@ -66,11 +66,11 @@ argument names. These have been now adapted to properly follow the
 changes have been implemented for the sake of computational efficiency.
 These changes are documented in `inst\changes.md`.
 
-New interesing functions and fucntionality are also available, for
+New interesting functions and functionality are also available, for
 example, the `mbl()` function now allows sample spiking, where a set of
 reference observations can be forced to be included in the
-neighborhhoods of each sample to be predicted. The `serach_neighbors()`
-function efficiently retrieves from a refence set the k-nearest
+neighbourhoods of each sample to be predicted. The `search_neighbors()`
+function efficiently retrieves from a reference set the k-nearest
 neighbors of another given dataset. The `dissimilarity()` function
 computes dissimilarity matrices based on various metrics.
 
@@ -89,7 +89,7 @@ update/install them first
     install.packages('foreach')
     install.packages('iterators')
 
-**Note**: Apart from these packages we stronly recommend to download and
+**Note**: Apart from these packages we strongly recommend to download and
 install Rtools <https://cran.r-project.org/bin/windows/Rtools/>). This
 is important for obtaining the proper C++ toolchain that might be needed
 for `resemble`.
@@ -198,7 +198,7 @@ observations.
 
 Figure 2. Example of the main steps in memory-based learning for
 predicting a response variable in five different observations based on
-set of p-dimesnional variables.
+set of p-dimensional variables.
 
 ## Citing the package
 

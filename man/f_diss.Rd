@@ -96,7 +96,7 @@ Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
 
 ed <- f_diss(Xr = Xr, diss_method = "euclid")
 
-# Equivalence with the dist() fucntion of R base
+# Equivalence with the dist() function of R base
 ed_dist <- (as.matrix(dist(Xr))^2 / ncol(Xr))^0.5
 round(ed_dist - ed, 5)
 

@@ -27,7 +27,7 @@ method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWis
 a \code{matrix} of one column containing the weights.
 }
 \description{
-This is an internal function that computes the wights required for obtaining
+This is an internal function that computes the weights required for obtaining
 each vector of pls scores. Implementation is done in C++ for improved performance.
 }
 \references{

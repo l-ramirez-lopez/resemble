@@ -1,6 +1,6 @@
 #' @title A function to get the neighbor information
-#' @description This fucntion gathers information of all neighborhoods of the
-#' \code{Xu} observations found in \code{Xr}. This information is equired during
+#' @description This function gathers information of all neighborhoods of the
+#' \code{Xu} observations found in \code{Xr}. This information is required during
 #' local regressions.
 #' @details
 #' For local pca and pls distances, the local dissimilarity matrices are not
@@ -487,8 +487,8 @@ ith_mbl_neighbor <- function(Xr, Xu = NULL, Yr, Yu = NULL,
 #' matrices from orthogonal projections.
 #' @description internal function. This function is used to obtain the local
 #' neighbors based on dissimilarity matrices from orthogonal projections. These
-#' neighbors are obatin from an orthogonal projection on a set of precomputed
-#' neighbors. This function is used internally by the mbl fucntion.
+#' neighbors are obtain from an orthogonal projection on a set of precomputed
+#' neighbors. This function is used internally by the mbl function.
 #' ortho_diss(, .local = TRUE) operates in the same way, however for mbl, it is
 #' more efficient to do the re-search of the neighbors inside its main for loop
 #'
