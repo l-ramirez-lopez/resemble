@@ -8,13 +8,15 @@
 #' Instead the global distances (required for later local dissimilarity matrix
 #' computation are output)
 #' @keywords internal
-get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
-                              k = NULL, k_diss = NULL, k_range = NULL,
-                              spike = NULL, pc_selection,
-                              return_dissimilarity,
-                              center, scale, gh,
-                              diss_usage, allow_parallel = FALSE,
-                              ...) {
+get_neighbor_info <- function(
+    Xr, Xu, diss_method, Yr = NULL,
+    k = NULL, k_diss = NULL, k_range = NULL,
+    spike = NULL, pc_selection,
+    return_dissimilarity,
+    center, scale, gh,
+    diss_usage, allow_parallel = FALSE,
+    ...
+) {
   ortho_diss_methods <- c("pca", "pca.nipals", "pls")
   k_max <- NULL
   if (!is.null(k)) {
@@ -91,9 +93,12 @@ get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
     if (diss_method %in% c("pca", "pca.nipals", "pls")) {
       if (!is_local) {
         # needs to be scaled/converted on the basis of the scores Xr and Xu
-        info_neighbors$diss_xr_xr <- f_diss(euclid_to_mahal(info_neighbors$projection$scores)[1:nrow(Xr), , drop = FALSE],
-                                            diss_method = "euclid",
-                                            center = FALSE, scale = FALSE
+        info_neighbors$diss_xr_xr <- f_diss(
+          euclid_to_mahal(
+            info_neighbors$projection$scores
+          )[1:nrow(Xr), , drop = FALSE],
+          diss_method = "euclid",
+          center = FALSE, scale = FALSE
         )
       }
       # if (".local" %in% names(neighbor_dots)) {
@@ -117,37 +122,40 @@ get_neighbor_info <- function(Xr, Xu, diss_method, Yr = NULL,
       # }
     } else {
       # needs to be scaled on the basis of the scores Xr and Xu
-      info_neighbors$diss_xr_xr <- dissimilarity(scale(rbind(Xr, Xu),
-                                                       center = center,
-                                                       scale = scale
-      )[1:nrow(Xr), ],
-      diss_method = diss_method,
+      info_neighbors$diss_xr_xr <- dissimilarity(
+        scale(
+          rbind(Xr, Xu),
+          center = center,
+          scale = scale
+        )[1:nrow(Xr), ],
+        diss_method = diss_method,
       center = FALSE,
       scale = FALSE, ...
       )$dissimilarity
     }
   }
-  
   info_neighbors
 }
 
 #' @title Cross validation for PLS regression
 #' @description for internal use only!
 #' @keywords internal
-pls_cv <- function(x, y, ncomp,
-                   method = c("pls", "wapls"),
-                   center = TRUE, scale,
-                   min_component = 1,
-                   new_x = matrix(0, 1, 1),
-                   weights = NULL,
-                   p = 0.75,
-                   number = 10,
-                   group = NULL,
-                   retrieve = TRUE,
-                   tune = TRUE,
-                   max_iter = 1, tol = 1e-6,
-                   seed = NULL,
-                   modified = FALSE) {
+pls_cv <- function(
+    x, y, ncomp,
+    method = c("pls", "wapls"),
+    center = TRUE, scale,
+    min_component = 1,
+    new_x = matrix(0, 1, 1),
+    weights = NULL,
+    p = 0.75,
+    number = 10,
+    group = NULL,
+    retrieve = TRUE,
+    tune = TRUE,
+    max_iter = 1, tol = 1e-6,
+    seed = NULL,
+    modified = FALSE
+) {
   min_allowed <- (floor(min(ncol(x), nrow(x)) * p)) - 1
   
   if (min_allowed < ncomp) {
@@ -547,13 +555,15 @@ ith_mbl_neighbor <- function(
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
 #'
-get_ith_local_neighbors <- function(ith_xr, ith_xu, ith_yr, ith_yu = NULL,
-                                    diss_usage = "none",
-                                    ith_neig_indices,
-                                    k = NULL, k_diss = NULL, k_range = NULL,
-                                    spike = NULL, diss_method, pc_selection,
-                                    ith_group = NULL,
-                                    center, scale, ...) {
+get_ith_local_neighbors <- function(
+    ith_xr, ith_xu, ith_yr, ith_yu = NULL,
+    diss_usage = "none",
+    ith_neig_indices,
+    k = NULL, k_diss = NULL, k_range = NULL,
+    spike = NULL, diss_method, pc_selection,
+    ith_group = NULL,
+    center, scale, ...
+) {
   is_predictors <- diss_usage == "predictors"
   
   neighbor_dots <- list(...)
@@ -765,7 +775,7 @@ fit_and_predict <- function(
       Xscale = fit$transf$Xscale
     )[, ncomp]
   }
-
+  
   if (pred_method == "wapls") {
     if (CV) {
       cv_val <- pls_cv(
@@ -857,16 +867,18 @@ fit_and_predict <- function(
 #' @title Cross validation for Gaussian process regression
 #' @description internal
 #' @keywords internal
-gaussian_pr_cv <- function(x,
-                           y,
-                           scale,
-                           weights = NULL,
-                           p = 0.75,
-                           number = 10,
-                           group = NULL,
-                           noise_variance = 0.001,
-                           retrieve = c("final_model", "none"),
-                           seed = NULL) {
+gaussian_pr_cv <- function(
+    x,
+    y,
+    scale,
+    weights = NULL,
+    p = 0.75,
+    number = 10,
+    group = NULL,
+    noise_variance = 0.001,
+    retrieve = c("final_model", "none"),
+    seed = NULL
+) {
   
   ## Create the resampling groups
   cv_samples <- sample_stratified(
