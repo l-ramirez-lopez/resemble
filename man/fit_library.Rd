@@ -117,7 +117,7 @@ DESCRIOTION REQUIRED
 This function builds a library of predictive functions based on memory-based learning
 }
 \details{
-** Anchor indices **
+\emph{Anchor indices}
 
 By default, local models are constructed around all \code{n} samples in the
 reference set. Alternatively, the user may specify a subset of \code{m} samples
@@ -146,7 +146,7 @@ For efficiency, the number of anchor indices must be less than 90\% of the
 total number of rows in \code{Xr}. If this threshold is exceeded, consider
 building a model for each sample in \code{Xr} by setting \code{anchor_indices = NULL}.
 
-** Missing values in \code{Yr} **
+\emph{Missing values in \code{Yr}}
 
 Missing values in \code{Yr} are allowed. If they exceed 25\% of the total number
 of observations, a warning will be issued. The local model of an observation

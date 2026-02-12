@@ -131,14 +131,16 @@
 ## 24.06.2020 Leo     localOptimization has been renamed to tune_locally
 ##                    valMethod has been renamed to validation_type
 
-mbl_control <- function(return_dissimilarity = FALSE,
-                        validation_type = c("NNv", "local_cv"),
-                        tune_locally = TRUE,
-                        number = 10,
-                        p = 0.75,
-                        range_prediction_limits = TRUE,
-                        progress = TRUE,
-                        allow_parallel = TRUE) {
+mbl_control <- function(
+    return_dissimilarity = FALSE,
+    validation_type = c("NNv", "local_cv"),
+    tune_locally = TRUE,
+    number = 10,
+    p = 0.75,
+    range_prediction_limits = TRUE,
+    progress = TRUE,
+    allow_parallel = TRUE
+) {
   # Sanity checks
   if (!is.logical(allow_parallel)) {
     stop("allow_parallel must be a logical value")

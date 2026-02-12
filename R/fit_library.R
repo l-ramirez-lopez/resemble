@@ -92,7 +92,7 @@
 #' @param ...  arguments passed to the \code{\link{dissimilarity}} function.
 #' @details
 #' 
-#' ** Anchor indices **  
+#' _Anchor indices_  
 #' 
 #' By default, local models are constructed around all `n` samples in the
 #' reference set. Alternatively, the user may specify a subset of `m` samples
@@ -121,7 +121,7 @@
 #' total number of rows in `Xr`. If this threshold is exceeded, consider
 #' building a model for each sample in `Xr` by setting `anchor_indices = NULL`.
 #'
-#' ** Missing values in `Yr` **  
+#' _Missing values in `Yr`_  
 #' 
 #' Missing values in `Yr` are allowed. If they exceed 25% of the total number
 #' of observations, a warning will be issued. The local model of an observation
@@ -915,8 +915,8 @@ fit_library <- function(
 #'   Must include all predictors required by \code{object}.
 #' @param weighting Character string specifying the kernel weighting function 
 #'   applied to neighbours when combining predictions. Options are: 
-#'   \code{"triweight"} (default), \code{"tricube"}, \code{"triangular"}, 
-#'   \code{"quartic"}, \code{"parabolic"}, or \code{"gaussian"}.
+#'   \code{"gaussian"}  (default), \code{"triweight"}, \code{"tricube"}, \code{"triangular"}, 
+#'   \code{"quartic"}, \code{"parabolic"} or \code{"cauchy"}.
 #' @param probs A numeric vector of probabilities in \[0, 1\]. 
 #'   (Currently not implemented.) Intended to specify weighted quantiles of the  
 #'   predictions across models to provide an empirical approximation to  
@@ -930,6 +930,14 @@ fit_library <- function(
 #'   method to use when retrieving models. Valid options include 
 #'   \code{"pca"}, \code{"pca.nipals"}, \code{"pls"}, \code{"mpls"}, 
 #'   \code{"cor"}, \code{"euclid"}, \code{"cosine"}, or \code{"sid"}.
+#' @param enforce_experts Optional numeric vector of integer indices specifying
+#'   which models in the library of experts must always be included in each
+#'   prediction. If `NULL` (default), no models are enforced and the library
+#'   selects experts solely based on similarity or dissimilarity criteria.
+#'   When provided, the specified expert indices are forcibly included in every
+#'   local prediction, and their weights are set equal to the weight that would
+#'   have been assigned to the nearest model originally selected by the library.
+#'   The argument must be either `NULL` or a vector of whole (integer) numbers.
 #' @param ... Further arguments passed to the dissimilarity computation.
 #'
 #' @return A list with the following elements:
@@ -946,6 +954,7 @@ fit_library <- function(
 #'         whether the prediction falls outside these limits}
 #'     }
 #'   }
+#'   \item{\code{expert_preds}}{The predictions made by each expert.}
 #'   \item{\code{neighbour_list}}{A list with components:
 #'     \describe{
 #'       \item{\code{indices}}{Indices of the selected neighbours}
@@ -975,12 +984,14 @@ fit_library <- function(
 predict.funlib <- function(
     object, 
     newdata, 
-    weighting = "triweight",
+    weighting = "gaussian",
+    general = FALSE,
     probs = seq(0, 1, 0.25),
     range_pred_lim = FALSE, 
     local = TRUE, 
     residual_cutoff = NULL,
-    diss_method = NULL, 
+    diss_method = NULL,
+    enforce_experts = NULL,
     ...
 ) {
   
@@ -1013,15 +1024,24 @@ predict.funlib <- function(
   
   newdata <- newdata[, colnames(newdata) %in% colnames(object$functionlibrary$B)]
   
+  
+  if (general) {
+    ref_for_retrieval <- t(colMeans(newdata))
+  } else {
+    ref_for_retrieval <- newdata
+  }
+  
+  
+  
   ghd <- NULL
   if (diss_method_type %in% c("pca", "pls")) {
-    scnew <- predict(object$dissimilatity$projection, newdata)
-    zcenter <- resemble:::get_column_means(object$dissimilatity$projection$scores) 
-    zscale <- resemble:::get_column_sds(object$dissimilatity$projection$scores)
+    scnew <- predict(object$dissimilatity$projection, ref_for_retrieval)
+    zcenter <- get_column_means(object$dissimilatity$projection$scores) 
+    zscale <- get_column_sds(object$dissimilatity$projection$scores)
     
     dsmxu <- dissimilarity(
       Xr = scale(
-        object$dissimilatity$projection$scores[object$anchor_indices, ], 
+        object$dissimilatity$projection$scores[object$anchor_indices, , drop = FALSE], 
         center = zcenter, 
         scale = zscale
       ),
@@ -1041,10 +1061,11 @@ predict.funlib <- function(
     dsmxu <- dissimilarity(
       Xr = scale(
         object$scale$local.x.center, 
-        center = object$scale$centre, scale = object$scale$scale
+        center = object$scale$centre, 
+        scale = object$scale$scale
       ),
       Xu = scale(
-        newdata, 
+        ref_for_retrieval, 
         center = object$scale$centre, 
         scale = object$scale$scale
       ),
@@ -1072,9 +1093,11 @@ predict.funlib <- function(
     ghd <- as.vector(ghd)
   }
   
+  
   dots <- list(...)
   if (diss_method_type == "cor") {
     if ("ws" %in% names(dots)) {
+      ws <- dots$ws
       cat(
         "Retriving models using correlation dissimilarity with a window size of ", ws, "...\n"
       )
@@ -1088,9 +1111,9 @@ predict.funlib <- function(
   # as in Cleveland and Devlin (1988) and Naes and Isaksson (1990).
   xunn <- apply(
     dsmxu$dissimilarity, MARGIN = 2, FUN = order
-  )[1:object$sel.param$optimalk, ]
+  )[1:object$sel.param$optimalk, , drop = FALSE]
   
-
+  
   ## this might become an argument to cancel models with high residuals (rd > xx)
   if (!is.null(object$residuals) & !is.null(residual_cutoff)) {
     abs_res <- abs(object$residuals)
@@ -1119,60 +1142,115 @@ predict.funlib <- function(
       dsmxu$dissimilarity, 
       MARGIN = 2, 
       FUN = sort
-    )[1:object$sel.param$optimalk, ]
+    )[1:object$sel.param$optimalk, , drop = FALSE]
     
     high_residual_model <- rep(FALSE, ncol(xunn))
   }
   ## this deactivates model cancelling (for the moment)
   # res[] <- FALSE 
   
+  
+  
+  # FIXME! this needs to be otpimised
+  if (!is.null(enforce_experts)) {
+    xunn <- rbind(
+      matrix(rep(enforce_experts, ncol(xunn)), ncol = ncol(xunn)), 
+      xunn
+    )
+    xudss <- rbind(
+      matrix(rep(apply(xudss, 2, FUN = min), each = length(enforce_experts)), nrow = length(enforce_experts)),
+      # matrix(rep(0 * apply(xudss, 2, FUN = min), each = length(enforce_experts)), nrow = length(enforce_experts)),
+      xudss
+    )
+  }
+  
+  
+  if (general) {
+    xunn <- matrix(
+      rep(xunn, nrow(newdata)),
+      nrow = length(xunn),
+      ncol = nrow(newdata)
+    )
+    xudss <- matrix(
+      rep(xudss, nrow(newdata)),
+      nrow = length(xudss),
+      ncol = nrow(newdata)
+    )
+  } 
+  
   dweights <- sweep(
     xudss, 
     MARGIN = 2, 
-    STATS = get_column_maxs(xudss), 
+    STATS = resemble:::get_column_maxs(xudss), 
     FUN = "/", 
     check.margin = FALSE
   )
   
-  
-  
-  if (weighting == "triweight") {
-    # Triweight 
-    dweights <- (1 - dweights^2)^3
-    #curve((1 - x^2)^3, from = 0, to = 1, ylab = "parabolic")
-  }
-  
-  if (weighting == "tricube") {
-    dweights <- (1 - dweights^3)^3
-    #curve((1 - x^3)^3, from = 0, to = 1, ylab = "parabolic")
-  }
-  
-  if (weighting == "triangular"){
-    # Triweight 
-    dweights <- (1 - dweights)
-    #curve((1 - x), from = 0, to = 1, ylab = "parabolic")
-  }
-  
-  if (weighting == "quartic") {
-    dweights <- (1 - dweights^2)^2
-    #curve((1 - x^2)^2, from = 0, to = 1, ylab = "parabolic")
-  }
-  
-  if (weighting == "parabolic") { 
-    dweights <- (1 - dweights^2)
-    #curve((1 - x^2),from = 0, to = 1, ylab = "parabolic")
-  }
-  
-  if (weighting == "gaussian") {
-    dweights <- exp(-dweights^2)
-    #curve(exp(-x^2), from = 0, to = 1, ylab = "gaussian")
-  }
-  
-  dweights <- sweep(
-    dweights, 
-    MARGIN = 2, STATS = colSums(dweights), FUN = "/", 
-    check.margin = FALSE
+  weighting <- match.arg(
+    weighting, choices = c(
+      "triweight",
+      "tricube",
+      "triangular",
+      "quartic",
+      "parabolic",
+      "gaussian",
+      "cauchy", 
+      "none"
+    )
   )
+  
+  
+  # if (weighting == "triweight") {
+  #   # Triweight 
+  #   dweights <- (1 - dweights^2)^3
+  #   #curve((1 - x^2)^3, from = 0, to = 1, ylab = "parabolic")
+  # }
+  # 
+  # if (weighting == "tricube") {
+  #   dweights <- (1 - dweights^3)^3
+  #   #curve((1 - x^3)^3, from = 0, to = 1, ylab = "parabolic")
+  # }
+  # 
+  # if (weighting == "triangular"){
+  #   # Triweight 
+  #   dweights <- (1 - dweights)
+  #   #curve((1 - x), from = 0, to = 1, ylab = "parabolic")
+  # }
+  # 
+  # if (weighting == "quartic") {
+  #   dweights <- (1 - dweights^2)^2
+  #   #curve((1 - x^2)^2, from = 0, to = 1, ylab = "parabolic")
+  # }
+  # 
+  # if (weighting == "parabolic") { 
+  #   dweights <- (1 - dweights^2)
+  #   #curve((1 - x^2),from = 0, to = 1, ylab = "parabolic")
+  # }
+  # 
+  # if (weighting == "gaussian") {
+  #   dweights <- exp(-3 * (dweights)^2)
+  #   #curve(exp(-x^2), from = 0, to = 1, ylab = "gaussian")
+  # }
+  # 
+  # if (weighting == "cauchy") {
+  #   dweights <- 1 / (1 + dweights^2)
+  # }
+  # 
+  
+  if (weighting == "none") {
+    dweights <- xudss
+    dweights[] <- 1 / ncol(xudss)
+  } else {
+    dweights <- resemble:::compute_pred_weights(xudss, weighting = weighting) 
+  }
+  
+  # dweights <- sweep(
+  #   dweights, 
+  #   MARGIN = 2, STATS = colSums(dweights), FUN = "/", 
+  #   check.margin = FALSE
+  # )
+  
+  
   
   
   if ("Bk" %in% names(object$functionlibrary)) {
@@ -1192,7 +1270,7 @@ predict.funlib <- function(
     xudiss <- NULL
   }
   
-  localset <- ith_pred_subsets(
+  localset <- resemble:::ith_pred_subsets(
     plslib = plslib,
     Xu = newdata,
     xunn = xunn,
@@ -1203,17 +1281,9 @@ predict.funlib <- function(
   cat("Computing predictions...\n")
   yupreds <- foreach(
     i = 1:nrow(newdata), 
-    .export = c(
-      "ith_pred_subsets",
-      "ith_subsets",
-      "ith_subsets_by_group",
-      ".get_all_fits",
-      "ith_local_fit",
-      "ith_pred"
-    ),
     iset = localset
   ) %dopar% { 
-    ipd <- ith_pred(
+    ipd <- resemble:::ith_pred(
       plslib = iset$iplslib, 
       xscale = iset$ixscale, 
       Xu = iset$ixu, 
@@ -1222,7 +1292,15 @@ predict.funlib <- function(
     )
     ipd
   }
+  
   yupreds <- do.call("rbind", yupreds)
+  
+  colnames(yupreds) <- paste0("expert_", 1:ncol(yupreds))
+  if (is.null(rownames(newdata))) {
+    rownames(yupreds) <- 1:nrow(newdata)
+  } else {
+    rownames(yupreds) <- rownames(newdata)
+  }
   
   ## weighted standard deviation
   # xixm <- sweep(
@@ -1238,6 +1316,8 @@ predict.funlib <- function(
   
   # Transpose weights 
   dweights <- t(dweights)
+  rownames(dweights) <- rownames(yupreds)
+  colnames(dweights) <- colnames(yupreds)
   
   weighted_yu_preds <- yupreds * dweights
   
@@ -1252,7 +1332,7 @@ predict.funlib <- function(
   
   # Standard deviation = sqrt(variance)
   weighted_sdev <- sqrt(wvar)
-  wquantiles <- weighted_quantiles(yupreds[, -ncol(dweights)], w = dweights[, -ncol(dweights)], probs = probs)
+  wquantiles <- resemble:::weighted_quantiles(yupreds[, -ncol(dweights)], w = dweights[, -ncol(dweights)], probs = probs)
   
   preds <- data.frame(
     pred = rowSums(weighted_yu_preds), 
@@ -1260,7 +1340,9 @@ predict.funlib <- function(
     pred_quantiles = wquantiles
   )
   
+  
   preds$gh <- ghd
+  
   
   if (!is.null(rownames(newdata))) {
     rownames(preds) <- rownames(newdata)
@@ -1272,6 +1354,15 @@ predict.funlib <- function(
     indices = xunn, 
     diss_scores = xudss
   )
+  rownames(preds$expert_preds) <- rownames(preds)
+  
+  preds$expert_predictions <- list(
+    weights = dweights,  
+    predictions = yupreds, 
+    weighted = weighted_yu_preds
+  )
+  
+  
   
   stst <- object$yu.nnstats[[paste("k.",object$sel.param$optimalk, sep = "")]]
   
@@ -1288,6 +1379,7 @@ predict.funlib <- function(
     preds$predictions$pred[preds$predictions$below_lower_lim] <- preds$predictions$min_yr_in_neighborhood[preds$predictions$below_lower_lim]
     preds$predictions$pred[preds$predictions$above_upper_lim] <- preds$predictions$max_yr_in_neighborhood[preds$predictions$above_upper_lim]
   }
+  
   
   return(preds)
 }
@@ -1326,4 +1418,47 @@ predict.funlib <- function(
   }  
   return(stdb)
 }
+
+
+
+compute_pred_weights <- function(
+    xudss, weighting = "gaussian",
+    sigma = 0.5, gamma = 0.3, normalize = TRUE
+) {
+  # 1 Validate kernel choice
+  valid_methods <- c(
+    "triangular", "quartic", "triweight", "tricube",
+    "parabolic", "gaussian", "cauchy"
+  )
+  weighting <- match.arg(weighting, valid_methods)
+  
+  # 2 Normalize distances per column to [0, 1]
+  dscaled <- sweep(xudss, 2, STATS = get_column_maxs(xudss), FUN =  "/")
+  dscaled <- pmin(pmax(dscaled, 0), 1)
+  
+  # Compute kernel weights
+  dweights <- switch(
+    weighting,
+    triangular = (1 - dscaled),
+    parabolic  = (1 - dscaled^2),
+    quartic    = (1 - dscaled^2)^2,
+    triweight  = (1 - dscaled^2)^3,
+    tricube    = (1 - dscaled^3)^3,
+    gaussian   = exp(-(dscaled^2) / (2 * sigma^2)),
+    cauchy     = 1 / (1 + (dscaled / gamma)^2)
+  )
+  
+  dweights[!is.finite(dweights)] <- 0
+  dweights <- pmax(dweights, 0)
+  
+  if (normalize) {
+    col_sums <- colSums(dweights, na.rm = TRUE)
+    col_sums[col_sums == 0] <- 1
+    dweights <- sweep(dweights, 2, col_sums, "/", check.margin = FALSE)
+  }
+  
+  attr(dweights, "weighting") <- weighting
+  return(dweights)
+}
+
 
