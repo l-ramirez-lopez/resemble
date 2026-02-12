@@ -869,7 +869,7 @@ arma::mat moving_cor_diss_self(const arma::mat &X,
 NumericVector which_min(NumericMatrix X){  
   int nX = X.nrow(), kX = X.ncol();
   arma::mat XX(X.begin(), nX, kX, false); 
-  arma::uword  index;
+  //arma::uword  index;
   arma::uvec vindex(nX);
   // #if defined(_OPENMP) 
   // #pragma omp parallel for schedule(static) 
@@ -899,7 +899,7 @@ NumericVector which_min(NumericMatrix X){
 //' @author Antoine Stevens 
 // [[Rcpp::export]]
 NumericVector which_min_vector(NumericVector X){  
-  arma::uword  index;
+  //arma::uword  index;
   double vct = (sqrt(((double)X.size()) * 8.0 + 1.0) + 1.0) / 2.0;
   int len = (int)vct;
   // int len = (sqrt(X.size()*8+1)+1)/2;
