@@ -4,7 +4,6 @@ output: md_document
 date: "2024-02-15"
 ---
 
-
 # `resemble` Memory-Based Learning in Spectral Chemometrics
 <!-- badges: start -->
 

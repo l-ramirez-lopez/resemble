@@ -793,24 +793,6 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 
 
 
-#########################################################################
-
-# 
-# diss.predictors = FALSE
-# 
-# 
-# 
-# ## new args
-# k <- seq(40, 150, 20)
-# group <- as.factor(paste("g", 1:nrow(Xr), sep = ""));# group[c(1,2,4)] <- "g1"
-# pls.c <- c(4, 17)
-# pls_max_iter = 1
-# pls_tol = 1e-6
-# metric = "rmse"
-# 
-# data.frame(ix = 1:length(group), group)
-
-
 
 #' Compute weighted quantiles
 #'

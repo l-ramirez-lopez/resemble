@@ -2,32 +2,41 @@
 #' @description
 #' This function builds a library of predictive functions based on memory-based learning
 #' @usage
-#' fit_library(Xr, Yr, sm, k, k_diss, k_range, ws = NULL, pls_c, 
-#'             pc_selection = list("opc", min(dim(Xr), 40)),
-#'             group, build_around, gh = TRUE, center = TRUE,
-#'             scale = FALSE, diss_predictors = FALSE,
-#'             metric = "rmse", return_best = TRUE,
-#'             pls_max_iter = 1, pls_tol = 1e-6,
-#'             documentation = character(), ...)
-#' @param Xr a numeric matrix (or data.frame) of predictor variables of dimentions `n * p` corresponding to the reference data (observations in rows and variables in columns). 
-#' @param Yr a numeric vector of length `n` containing the values of the response variable corresponding to the reference data. Missing values might be allowed (see details).
-#' @param diss_method Either a character string indicating the dissimilarity
-#'   metric to be used for selecting the nearest neighbors, or a precomputed
+#' 
+#' liblex(
+#'   Xr, Yr, sm, k, k_diss, k_range, ws = NULL, pls_c,
+#'   pc_selection = list("opc", min(dim(Xr), 40)),
+#'   group, build_around, gh = TRUE, center = TRUE,
+#'   scale = FALSE, diss_predictors = FALSE,
+#'   metric = "rmse", return_best = TRUE,
+#'   pls_max_iter = 1, pls_tol = 1e-6,
+#'   documentation = character(), ...
+#' )
+#' @param Xr A numeric matrix (or data.frame) of predictor variables with 
+#' dimensions `n × p`, corresponding to the reference data (observations in 
+#' rows and variables in columns).
+#' @param Yr A numeric vector of length `n` containing the response
+#'   variable values corresponding to the reference data. Missing
+#'   values may be allowed (see Details).
+#' @param diss_method A character string specifying the dissimilarity
+#'   metric used to select nearest neighbors, or a precomputed
 #'   dissimilarity matrix.
 #'
-#'   If a character is provided, it must be one of the following:
+#'   If a character string is provided, it must be one of:
 #'
-#'   - `"pca"`: Mahalanobis distance based on principal component (PC) scores
-#'     computed via singular value decomposition (SVD). See [ortho_diss()].
+#'   - `"pca"`: Mahalanobis distance based on principal component (PC)
+#'     scores computed via singular value decomposition (SVD).
+#'     See [ortho_diss()].
 #'
-#'   - `"pca.nipals"`: Same as `"pca"` but using the NIPALS algorithm. See
-#'     [ortho_diss()].
+#'   - `"pca.nipals"`: Same as `"pca"` but computed using the NIPALS
+#'     algorithm. See [ortho_diss()].
 #'
-#'   - `"pls"`: Mahalanobis distance based on PLS scores. Requires `Yr`. See
-#'     [ortho_diss()].
+#'   - `"pls"`: Mahalanobis distance based on PLS scores. Requires `Yr`.
+#'     See [ortho_diss()].
 #'
-#'   - `"mpls"`: Mahalanobis distance based on modified PLS scores (Shenk and
-#'     Westerhaus, 1991; Westerhaus, 2014). Requires `Yr`. See [ortho_diss()].
+#'   - `"mpls"`: Mahalanobis distance based on modified PLS scores
+#'     (Shenk and Westerhaus, 1991; Westerhaus, 2014). Requires `Yr`.
+#'     See [ortho_diss()].
 #'
 #'   - `"cor"`: Dissimilarity based on correlation between observations.
 #'     See [cor_diss()].
@@ -38,43 +47,71 @@
 #'
 #'   - `"sid"`: Spectral information divergence. See [sid()].
 #'
-#'   These options are passed to the [dissimilarity()] function, which performs
-#'   the actual computation. Additional arguments to `dissimilarity()` can be
-#'   passed through `...`.
+#'   These options are passed to [dissimilarity()], which performs
+#'   the computation. Additional arguments can be supplied via `...`.
 #'
-#'   If a matrix is provided, it must represent a precomputed dissimilarity
-#'   structure with constraints depending on whether `anchor_indices` is used:
+#'   If a matrix is provided, it must represent a precomputed
+#'   dissimilarity structure, subject to the following constraints:
 #'
-#'   - If `anchor_indices = NULL` (default), `diss_method` must be a square
-#'     matrix of size `n x n`, where `n = nrow(Xr)`. It must be symmetric
-#'     with zeros on the diagonal, representing self-dissimilarity.
+#'   - If `anchor_indices = NULL` (default), `diss_method` must be
+#'     a square matrix of size `n × n`, where `n = nrow(Xr)`. It must
+#'     be symmetric with zeros on the diagonal.
 #'
-#'   - If `anchor_indices` is specified (with length `m`), then
-#'     `diss_method` must have dimensions `n x m`, where `n = nrow(Xr)` and
-#'     `m = length(anchor_indices)`. The submatrix `diss_method[anchor_indices, ]`
-#'     must be symmetric with zeros on the diagonal.
+#'   - If `anchor_indices` is specified (length `m`), then
+#'     `diss_method` must have dimensions `n × m`, where
+#'     `n = nrow(Xr)` and `m = length(anchor_indices)`. The submatrix
+#'     `diss_method[anchor_indices, ]` must be symmetric with zeros
+#'     on the diagonal.
 #'
-#'   In all cases, the dissimilarity matrix must be consistent with the order
-#'   of samples in `Xr`. That is, the rows of `diss_method` must correspond
-#'   exactly to the rows of `Xr`, and when used, the elements of
-#'   `anchor_indices` must refer to valid rows in both `Xr` and `diss_method`.
-#' @param k a vector of integers specifying the sequence of k nearest neighbours to be tested. Either `k` or `k_diss` must be specified. This `vector` will be automatically sorted into ascending order. The values of vectors of class numeric, will be coerced to the next upper inetegers.
-#' @param k_diss NOT YET IMPLEMENTED a numeric `vector` specifying the sequence of dissimilarity thresholds to be tested for the selection of the nearest neighbors around each observation. For a given observation, its neighbors are those that exhibit a dissimilarity value equal to or below a given threshold. These thresholds depend on the corresponding dissimilarity measure specified in `sm`. Either `k` or `k_diss` must be specified. 
-#' @param k_range NOT YET IMPLEMENTED a vector of two integers specifying the minimum (first value) and the maximum (second value) number of neighbours allowed when the `k_diss` argument is used. 
-#' @param ws an optional odd integer value which specifies a window size when the correlation dissimilarity is used (i.e `sm = "cor"`). If not specified, the standard correlation dissimilarity is computed (i.e no moving window). Default is `NULL`.
-#' @param pls_c a vector of two integers indicating the minimum (first value) and maximum (second value) number of pls components to be used in the weighted average pls (wapls) regressions. 
-#' @param pc_selection a list specifying the details of the method to be used for identifying the number of components to be retained for computing the dissimilarities between samples when the method passed to `sm` is one of the following options: `"pc"`, `"loc.pc"`, ` "pls"` or ` "loc.pls"`. This list must contain two elements in the following order: \itemize{
-#'        \item{`method`:}{the method for selecting the number of components. Possible options are:  `"opc"` (optimized pc selection based on Ramirez-Lopez et al. (2013a, 2013b). See the \code{\link{orthoProjection}} function for more details;  `"cumvar"` (for selecting the number of principal components based on a given cumulative amount of explained variance); `"var"` (for selecting the number of principal components based on a given amount of explained variance); and  `"manual"` (for specifying manually the desired number of principal components)}
-#'        \item{`value`:}{a numerical value that complements the selected method. If `"opc"` is chosen, it must be a value indicating the maximal number of principal components to be tested (see Ramirez-Lopez et al., 2013a, 2013b). If `"cumvar"` is chosen, it must be a value (larger than 0 and below 1) indicating the maximum amount of cumulative variance that the retained components should explain. If `"var"` is chosen, it must be a value (larger than 0 and below 1) indicating that components that explain (individually) a variance lower than this threshold must be excluded. If `"manual"` is chosen, it must be a value specifying the desired number of principal components to retain.
-#'        }}
-#' The default method for the `pc_selection` argument is `"opc"` and the maximum number of principal components to be tested is set to `min(dim(Xr), 40)`, where code{Xr} is the matrix of reference predictors in the \code{\link{mbl}} function.
-#' Optionally, the `pc_selection` argument admits `"opc"` or `"cumvar"` or `"var"` or `"manual"` as a single character string. In such a case the default for `"value"` when either `"opc"` or `"manual"` are used is `min(dim(Xr), 40)`. When `"cumvar"` is used the default `"value"` is set to 0.99 and when `"var"` is used the default `"value"` is set to 0.01.
+#'   In all cases, the matrix must match the sample order in `Xr`.
+#'   Rows of `diss_method` must correspond exactly to rows of `Xr`,
+#'   and `anchor_indices`, if used, must refer to valid rows in both
+#'   `Xr` and `diss_method`.
+#' @param k An integer vector specifying the sequence of k nearest
+#'   neighbors to be evaluated. Either `k` or `k_diss` must be
+#'   specified. The vector is automatically sorted in ascending
+#'   order. Numeric values are coerced to the next highest integer.
+#'
+#' @param ws An optional odd integer specifying the window size when
+#'   correlation-based dissimilarity is used (i.e., `sm = "cor"`).
+#'   If not specified, standard correlation dissimilarity is
+#'   computed (no moving window). Default is `NULL`.
+#'
+#' @param pls_c An integer vector of length two indicating the
+#'   minimum (first value) and maximum (second value) number of PLS
+#'   components used in weighted average PLS (waPLS) regressions.
+#' @param pc_selection A list specifying how to select the number of components
+#'   retained when computing sample dissimilarities and the method passed to
+#'   \code{sm} is one of \code{"pc"}, \code{"loc.pc"}, \code{"pls"}, or
+#'   \code{"loc.pls"}. The list must contain two elements:
+#'   \itemize{
+#'     \item{\code{method}: The component-selection method. One of:
+#'       \code{"opc"} (optimised PC selection; see Ramirez-Lopez et al. (2013a,
+#'       2013b) and \code{\link{orthoProjection}}),
+#'       \code{"cumvar"} (cumulative explained variance threshold),
+#'       \code{"var"} (per-component explained variance threshold), or
+#'       \code{"manual"} (user-specified number of components).}
+#'     \item{\code{value}: Numeric value used by \code{method}. If
+#'       \code{"opc"}, the maximum number of components to test. If
+#'       \code{"cumvar"}, a value in \eqn{(0, 1]} giving the minimum cumulative
+#'       variance to explain. If \code{"var"}, a value in \eqn{(0, 1]} such that
+#'       components explaining less than this variance are excluded. If
+#'       \code{"manual"}, the number of components to retain.}
+#'   }
+#' The default for \code{pc_selection} uses \code{method = "opc"} with
+#' \code{value = min(dim(Xr), 40)}, where \code{Xr} is the reference predictor
+#' matrix passed to \code{\link{mbl}}.
+#'
+#' Alternatively, \code{pc_selection} may be supplied as a single character
+#' string: \code{"opc"}, \code{"cumvar"}, \code{"var"}, or \code{"manual"}.
+#' In this case, the default \code{value} is set to \code{min(dim(Xr), 40)} for
+#' \code{"opc"} and \code{"manual"}, to \code{0.99} for \code{"cumvar"}, and to
+#' \code{0.01} for \code{"var"}.
 #' @param group (PUT THE DETAILS OF THE 1_NN VALIDATION IN DETAILS) an optional `factor` (or `vector` that can be coerced to a `factor` by `as.factor`) that assigns to each observation in `Xr` a group/class label (e.g. groups can be given by spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). This is taken into account for internal validation of pls models (and factor optimization) to avoid pseudo-replication. For validation, the model of a given target observation is first fitted based on its neighbors and excluding that observation (and all the samples belonging to its group), then the model is used to predict the response variable of the target observation. See details.
 #' @param anchor_indices An optional integer vector of length `m` (`m < n`) specifying the row indices of the reference samples around which local models should be constructed. If `NULL` (default), local models will be built for all `n` samples in the reference set. See Details.
 #' @param gh a logical indicating whether or not to compute and return the Mahalanobis distance (in the pls space) between each element in `Xr` and the center of `Xr`.
 #' @param center a logical indicating whether or not the predictor variables must be centered at each local segment (before regression).
 #' @param scale a logical indicating whether or not the predictor variables must be scaled to unit variance at each local segment (before regression).
-#' @param diss_predictors a logical indicating if the local (square symmetric) dissimilarity matrix corresponding the selected neighbourhood shall be used as source of additional predictors (i.e the columns of this local matrix are treated as predictor variables). In some cases this may result in an improvement  of the prediction performance (Ramirez-Lopez et al., 2013a). 
 #' @param metric a character value indicating what model perfoamance statistics shall be used to select the best set of parameters (i.e. number of neighbors or threshold distances and pls factors)  to fit the final model. Options are `"rmse"` (default) or `"r2"` (coefficient of determination).
 #' @param return_best a logical indicating if the final library of functions using the optimal parameters found shall be returned.
 #' @param pls_max_iter (BETTER DESCRIPTION REQUIRED) maximum number of iterations for the partial least squares methods.
@@ -127,6 +164,8 @@
 #' of observations, a warning will be issued. The local model of an observation
 #' with a missing `Yr` value is fitted only using its nearest neighbors (i.e.,
 #' without including the observation itself).
+#' 
+#' 
 #' @references 
 #' Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J., & 
 #' Kvalheim, O. M. (2009). Biomarker discovery in mass spectral profiles by 
@@ -139,30 +178,34 @@
 #' \dontrun{
 #' #' ## GOOD EXAMPLES ARE REQUIRED
 #' }
-#' @export fit_library
+#' @export liblex
 
-fit_library <- function(
+
+# TASKS 
+### USE A CONTROL FUNCTION. IDEA: PERHAPS THE MBL_CONTROL, OR BETTER JUST liblex_control()
+### CREATE A FUNCTION TO CONFIGRE DISSIMILARITY COMPUTATION INSTRUCTIONS
+### USE LOCAL_FIT INSTEAD OF PASSING THE pls_c ARGUMENT
+
+
+liblex <- function(
     Xr,
     Yr,
     diss_method,
     k,
-    k_diss,
-    k_range,
-    ws = NULL,
-    pls_c,
-    pc_selection = list(method = "var", value = 0.01),
+    ws = NULL, # dissimiöaity instrunctions
+    pls_c, #pls_fit
+    pc_selection = list(method = "var", value = 0.01), # dissimiöaity instrunctions
     group,
     anchor_indices = NULL,
     gh = TRUE,
     center = TRUE,
     scale = FALSE,
-    diss_predictors = FALSE,
-    metric = "rmse",
+    metric = "rmse", # liblex_control
     return_best = TRUE,
-    pls_max_iter = 1,
-    pls_tol = 1e-6,
-    nearest_neighbor_val= TRUE,
-    optimize_ncomp_range = FALSE,
+    pls_max_iter = 1, # pls_fit
+    pls_tol = 1e-6, # pls_fit
+    nearest_neighbor_val = TRUE, # liblex_control
+    optimize_ncomp_range = FALSE, # liblex_control??
     chunk_size = 1,
     documentation = character(),
     ...
@@ -175,10 +218,9 @@ fit_library <- function(
   }
   
   if (missing(k)) {
-    stop("'k' is missing... at the mooment 'k_diss' is not active")
+    stop("'k' is missing")
   }
-  
-  
+
   if (missing(group)) {
     group <- as.factor(paste("g", 1:nrow(Xr), sep = ""))
   }
@@ -188,47 +230,41 @@ fit_library <- function(
     Yr <- matrix(Yr, nrow = nrow(Xr))
   }
   
+  # if (!missing(k) && !missing(k_diss)) {
+  #   stop("Only one of k or k_diss can be specified")
+  # }
   
-  if (missing(k) && missing(k_diss)) {
-    stop("Either k or k_diss must be specified")
+  # if (!missing(k)) {
+  if (!is.numeric(k)) {
+    stop("k must be a numeric vector")
   }
+  k <- sort(unique(ceiling(k)))
+  # }
   
-  if (!missing(k) && !missing(k_diss)) {
-    stop("Only one of k or k_diss can be specified")
-  }
-  
-  if (!missing(k)) {
-    if (!is.numeric(k)) {
-      stop("k must be a numeric vector")
-    }
-    k <- sort(unique(ceiling(k)))
-  }
-  
-  if (!missing(k_diss)) {
-    dtc <- k_diss
-    if (missing(k_range)) {
-      stop("When using k_diss, 'k_range' must be specified")
-    }
-    
-    if (!is.numeric(k_range) || length(k_range) != 2 || any(is.na(k_range))) {
-      stop("'k_range' must be a numeric vector of length 2")
-    }
-    
-    k_range <- ceiling(k_range)
-    
-    if (k_range[1] > k_range[2]) {
-      stop("In 'k_range', the first value must be <= the second value")
-    }
-    
-    k.min <- as.integer(k_range[1])
-    k.max <- as.integer(k_range[2])
-    if (k.min < 10)
-      stop("Minimum number of nearest neighbours allowed is 10")
-    if (k.max > nrow(Xr))
-      stop("Maximum number of nearest neighbours cannot exceed the number of reference observations")
-  } else{
-    dtc <- NULL
-  }
+  dtc <- NULL
+  # if (!missing(k_diss)) {
+  #   dtc <- k_diss
+  #   if (missing(k_range)) {
+  #     stop("When using k_diss, 'k_range' must be specified")
+  #   }
+  #   
+  #   if (!is.numeric(k_range) || length(k_range) != 2 || any(is.na(k_range))) {
+  #     stop("'k_range' must be a numeric vector of length 2")
+  #   }
+  #   
+  #   k_range <- ceiling(k_range)
+  #   
+  #   if (k_range[1] > k_range[2]) {
+  #     stop("In 'k_range', the first value must be <= the second value")
+  #   }
+  #   
+  #   k.min <- as.integer(k_range[1])
+  #   k.max <- as.integer(k_range[2])
+  #   if (k.min < 10)
+  #     stop("Minimum number of nearest neighbours allowed is 10")
+  #   if (k.max > nrow(Xr))
+  #     stop("Maximum number of nearest neighbours cannot exceed the number of reference observations")
+  # } 
   
   if (!is.numeric(chunk_size) || length(chunk_size) != 1 || chunk_size < 1) {
     stop("chunk_size must be a single numeric value larger than 0")
@@ -857,7 +893,7 @@ fit_library <- function(
       names(fresults$functionlibrary$B0) <- namesrows
     if (!is.null(fresults$functionlibrary$Bk))
       rownames(fresults$functionlibrary$Bk) <- namesrows
-    class(fresults) <- c("funlib","list")
+    class(fresults) <- c("liblex","list")
   } else {
     
     fresults <- list(
@@ -888,7 +924,7 @@ fit_library <- function(
       }, 
       nms = namesrows
     )
-    class(fresults) <- c("validationfunlib","list")
+    class(fresults) <- c("validationliblex","list")
   }
   fresults$anchor_indices <- anchor_indices
   
@@ -902,14 +938,14 @@ fit_library <- function(
 
 
 
-#' Predict from a funlib object
+#' Predict from a liblex object
 #'
-#' Generate predictions using a local ensemble model from a \code{funlib} object.  
+#' Generate predictions using a local ensemble model from a \code{liblex} object.  
 #' For each new sample, a neighbourhood of local models is retrieved based on  
 #' dissimilarity, and predictions are obtained via a weighted combination of  
 #' these models.
 #'
-#' @param object A fitted object of class \code{"funlib"}, typically created by
+#' @param object A fitted object of class \code{"liblex"}, typically created by
 #'   a function that builds a function library of local models.
 #' @param newdata A data frame or matrix containing new predictor values.
 #'   Must include all predictors required by \code{object}.
@@ -981,7 +1017,7 @@ fit_library <- function(
 #' @author Leonardo Ramirez-Lopez
 #' @export
 
-predict.funlib <- function(
+predict.liblex <- function(
     object, 
     newdata, 
     weighting = "gaussian",
@@ -1014,8 +1050,8 @@ predict.funlib <- function(
     )
   }
   
-  if(!"funlib" %in% class(object)){
-    stop("object must be of class 'funlib'")
+  if(!"liblex" %in% class(object)){
+    stop("object must be of class 'liblex'")
   }
   
   if(!all(colnames(object$functionlibrary$B) %in% colnames(newdata))){
@@ -1385,15 +1421,15 @@ predict.funlib <- function(
 }
 
 
-# predict.validationfunlib <- function(object,...){
+# predict.validationliblex <- function(object,...){
 #   stop("this object only contains validation data")
 # }
 
 
 
 .get_coefficient_sds <- function(object){
-  if(!"funlib" %in% class(object)){
-    stop("object is not of class 'funlib'")
+  if(!"liblex" %in% class(object)){
+    stop("object is not of class 'liblex'")
   }
   nf <- ifelse(
     is.null(object$functionlibrary$Bk), 
