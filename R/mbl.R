@@ -1177,7 +1177,7 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
   if (verbose) {
     cat("\033[32m\033[3mPredicting...\n\033[23m\033[39m")
   }
-
+  
   pred_obs <- foreach(
     i = 1:n_iter,
     ith_observation = iter_neighborhoods,
@@ -1188,6 +1188,24 @@ mbl <- function(Xr, Yr, Xu = NULL, Yu = NULL,
     ),
     .noexport = c("Xr", "Xu")
   ) %mydo% {
+  ################
+    # it <- iter_neighborhoods
+    # pred_obs <- vector("list", n_iter)  # %do% returns a list; mimic that
+    # for (i in seq_len(n_iter)) {
+    #   ith_observation <- tryCatch(
+    #     nextElem(it),
+    #     error = function(e) {
+    #       if (inherits(e, "StopIteration")) return(NULL)
+    #       stop(e)
+    #     }
+    #   )
+    #   if (is.null(ith_observation)) {
+    #     pred_obs <- pred_obs[seq_len(i - 1L)]
+    #     break
+    #   }
+    # #   ################
+    
+    
     ith_pred_results <- template_pred_results
     additional_results <- NULL
     ith_pred_results$o_index[] <- i

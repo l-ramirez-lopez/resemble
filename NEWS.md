@@ -1,3 +1,20 @@
+# `resemble 2.2.5 (dstatements)`
+===============
+
+### Fixes
+
+* This release addresses deprecated dependencies for the latest version of `RcppArmadillo`.
+  
+  
+# `resemble 2.2.4 (olbap)`
+===============
+
+### Improvements
+
+* Considerable gains in computational efficiency of the correlation 
+dissimilarity matrices (including the moving window ones).
+
+
 # `resemble 2.2.4 (olbap)`
 ===============
 

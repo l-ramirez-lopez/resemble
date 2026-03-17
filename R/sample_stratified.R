@@ -20,8 +20,10 @@
 #' column. The number of columns represents the number of sampling repetitions.
 #' @keywords internal
 
-sample_stratified <- function(y, p, number, group = NULL, replacement = FALSE, seed = NULL) {
-
+sample_stratified <- function(
+    y, p, number, group = NULL, replacement = FALSE, seed = NULL
+) {
+  
   ## If the percentage of samples to build the hold_in subset is below 50% of
   ## the total number of samples, the selection is based on the number of samples
   ## to retain.
@@ -227,7 +229,9 @@ sample_stratified <- function(y, p, number, group = NULL, replacement = FALSE, s
 #' @keywords internal
 get_sample_strata <- function(y, n = NULL, probs = NULL) {
   if (!is.null(n) & !is.null(probs)) {
-    stop("both n and probs have been passed to the function, only one of them can be accepted")
+    stop(
+      "both n and probs have been passed to the function, only one of them can be accepted"
+    )
   }
 
   if (!is.null(n)) {
@@ -370,12 +374,14 @@ optim_sample_strata <- function(y, n) {
 #' done.
 #' @return a list with the indices of the calibration and validation samples.
 #' @keywords internal
-get_samples_from_strata <- function(y,
-                                    original_order,
-                                    strata,
-                                    samples_per_strata,
-                                    sampling_for = c("calibration", "validation"),
-                                    replacement = FALSE) {
+get_samples_from_strata <- function(
+    y,
+    original_order,
+    strata,
+    samples_per_strata,
+    sampling_for = c("calibration", "validation"),
+    replacement = FALSE
+) {
   # For validation, we double the samples to get per strata in case of replacement.
   # The reason is that we will sample two distinct sets of samples; one denotes
   # the validation indices, while the other describes the replacement indices

@@ -61,8 +61,11 @@
 #'  using the remaining neighbors. This model is then used to predict the value
 #'  of the target response variable of the nearest observation. These predicted
 #'  values are finally cross validated with the actual values (See Ramirez-Lopez
-#'  et al. (2013a) for additional details). This method is faster than
-#'  \code{"local_cv"}.}
+#'  et al. (2013a) for additional details). If the nearest sample belongs to a 
+#'  group of samples that are labelled (through the `group` argument in 
+#'  \code{\link{mbl}}, then these samples are all excluded from the temporary 
+#'  local fit used for the validation step). This validation method is faster 
+#'  than \code{"local_cv"}.}
 #'  \item{Local leave-group-out cross-validation (\code{"local_cv"}): The
 #'  group of neighbors of each observation to be predicted is partitioned into
 #'  different equal size subsets. Each partition is selected based on a
@@ -131,14 +134,16 @@
 ## 24.06.2020 Leo     localOptimization has been renamed to tune_locally
 ##                    valMethod has been renamed to validation_type
 
-mbl_control <- function(return_dissimilarity = FALSE,
-                        validation_type = c("NNv", "local_cv"),
-                        tune_locally = TRUE,
-                        number = 10,
-                        p = 0.75,
-                        range_prediction_limits = TRUE,
-                        progress = TRUE,
-                        allow_parallel = TRUE) {
+mbl_control <- function(
+    return_dissimilarity = FALSE,
+    validation_type = c("NNv", "local_cv"),
+    tune_locally = TRUE,
+    number = 10,
+    p = 0.75,
+    range_prediction_limits = TRUE,
+    progress = TRUE,
+    allow_parallel = TRUE
+) {
   # Sanity checks
   if (!is.logical(allow_parallel)) {
     stop("allow_parallel must be a logical value")

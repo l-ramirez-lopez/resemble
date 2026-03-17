@@ -89,102 +89,98 @@ eval_multi_pc_diss <- function(scores,
   return(list(results = results, best_pc = best_pc))
 }
 
-#' @title checks the pc_selection argument
-#' @description internal
+#' @title Check and Process `pc_selection` Argument
+#' @description
+#' Internal utility to validate and normalize the `pc_selection` argument,
+#' used for controlling how the number of components is selected.
+#'
+#' @details
+#' Supports the following selection methods:
+#' - `"opc"` or `"manual"`: manual control of component count (defaults to 40)
+#' - `"cumvar"`: based on cumulative explained variance (defaults to 0.99)
+#' - `"var"`: based on per-component variance (defaults to 0.01)
+#'
+#' Handles automatic defaulting when values are missing, and validates
+#' against the shape of the input data (`n_rows_x`, `n_cols_x`).
+#'
+#' @param n_rows_x Number of rows in the reference dataset
+#' @param n_cols_x Number of columns in the reference dataset
+#' @param pc_selection List or character. See details.
+#' @param default_max_comp Default maximum components to test (default: 40)
+#' @param default_max_cumvar Default cumulative variance threshold (default: 0.99)
+#' @param default_max_var Default single component variance threshold (default: 0.01)
+#'
+#' @return A list with:
+#' \describe{
+#'   \item{pc_selection_checked}{Validated list with `method` and `value`}
+#'   \item{max_comp}{Maximum number of components to consider}
+#' }
+#' 
 #' @keywords internal
-check_pc_arguments <- function(n_rows_x, n_cols_x, pc_selection,
-                               default_max_comp = 40,
-                               default_max_cumvar = 0.99,
-                               default_max_var = 0.01) {
-  pc_selection_method <- pc_selection[[1]]
-
-  if (pc_selection_method %in% c("opc", "manual")) {
-    if (length(pc_selection) == 1) {
-      treshold_comp <- min(n_rows_x, n_cols_x)
-
-
-      treshold_comp <- ifelse(treshold_comp > default_max_comp,
-        default_max_comp, treshold_comp
+#' @noRd
+check_pc_arguments <- function(
+    n_rows_x, n_cols_x, pc_selection,
+    default_max_comp = 40,
+    default_max_cumvar = 0.99,
+    default_max_var = 0.01
+) {
+  # Validate pc_selection structure
+  if (!is.list(pc_selection)) {
+    stop(
+      "The 'pc_selection' argument must be a list with two elements: ",
+      "method and value. Optionally, a character string with only the ",
+      "method can be used (value will be set automatically)."
+    )
+  }
+  
+  pc_method <- pc_selection[[1]]
+  pc_value <- if (length(pc_selection) > 1) pc_selection[[2]] else NULL
+  max_dim <- min(n_rows_x, n_cols_x)
+  
+  if (pc_method %in% c("opc", "manual")) {
+    # Assign default if value is missing
+    if (is.null(pc_value)) {
+      value <- min(default_max_comp, max_dim)
+      message(
+        "Missing value in 'pc_selection': maximum components automatically set to ", 
+        value
       )
-
-      pc_selection_checked <- list(
-        method = pc_selection_method,
-        value = treshold_comp
-      )
-
-      message(paste0(
-        "Missing value in 'pc_selection', maximum components to be ",
-        "tested automatically set to ", treshold_comp
-      ))
     } else {
-      if (!is.list(pc_selection)) {
-        stop(paste0(
-          "The 'pc_selection' argument must be a list in which the ",
-          "first object indicates the selection method and the second ",
-          "object indicates the parameter value of the method. ",
-          "Optionally, a character string specifiying only the ",
-          "method can be used, in this case the parameter value is ",
-          "set automatically"
-        ))
+      if (!is.numeric(pc_value)) {
+        stop("The 'value' in 'pc_selection' must be numeric for method '", pc_method, "'.")
       }
-      pc_selection_checked <- list(
-        method = pc_selection[[1]],
-        value = floor(pc_selection[[2]])
-      )
-      if (!is.numeric(pc_selection_checked$value)) {
-        stop("The second value in pc_selection must be an integer value")
-      }
-      if (pc_selection_checked$value < 1 | pc_selection_checked$value > min(n_rows_x, n_cols_x)) {
-        stop(paste(
-          "The maximum number of principal components must be a value",
-          " between 1 and", min(n_rows_x, n_cols_x)
-        ))
+      value <- floor(pc_value)
+      if (value < 1 || value > max_dim) {
+        stop("The number of components must be between 1 and ", max_dim, ".")
       }
     }
-    max_comp <- pc_selection_checked$value
-  }
-
-  if (pc_selection_method %in% c("cumvar", "var")) {
-    if (length(pc_selection) == 1) {
-      if (pc_selection_method == "cumvar") {
-        pc_selection_checked <- list(
-          method = "cumvar",
-          value = default_max_cumvar
-        )
-        message(paste(
-          "Missing value in 'pc_selection', amount of cumulative ",
-          "variance to be retained automatically set to 0.99 (99%)"
-        ))
+    max_comp <- value
+  } else if (pc_method %in% c("cumvar", "var")) {
+    # Assign default if value is missing
+    if (is.null(pc_value)) {
+      value <- if (pc_method == "cumvar") default_max_cumvar else default_max_var
+      msg <- if (pc_method == "cumvar") {
+        "Missing value in 'pc_selection': cumulative variance automatically set to 0.99 (99%)"
       } else {
-        pc_selection_checked <- list(method = "var", value = default_max_var)
-        message(paste0(
-          "Since the value of the pc_selection argument is missing, ",
-          "retaining components that expain at least 0.01 (1%) ",
-          "of the original variance"
-        ))
+        "Missing value in 'pc_selection': minimum component variance automatically set to 0.01 (1%)"
       }
+      message(msg)
     } else {
-      pc_selection_checked <- list(
-        method = pc_selection[[1]],
-        value = pc_selection[[2]]
-      )
-
-      if (!is.numeric(pc_selection_checked$value)) {
-        stop("The second element in 'pc_selection' must be a numeric value")
+      if (!is.numeric(pc_value)) {
+        stop("The 'value' in 'pc_selection' must be numeric for method '", pc_method, "'.")
       }
-      if (pc_selection_checked$value > 1 | pc_selection_checked$value <= 0) {
-        stop(paste0(
-          "When the method for 'pc_selection' is either 'var' or ",
-          "'cumvar' the value in pc_selection must be a number larger ",
-          "than 0 and below or equal to 1"
-        ))
+      if (pc_value <= 0 || pc_value > 1) {
+        stop("For method '", pc_method, "', 'value' must be > 0 and ≤ 1.")
       }
+      value <- pc_value
     }
-    max_comp <- min(n_rows_x, n_cols_x) - 1
+    max_comp <- max_dim - 1
+  } else {
+    stop("Invalid 'pc_selection' method: must be one of 'opc', 'manual', 'cumvar', or 'var'.")
   }
-
+  
   list(
-    pc_selection_checked = pc_selection_checked,
+    pc_selection_checked = list(method = pc_method, value = value),
     max_comp = max_comp
   )
 }

@@ -40,6 +40,7 @@ knitr::include_graphics("logo.jpg")
 
 # Introduction
 
+
 Modeling spectral data has garnered wide interest in the last four decades. 
 Spectroscopy is the study of the spectral response of a matrix (e.g. soil, 
 plant material, seeds, etc.) when it interacts with electromagnetic radiation. 
