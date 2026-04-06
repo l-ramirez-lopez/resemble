@@ -1,0 +1,400 @@
+---
+title: "Dimensionality reduction of spectral data"
+author: 
+ - name: Leonardo Ramirez-Lopez
+   email: ramirez.lopez.leo@gmail.com
+date: today
+bibliography: resemble.bib
+csl: elsevier-harvard.csl  
+format:
+  html:
+    theme: cosmo
+    highlight-style: github
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    code-overflow: wrap
+    smooth-scroll: true
+vignette: >
+  %\VignetteIndexEntry{Dimensionality reduction of spectral data}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{quarto::html}
+---
+
+:::: {.columns}
+::: {.column width="70%"}
+> *Probability mass concentrates near regions that have a much smaller dimensionality than the original space where the data lives* -- @bengio2013representation
+:::
+::: {.column width="30%"}
+<img src="logo.png" style="width: 150%; max-width: 150px;">
+:::
+::::
+
+# Introduction
+
+Exploratory analysis of spectral data is often affected by the curse of dimensionality. In near-infrared (NIR) spectroscopy, for example, a single spectrum may contain measurements at hundreds to thousands of highly correlated wavelengths. Tasks such as pattern detection, similarity assessment, and outlier detection therefore often require reducing the dimensionality of the spectra while retaining the most relevant information.
+
+Principal component analysis (PCA) and partial least squares (PLS) are among the most widely used methods for dimensionality reduction in spectroscopic analysis. Both methods are based on the idea that the meaningful structure of spectral data lies in a lower-dimensional subspace. They seek to construct a projection that transforms the original variables into a smaller set of latent variables that provides a more compact representation of the data while preserving its dominant structure.
+
+The main difference between PCA and PLS lies in the criterion used to define the latent variables. In PCA, the objective is to obtain orthogonal components that explain as much variation in the predictor matrix as possible. In PLS, the objective is to obtain latent variables that maximize the covariance between the predictor matrix and one or more external variables, such as response variables or side information.
+
+In PCA and PLS, the input spectra ($X$, of dimensions $n \times d$) are decomposed into a score matrix ($T$) and a loading matrix ($P$), such that
+
+$$
+X = TP^\top + E
+$$
+
+where the dimensions of $T$ and $P$ are $n \times o$ and $d \times o$, respectively, $o$ is the number of retained components, and $E$ is the residual matrix (reconstruction error). In PCA, the columns of $P$ are orthonormal ($P^\top P = I$), which allows new observations to be projected directly onto the latent space. For centered data, the maximum number of components that can be retained is $\min(n - 1, d)$.
+
+Once a projection model has been estimated, new observations can be projected onto the same latent space. If $X_{\mathrm{new}}$ denotes a matrix of new spectra preprocessed in the same way as the original data, their scores can be obtained as
+
+$$
+T_{\mathrm{new}} = X_{\mathrm{new}} P
+$$
+
+where $P$ contains the loading vectors defining the projection space.
+
+The `resemble` package provides the function `ortho_projection()` to compute orthogonal projections of spectral data using PCA- and PLS-based methods. These projections can be used for exploratory analysis, visualization, dissimilarity analysis, neighbor search, and predictive modeling.
+
+
+
+
+
+# Methods available in the `resemble` package
+
+In the `resemble` package, orthogonal projections based on PCA and PLS are computed with the `ortho_projection()` function.
+
+The function provides the following algorithms for PCA:
+
+* `"pca"`: standard PCA computed by singular value decomposition (SVD).  
+
+* `"pca_nipals"`: PCA computed with the nonlinear iterative partial least squares (NIPALS) algorithm [@wold1975soft].
+
+For PLS, the available algorithms are:
+
+* `"pls"`: standard partial least squares decomposition computed with the NIPALS algorithm. The projection is guided by external variables provided in `Yr`, so that the latent variables maximize the covariance between the spectral predictors and the side information.
+
+* `"mpls"`: modified partial least squares, also computed with the NIPALS algorithm. Unlike standard PLS, which derives weights from covariances, this method uses correlations between `Xr` and `Yr`, reducing the influence of predictor variance on the projection [@shenk1991populations].
+
+* `"simpls"`: partial least squares computed with the SIMPLS algorithm [@de1993simpls], which is often computationally more efficient than NIPALS for high-dimensional data.
+
+
+
+# Selecting the number of components
+
+One of the critical decisions in dimensionality reduction is determining how many latent variables to extract. Retaining too few components risks discarding meaningful information, while retaining too many may introduce noise or lead to overfitting in subsequent modeling steps.
+
+The `resemble` package provides a set of constructor functions for specifying component selection criteria. These functions return specification objects that are passed to the `ncomp` argument of `ortho_projection()` and related functions:
+
+| Function | Criterion |
+|----------|-----------|
+| `ncomp_by_var()` | Individual variance threshold |
+| `ncomp_by_cumvar()` | Cumulative variance threshold |
+| `ncomp_by_opc()` | Optimal selection via nearest-neighbor evaluation |
+| `ncomp_fixed()` | Fixed number of components |
+
+Alternatively, passing a positive integer directly to `ncomp` is equivalent to using `ncomp_fixed()`.
+
+## Variance-based selection
+
+The simplest approach is to retain components based on the amount of variance they explain.
+
+### Individual variance threshold (`ncomp_by_var()`)
+
+Retains all components that individually explain at least a specified proportion of the total variance:
+
+```{r}
+#| message: false
+library(resemble)
+library(prospectr)
+
+# obtain a numeric vector of the wavelengths at which spectra is recorded 
+wavs <- as.numeric(colnames(NIRsoil$spc))
+
+# pre-process the spectra:
+# - use detrend
+# - use first order derivative
+diff_order <- 1
+poly_order <- 1
+window <- 7
+
+# Preprocess spectra
+NIRsoil$spc_pr <- savitzkyGolay(
+  detrend(NIRsoil$spc, wav = wavs),
+  m = diff_order, p = poly_order, w = window
+)
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
+train_y <- NIRsoil$Ciso[NIRsoil$train == 1]
+
+test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
+```
+
+In the following examples, the default method (PCA with SVD) is used to compute the projection, but the same component selection criteria can be applied to any of the available methods.
+
+
+```{r}
+#| eval: true
+# Retain components that individually explain at least 1% of variance
+proj_var <- ortho_projection(train_x, ncomp = ncomp_by_var(0.01))
+proj_var
+```
+
+The above configuration of `ncomp_by_var(0.01)` retained a total of `r proj_var$ncomp` components which are the ones that individually explain at least 1% of the total variance in the data. 
+
+
+### Cumulative variance threshold (`ncomp_by_cumvar()`)
+
+Retains the minimum number of components needed to reach a specified cumulative proportion of explained variance:
+
+```{r}
+#| eval: true
+# Retain enough components to explain at least 99% of variance
+proj_cumvar <- ortho_projection(train_x, ncomp = ncomp_by_cumvar(0.99))
+proj_cumvar
+```
+
+The above configuration of `ncomp_by_cumvar(0.99)` retained a total of `r proj_cumvar$ncomp` components which are the minimum number of components needed to explain at least 99% of the total variance in the data.
+
+## Optimal component selection (`ncomp_by_opc()`)
+
+Variance-based criteria consider only the structure of the predictor matrix. However, in supervised contexts, the goal is often to retain components that are relevant for capturing information realted to a response variable. The _optimal component selection_ method ("opc") addresses this by incorporating side information.
+
+The method is based on the assumption that if two observations are similar in the spectral space, they should also be similar in terms of their _side information_ [@ramirez2013spectrum]. For a sequence of retained components $o = 1, 2, \ldots, k$, the function computes a dissimilarity matrix at each step and identifies the nearest spectral neighbor for each observation. The side information values of each observation are then compared with those of its nearest neighbor.
+
+For continuous side information, the root mean squared difference (RMSD) is computed:
+
+$$
+j(i) = \mathrm{NN}(x_{r_i}, X_r^{\{-i\}})
+$$
+
+$$
+\mathrm{RMSD} = \sqrt{\frac{1}{m} \sum_{i=1}^m (y_i - y_{j(i)})^2}
+$$
+
+where $j(i)$ is the index of the nearest neighbor of observation $i$ (excluding itself), $y_i$ is the side information value for observation $i$, $y_{j(i)}$ is the side information value for the nearest neighbor, and $m$ is the total number of observations.
+
+For categorical side information, the kappa index is used instead of RMSD.
+
+The optimal number of components is the one that minimizes RMSD (or maximizes kappa). Note that in this case, the side information is represented by the response variable (`Ciso` in the `NIRSoil` dataset):
+
+```{r}
+#| eval: true
+# Optimal component selection using side information
+# using default max_ncomp which is 40
+proj_opc <- ortho_projection(train_x, Yr = train_y, ncomp = ncomp_by_opc())
+proj_opc
+```
+Using the OPC method, the optimal number of components is `r proj_opc$ncomp`. Although this may appear large, these components are required to adequately represent similarities among observations in terms of the side information (here, the `Ciso` variable). In this sense, OPC provides a semi-supervised approach for extracting meaningful latent variables, where the side information is used only to determine the optimal number of components.
+
+The "opc" method is particularly useful because it selects latent variables that are genuinely informative with respect to the response variable. By contrast, standard component-selection methods often underestimate the number of components needed to preserve similarities among observations in terms of the response.
+
+Note that this method can take multiple variables as side information. 
+
+By default, up to 40 latent variables are evaluated. If fewer than 40 spectral variables are supplied to `ortho_projection()`, the number of spectral variables is used as the upper limit for the number of latent variables to test.
+
+If fewer than 40 latent variables are to be evaluated, the `ncomp_by_opc()` 
+method can be used to set a smaller upper limit. For example:
+
+```{r}
+# this needs to be passed to the ncomp argument in ortho_projection()
+ncomp_by_opc(max_ncomp = 15)
+```
+
+
+## Fixed number of components
+
+When the number of components is known in advance, it can be specified directly:
+
+```{r}
+#| eval: false
+# Using ncomp_fixed()
+proj_fixed <- ortho_projection(train_x, ncomp = ncomp_fixed(10))
+
+# Equivalent: passing an integer directly
+proj_fixed <- ortho_projection(train_x, ncomp = 10)
+```
+
+# Dimentionality reduction methods in  `ortho_projection()`
+
+The `ortho_projection()` function computes orthogonal projections based on PCA and PLS.
+
+## Available methods
+
+The function provides the following algorithms for PCA:
+
+* `"pca"`: standard PCA computed by singular value decomposition (SVD).
+* `"pca_nipals"`: PCA computed with the nonlinear iterative partial least squares (NIPALS) algorithm [@wold1975soft].
+
+For PLS, the available algorithms are:
+
+* `"pls"`: standard partial least squares decomposition computed with the NIPALS algorithm. The projection is guided by external variables provided in `Yr`, so that the latent variables maximize the covariance between the spectral predictors and the side information.
+* `"mpls"`: modified partial least squares, computed with the NIPALS algorithm. Weights are derived from correlations rather than covariances between `Xr` and `Yr`, giving equal influence to all predictors regardless of variance [@Shenk1991].
+* `"simpls"`: partial least squares computed with the SIMPLS algorithm [@deJong1993], which is often computationally more efficient than NIPALS for high-dimensional data.
+
+## Example: PCA projection
+
+```{r}
+#| results: hide
+# PCA with default component selection (ncomp_by_var(0.01))
+pca_train <- ortho_projection(train_x, method = "pca")
+pca_train
+```
+
+```{r}
+#| label: fig-pca-variance
+#| fig-cap: "Individual contribution to the explained variance for each component (left) and cumulative variance explained by the principal components (right)."
+#| fig-width: 7
+#| fig-height: 3
+plot(pca_train)
+```
+
+In this dataset, `r pca_train$ncomp` components are required to explain approximately `r round(100 * sum(pca_train$variance$x_var[2,]), 0)`% of the original variance in the spectra (@fig-pca-variance).
+
+The NIPALS algorithm provides an alternative to SVD and can be faster when only a few components are required:
+
+```{r}
+#| results: hide
+# PCA using NIPALS
+pca_nipals_train <- ortho_projection(train_x, method = "pca_nipals")
+```
+
+## Example: PLS projection
+
+For PLS methods, side information (`Yr`) must be provided:
+
+```{r}
+#| results: hide
+# PLS using SIMPLS with 10 components
+pls_train <- ortho_projection(
+  train_x,
+  Yr = train_y,
+  method = "simpls",
+  ncomp = 10
+)
+pls_train
+```
+
+Observations with missing values in `Yr` are held out during model fitting, then projected using the resulting projection matrix and pooled with the results.
+
+## Example: Optimal component selection
+
+```{r}
+#| results: hide
+# PCA with optimal component selection
+pca_opc <- ortho_projection(
+  train_x,
+  Yr = train_y,
+  method = "pca",
+  ncomp = ncomp_by_opc(40)
+)
+pca_opc
+```
+
+```{r}
+#| label: fig-pca-opc
+#| fig-cap: "RMSD between observations and their nearest neighbors as a function of the number of principal components."
+#| fig-width: 5
+#| fig-height: 4
+plot(pca_opc, col = "#F59E0B")
+```
+
+In this example, `r pca_opc$ncomp` components minimize the RMSD for Total Carbon (@fig-pca-opc).
+
+# Projecting new data
+
+Both PCA and PLS generate projection matrices that can be used to project new observations onto the latent space. Use the `predict()` method:
+
+```{r}
+#| results: hide
+# Fit PLS projection model
+pls_model <- ortho_projection(
+  train_x,
+  Yr = train_y,
+  method = "simpls",
+  ncomp = ncomp_by_opc(40),
+  scale = TRUE
+)
+
+# Project test data
+pls_test_scores <- predict(pls_model, newdata = test_x)
+```
+
+```{r}
+#| label: fig-pc-proj
+#| fig-width: 4.5
+#| fig-height: 5
+#| fig-cap: "Projection of the training observations in the first two PLS components (blue) and projection of the test observations onto the same latent space (red)."
+plot(
+  pls_model$scores[, 1:2], 
+  col = rgb(0.231, 0.51, 0.965, 0.3), 
+  pch = 16, cex = 1.5,
+  xlab = "PLS1", ylab = "PLS2"
+)
+grid(lty = 1)
+points(
+  pls_test_scores[, 1:2], 
+  col = rgb(0.961, 0.620, 0.043, 0.7), 
+  pch = 16, cex = 1.5
+)
+legend(
+  "topright",
+  legend = c("Training projection", "Predicted projection"),
+  col = c(
+    rgb(0.231, 0.51, 0.965, 0.3),
+    rgb(0.961, 0.620, 0.043, 0.7)
+  ),
+  pch = 16,
+  pt.cex = 1.5,
+  box.col = "black"
+)
+```
+
+
+
+Alternatively, training and test data can be projected in a single call by passing the test data to `Xu`:
+
+```{r}
+#| results: hide
+# Project training and test data simultaneously
+pca_both <- ortho_projection(
+  train_x,
+  Xu = test_x,
+  Yr = train_y,
+  method = "pca",
+  ncomp = ncomp_by_opc(40),
+  scale = TRUE
+)
+```
+
+For PCA, the training and test data are pooled, projected jointly, and then split for the final results. For `ncomp_by_opc()`, dissimilarity matrices are computed only on the training data with available side information.
+
+# Multivariate side information
+
+The `ortho_projection()` function accepts multiple variables as side information:
+
+```{r}
+#| results: hide
+#| eval: false
+train_y2 <- NIRsoil$Nt[NIRsoil$train == 1]
+train_y3 <- NIRsoil$CEC[NIRsoil$train == 1]
+
+# PLS with multivariate side information
+pls_multi <- ortho_projection(
+  train_x,
+  Xu = test_x,
+  Yr = cbind(train_y, train_y2, train_y3),
+  method = "pca",
+  ncomp = ncomp_by_opc(40),
+  scale = TRUE
+)
+
+plot(pls_multi)
+```
+
+When multiple variables are provided, the PLS2 algorithm is used [@wold1983multivariate]. For optimal component selection, the RMSD is computed for each variable, standardized, and averaged. The evaluation results for each variable are accessible via `$opc_evaluation`.
+
+For categorical side information, the kappa index is used instead of RMSD.  
+
+# References {-}

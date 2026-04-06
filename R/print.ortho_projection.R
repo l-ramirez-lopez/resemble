@@ -11,7 +11,7 @@
 
 print.ortho_projection <- function(x, ...) {
   cat("\n", "Method: ", x$method)
-  cat("\n", "Number of components retained: ", x$n_components, "\n")
+  cat("\n", "Number of components retained: ", x$ncomp, "\n")
   cat(" Number of observations and number of original variables: ", c(nrow(x$scores), ncol(x$X_loadings)), "\n")
   cat(paste0(" Original variance in Xr: ", round(x$variance$original_x_var, 3), "\n"))
 

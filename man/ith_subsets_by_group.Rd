@@ -21,7 +21,7 @@ iteration.}
 to augment the feature set if provided.}
 }
 \value{
-An object of class \code{isubset}, \code{abstractiter}, \code{iter} that yields, on each
+An object of class \code{isubset}, \code{abstractiter}, \code{iter} that produces, on each
 call to \code{nextElem()}:
 \itemize{
 \item \code{x}: Subset of predictors (optionally prepended with local

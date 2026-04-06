@@ -104,7 +104,7 @@ sample_stratified <- function(
     # stratified sampling based on the vector of means instead. In particular,
     # this ensures that all members of a groups will always be in the same
     # validation or calibration set.
-    y_groups <- data.table(
+    y_groups <- data.frame(
       y = y,
       group = factor(group),
       original_order = 1:length(y)
@@ -255,7 +255,7 @@ get_sample_strata <- function(y, n = NULL, probs = NULL) {
     right = FALSE # Use left closed intervals for compatibility with Julia code
   )
 
-  strata_category <- data.table(
+  strata_category <- data.frame(
     original_order = 1:length(y),
     strata = y_cuts
   )
@@ -268,7 +268,7 @@ get_sample_strata <- function(y, n = NULL, probs = NULL) {
 #' from the distribution of the given y
 #' @param y a matrix of one column with the response variable.
 #' @param n number of samples that must be sampled.
-#' @return a list with two \code{data.table} objects: \code{sample_strata} contains
+#' @return a list with two \code{data.frame} objects: \code{sample_strata} contains
 #' the optimal strata, whereas \code{samples_to_get} contains information on how
 #' many samples per stratum are supposed to be drawn.
 #' @keywords internal
@@ -328,7 +328,7 @@ optim_sample_strata <- function(y, n) {
     # the same number of samples in each stratum. For some strata, we then reduce
     # this number, as there will (in most cases) more total samples in all strata
     # than the total number of samples available.
-    samples_to_get <- data.table(
+    samples_to_get <- data.frame(
       strata = levels(sample_strata$strata),
       samples_to_get = rep(
         new_min_samples_per_strata / 2,
@@ -351,7 +351,7 @@ optim_sample_strata <- function(y, n) {
     # In case the strata already satisfies the above requirements of having exactly
     # n strata and at least 3 samples in each stratum, we do not have to correct
     # the strata further and can get exactly 1 sample in each stratum.
-    samples_to_get <- data.table(
+    samples_to_get <- data.frame(
       strata = levels(sample_strata$strata),
       samples_to_get = 1
     )

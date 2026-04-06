@@ -19,7 +19,7 @@ ith_pred_subsets(plslib, Xu, xunn, xscale, dxrxu = NULL)
 }
 \value{
 An iterator of class \code{isubset}, \code{abstractiter}, \code{iter}. Each call
-to \code{nextElem()} yields:
+to \code{nextElem()} produces:
 \itemize{
 \item \code{iplslib}: Local PLS regression vectors for neighbors.
 \item \code{ixscale}: Scaling vectors for those models.

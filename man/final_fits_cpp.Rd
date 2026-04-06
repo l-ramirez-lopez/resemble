@@ -4,7 +4,17 @@
 \alias{final_fits_cpp}
 \title{Compute Final Local PLS Model Outputs}
 \usage{
-final_fits_cpp(X, Y, new_x, min_component, max_component, scale, maxiter, tol)
+final_fits_cpp(
+  X,
+  Y,
+  new_x,
+  ncomp_min,
+  ncomp_max,
+  scale,
+  maxiter,
+  tol,
+  algorithm = "mpls"
+)
 }
 \arguments{
 \item{X}{A matrix of predictor variables used for calibration.}
@@ -13,15 +23,17 @@ final_fits_cpp(X, Y, new_x, min_component, max_component, scale, maxiter, tol)
 
 \item{new_x}{A single observation (1 x p) of predictor variables to compute weights.}
 
-\item{min_component}{The minimum number of PLS components to include in the final model.}
+\item{ncomp_min}{The minimum number of PLS components to include in the final model.}
 
-\item{max_component}{The maximum number of PLS components to include in the final model.}
+\item{ncomp_max}{The maximum number of PLS components to include in the final model.}
 
 \item{scale}{Logical indicating whether to scale the data.}
 
 \item{maxiter}{Maximum number of iterations allowed during the NIPALS algorithm.}
 
 \item{tol}{Tolerance threshold for convergence in the iterative algorithm.}
+
+\item{algorithm}{\code{'mpls'} (defalt), \code{'pls'} (nipals), \code{'simpls'}.}
 }
 \value{
 A list with the following elements:

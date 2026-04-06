@@ -107,6 +107,8 @@ NumericVector fast_diss_vector(NumericVector X) {
 //' Suitable for moderate to large `n`. If OpenMP is enabled, the upper-triangle
 //' loop can optionally be parallelized for additional speedup on multicore systems.
 //' Note that the function assumes that the input matrix `X` is not empty and
+//' @keywords internal
+//' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
   const arma::uword n = X.n_rows;
@@ -360,8 +362,9 @@ corr_tile_xy_fast_t(
   var_i = (Sxx_i - (Sx_i % Sx_i) * iw) * icv;
   var_j = (Syy_j - (Sy_j % Sy_j) * iw) * icv;
   
-  inv_i = eT(1) / arma::sqrt(arma::clamp(var_i, eT(0), std::numeric_limits<eT>::infinity()));
-  inv_j = eT(1) / arma::sqrt(arma::clamp(var_j, eT(0), std::numeric_limits<eT>::infinity()));
+  const eT min_var = sizeof(eT) == 4 ? eT(1e-7f) : eT(1e-14);
+  inv_i = eT(1) / arma::sqrt(arma::clamp(var_i, min_var, std::numeric_limits<eT>::infinity()));
+  inv_j = eT(1) / arma::sqrt(arma::clamp(var_j, min_var, std::numeric_limits<eT>::infinity()));
   
   C.each_row() %= inv_j.t();
   C.each_col() %= inv_i;
@@ -474,6 +477,8 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 //' @param block_y Tile size for rows of Y (default 1024)
 //' @param precision "double" (default) or "float32"/"single"
 //' @return n×m distance matrix (R double matrix)
+//' @noRd
+//' @keywords internal
 // [[Rcpp::export]]
 arma::mat moving_cor_diss_xy(
     const arma::mat &X,
@@ -494,19 +499,6 @@ arma::mat moving_cor_diss_xy(
     return moving_cor_diss_xy_impl<double>(X, Y, w, block_x, block_y);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -543,8 +535,9 @@ static inline void corr_tile_from_stats_serial_fast(
   var_j = (Sxx_j - (Sx_j % Sx_j) * iw) * icv;
   
   // clamp tiny negatives from roundoff; still vectorized
-  inv_i = 1.0 / arma::sqrt(arma::clamp(var_i, 0.0, std::numeric_limits<double>::infinity()));
-  inv_j = 1.0 / arma::sqrt(arma::clamp(var_j, 0.0, std::numeric_limits<double>::infinity()));
+  const double min_var = 1e-14;
+  inv_i = 1.0 / arma::sqrt(arma::clamp(var_i, min_var, std::numeric_limits<double>::infinity()));
+  inv_j = 1.0 / arma::sqrt(arma::clamp(var_j, min_var, std::numeric_limits<double>::infinity()));
   
   // r = cov ./ (sd_i sd_j^T)  -> scale by reciprocals
   C.each_row() %= inv_j.t();
@@ -558,6 +551,8 @@ static inline void corr_tile_from_stats_serial_fast(
 //' @param w Odd window size
 //' @param block_rows Tile size in rows (default 1024)
 //' @return m x m symmetric distance matrix
+//' @noRd
+//' @keywords internal
 //' @useDynLib resemble, .registration=TRUE
 // [[Rcpp::export]]
 arma::mat moving_cor_diss_self_f64(const arma::mat &X, int w,
@@ -687,8 +682,9 @@ static inline void corr_tile_from_stats_serial_fast_f32(
   var_j = (Sxx_j - (Sx_j % Sx_j) * iw) * icv;
   
   // clamp tiny negatives from roundoff
-  inv_i = 1.0f / sqrt(clamp(var_i, 0.0f, std::numeric_limits<float>::infinity()));
-  inv_j = 1.0f / sqrt(clamp(var_j, 0.0f, std::numeric_limits<float>::infinity()));
+  const float min_var = 1e-7f;
+  inv_i = 1.0f / sqrt(clamp(var_i, min_var, std::numeric_limits<float>::infinity()));
+  inv_j = 1.0f / sqrt(clamp(var_j, min_var, std::numeric_limits<float>::infinity()));
   
   // r = cov ./ (sd_i sd_j^T)
   C.each_row() %= inv_j.t();
@@ -702,6 +698,8 @@ static inline void corr_tile_from_stats_serial_fast_f32(
 //' @param w Odd window size
 //' @param block_rows Tile size in rows (default 1024)
 //' @return m x m symmetric distance matrix (returned as double for R)
+//' @keywords internal
+//' @noRd
 //' @useDynLib resemble, .registration=TRUE
 // [[Rcpp::export]]
 arma::mat moving_cor_diss_self_f32(const arma::mat &X, int w,
@@ -811,6 +809,9 @@ arma::mat moving_cor_diss_self_f32(const arma::mat &X, int w,
 //' @param block_rows Tile size (default 1024)
 //' @param precision "double" (default) or "single (i.e."float32")
 //' @return m×m distance matrix (double for R)
+//' @keywords internal
+//' @noRd
+//' @useDynLib resemble
 // [[Rcpp::export]]
 arma::mat moving_cor_diss_self(const arma::mat &X,
                                int w,

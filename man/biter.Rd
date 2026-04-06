@@ -21,7 +21,7 @@ biter(
   max_iter,
   tol,
   seed = NULL,
-  modified = FALSE,
+  algorithm,
   allow_parallel,
   pchunks = 1
 )

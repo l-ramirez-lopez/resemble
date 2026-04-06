@@ -22,7 +22,7 @@ pls_cv(
   max_iter = 1,
   tol = 1e-06,
   seed = NULL,
-  modified = FALSE
+  algorithm = c("pls", "mpls", "simpls")
 )
 }
 \description{

@@ -32,3 +32,4 @@ Suitable for moderate to large \code{n}. If OpenMP is enabled, the upper-triangl
 loop can optionally be parallelized for additional speedup on multicore systems.
 Note that the function assumes that the input matrix \code{X} is not empty and
 }
+\keyword{internal}

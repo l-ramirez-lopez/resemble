@@ -11,3 +11,5 @@ logo.R
 ^Rscript*
 README\.Rmd$
 logo_large.png
+.gitignore
+.github

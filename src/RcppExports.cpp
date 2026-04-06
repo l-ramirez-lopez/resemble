@@ -243,14 +243,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_weights
-arma::mat get_weights(arma::mat X, arma::mat Y, String algorithm, const int xls_min_w, const int xls_max_w);
+arma::mat get_weights(const arma::mat& X, const arma::mat& Y, const String& algorithm, const int xls_min_w, const int xls_max_w);
 RcppExport SEXP _resemble_get_weights(SEXP XSEXP, SEXP YSEXP, SEXP algorithmSEXP, SEXP xls_min_wSEXP, SEXP xls_max_wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const String& >::type algorithm(algorithmSEXP);
     Rcpp::traits::input_parameter< const int >::type xls_min_w(xls_min_wSEXP);
     Rcpp::traits::input_parameter< const int >::type xls_max_w(xls_max_wSEXP);
     rcpp_result_gen = Rcpp::wrap(get_weights(X, Y, algorithm, xls_min_w, xls_max_w));
@@ -427,9 +427,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// opls_gs
-List opls_gs(arma::mat Xr, arma::mat Yr, arma::mat Xu, int ncomp, bool scale, bool response, bool reconstruction, bool similarity, bool fresponse, String algorithm);
-RcppExport SEXP _resemble_opls_gs(SEXP XrSEXP, SEXP YrSEXP, SEXP XuSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP responseSEXP, SEXP reconstructionSEXP, SEXP similaritySEXP, SEXP fresponseSEXP, SEXP algorithmSEXP) {
+// opls_gesearch
+List opls_gesearch(arma::mat Xr, arma::mat Yr, arma::mat Xu, int ncomp, bool scale, bool response, bool reconstruction, bool similarity, bool fresponse, String algorithm);
+RcppExport SEXP _resemble_opls_gesearch(SEXP XrSEXP, SEXP YrSEXP, SEXP XuSEXP, SEXP ncompSEXP, SEXP scaleSEXP, SEXP responseSEXP, SEXP reconstructionSEXP, SEXP similaritySEXP, SEXP fresponseSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -443,7 +443,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type similarity(similaritySEXP);
     Rcpp::traits::input_parameter< bool >::type fresponse(fresponseSEXP);
     Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
-    rcpp_result_gen = Rcpp::wrap(opls_gs(Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm));
+    rcpp_result_gen = Rcpp::wrap(opls_gesearch(Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -515,8 +515,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // ith_local_fit
-Rcpp::NumericVector ith_local_fit(arma::mat X, arma::mat Y, arma::mat xval, arma::mat emgrid, int max_component, int min_component, bool scale, double maxiter, double tol);
-RcppExport SEXP _resemble_ith_local_fit(SEXP XSEXP, SEXP YSEXP, SEXP xvalSEXP, SEXP emgridSEXP, SEXP max_componentSEXP, SEXP min_componentSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+Rcpp::NumericVector ith_local_fit(arma::mat X, arma::mat Y, arma::mat xval, arma::mat emgrid, int ncomp_max, int ncomp_min, bool scale, double max_iter, double tol, String algorithm);
+RcppExport SEXP _resemble_ith_local_fit(SEXP XSEXP, SEXP YSEXP, SEXP xvalSEXP, SEXP emgridSEXP, SEXP ncomp_maxSEXP, SEXP ncomp_minSEXP, SEXP scaleSEXP, SEXP max_iterSEXP, SEXP tolSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -524,30 +524,32 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type xval(xvalSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type emgrid(emgridSEXP);
-    Rcpp::traits::input_parameter< int >::type max_component(max_componentSEXP);
-    Rcpp::traits::input_parameter< int >::type min_component(min_componentSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp_max(ncomp_maxSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp_min(ncomp_minSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
-    Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< double >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(ith_local_fit(X, Y, xval, emgrid, max_component, min_component, scale, maxiter, tol));
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    rcpp_result_gen = Rcpp::wrap(ith_local_fit(X, Y, xval, emgrid, ncomp_max, ncomp_min, scale, max_iter, tol, algorithm));
     return rcpp_result_gen;
 END_RCPP
 }
 // final_fits_cpp
-Rcpp::List final_fits_cpp(const arma::mat& X, const arma::mat& Y, const arma::mat& new_x, int min_component, int max_component, bool scale, double maxiter, double tol);
-RcppExport SEXP _resemble_final_fits_cpp(SEXP XSEXP, SEXP YSEXP, SEXP new_xSEXP, SEXP min_componentSEXP, SEXP max_componentSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP) {
+Rcpp::List final_fits_cpp(const arma::mat& X, const arma::mat& Y, const arma::mat& new_x, int ncomp_min, int ncomp_max, bool scale, double maxiter, double tol, String algorithm);
+RcppExport SEXP _resemble_final_fits_cpp(SEXP XSEXP, SEXP YSEXP, SEXP new_xSEXP, SEXP ncomp_minSEXP, SEXP ncomp_maxSEXP, SEXP scaleSEXP, SEXP maxiterSEXP, SEXP tolSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type new_x(new_xSEXP);
-    Rcpp::traits::input_parameter< int >::type min_component(min_componentSEXP);
-    Rcpp::traits::input_parameter< int >::type max_component(max_componentSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp_min(ncomp_minSEXP);
+    Rcpp::traits::input_parameter< int >::type ncomp_max(ncomp_maxSEXP);
     Rcpp::traits::input_parameter< bool >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< double >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(final_fits_cpp(X, Y, new_x, min_component, max_component, scale, maxiter, tol));
+    Rcpp::traits::input_parameter< String >::type algorithm(algorithmSEXP);
+    rcpp_result_gen = Rcpp::wrap(final_fits_cpp(X, Y, new_x, ncomp_min, ncomp_max, scale, maxiter, tol, algorithm));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -582,13 +584,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_project_opls", (DL_FUNC) &_resemble_project_opls, 6},
     {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 7},
     {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 14},
-    {"_resemble_opls_gs", (DL_FUNC) &_resemble_opls_gs, 10},
+    {"_resemble_opls_gesearch", (DL_FUNC) &_resemble_opls_gesearch, 10},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},
     {"_resemble_predict_gaussian_process", (DL_FUNC) &_resemble_predict_gaussian_process, 8},
     {"_resemble_gaussian_process_cv", (DL_FUNC) &_resemble_gaussian_process_cv, 7},
     {"_resemble_pca_nipals", (DL_FUNC) &_resemble_pca_nipals, 8},
-    {"_resemble_ith_local_fit", (DL_FUNC) &_resemble_ith_local_fit, 9},
-    {"_resemble_final_fits_cpp", (DL_FUNC) &_resemble_final_fits_cpp, 8},
+    {"_resemble_ith_local_fit", (DL_FUNC) &_resemble_ith_local_fit, 10},
+    {"_resemble_final_fits_cpp", (DL_FUNC) &_resemble_final_fits_cpp, 9},
     {NULL, NULL, 0}
 };
 

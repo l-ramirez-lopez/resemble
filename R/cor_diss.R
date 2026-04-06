@@ -66,7 +66,8 @@
 #'
 #' cor_diss(Xr = Xr, Xu = Xu, ws = 41)
 #' }
-#' @export
+#' @keywords internal
+#' @noRd
 
 
 ######################################################################
@@ -100,10 +101,10 @@ cor_diss <- function(
     center = TRUE, 
     scale = FALSE, 
     precision = c("double", "single")
-  ) {
+) {
   
   pr <- match.arg(precision, c("double", "single"))
-
+  
   if (!ncol(Xr) >= 2) {
     stop("For correlation dissimilarity the number of variables must be larger than 1")
   }
@@ -115,30 +116,30 @@ cor_diss <- function(
       stop("Input data contains missing values")
     }
   }
-
+  
   if (sum(is.na(Xr)) > 0) {
     stop("Matrices with missing values are not accepted")
   }
-
+  
   if (!is.logical(center)) {
     stop("'center' argument must be logical")
   }
-
+  
   if (!is.logical(scale)) {
     stop("'scale' argument must be logical")
   }
-
+  
   if (center | scale) {
     X <- rbind(Xr, Xu)
-
+    
     if (center) {
       X <- sweep(x = X, MARGIN = 2, FUN = "-", STATS = colMeans(X))
     }
-
+    
     if (scale) {
       X <- sweep(x = X, MARGIN = 2, FUN = "/", STATS = get_col_sds(X))
     }
-
+    
     if (!is.null(Xu)) {
       Xu <- X[(nrow(X) - nrow(Xu) + 1):nrow(X), , drop = FALSE]
       Xr <- X[1:(nrow(X) - nrow(Xu)), ]
@@ -155,8 +156,8 @@ cor_diss <- function(
         "Correlation coefficients cannot be computed. Xr contains ", 
         sum(xr_sds == 0), 
         " observation(s) with a standard deviation of zero."
-        )
       )
+    )
   }
   if (!is.null(Xu)) {
     xu_sds <- get_col_sds(t(Xu))
@@ -166,8 +167,8 @@ cor_diss <- function(
           "Correlation coefficients cannot be computed. Xu contains ", 
           sum(xu_sds == 0), 
           "observation(s) with a standard deviation of zero."
-          )
         )
+      )
     }
   }
   
@@ -210,129 +211,7 @@ cor_diss <- function(
     }
     rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
   }
-
+  
   rslt
 }
-
-
-#' Heuristic for cache-aware tile height (block_rows)
-#'
-#' @description
-#' Choose a tile height for tiled rolling-window correlation/distance kernels,
-#' balancing per-tile cache footprint against matrix width and available
-#' threads. Cross-platform (macOS, Linux, Windows).
-#'
-#' @details
-#' Let \eqn{b} be the tile height and \eqn{T} the number of columns.
-#' The working set per tile (in elements of the chosen precision) is
-#' approximated as:
-#'
-#' \deqn{M(b) \approx 3 b^2 + 2 b T} if \code{include_squares = TRUE}
-#' (materialised \eqn{X_i^2}, \eqn{X_j^2}), and
-#' \deqn{M(b) \approx 3 b^2} otherwise.
-#'
-#' A per-thread budget \eqn{K} (elements) is obtained from \code{target_mb},
-#' the OS default if \code{NULL} (24 MiB on Windows, 48 MiB otherwise),
-#' divided by the effective OpenMP thread count. The quadratic bound yields
-#' \deqn{b_T = \frac{-T + \sqrt{T^2 + 3K}}{3}}
-#' (or \eqn{b_T = \sqrt{K/3}} when \code{include_squares = FALSE}).
-#'
-#' The final choice is
-#' \code{block_rows = round_to_64( min( max(64, m / min_tiles), b_T ) )},
-#' clamped to \code{[64, min(max_block_cap, m)]}.
-#'
-#' If OpenMP is unavailable (\code{capabilities("openmp") == FALSE}),
-#' the budget assumes a single thread.
-#'
-#' @param dimensions Integer vector of length two \code{c(m, T)}:
-#' number of rows and columns of \eqn{X}.
-#' @param include_squares Logical. If \code{TRUE}, assumes the kernel
-#' materialises \code{Xi_sq} and \code{Xj_sq}; if \code{FALSE}, uses the
-#' lighter memory model.
-#' @param target_mb Numeric or \code{NULL}. Target MiB of cache to devote
-#' per thread to one tile. Defaults to 24 on Windows and 48 otherwise.
-#' @param min_tiles Integer. Aim for at least this many tiles along the
-#' row dimension (default \code{12L}).
-#' @param max_block_cap Integer. Hard upper bound for \code{block_rows}
-#' (default \code{1024L}).
-#'
-#' @return Integer scalar, the recommended \code{block_rows} (multiple of 64).
-#'
-#' @section Cross-platform behaviour:
-#' Uses \code{Sys.info()[["sysname"]]} when available to select a default
-#' \code{target_mb}. Thread budgeting uses \code{OMP_NUM_THREADS} if set,
-#' otherwise the number of physical cores; falls back to one when OpenMP
-#' is not available.
-#'
-#' @examples
-#' # Typical NIR-like shape
-#' compute_block_rows(c(4096, 2150))
-#'
-#' # Float kernels or lighter memory model allow larger tiles
-#' compute_block_rows(c(4096, 2150), precision = "single")
-#' compute_block_rows(c(4096, 2150), include_squares = FALSE)
-#'
-#' # Override cache budget and threads explicitly
-#' old <- Sys.getenv("OMP_NUM_THREADS")
-#' Sys.setenv(OMP_NUM_THREADS = "16")
-#' compute_block_rows(c(8192, 1800), target_mb = 32)
-#' Sys.setenv(OMP_NUM_THREADS = old)
-#'
-#' # Small matrices respect caps
-#' compute_block_rows(c(120, 2000))
-#'
-#' @seealso \code{\link{round_to_64}}
-#' @keywords internal
-#' @noRd
-compute_block_rows <- function(dimensions,
-                               include_squares = TRUE,
-                               target_mb = 8,        # per-thread cache budget (MiB)
-                               min_tiles = 12L,
-                               max_block_cap = 1024L) {
-  mm <- as.integer(dimensions[1])
-  tt <- as.integer(dimensions[2])
-  
-  max_block <- min(max_block_cap, mm)
-  if (max_block < 64L) return(max_block)
-  
-  # Effective threads for budgeting
-  threads <- suppressWarnings(as.integer(Sys.getenv("OMP_NUM_THREADS", NA)))
-  if (is.na(threads) || threads < 1L) {
-    threads <- parallel::detectCores(logical = FALSE)
-    if (is.na(threads) || threads < 1L) threads <- 1L
-  }
-  if (!isTRUE(capabilities("openmp"))) threads <- 1L
-  
-  # Per-thread element budget (double -> 8 bytes)
-  elt_size <- 8
-  per_thread_mb <- max(8, as.numeric(target_mb) / threads)  # keep a sane floor
-  K <- (per_thread_mb * 1024^2) / elt_size                  # elements per tile
-  
-  # Working-set model ⇒ bound on b
-  # include_squares:   3*b^2 + 2*b*T <= K  -> b_T = (-T + sqrt(T^2 + 3K))/3
-  # without squares:   3*b^2          <= K  -> b_T = sqrt(K/3)
-  b_T <- if (isTRUE(include_squares)) {
-    (-tt + sqrt(tt * tt + 3 * K)) / 3
-  } else {
-    sqrt(K / 3)
-  }
-  
-  # Also ensure enough tiles along rows
-  b_m   <- mm / as.numeric(min_tiles)
-  b_raw <- min(max(64, b_m), b_T)
-  
-  block <- round_to_64(b_raw, mult = 64L)
-  block <- max(64L, min(as.integer(block), max_block))
-  block
-}
-
-
-
-#' @keywords internal
-#' @noRd
-round_to_64 <- function(x, mult = 64L) {
-  mult * round(x / mult)
-}
-
-
 

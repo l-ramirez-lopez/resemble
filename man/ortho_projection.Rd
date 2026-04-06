@@ -2,308 +2,198 @@
 % Please edit documentation in R/ortho_projection.R
 \name{ortho_projection}
 \alias{ortho_projection}
-\alias{pls_projection}
-\alias{pc_projection}
 \alias{predict.ortho_projection}
-\title{Orthogonal projections using principal component analysis and partial
-least squares}
+\title{Orthogonal projections using PCA and PLS}
 \usage{
-ortho_projection(Xr, Xu = NULL,
-                 Yr = NULL,
-                 method = "pca",
-                 pc_selection = list(method = "var", value = 0.01),
-                 center = TRUE, scale = FALSE, ...)
-
-pc_projection(Xr, Xu = NULL, Yr = NULL,
-              pc_selection = list(method = "var", value = 0.01),
-              center = TRUE, scale = FALSE,
-              method = "pca",
-              tol = 1e-6, max_iter = 1000, ...)
-
-pls_projection(Xr, Xu = NULL, Yr,
-               pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
-               scale = FALSE, method = "pls",
-               tol = 1e-6, max_iter = 1000, ...)
+ortho_projection(
+  Xr,
+  Xu = NULL,
+  Yr = NULL,
+  ncomp = ncomp_by_var(0.01),
+  method = c("pca", "pca_nipals", "pls", "mpls", "simpls"),
+  center = TRUE,
+  scale = FALSE,
+  tol = 1e-06,
+  max_iter = 1000L,
+  pc_selection = deprecated(),
+  ...
+)
 
 \method{predict}{ortho_projection}(object, newdata, ...)
 }
 \arguments{
-\item{Xr}{a matrix of observations.}
+\item{Xr}{A numeric matrix of reference observations (rows) and variables
+(columns).}
 
-\item{Xu}{an optional matrix containing data of a second set of observations.}
+\item{Xu}{An optional matrix of additional observations to project.}
 
-\item{Yr}{if the method used in the \code{pc_selection} argument is \code{"opc"}
-or if \code{method = "pls"}, then it must be a matrix
-containing the side information corresponding to the spectra in \code{Xr}.
-It is equivalent to the \code{side_info} parameter of the \code{\link{sim_eval}}
-function. In case \code{method = "pca"}, a matrix (with one or more
-continuous variables) can also be used as input. The root mean square of
-differences (rmsd) is used for assessing the similarity between the observations
-and their corresponding most similar observations in terms of the side information
-provided. A single discrete variable of class factor can also be passed. In
-that case, the kappa index is used. See \code{\link{sim_eval}} function for more details.}
+\item{Yr}{An optional response matrix. Required for PLS methods
+(\code{"pls"}, \code{"mpls"}, \code{"simpls"}) and when using
+\code{\link{ncomp_by_opc}()}.}
 
-\item{method}{the method for projecting the data. Options are:
+\item{ncomp}{Component selection method. Either:
 \itemize{
-\item{\code{"pca"}: principal component analysis using the singular value
-decomposition algorithm.}
-\item{\code{"pca.nipals"}: principal component analysis using the
-non-linear iterative partial least squares algorithm.}
-\item{\code{"pls"}: partial least squares.}
-\item{\code{"mpls"}: modified partial least squares. See details.}
+\item A positive integer (equivalent to \code{ncomp_fixed(n)})
+\item An \code{ncomp_selection} object: \code{\link{ncomp_by_var}()},
+\code{\link{ncomp_by_cumvar}()}, \code{\link{ncomp_by_opc}()}, or
+\code{\link{ncomp_fixed}()}
+}
+Default is \code{ncomp_by_var(0.01)}.}
+
+\item{method}{A character string specifying the projection method:
+\itemize{
+\item \code{"pca"}: PCA via singular value decomposition (default)
+\item \code{"pca_nipals"}: PCA via NIPALS algorithm
+\item \code{"pls"}: PLS via NIPALS algorithm
+\item \code{"mpls"}: Modified PLS via NIPALS (Shenk and Westerhaus, 1991)
+\item \code{"simpls"}: PLS via SIMPLS algorithm (de Jong, 1993)
 }}
 
-\item{pc_selection}{a list of length 2 which specifies the method to be used
-for optimizing the number of components (principal components or pls factors)
-to be retained. This list must contain two elements (in the following order):
-\code{method} (a character indicating the method for selecting the number of
-components) and \code{value} (a numerical value that complements the selected
-method). The methods available are:
-\itemize{
-\item{\code{"opc"}: optimized principal component selection based on
-Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-of a given set of observations is the one for which its distance matrix
-minimizes the differences between the \code{Yr} value of each
-observation and the \code{Yr} value of its closest observation. In this
-case \code{value} must be a value (larger than 0 and
-below \code{min(nrow(Xr)} \code{+ nrow(Xu),} \code{ncol(Xr))} indicating
-the maximum number of principal components to be tested. See details.}
-\item{\code{"cumvar"}: selection of the principal components based
-on a given cumulative amount of explained variance. In this case,
-\code{value} must be a value (larger than 0 and below or equal to 1)
-indicating the minimum amount of cumulative variance that the
-combination of retained components should explain.}
-\item{\code{"var"}: selection of the principal components based
-on a given amount of explained variance. In this case,
-\code{value} must be a value (larger than 0 and below or equal to 1)
-indicating the minimum amount of variance that a single component should
-explain in order to be retained.}
-\item{\code{"manual"}: for manually specifying a fix number of
-principal components. In this case, \code{value} must be a value
-(larger than 0 and
-below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
-combined).
-indicating the minimum amount of variance that a component should
-explain in order to be retained.}
-}
-The list \code{list(method = "var", value = 0.01)} is the default.
-Optionally, the \code{pc_selection} argument admits \code{"opc"} or
-\code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
-string. In such a case the default \code{"value"} when either \code{"opc"} or
-\code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
-\code{"value"} is set to 0.01.}
+\item{center}{A logical indicating whether to center the data. Default is
+\code{TRUE}. PLS methods always center internally regardless of this
+setting.}
 
-\item{center}{a logical indicating if the data \code{Xr} (and \code{Xu} if
-specified) must be centered. If \code{Xu} is specified the data is centered
-on the basis of \mjeqn{Xr \cup Xu}{Xr U Xu}. NOTE: This argument only applies to the
-principal components projection. For pls projections the data is always
-centered.}
+\item{scale}{A logical indicating whether to scale the data to unit
+variance. Default is \code{FALSE}.}
 
-\item{scale}{a logical indicating if \code{Xr} (and \code{Xu} if specified)
-must be scaled. If \code{Xu} is specified the data is scaled on the basis of
-\mjeqn{Xr \cup Xu}{Xr U Xu}.}
+\item{tol}{Convergence tolerance for the NIPALS algorithm. Default is
+\code{1e-6}. Ignored when \code{method = "simpls"}.}
 
-\item{...}{additional arguments to be passed
-to \code{pc_projection} or \code{pls_projection}.}
+\item{max_iter}{Maximum number of iterations for NIPALS. Default is
+\code{1000}. Ignored when \code{method = "simpls"}.}
 
-\item{tol}{tolerance limit for convergence of the algorithm in the nipals
-algorithm (default is 1e-06). In the case of PLS this applies only to Yr with
-more than one variable.}
+\item{pc_selection}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ncomp} instead.}
 
-\item{max_iter}{maximum number of iterations (default is 1000). In the case of
-\code{method = "pls"} this applies only to \code{Yr} matrices with more than
-one variable.}
+\item{...}{Additional arguments (currently unused).}
 
-\item{object}{object of class \code{"ortho_projection"}.}
+\item{object}{Object of class \code{"ortho_projection"}.}
 
-\item{newdata}{an optional data frame or matrix in which to look for variables
-with which to predict. If omitted, the scores are used. It must contain the
-same number of columns, to be used in the same order.}
+\item{newdata}{Matrix of new observations to project.}
 }
 \value{
-a \code{list} of class \code{ortho_projection} with the following
-components:
+An object of class \code{"ortho_projection"} containing:
 \itemize{
-\item{\code{scores}: a matrix of scores corresponding to the observations in
-\code{Xr} (and \code{Xu} if it was provided). The components retrieved
-correspond to the ones optimized or specified.}
-\item{\code{X_loadings}: a matrix of loadings corresponding to the
-explanatory variables. The components retrieved correspond to the ones
-optimized or specified.}
-\item{\code{Y_loadings}: a matrix of partial least squares loadings
-corresponding to \code{Yr}. The components retrieved  correspond to the
-ones optimized or specified.
-This object is only returned if the partial least squares algorithm was used.}
-\item{\code{weigths}: a matrix of partial least squares ("pls") weights.
-This object is only returned if the "pls" algorithm was used.}
-\item{\code{projection_mat}: a matrix that can be used to project new data
-onto a "pls" space. This object is only returned if the "pls" algorithm was
-used.}
-\item{\code{variance}: a list with information on the original variance and
-the explained variances. This list contains a matrix indicating the amount of
-variance explained by each component (var), the ratio between explained
-variance by each single component and the original variance (explained_var) and
-the cumulative ratio of explained variance (cumulative_explained_var).
-The amount of variance explained by each component is computed by multiplying
-its score vector by its corresponding loading vector and calculating the
-variance of the result. These values are computed based on the observations
-used to create the projection matrices. For example if the "pls" method was
-used, then these values are computed  based only on the data that contains
-information on \code{Yr} (i.e. the  \code{Xr} data). If the principal
-component method is used, the this data is  computed on the basis of
-\code{Xr} and \code{Xu} (if it applies) since both  matrices are employed in
-the computation of the projection matrix (loadings  in this case)}.
-\item{\code{sdv}: the standard deviation of the retrieved scores. This vector
-can be different from the "sd" in \code{variance}.}
-\item{\code{n_components}: the number of components (either principal
-components or partial least squares components) used for computing the
-global dissimilarity scores.}
-\item{\code{opc_evaluation}: a matrix containing the statistics computed
-for optimizing the number of principal components based on the variable(s)
-specified in the \code{Yr} argument. If \code{Yr} was a continuous  was a
-continuous vector or matrix then this object indicates the root mean square
-of differences (rmse) for each number of components. If \code{Yr} was a
-categorical variable this object indicates the kappa values for each number
-of components. This object is returned only if \code{"opc"} was used within
-the \code{pc_selection} argument. See the \code{\link{sim_eval}} function for
-more details.}
-\item{\code{method}: the \code{ortho_projection} method used.}
+\item \code{scores}: Matrix of projected scores for \code{Xr} (and \code{Xu}).
+\item \code{X_loadings}: Matrix of X loadings.
+\item \code{Y_loadings}: Matrix of Y loadings (PLS only).
+\item \code{weights}: Matrix of PLS weights (PLS only).
+\item \code{projection_mat}: Projection matrix for new data (PLS only).
+\item \code{variance}: List with original and explained variance.
+\item \code{scores_sd}: Standard deviation of scores.
+\item \code{ncomp}: Number of components retained.
+\item \code{center}: Centering vector used.
+\item \code{scale}: Scaling vector used.
+\item \code{method}: Projection method used.
+\item \code{ncomp_method}: The value passed to the \code{ncomp} argument.
+\item \code{opc_evaluation}: opc optimization results (if applicable).
 }
-\code{predict.ortho_projection}, returns a matrix of scores proprojected for
-\code{newdtata}.
 }
 \description{
 \loadmathjax
-Functions to perform orthogonal projections of high dimensional data matrices
-using principal component analysis (pca) and partial least squares (pls).
+Performs orthogonal projections of high-dimensional data matrices using
+principal component analysis (PCA) or partial least squares (PLS).
 }
 \details{
-In the case of \code{method = "pca"}, the algorithm used is the singular value
-decomposition in which a given data matrix (\mjeqn{X}{X}) is factorized as follows:
+\subsection{PCA methods}{
 
-\mjdeqn{X = UDV^{T}}{X = UDV^{\mathrm{T}}}
+When \code{method = "pca"}, singular value decomposition factorizes the
+data matrix \mjeqn{X}{X} as:
 
-where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices, being the left and right
-singular vectors of \mjeqn{X}{X} respectively, \mjeqn{D}{D} is a diagonal matrix
-containing the singular values of \mjeqn{X}{X} and \mjeqn{V}{V} is the is a matrix of
-the right singular vectors of \mjeqn{X}{X}.
-The matrix of principal component scores is obtained by a matrix
-multiplication of \mjeqn{U}{U} and \mjeqn{D}{D}, and the matrix of principal component
-loadings is equivalent to the matrix \mjeqn{V}{V}.
+\mjdeqn{X = UDV^{T}}{X = UDV^T}
 
-When \code{method = "pca.nipals"}, the algorithm used for principal component
-analysis is the non-linear iterative partial least squares (nipals).
+where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices (left and right
+singular vectors), and \mjeqn{D}{D} is a diagonal matrix of singular values.
+The score matrix is \mjeqn{UD}{UD} and the loadings are \mjeqn{V}{V}.
 
-In the case of the of the partial least squares projection (a.k.a projection
-to latent structures) the nipals regression algorithm is used by default.
-Details on the "nipals" algorithm are presented in Martens (1991). Another
-method called modified pls (\code{'mpls'}) can also be used. The modified
-pls was proposed Shenk and Westerhaus (1991, see also Westerhaus, 2014) and it
-differs from the standard pls method in the way the weights of the \code{Xr}
-(used to compute the matrix of scores) are obtained. While pls uses the covariance
-between  \code{Yr} and \code{Xr} (and later their deflated versions
-corresponding at each pls component iteration) to obtain these weights, the modified pls
-uses the correlation as weights. The authors indicate that by using correlation,
-a larger potion of the response variable(s) can be explained.
+When \code{method = "pca_nipals"}, the non-linear iterative partial least
+squares (NIPALS) algorithm is used instead.
+}
 
-When \code{method = "opc"}, the selection of the components is carried out by
-using an iterative method based on the side information concept
-(Ramirez-Lopez et al. 2013a, 2013b). First let be \mjeqn{P}{P} a sequence of
-retained components (so that \mjeqn{P = 1, 2, ...,k }{P = 1, 2, ...,k }).
-At each iteration, the function computes a dissimilarity matrix retaining
-\mjeqn{p_i}{p_i} components. The values in this side information variable are
-compared against the side information values of their most spectrally similar
-observations (closest \code{Xr} observation).
-The optimal number of components retrieved by the function is the one that
-minimizes the root mean squared differences (RMSD) in the case of continuous
-variables, or maximizes the kappa index in the case of categorical variables.
-In this process, the \code{\link{sim_eval}} function is used.
-Note that for the \code{"opc"} method \code{Yr} is required (i.e. the
-side information of the observations).
+\subsection{PLS methods}{
+
+Three PLS variants are available:
+
+\itemize{
+\item \code{"pls"}: Standard PLS using the NIPALS algorithm with
+covariance-based weights.
+\item \code{"mpls"}: Modified PLS using the NIPALS algorithm with
+correlation-based weights, giving equal influence to all predictors
+regardless of variance (Shenk and Westerhaus, 1991).
+\item \code{"simpls"}: SIMPLS algorithm (de Jong, 1993), which deflates
+the cross-product matrix rather than X itself. Computationally faster
+than NIPALS, especially for wide matrices.
+}
+}
+
+\subsection{Component selection}{
+
+When \code{\link{ncomp_by_opc}()} is used, component selection minimizes
+RMSD (for continuous \code{Yr}) or maximizes kappa (for categorical
+\code{Yr}) between observations and their nearest neighbors. See
+\code{\link{diss_evaluate}}.
+}
 }
 \examples{
 \donttest{
 library(prospectr)
 data(NIRsoil)
 
-# Proprocess the data using detrend plus first derivative with Savitzky and
-# Golay smoothing filter
+# Preprocess
 sg_det <- savitzkyGolay(
-  detrend(NIRsoil$spc,
-    wav = as.numeric(colnames(NIRsoil$spc))
-  ),
-  m = 1,
-  p = 1,
-  w = 7
+  detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1, p = 1, w = 7
 )
-NIRsoil$spc_pr <- sg_det
 
-# split into training and testing sets
-test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
-test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
-
+# Split data
+train_x <- sg_det[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
 train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
-train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
+test_x <- sg_det[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
 
-# A principal component analysis using 5 components
-pca_projected <- ortho_projection(train_x, pc_selection = list("manual", 5))
-pca_projected
+# PCA with fixed components
+proj <- ortho_projection(train_x, ncomp = 5)
 
-# A principal components projection using the "opc" method
-# for the selection of the optimal number of components
-pca_projected_2 <- ortho_projection(
-  Xr = train_x, Xu = test_x, Yr = train_y,
-  method = "pca",
-  pc_selection = list("opc", 40)
-)
-pca_projected_2
-plot(pca_projected_2)
+# PCA with variance-based selection
+proj <- ortho_projection(train_x, ncomp = ncomp_by_var(0.01))
 
-# A partial least squares projection using the "opc" method
-# for the selection of the optimal number of components
-pls_projected <- ortho_projection(
-  Xr = train_x, Xu = test_x, Yr = train_y,
-  method = "pls",
-  pc_selection = list("opc", 40)
-)
-pls_projected
-plot(pls_projected)
+# PCA with OPC optimization
+proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
+                         ncomp = ncomp_by_opc(40))
 
-# A partial least squares projection using the "cumvar" method
-# for the selection of the optimal number of components
-pls_projected_2 <- ortho_projection(
-  Xr = train_x, Xu = test_x, Yr = train_y,
-  method = "pls",
-  pc_selection = list("cumvar", 0.99)
-)
+# PLS projection (NIPALS)
+proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
+                         method = "pls", ncomp = ncomp_by_opc(40))
+
+# Modified PLS
+proj <- ortho_projection(train_x, Yr = train_y,
+                         method = "mpls", ncomp = 10)
+
+# SIMPLS (faster for wide matrices)
+proj <- ortho_projection(train_x, Yr = train_y,
+                         method = "simpls", ncomp = 10)
 }
+
 }
 \references{
-Martens, H. (1991). Multivariate calibration. John Wiley & Sons.
+de Jong, S. 1993. SIMPLS: An alternative approach to partial least squares
+regression. Chemometrics and Intelligent Laboratory Systems 18:251-263.
+
+Martens, H. 1991. Multivariate calibration. John Wiley & Sons.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 Scholten, T. 2013a. The spectrum-based learner: A new local approach for
-modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
+modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196:268-279.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
-J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use
-with soil vis-NIR spectra. Geoderma 199, 43-53.
+J.A.M., Scholten, T. 2013b. Distance and similarity-search metrics for use
+with soil vis-NIR spectra. Geoderma 199:43-53.
 
-Shenk, J. S., & Westerhaus, M. O. 1991. Populations structuring of
-near infrared spectra and modified partial least squares regression.
-Crop Science, 31(6), 1548-1555.
-
-Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
-calibration procedure for near infrared instruments. Journal of Near Infrared
-Spectroscopy, 5, 223-232.
-
-Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding
-Wachievements in near infrared spectroscopy: my contributions to
-Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+Shenk, J.S., Westerhaus, M.O. 1991. Populations structuring of near
+infrared spectra and modified partial least squares regression. Crop
+Science 31:1548-1555.
 }
 \seealso{
-\code{\link{ortho_diss}}, \code{\link{sim_eval}}, \code{\link{mbl}}
+\code{\link{ncomp_by_var}}, \code{\link{ncomp_by_opc}},
+\code{\link{diss_evaluate}}, \code{\link{mbl}}
 }
 \author{
 \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}

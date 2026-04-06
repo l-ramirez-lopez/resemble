@@ -10,7 +10,7 @@ get_predictions(object)
 \item{object}{an object of class \code{mbl} as returned by \code{mbl}}
 }
 \value{
-a data.table of predicted values according to either \code{k} or \code{k_dist}
+a data.frame of predicted values according to either \code{k} or \code{k_dist}
 }
 \description{
 \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}

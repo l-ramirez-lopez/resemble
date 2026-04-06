@@ -2,23 +2,38 @@
 % Please edit documentation in R/plot.ortho_projection.R
 \name{plot.ortho_projection}
 \alias{plot.ortho_projection}
-\title{Plot method for an object of class \code{ortho_projection}}
+\title{Plot method for ortho_projection objects}
 \usage{
-\method{plot}{ortho_projection}(x, col = "dodgerblue", ...)
+\method{plot}{ortho_projection}(x, col = "#3B82F6", ...)
 }
 \arguments{
-\item{x}{an object of class \code{ortho_projection} (as returned by \code{ortho_projection}).}
+\item{x}{An object of class \code{ortho_projection} (as returned by
+\code{\link{ortho_projection}}).}
 
-\item{col}{the color of the plots (default is "dodgerblue")}
+\item{col}{Color for the plot elements. Default is \code{"#3B82F6"}.}
 
-\item{...}{arguments to be passed to methods.}
+\item{...}{Additional arguments passed to plotting functions.}
+}
+\value{
+Invisible \code{NULL}. Called for its side effect of producing a plot.
 }
 \description{
-Plots objects of class \code{ortho_projection}
+Plots variance explained or OPC evaluation results for objects of class
+\code{ortho_projection}.
+}
+\details{
+The plot type depends on the component selection method used:
+\itemize{
+\item For \code{\link{ncomp_by_opc}}: displays RMSD (or kappa) as a
+function of the number of components.
+\item For other methods: displays individual and cumulative explained
+variance in a two-panel layout.
+}
 }
 \seealso{
-\code{\link{ortho_projection}}
+\code{\link{ortho_projection}}, \code{\link{ncomp_by_opc}}
 }
 \author{
-Leonardo Ramirez-Lopez and Antoine Stevens
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and
+Antoine Stevens
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{opls_get_basics}
 \alias{opls_get_basics}
-\title{fast orthogonal scores algorithn of partial leat squares (opls)}
+\title{Fast orthogonal scores algorithm of partial least squares (PLS)}
 \usage{
 opls_get_basics(X, Y, ncomp, scale, 
                 maxiter, tol, 
@@ -15,42 +15,70 @@ opls_get_basics(X, Y, ncomp, scale,
 
 \item{Y}{a matrix of either a single or multiple response variables.}
 
-\item{ncomp}{the number of pls components.}
+\item{ncomp}{the number of PLS components.}
 
 \item{scale}{logical indicating whether \code{X} must be scaled.}
 
-\item{maxiter}{maximum number of iterations.}
+\item{maxiter}{maximum number of iterations (only used for NIPALS-based
+algorithms: \code{'pls'}, \code{'mpls'}, \code{'xls'}).}
 
-\item{tol}{limit for convergence of the algorithm in the nipals algorithm.}
+\item{tol}{convergence tolerance for the NIPALS algorithm (only used for
+NIPALS-based algorithms).}
 
-\item{algorithm}{(for weights computation) a character string indicating
-what method to use. Options are:
-\code{'pls'} for pls (using covariance between X and Y),
-\code{'mpls'} for modified pls (using correlation between X and Y) or
-\code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).}
+\item{algorithm}{a character string indicating the PLS algorithm to use:
+\itemize{
+\item{\code{'pls'}: standard PLS using covariance between X and Y for
+weight computation (NIPALS algorithm).}
+\item{\code{'mpls'}: modified PLS using correlation between X and Y for
+weight computation (NIPALS algorithm). See Shenk and Westerhaus (1991).}
+\item{\code{'xls'}: extended PLS as implemented in BUCHI NIRWise PLUS
+software (NIPALS algorithm).}
+\item{\code{'simpls'}: SIMPLS algorithm (de Jong, 1993). Computationally
+faster as it avoids iterative X deflation. Parameters \code{maxiter},
+\code{tol}, \code{xls_min_w}, and \code{xls_max_w} are ignored.}
+}}
 
-\item{xls_min_w}{(for weights computation) an integer indicating the minimum window size for the "xls"
-method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).}
+\item{xls_min_w}{an integer indicating the minimum window size for the
+\code{'xls'} method. Only used if \code{algorithm = 'xls'}. Default is 3.}
 
-\item{xls_max_w}{(for weights computation) an integer indicating the maximum window size for the "xls"
-method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).}
+\item{xls_max_w}{an integer indicating the maximum window size for the
+\code{'xls'} method. Only used if \code{algorithm = 'xls'}. Default is 15.}
 }
 \value{
-a list containing the following elements:
+a list containing:
 \itemize{
+\item{\code{ncomp}: the number of PLS components.}
 \item{\code{coefficients}: the matrix of regression coefficients.}
-\item{\code{bo}: a matrix of one row containing the intercepts for each component.}
+\item{\code{bo}: a matrix containing the intercepts for each component.}
+\item{\code{X_loadings}: the matrix of X loadings.}
 \item{\code{Y_loadings}: the matrix of Y loadings.}
-\item{\code{projection_mat}: the projection matrix.}
-\item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}.
+\item{\code{projection_mat}: the projection matrix for computing scores
+from new data.}
+\item{\code{transf}: a list containing:
+\itemize{
+\item{\code{Xcenter}: row vector of column means used for centering.}
+\item{\code{Xscale}: row vector of column standard deviations used
+for scaling (ones if \code{scale = FALSE}).}
+}
+}
+\item{\code{weights}: the matrix of PLS weights.}
 }
 }
 \description{
-Computes orthogonal socres partial least squares (opls)
-regressions with the NIPALS algorithm. It allows multiple response variables.
-In contrast to \code{opls} function, this one does not compute unnecessary
-data for (local) regression.
-For internal use only!
+Computes orthogonal scores partial least squares (PLS)
+regression using either NIPALS or SIMPLS algorithm. Supports multiple
+response variables. In contrast to \code{opls}, this function omits
+auxiliary outputs (e.g. scores, explained variance) not required for
+local regression. For internal use only.
+}
+\references{
+de Jong, S. (1993). SIMPLS: An alternative approach to partial least
+squares regression. Chemometrics and Intelligent Laboratory Systems,
+18(3), 251-263.
+
+Shenk, J.S., & Westerhaus, M.O. (1991). Populations structuring of near
+infrared spectra and modified partial least squares regression. Crop
+Science, 31(6), 1548-1555.
 }
 \author{
 Leonardo Ramirez-Lopez

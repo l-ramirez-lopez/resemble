@@ -1,3 +1,59 @@
+# `resemble 3.0.0 (vertex)`
+===============
+
+
+# resemble 3.0.0
+
+## New functions
+
+### Modelling
+- `gesearch()` and `predict.gesearch()`: Evolutionary, gene-centric sample selection and retrieval from large, heterogeneous spectral libraries.
+- `liblex()` and `predict.liblex()`: Construct and organise libraries of local linear expert models for retrieval-driven, localised prediction.
+- `neighbors_k()` and `neighbors_diss()`: Constructors to specify neighbor selection for memory-based learning in `mbl()` and `liblex()`.
+- `fit_pls()`, `fit_wapls()`, `fit_gpr()`: Constructors to specify local model fitting. Replace `local_fit_pls()`, `local_fit_wapls()`, `local_fit_gpr()`.
+- `ncomp_by_var()`, `ncomp_by_cumvar()`, `ncomp_by_opc()`, `ncomp_fixed()`: Constructors to specify component selection in `ortho_projection()`, `diss_pca()`, and `diss_pls()`.
+
+### Dissimilarity
+- `diss_cor()`: Correlation dissimilarity constructor. Replaces `cor_diss()`.
+- `diss_euclid()`: Euclidean dissimilarity constructor. Replaces `f_diss(..., diss_method = "euclid")`.
+- `diss_mahalanobis()`: Mahalanobis dissimilarity constructor. Replaces `f_diss(..., diss_method = "mahalanobis")`.
+- `diss_cosine()`: Cosine dissimilarity constructor. Replaces `f_diss(..., diss_method = "cosine")`.
+- `diss_pca()`: PCA-based dissimilarity constructor. Replaces `ortho_diss(..., diss_method = "pca")`.
+- `diss_pls()`: PLS-based dissimilarity constructor. Replaces `ortho_diss(..., diss_method = "pls")`.
+- `diss_sid()`: Spectral information divergence constructor. Replaces `sid()`.
+- `diss_evaluate()`: Evaluate dissimilarity matrices using side information. Replaces `sim_eval()`.
+
+## Breaking changes
+
+### `mbl()`
+- Arguments `k`, `k_diss`, `k_range` replaced by `neighbors` (use `neighbors_k()` or `neighbors_diss()`).
+- Argument `method` renamed to `fit_method` (use `fit_pls()`, `fit_wapls()`, `fit_gpr()`).
+- Arguments `center` and `scale` removed; now controlled within `diss_method` and `fit_method` constructors.
+
+### `search_neighbors()`
+- Arguments `k`, `k_diss`, `k_range` replaced by `neighbors`.
+- Argument `method` renamed to `diss_method`.
+- Arguments `center` and `scale` removed; now controlled within `diss_method`.
+
+### `mbl_control()`
+- New argument `blas_threads` to control BLAS thread count.
+
+### `dissimilarity()`
+- Now accepts `diss_*()` constructor objects via `diss_method` argument.
+- Character method names (`"pca"`, `"cor"`, etc.) are deprecated.
+
+### `ortho_projection()`
+- Argument `pc_selection` replaced by `ncomp` (use `ncomp_by_var()`, `ncomp_by_cumvar()`, `ncomp_by_opc()`, `ncomp_fixed()`).
+
+## Removed functions
+- `sid()`: Use `diss_sid()` with `dissimilarity()`.
+- `cor_diss()`: Use `diss_cor()` with `dissimilarity()`.
+- `f_diss()`: Use `diss_euclid()`, `diss_mahalanobis()`, or `diss_cosine()` with `dissimilarity()`.
+- `ortho_diss()`: Use `diss_pca()` or `diss_pls()` with `dissimilarity()`.
+- `sim_eval()`: Use `diss_evaluate()`.
+- `local_fit_pls()`, `local_fit_wapls()`, `local_fit_gpr()`: Use `fit_pls()`, `fit_wapls()`, `fit_gpr()`.
+- `pc_projection()`, `pls_projection()`: Use `ortho_projection()` with `method = "pca"` or `method = "pls"`.
+
 # `resemble 2.2.5 (dstatements)`
 ===============
 

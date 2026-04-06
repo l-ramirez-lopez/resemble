@@ -2,224 +2,141 @@
 % Please edit documentation in R/dissimilarity.R
 \name{dissimilarity}
 \alias{dissimilarity}
-\title{Dissimilarity computation between matrices}
+\title{Compute dissimilarity matrices}
 \usage{
-dissimilarity(Xr, Xu = NULL,
-              diss_method = c("pca", "pca.nipals", "pls", "mpls",
-                              "cor", "euclid", "cosine", "sid"),
-              Yr = NULL, gh = FALSE, pc_selection = list("var", 0.01),
-              return_projection = FALSE, ws = NULL,
-              center = TRUE, scale = FALSE, documentation = character(),
-              ...)
+dissimilarity(Xr, Xu = NULL, diss_method = diss_pca(), Yr = NULL)
 }
 \arguments{
-\item{Xr}{a matrix of containing \code{n} observations/rows and \code{p}
-variables/columns.}
+\item{Xr}{A numeric matrix of reference observations (rows) and variables
+(columns).}
 
-\item{Xu}{an optional matrix containing data of a second set of observations
-with \code{p} variables/columns.}
+\item{Xu}{Optional matrix of additional observations with the same variables.}
 
-\item{diss_method}{a character string indicating the method to be used to
-compute the dissimilarities between observations. Options are:
+\item{diss_method}{A dissimilarity method object created by one of:
 \itemize{
-\item{\code{"pca"}: Mahalanobis distance
-computed on the matrix of scores of a Principal Component (PC)
-projection of \code{Xr} (and \code{Xu} if provided). PC projection is
-done using the singular value decomposition (SVD) algorithm.
-See \code{\link{ortho_diss}} function.}
-\item{\code{"pca.nipals"}: Mahalanobis distance
-computed on the matrix of scores of a Principal Component (PC)
-projection of \code{Xr} (and \code{Xu} if provided). PC projection is
-done using the non-linear iterative partial least squares (nipals)
-algorithm. See \code{\link{ortho_diss}} function.}
-\item{\code{"pls"}: Mahalanobis distance
-computed on the matrix of scores of a partial least squares projection
-of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
-always required. See \code{\link{ortho_diss}} function.}
-\item{\code{"mpls"}: Mahalanobis distance
-computed on the matrix of scores of a modified partial least squares
-projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
-of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
-always required. See \code{\link{ortho_diss}} function.}
-\item{\code{"cor"}: based on the correlation coefficient
-between observations. See \code{\link{cor_diss}} function.}
-\item{\code{"euclid"}: Euclidean distance
-between observations. See \code{\link{f_diss}} function.}
-\item{\code{"cosine"}: Cosine distance
-between observations. See \code{\link{f_diss}} function.}
-\item{\code{"sid"}: spectral information divergence between
-observations. See \code{\link{sid}} function.}
-}}
-
-\item{Yr}{a numeric matrix of \code{n} observations used as side information of
-\code{Xr} for the \code{\link{ortho_diss}} methods (i.e. \code{pca},
-\code{pca.nipals} or \code{pls}). It is required when:
-\itemize{
-\item{\code{diss_method = "pls"}}
-\item{\code{diss_method = "pca"} with \code{"opc"} used as the method
-in the \code{pc_selection} argument. See \code{\link{ortho_diss}.}}
-\item{\code{gh = TRUE}}
-}}
-
-\item{gh}{a logical indicating if the Mahalanobis distance (in the pls score
-space) between each observation and the pls centre/mean must be
-computed.}
-
-\item{pc_selection}{a list of length 2 to be passed onto the
-\code{\link{ortho_diss}} methods. It is required if the method selected in
-\code{diss_method} is any of \code{"pca"}, \code{"pca.nipals"} or
-\code{"pls"} or if \code{gh = TRUE}. This argument is used for
-optimizing the number of components (principal components or pls factors)
-to be retained. This list must contain two elements in the following order:
-\code{method} (a character indicating the method for selecting the number of
-components) and \code{value} (a numerical value that complements the selected
-method). The methods available are:
-\itemize{
-\item{\code{"opc"}: optimized principal component selection based on
-Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-(of set of observations) is the one for which its distance matrix
-minimizes the differences between the \code{Yr} value of each
-observation and the \code{Yr} value of its closest observation. In this
-case \code{value} must be a value ((larger than 0 and
-below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
-combined) indicating the maximum
-number of principal components to be tested. See the
-\code{\link{ortho_projection}} function for more details.}
-\item{\code{"cumvar"}: selection of the principal components based
-on a given cumulative amount of explained variance. In this case,
-\code{value} must be a value (larger than 0 and below or equal to 1)
-indicating the minimum amount of cumulative variance that the
-combination of retained components should explain.}
-\item{\code{"var"}: selection of the principal components based
-on a given amount of explained variance. In this case,
-\code{value} must be a value (larger than 0 and below or equal to 1)
-indicating the minimum amount of variance that a single component
-should explain in order to be retained.}
-\item{\code{"manual"}: for manually specifying a fix number of
-principal components. In this case, \code{value} must be a value
-(larger than 0 and
-below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
-combined).
-indicating the minimum amount of variance that a component should
-explain in order to be retained.}
+\item \code{\link{diss_pca}()}: Mahalanobis distance in PCA space
+\item \code{\link{diss_pls}()}: Mahalanobis distance in PLS space
+\item \code{\link{diss_correlation}()}: Correlation-based dissimilarity
+\item \code{\link{diss_euclidean}()}: Euclidean distance
+\item \code{\link{diss_mahalanobis}()}: Mahalanobis distance
+\item \code{\link{diss_cosine}()}: Cosine dissimilarity
 }
-The default is \code{list(method = "var", value = 0.01)}.
+Default is \code{diss_pca()}.}
 
-Optionally, the \code{pc_selection} argument admits \code{"opc"} or
-\code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
-string. In such a case the default \code{"value"} when either \code{"opc"} or
-\code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-\code{"value"} is set to 0.99 and when \code{"var"} is used, the default
-\code{"value"} is set to 0.01.}
-
-\item{return_projection}{a logical indicating if the projection(s) must be
-returned. Projections are used if the \code{\link{ortho_diss}} methods are
-called (i.e. \code{diss_method = "pca"}, \code{diss_method = "pca.nipals"} or
-\code{diss_method = "pls"}) or when \code{gh = TRUE}.
-In case \code{gh = TRUE} and a \code{\link{ortho_diss}} method is used (in the
-\code{diss_method} argument), both projections are returned.}
-
-\item{ws}{an odd integer value which specifies the window size, when
-\code{diss_method = "cor"} (\code{\link{cor_diss}} method) for moving
-correlation dissimilarity. If \code{ws = NULL} (default), then the window
-size will be equal to the number of variables (columns), i.e. instead moving
-correlation, the normal correlation will be used. See \code{\link{cor_diss}}
-function.}
-
-\item{center}{a logical indicating if \code{Xr} (and \code{Xu} if provided)
-must be centered. If \code{Xu} is provided the data is centered around the
-mean of the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}). For
-dissimilarity computations based on \code{diss_method = pls}, the data is
-always centered.}
-
-\item{scale}{a logical indicating if \code{Xr} (and \code{Xu} if
-provided) must be  scaled. If \code{Xu} is provided the data is scaled based
-on the standard deviation of the the pooled \code{Xr} and \code{Xu} matrices
-(\mjeqn{Xr \cup Xu}{Xr U Xu}). If \code{center = TRUE}, scaling is applied after
-centering.}
-
-\item{documentation}{an optional character string that can be used to
-describe anything related to the \code{mbl} call (e.g. description of the
-input data). Default: \code{character()}. NOTE: his is an experimental
-argument.}
-
-\item{...}{other arguments passed to the dissimilarity functions
-(\code{\link{ortho_diss}}, \code{\link{cor_diss}}, \code{\link{f_diss}} or
-\code{\link{sid}}).}
+\item{Yr}{Optional response matrix. Required for PLS methods and when using
+\code{ncomp_by_opc()}.}
 }
 \value{
-A list with the following components:
-\itemize{
-\item{\code{dissimilarity}: the resulting dissimilarity matrix.}
-\item{\code{projection}: an \code{ortho_projection} object. Only output
-if \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-\code{diss_method = "pca.nipals"},  \code{diss_method = "pls"} or
-\code{diss_method = "mpls"}.
-This object contains the projection used to compute
-the dissimilarity matrix. In case of local dissimilarity matrices,
-the projection corresponds to the global projection used to select the
-neighborhoods (see \code{\link{ortho_diss}} function for further
-details).}
-\item{\code{gh}: a list containing the GH distances as well as the
-pls projection used to compute the GH.}
+A list of class \code{"dissimilarity"} containing:
+\describe{
+\item{dissimilarity}{The computed dissimilarity matrix. Dimensions are
+\code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xr)} when \code{Xu = NULL},
+or \code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xu)} otherwise.}
+\item{diss_method}{The \code{diss_*} constructor object used for computation.}
+\item{center}{Vector used to center the data.}
+\item{scale}{Vector used to scale the data.}
+\item{ncomp}{Number of components used (for projection methods).}
+\item{projection}{If \code{return_projection = TRUE} in the method
+constructor, the \code{ortho_projection} object.}
 }
 }
 \description{
 \loadmathjax
-
-This is a wrapper to integrate the different dissimilarity functions of the
-offered by package.It computes the dissimilarities between observations in
-numerical matrices by using an specifed dissmilarity measure.
+Computes dissimilarity matrices between observations using various methods.
+This is the main interface for dissimilarity computation in the resemble
+package.
 }
 \details{
-This function is a wrapper for \code{\link{ortho_diss}}, \code{\link{cor_diss}},
-\code{\link{f_diss}}, \code{\link{sid}}. Check the documentation of these
-functions for further details.
+The function dispatches to the appropriate internal computation based on the
+class of \code{diss_method}. Each method constructor (e.g., \code{diss_pca()})
+encapsulates all method-specific parameters including component selection,
+centering, scaling, and whether to return projections.
+
+\subsection{Output dimensions}{
+When only \code{Xr} is provided, the function computes pairwise dissimilarities
+among all observations in \code{Xr}, returning a symmetric
+\code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xr)} matrix.
+
+When both \code{Xr} and \code{Xu} are provided, the function computes
+dissimilarities between each observation in \code{Xr} and each observation
+in \code{Xu}, returning a \code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xu)}
+matrix where element \mjeqn{(i, j)}{(i, j)} is the dissimilarity between the
+\mjeqn{i}{i}-th observation in \code{Xr} and the \mjeqn{j}{j}-th observation
+in \code{Xu}.
+}
+
+\subsection{Mahalanobis distance}{
+Note that \code{diss_mahalanobis()} computes Mahalanobis distance directly on
+the input variables. This requires the covariance matrix to be invertible,
+which fails when the number of variables exceeds the number of observations
+or when variables are highly correlated (common in spectral data). For such
+cases, use \code{diss_pca()} or \code{diss_pls()} instead.
+}
 }
 \examples{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 
-# Filter the data using the first derivative with Savitzky and Golay
-# smoothing filter and a window size of 11 spectral variables and a
-# polynomial order of 4
+# Preprocess
 sg <- savitzkyGolay(NIRsoil$spc, m = 1, p = 4, w = 15)
 
-# Replace the original spectra with the filtered ones
-NIRsoil$spc <- sg
-
-Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
-Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-
+Xr <- sg[as.logical(NIRsoil$train), ]
+Xu <- sg[!as.logical(NIRsoil$train), ]
 Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
-Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 
 Xu <- Xu[!is.na(Yu), ]
 Xr <- Xr[!is.na(Yr), ]
-
-Yu <- Yu[!is.na(Yu)]
 Yr <- Yr[!is.na(Yr)]
 
-dsm_pca <- dissimilarity(
-  Xr = Xr, Xu = Xu,
-  diss_method = c("pca"),
-  Yr = Yr, gh = TRUE,
-  pc_selection = list("opc", 30),
-  return_projection = TRUE
+# PCA-based dissimilarity with variance-based selection
+d1 <- dissimilarity(Xr, Xu, diss_method = diss_pca())
+
+# PCA with OPC selection (requires Yr)
+d2 <- dissimilarity(Xr, Xu,
+  Yr = Yr,
+  diss_method = diss_pca(
+    ncomp = ncomp_by_opc(30),
+    return_projection = TRUE
+  )
 )
+
+# PLS-based dissimilarity 
+d3 <- dissimilarity(
+  Xr, Xu,
+  Yr = Yr,
+  diss_method = diss_pls(
+    ncomp = ncomp_by_opc(30)
+  )
+)
+
+# Euclidean distance
+d4 <- dissimilarity(Xr, Xu, diss_method = diss_euclidean())
+
+# Correlation dissimilarity with moving window
+d5 <- dissimilarity(Xr, Xu, diss_method = diss_correlation(ws = 41))
+
+# Mahalanobis distance (use only when n > p and low collinearity)
+# d6 <- dissimilarity(Xr[, 1:20], Xu[, 1:20],
+#                     diss_method = diss_mahalanobis())
+}
+
 }
 \references{
-Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
-calibration procedure for near infrared instruments. Journal of Near Infrared
-Spectroscopy, 5, 223-232.
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
+Scholten, T. 2013a. The spectrum-based learner: A new local approach for
+modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
+268-279.
 
-Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding
-Wachievements in near infrared spectroscopy: my contributions to
-Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
+J.A.M., Scholten, T. 2013b. Distance and similarity-search metrics for use
+with soil vis-NIR spectra. Geoderma 199, 43-53.
 }
 \seealso{
-\code{\link{ortho_diss}} \code{\link{cor_diss}} \code{\link{f_diss}}
-\code{\link{sid}}.
+\code{\link{diss_pca}}, \code{\link{diss_pls}},
+\code{\link{diss_correlation}}, \code{\link{diss_euclidean}},
+\code{\link{diss_mahalanobis}}, \code{\link{diss_cosine}}
 }
 \author{
 \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}

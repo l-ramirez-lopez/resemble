@@ -2,199 +2,406 @@
 % Please edit documentation in R/liblex.R
 \name{liblex}
 \alias{liblex}
-\title{Build predictive/fucntional libraries}
+\alias{predict.liblex}
+\title{Build a precomputed library of localised experts using memory-based learning}
 \usage{
-liblex(
-  Xr, Yr, sm, k, k_diss, k_range, ws = NULL, pls_c,
-  pc_selection = list("opc", min(dim(Xr), 40)),
-  group, build_around, gh = TRUE, center = TRUE,
-  scale = FALSE, diss_predictors = FALSE,
-  metric = "rmse", return_best = TRUE,
-  pls_max_iter = 1, pls_tol = 1e-6,
-  documentation = character(), ...
-)
+liblex(Xr, Yr, neighbors,
+       diss_method = diss_pca(ncomp = ncomp_by_opc()),
+       fit_method = fit_wapls(min_ncomp = 3, max_ncomp = 15),
+       anchor_indices = NULL, gh = TRUE, group = NULL,
+       control = liblex_control(), verbose = TRUE, ...)
+
+\method{predict}{liblex}(object, newdata, diss_method = NULL,
+        weighting = c("gaussian", "tricube", "triweight", "triangular",
+                      "quartic", "parabolic", "cauchy", "none"),
+        adaptive_bandwidth = TRUE, reliability_weighting = TRUE,
+        range_prediction_limits = FALSE, residual_cutoff = NULL,
+        enforce_indices = NULL, probs = c(0.05, 0.25, 0.5, 0.75, 0.95),
+        verbose = TRUE, allow_parallel = TRUE, blas_threads = 1L, ...)
 }
 \arguments{
-\item{Xr}{A numeric matrix (or data.frame) of predictor variables with
-dimensions \verb{n × p}, corresponding to the reference data (observations in
-rows and variables in columns).}
+\item{Xr}{A numeric matrix of predictor variables with dimensions \verb{n × p}
+(observations in rows, variables in columns). Column names are required.}
 
-\item{Yr}{A numeric vector of length \code{n} containing the response
-variable values corresponding to the reference data. Missing
-values may be allowed (see Details).}
+\item{Yr}{A numeric vector or single-column matrix of length \code{n} containing
+the response variable values corresponding to \code{Xr}. Missing values are
+allowed (see Details).}
 
-\item{diss_method}{A character string specifying the dissimilarity
-metric used to select nearest neighbors, or a precomputed
-dissimilarity matrix.
+\item{neighbors}{A neighbor selection object specifying how to select
+neighbors. Use \code{\link{neighbors_k}()} for fixed k-nearest neighbors
+or \code{\link{neighbors_diss}()} for dissimilarity threshold-based
+selection.}
 
-If a character string is provided, it must be one of:
+\item{diss_method}{For \code{liblex}: either a \verb{diss_*} object specifying
+the dissimilarity method, or a precomputed numeric dissimilarity matrix.
+If a \verb{diss_*} object (e.g., \code{\link[=diss_pca]{diss_pca()}}, \code{\link[=diss_pls]{diss_pls()}}, \code{\link[=diss_correlation]{diss_correlation()}},
+\code{\link[=diss_euclidean]{diss_euclidean()}}), dissimilarities are computed internally. Additional
+parameters (centering, scaling, number of components) are controlled
+within the object.
+If a matrix is provided:
 \itemize{
-\item \code{"pca"}: Mahalanobis distance based on principal component (PC)
-scores computed via singular value decomposition (SVD).
-See \code{\link[=ortho_diss]{ortho_diss()}}.
-\item \code{"pca.nipals"}: Same as \code{"pca"} but computed using the NIPALS
-algorithm. See \code{\link[=ortho_diss]{ortho_diss()}}.
-\item \code{"pls"}: Mahalanobis distance based on PLS scores. Requires \code{Yr}.
-See \code{\link[=ortho_diss]{ortho_diss()}}.
-\item \code{"mpls"}: Mahalanobis distance based on modified PLS scores
-(Shenk and Westerhaus, 1991; Westerhaus, 2014). Requires \code{Yr}.
-See \code{\link[=ortho_diss]{ortho_diss()}}.
-\item \code{"cor"}: Dissimilarity based on correlation between observations.
-See \code{\link[=cor_diss]{cor_diss()}}.
-\item \code{"euclid"}: Euclidean distance. See \code{\link[=f_diss]{f_diss()}}.
-\item \code{"cosine"}: Cosine distance. See \code{\link[=f_diss]{f_diss()}}.
-\item \code{"sid"}: Spectral information divergence. See \code{\link[=sid]{sid()}}.
-}
-
-These options are passed to \code{\link[=dissimilarity]{dissimilarity()}}, which performs
-the computation. Additional arguments can be supplied via \code{...}.
-
-If a matrix is provided, it must represent a precomputed
-dissimilarity structure, subject to the following constraints:
-\itemize{
-\item If \code{anchor_indices = NULL} (default), \code{diss_method} must be
-a square matrix of size \verb{n × n}, where \code{n = nrow(Xr)}. It must
-be symmetric with zeros on the diagonal.
-\item If \code{anchor_indices} is specified (length \code{m}), then
-\code{diss_method} must have dimensions \verb{n × m}, where
-\code{n = nrow(Xr)} and \code{m = length(anchor_indices)}. The submatrix
-\code{diss_method[anchor_indices, ]} must be symmetric with zeros
+\item When \code{anchor_indices = NULL}: must be square (\verb{n × n}) with zeros
+on the diagonal.
+\item When \code{anchor_indices} is specified (length \code{m}): must have
+dimensions \verb{n × m}, with \code{diss_method[anchor_indices, ]} having zeros
 on the diagonal.
 }
+Default is \code{diss_pca(ncomp = ncomp_by_opc())}.
 
-In all cases, the matrix must match the sample order in \code{Xr}.
-Rows of \code{diss_method} must correspond exactly to rows of \code{Xr},
-and \code{anchor_indices}, if used, must refer to valid rows in both
-\code{Xr} and \code{diss_method}.}
+For \code{predict.liblex}: a dissimilarity method object created by
+\code{diss_*()} constructors. If not provided, uses the method stored in
+\code{object}. Required if \code{object} was built with a precomputed
+dissimilarity matrix.}
 
-\item{k}{An integer vector specifying the sequence of k nearest
-neighbors to be evaluated. Either \code{k} or \code{k_diss} must be
-specified. The vector is automatically sorted in ascending
-order. Numeric values are coerced to the next highest integer.}
+\item{fit_method}{A \code{local_fit} object specifying the local regression
+method. Currently supported: \code{\link[=fit_pls]{fit_pls()}} and \code{\link[=fit_wapls]{fit_wapls()}}.
+\code{\link[=fit_gpr]{fit_gpr()}} is not yet supported. Default is
+\code{fit_wapls(min_ncomp = 3, max_ncomp = 15)}.}
 
-\item{ws}{An optional odd integer specifying the window size when
-correlation-based dissimilarity is used (i.e., \code{sm = "cor"}).
-If not specified, standard correlation dissimilarity is
-computed (no moving window). Default is \code{NULL}.}
+\item{anchor_indices}{An optional integer vector specifying row indices
+of \code{Xr} around which to build local models. If \code{NULL} (default), models
+are built for all observations. See Details.}
 
-\item{pls_c}{An integer vector of length two indicating the
-minimum (first value) and maximum (second value) number of PLS
-components used in weighted average PLS (waPLS) regressions.}
+\item{gh}{Logical indicating whether to compute the GH distance
+(Mahalanobis distance in PLS score space) for each anchor observation.
+Default is \code{TRUE}.}
 
-\item{pc_selection}{A list specifying how to select the number of components
-retained when computing sample dissimilarities and the method passed to
-\code{sm} is one of \code{"pc"}, \code{"loc.pc"}, \code{"pls"}, or
-\code{"loc.pls"}. The list must contain two elements:
-\itemize{
-\item{\code{method}: The component-selection method. One of:
-\code{"opc"} (optimised PC selection; see Ramirez-Lopez et al. (2013a,
-2013b) and \code{\link{orthoProjection}}),
-\code{"cumvar"} (cumulative explained variance threshold),
-\code{"var"} (per-component explained variance threshold), or
-\code{"manual"} (user-specified number of components).}
-\item{\code{value}: Numeric value used by \code{method}. If
-\code{"opc"}, the maximum number of components to test. If
-\code{"cumvar"}, a value in \eqn{(0, 1]} giving the minimum cumulative
-variance to explain. If \code{"var"}, a value in \eqn{(0, 1]} such that
-components explaining less than this variance are excluded. If
-\code{"manual"}, the number of components to retain.}
-}
-The default for \code{pc_selection} uses \code{method = "opc"} with
-\code{value = min(dim(Xr), 40)}, where \code{Xr} is the reference predictor
-matrix passed to \code{\link{mbl}}.
+\item{group}{An optional factor assigning group labels to observations in
+\code{Xr}. Used for leave-group-out validation to avoid pseudo-replication.
+When an observation is selected for validation, all observations from
+the same group are excluded from model fitting. Default is \code{NULL}
+(each observation is its own group).}
 
-Alternatively, \code{pc_selection} may be supplied as a single character
-string: \code{"opc"}, \code{"cumvar"}, \code{"var"}, or \code{"manual"}.
-In this case, the default \code{value} is set to \code{min(dim(Xr), 40)} for
-\code{"opc"} and \code{"manual"}, to \code{0.99} for \code{"cumvar"}, and to
-\code{0.01} for \code{"var"}.}
+\item{control}{A list of control parameters created by \code{\link[=liblex_control]{liblex_control()}}.
+Default is \code{liblex_control()}.}
 
-\item{group}{(PUT THE DETAILS OF THE 1_NN VALIDATION IN DETAILS) an optional \code{factor} (or \code{vector} that can be coerced to a \code{factor} by \code{as.factor}) that assigns to each observation in \code{Xr} a group/class label (e.g. groups can be given by spectra collected from the same batch of measurements, from the same sample, from samples with very similar origin, etc). This is taken into account for internal validation of pls models (and factor optimization) to avoid pseudo-replication. For validation, the model of a given target observation is first fitted based on its neighbors and excluding that observation (and all the samples belonging to its group), then the model is used to predict the response variable of the target observation. See details.}
+\item{verbose}{Logical indicating whether to display progress messages.
+Default is \code{TRUE}.}
 
-\item{anchor_indices}{An optional integer vector of length \code{m} (\code{m < n}) specifying the row indices of the reference samples around which local models should be constructed. If \code{NULL} (default), local models will be built for all \code{n} samples in the reference set. See Details.}
+\item{...}{Additional arguments (currently unused).}
 
-\item{gh}{a logical indicating whether or not to compute and return the Mahalanobis distance (in the pls space) between each element in \code{Xr} and the center of \code{Xr}.}
+\item{object}{A fitted object of class \code{"liblex"}, created by
+\code{\link{liblex}} (for \code{predict}).}
 
-\item{center}{a logical indicating whether or not the predictor variables must be centered at each local segment (before regression).}
+\item{newdata}{A numeric matrix or data frame containing new predictor
+values. Must include all predictors used in \code{object}.}
 
-\item{scale}{a logical indicating whether or not the predictor variables must be scaled to unit variance at each local segment (before regression).}
+\item{weighting}{Character string specifying the kernel weighting function
+applied to neighbours when combining predictions. Options are:
+\code{"gaussian"} (default), \code{"tricube"}, \code{"triweight"},
+\code{"triangular"}, \code{"quartic"}, \code{"parabolic"}, \code{"cauchy"},
+or \code{"none"} (equal weights). See Details for kernel definitions.}
 
-\item{metric}{a character value indicating what model perfoamance statistics shall be used to select the best set of parameters (i.e. number of neighbors or threshold distances and pls factors)  to fit the final model. Options are \code{"rmse"} (default) or \code{"r2"} (coefficient of determination).}
+\item{adaptive_bandwidth}{Logical indicating whether to use adaptive
+bandwidth for kernel weighting. When \code{TRUE} (default), the bandwidth
+is set to the maximum dissimilarity within the neighborhood of each observation,
+so weights adapt to local density. When \code{FALSE}, a fixed global
+bandwidth is used across all predictions, which may result in uniform
+weights in sparse regions or overly concentrated weights in dense regions.}
 
-\item{return_best}{a logical indicating if the final library of functions using the optimal parameters found shall be returned.}
+\item{reliability_weighting}{Logical indicating whether to weight expert
+predictions by their estimated reliability. When \code{TRUE} (default),
+the contribution of each experrt is additionally weighted by the inverse of its
+cross-validation residual variance, giving more influence to models that
+performed well during fitting. When \code{FALSE}, only dissimilarity-based
+kernel weights are used.}
 
-\item{pls_max_iter}{(BETTER DESCRIPTION REQUIRED) maximum number of iterations for the partial least squares methods.}
+\item{probs}{A numeric vector of probabilities in \eqn{[0, 1]} for computing
+weighted quantiles of expert predictions. Default is
+\code{c(0.05, 0.25, 0.5, 0.75, 0.95)}.}
 
-\item{pls_tol}{(BETTER DESCRIPTION REQUIRED) for convergence in the partial orthogonal scores partial least squares regressions using the nipals algorithm. Default is 1e-6}
+\item{range_prediction_limits}{Logical. If \code{TRUE}, predictions falling
+outside the 5th–95th percentile range of neighbour response values are
+clipped to those limits. Default is \code{FALSE}.}
 
-\item{chunk_size}{Integer. Specifies the maximum number of samples
-(rows or columns, depending on context) to include in each chunk.
-Each chunk is processed independently, which can be beneficial
-for parallel computation. For example, each chunk can be dispatched
-to a separate processor or core, where the samples within the chunk
-are processed sequentially. Defaults to \code{1} (i.e., one sample per
-chunk). The value of \code{chunk_size} cannot exceed the total number of
-available samples for the given context (e.g., \code{nrow(Xr)} or
-\code{length(anchor_indices)} when provided).}
+\item{residual_cutoff}{Numeric threshold for excluding models. Models with
+absolute residuals exceeding this value are penalized during neighbour
+selection. Default is \code{NULL} (no exclusion).}
 
-\item{documentation}{(BETTER DESCRIPTION REQUIRED) an optional character string for documentating the call to this function.}
+\item{enforce_indices}{Optional integer vector specifying model indices that
+must always be included in each prediction neighborhood. These models are
+assigned the minimum dissimilarity of the neighborhood to ensure selection.
+Default is \code{NULL} (no enforced models).}
 
-\item{...}{arguments passed to the \code{\link{dissimilarity}} function.}
+\item{allow_parallel}{Logical indicating whether parallel computation is
+permitted if a backend is registered. Default is \code{TRUE}.}
+
+\item{blas_threads}{Integer specifying the number of BLAS threads to use.
+Default is \code{1L}. Requires the \pkg{RhpcBLASctl} package for thread
+control.}
 }
 \value{
-DESCRIOTION REQUIRED
+\strong{For \code{liblex}:} A list of class \code{"liblex"} (when
+\code{control$mode = "build"}) or \code{"liblex_validation"} (when
+\code{control$mode = "validate"}) containing:
+\itemize{
+\item \code{dissimilarity}: List containing the dissimilarity method
+and matrix.
+\item \code{fit_method}: Fit constructor from \code{fit_method}.
+\item \code{gh}: If \code{gh = TRUE}, a list with GH distances and the PLS
+projection.
+\item \code{results}: Data frame of validation statistics for each
+parameter combination (if validation was performed).
+\item \code{best}: The optimal parameter combination based on
+\code{control$metric}.
+\item \code{optimal_params}: List with optimal \code{k} and \code{ncomp} values.
+\item \code{residuals}: Residuals from predictions using optimal
+parameters.
+\item \code{coefficients}: (Build mode only) List of regression
+coefficients: \code{B0} (intercepts), \code{B} (slopes).
+\item \code{vips}: (Build mode only) Variable importance in projection
+scores.
+\item \code{selectivity_ratios}: (Build mode only) Selectivity ratios
+for each predictor.
+\item \code{scaling}: (Build mode only) Centering and scaling vectors
+for prediction.
+\item \code{neighborhood_stats}: Statistics (response quantiles) for
+each neighborhood size.
+\item \code{anchor_indices}: The anchor indices used.
+}
+
+\strong{For \code{predict.liblex}:} A list with the following components:
+\itemize{
+\item \code{predictions}: A data frame containing:
+\itemize{
+\item \code{pred}: Weighted mean predictions.
+\item \code{pred_sd}: Weighted standard deviation of expert
+predictions.
+\item \code{q*}: Weighted quantiles at probabilities specified by
+\code{probs}.
+\item \code{gh}: Global Mahalanobis distance (if computed during
+fitting).
+\item \code{min_yr}: Minimum response value (5th percentile) across
+neighbours.
+\item \code{max_yr}: Maximum response value (95th percentile) across
+neighbours.
+\item \code{below_min}: Logical indicating prediction below
+\code{min_yr}.
+\item \code{above_max}: Logical indicating prediction above
+\code{max_yr}.
+}
+\item \code{neighbors}: A list with:
+\itemize{
+\item \code{indices}: Matrix of neighbour indices (models) for each
+observation.
+\item \code{dissimilarities}: Matrix of corresponding dissimilarity
+scores.
+}
+\item \code{expert_predictions}: A list with:
+\itemize{
+\item \code{weights}: Matrix of kernel weights applied to each expert.
+\item \code{predictions}: Matrix of raw predictions from each expert.
+\item \code{weighted}: Matrix of weighted predictions from each expert.
+}
+}
 }
 \description{
-This function builds a library of predictive functions based on memory-based learning
+Constructs a library of local predictive models based on memory-based
+learning (MBL). For each anchor observation, a local regression model is
+fitted using its nearest neighbors from the reference set. This
+implementation is based on the methods proposed in
+Ramirez-Lopez et al. (2026b).
 }
 \details{
-\emph{Anchor indices}
+\subsection{Anchor indices}{
 
-By default, local models are constructed around all \code{n} samples in the
-reference set. Alternatively, the user may specify a subset of \code{m} samples
-(\code{m < n}) around which the library of local models should be built. This is
-done by supplying their row indices to the \code{anchor_indices} argument.
+By default, local models are constructed for all \code{n} observations in the
+reference set. Alternatively, specify a subset of \code{m} observations
+(\code{m < n}) via \code{anchor_indices} to reduce computation.
 
-In this configuration, each local model is still constructed using the
-nearest neighbors selected from the full set of \code{n} reference samples, but
-only for the \code{m} anchor samples. This approach is especially useful when the
-reference set is very large, as it reduces the total number of models while
-retaining representativeness and predictive performance—particularly if the
-anchor samples are chosen to reflect the diversity of the dataset.
+Each local model uses neighbors selected from the full reference set, but
+models are only built for anchor observations. This is useful for large
+datasets where building models for all observations is computationally
+prohibitive.
 
-This strategy can lead to substantial computational savings and a more
-compact library of models. \strong{Note} that when distance calculations rely on
-the response variable (e.g., GH distance, PLS distance, or optimized PC
-distance), the response values (\code{Yr}) of the anchor samples themselves are
-not used during distance computation. This is done to improve computational
-efficiency: dissimilarities are computed between each anchor sample and all
-reference samples (excluding the anchor itself), rather than recalculating
-the full \verb{n × n} distance matrix. This significantly reduces the number of
-response-based distance computations when the number of anchors is small.
-Also, \strong{note} that the response values (Yr) of the anchor observations are
-always used during the fitting of  their corresponding local models.
-For efficiency, the number of anchor indices must be less than 90\% of the
-total number of rows in \code{Xr}. If this threshold is exceeded, consider
-building a model for each sample in \code{Xr} by setting \code{anchor_indices = NULL}.
+When dissimilarity methods depend on \code{Yr} (e.g., PLS-based distances), the
+response values of anchor observations are excluded during dissimilarity
+computation for efficiency. However, anchor response values are always
+used when fitting local models.
 
-\emph{Missing values in \code{Yr}}
+The number of anchors must not exceed 90
+use \code{anchor_indices = NULL} to build models for all observations.
+}
 
-Missing values in \code{Yr} are allowed. If they exceed 25\% of the total number
-of observations, a warning will be issued. The local model of an observation
-with a missing \code{Yr} value is fitted only using its nearest neighbors (i.e.,
-without including the observation itself).
+\subsection{Missing values in Yr}{
+
+Missing values in \code{Yr} are permitted. Observations with missing response
+values can still serve as neighbors but are excluded from model fitting
+as target observations.
+}
+
+\subsection{GH distance}{
+
+The GH distance is computed independently from \code{diss_method} using a PLS
+projection with optimized component selection. This provides a measure of
+how far each observation lies from the center of the reference set in the
+PLS score space.
+}
+
+\subsection{Validation and tuning}{
+
+When \code{control$mode = "validate"} or \code{control$tune = TRUE}, nearest-neighbor
+cross-validation is performed. For each anchor observation, its nearest
+neighbor is excluded, a model is fitted on remaining neighbors, and the
+excluded neighbor's response is predicted. This provides validation
+statistics for parameter selection.
+}
+
+\subsection{Prediction}{
+
+For each observation in \code{newdata}, the \code{predict} method:
+\enumerate{
+\item Computes dissimilarities to anchor observations (or their
+neighbourhood centres) stored in \code{object}.
+\item Selects the \code{k} nearest neighbours based on the optimal
+\code{k} determined during model fitting.
+\item Applies kernel weighting based on dissimilarity.
+\item Combines expert predictions using weighted averaging.
+}
+}
+
+\subsection{Kernel weighting functions}{
+
+The weighting functions follow Cleveland and Devlin (1988). Let \eqn{d} be
+the normalised dissimilarity (scaled to \eqn{[0, 1]} within the neighbourhood
+when \code{adaptive_bandwidth = TRUE}). The available kernels are:
+\itemize{
+\item \code{"gaussian"}: \eqn{w = \exp(-d^2)}
+\item \code{"tricube"}: \eqn{w = (1 - d^3)^3}
+\item \code{"triweight"}: \eqn{w = (1 - d^2)^3}
+\item \code{"triangular"}: \eqn{w = 1 - d}
+\item \code{"quartic"}: \eqn{w = (1 - d^2)^2}
+\item \code{"parabolic"}: \eqn{w = 1 - d^2}
+\item \code{"cauchy"}: \eqn{w = 1 / (1 + d^2)}
+\item \code{"none"}: \eqn{w = 1} (equal weights)
+}
+}
 }
 \examples{
 \dontrun{
-#' ## GOOD EXAMPLES ARE REQUIRED
+library(prospectr)
+data(NIRsoil)
+
+# Preprocess spectra
+NIRsoil$spc_pr <- savitzkyGolay(
+  detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1, p = 1, w = 7
+)
+
+# Missing values in the response are allowed
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
+train_y <- NIRsoil$Ciso[NIRsoil$train == 1]
+test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
+
+# Build library
+model_library <- liblex(
+  Xr = train_x,
+  Yr = train_y,
+  neighbors = neighbors_k(c(30, 40)),
+  diss_method = diss_correlation(ws = 27, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 4,
+    max_ncomp = 17,
+    scale = FALSE,
+    method = "mpls"
+  ),
+  control = liblex_control(tune = TRUE)
+)
+
+# Visualise neighborhood centroids and samples to predict
+matplot(
+  as.numeric(colnames(model_library$scaling$local_x_center)),
+  t(test_x),
+  col = rgb(1, 0, 0, 0.3),
+  lty = 1,
+  type = "l",
+  xlab = "Wavelength (nm)",
+  ylab = "First derivative detrended absorbance"
+)
+matlines(
+  as.numeric(colnames(model_library$scaling$local_x_center)),
+  t(model_library$scaling$local_x_center),
+  col = rgb(0, 0, 1, 0.3),
+  lty = 1,
+  type = "l"
+)
+grid(lty = 1)
+legend(
+  "topright",
+  legend = c("Samples to predict", "Neighborhood centroids"),
+  col = c(rgb(1, 0, 0, 0.8), rgb(0, 0, 1, 0.8)),
+  lty = 1,
+  lwd = 2,
+  bty = "n"
+)
+
+# Predict new observations
+y_hat_liblex <- predict(model_library, test_x)
+
+# Predicted versus observed values
+lims <- range(y_hat_liblex$predictions$pred, test_y, na.rm = TRUE)
+plot(
+  y_hat_liblex$predictions$pred,
+  test_y,
+  pch = 16,
+  col = rgb(0, 0, 0, 0.5),
+  xlab = "Predicted",
+  ylab = "Observed",
+  xlim = lims,
+  ylim = lims
+)
+abline(a = 0, b = 1, col = "red")
+grid(lty = 1)
+
+## run liblex in parallel (requires a parallel backend, e.g., doParallel)
+library(doParallel)
+n_cores <- min(2, parallel::detectCores())
+clust <- makeCluster(n_cores)
+registerDoParallel(clust)
+
+model_library2 <- liblex(
+  Xr = train_x,
+  Yr = train_y,
+  neighbors = neighbors_k(c(30, 40)),
+  fit_method = fit_wapls(min_ncomp = 4, max_ncomp = 17, method = "simpls")
+)
+
+y_hat_liblex2 <- predict(model_library2, test_x)
+registerDoSEQ()
+try(stopCluster(clust))
 }
 }
 \references{
-Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J., &
-Kvalheim, O. M. (2009). Biomarker discovery in mass spectral profiles by
+Cleveland, W. S., & Devlin, S. J. (1988). Locally weighted regression:
+An approach to regression analysis by local fitting.
+\emph{Journal of the American Statistical Association}, 83(403), 596–610.
+
+Naes, T., Isaksson, T., & Kowalski, B. (1990). Locally weighted regression
+and scatter correction for near-infrared reflectance data.
+\emph{Analytical Chemistry}, 62(7), 664–673.
+
+Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
+Scholten, T. (2013). The spectrum-based learner: A new local approach for
+modeling soil vis-NIR spectra of complex datasets. Geoderma, 195-196,
+268-279.
+
+Ramirez-Lopez, L., Metz, M., Lesnoff, M., Orellano, C.,
+Perez-Fernandez, E., Plans, M., Breure, T., Behrens, T.,
+Viscarra Rossel, R., & Peng, Y. (2026b). Rethinking local spectral
+modelling: From per-query refitting to model libraries.
+\emph{Analytica Chimica Acta}, under review.
+
+Rajalahti, T., Arneberg, R., Berven, F.S., Myhr, K.M., Ulvik, R.J.,
+Kvalheim, O.M. (2009). Biomarker discovery in mass spectral profiles by
 means of selectivity ratio plot. Chemometrics and Intelligent Laboratory
 Systems, 95(1), 35-48.
 }
+\seealso{
+\code{\link[=liblex_control]{liblex_control()}} for control parameters, \code{\link[=neighbors_k]{neighbors_k()}} for neighborhood
+specification, \code{\link[=diss_pca]{diss_pca()}}, \code{\link[=diss_pls]{diss_pls()}}, \code{\link[=diss_correlation]{diss_correlation()}} for
+dissimilarity methods, \code{\link[=fit_pls]{fit_pls()}}, \code{\link[=fit_wapls]{fit_wapls()}} for fitting methods.
+}
 \author{
-Leonardo Ramirez-Lopez
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 }

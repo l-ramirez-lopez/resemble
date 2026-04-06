@@ -1,396 +1,408 @@
-#' @title Dissimilarity computation between matrices
+#' @title Compute dissimilarity matrices
+#'
 #' @description
 #' \loadmathjax
+#' Computes dissimilarity matrices between observations using various methods.
+#' This is the main interface for dissimilarity computation in the resemble
+#' package.
 #'
-#' This is a wrapper to integrate the different dissimilarity functions of the
-#' offered by package.It computes the dissimilarities between observations in
-#' numerical matrices by using an specifed dissmilarity measure.
-#' @usage
-#' dissimilarity(Xr, Xu = NULL,
-#'               diss_method = c("pca", "pca.nipals", "pls", "mpls",
-#'                               "cor", "euclid", "cosine", "sid"),
-#'               Yr = NULL, gh = FALSE, pc_selection = list("var", 0.01),
-#'               return_projection = FALSE, ws = NULL,
-#'               center = TRUE, scale = FALSE, documentation = character(),
-#'               ...)
-#' @param Xr a matrix of containing `n` observations/rows and `p`
-#' variables/columns.
-#' @param Xu an optional matrix containing data of a second set of observations
-#' with `p` variables/columns.
-#' @param diss_method a character string indicating the method to be used to
-#' compute the dissimilarities between observations. Options are:
-#' \itemize{
-#'        \item{\code{"pca"}: Mahalanobis distance
-#'        computed on the matrix of scores of a Principal Component (PC)
-#'        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
-#'        done using the singular value decomposition (SVD) algorithm.
-#'        See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"pca.nipals"}: Mahalanobis distance
-#'        computed on the matrix of scores of a Principal Component (PC)
-#'        projection of \code{Xr} (and \code{Xu} if provided). PC projection is
-#'        done using the non-linear iterative partial least squares (nipals)
-#'        algorithm. See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"pls"}: Mahalanobis distance
-#'        computed on the matrix of scores of a partial least squares projection
-#'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
-#'        always required. See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"mpls"}: Mahalanobis distance
-#'        computed on the matrix of scores of a modified partial least squares
-#'        projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
-#'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
-#'        always required. See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"cor"}: based on the correlation coefficient
-#'        between observations. See \code{\link{cor_diss}} function.}
-
-#'        \item{\code{"euclid"}: Euclidean distance
-#'        between observations. See \code{\link{f_diss}} function.}
-#'        \item{\code{"cosine"}: Cosine distance
-#'        between observations. See \code{\link{f_diss}} function.}
-
-#'        \item{\code{"sid"}: spectral information divergence between
-#'        observations. See \code{\link{sid}} function.}
-#'        }
-#' @param Yr a numeric matrix of `n` observations used as side information of
-#' \code{Xr} for the \code{\link{ortho_diss}} methods (i.e. \code{pca},
-#' \code{pca.nipals} or \code{pls}). It is required when:
-#' \itemize{
-#'        \item{\code{diss_method = "pls"}}
-#'        \item{\code{diss_method = "pca"} with \code{"opc"} used as the method
-#'        in the \code{pc_selection} argument. See \code{\link{ortho_diss}.}}
-#'        \item{\code{gh = TRUE}}
-#'        }
-#' @param gh a logical indicating if the Mahalanobis distance in the pls score
-#' space between each observation and the means of the pls scores (center) must
-#' be computed. This distance is also known as GH distance. Default \code{FALSE}.
-#' @param pc_selection a list of length 2 to be passed onto the
-#' \code{\link{ortho_diss}} methods. It is required if the method selected in
-#' \code{diss_method} is any of \code{"pca"}, \code{"pca.nipals"} or
-#' \code{"pls"} or if \code{gh = TRUE}. This argument is used for
-#' optimizing the number of components (principal components or pls factors)
-#' to be retained. This list must contain two elements in the following order:
-#' \code{method} (a character indicating the method for selecting the number of
-#' components) and \code{value} (a numerical value that complements the selected
-#' method). The methods available are:
-#' \itemize{
-#'        \item{\code{"opc"}: optimized principal component selection based on
-#'        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-#'        (of set of observations) is the one for which its distance matrix
-#'        minimizes the differences between the \code{Yr} value of each
-#'        observation and the \code{Yr} value of its closest observation. In this
-#'        case \code{value} must be a value ((larger than 0 and
-#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
-#'        combined) indicating the maximum
-#'        number of principal components to be tested. See the
-#'        \code{\link{ortho_projection}} function for more details.}
-
-#'        \item{\code{"cumvar"}: selection of the principal components based
-#'        on a given cumulative amount of explained variance. In this case,
-#'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of cumulative variance that the
-#'        combination of retained components should explain.}
-
-#'        \item{\code{"var"}: selection of the principal components based
-#'        on a given amount of explained variance. In this case,
-#'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a single component
-#'        should explain in order to be retained.}
-
-#'        \item{\code{"manual"}: for manually specifying a fix number of
-#'        principal components. In this case, \code{value} must be a value
-#'        (larger than 0 and
-#'        below the minimum dimension of \code{Xr} or \code{Xr} and \code{Xu}
-#'        combined).
-#'        indicating the minimum amount of variance that a component should
-#'        explain in order to be retained.}
-#'        }
-#' The default is \code{list(method = "var", value = 0.01)}.
-#'
-#' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
-#' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
-#' string. In such a case the default \code{"value"} when either \code{"opc"} or
-#' \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-#' \code{"value"} is set to 0.99 and when \code{"var"} is used, the default
-#' \code{"value"} is set to 0.01.
-#' @param return_projection a logical indicating if the projection(s) must be
-#' returned. Projections are used if the \code{\link{ortho_diss}} methods are
-#' called (i.e. \code{diss_method = "pca"}, \code{diss_method = "pca.nipals"} or
-#' \code{diss_method = "pls"}) or when \code{gh = TRUE}.
-#' In case \code{gh = TRUE} and a \code{\link{ortho_diss}} method is used (in the
-#' \code{diss_method} argument), both projections are returned.
-#' @param ws  an odd integer value which specifies the window size, when
-#' \code{diss_method = "cor"} (\code{\link{cor_diss}} method) for moving
-#' correlation dissimilarity. If \code{ws = NULL} (default), then the window
-#' size will be equal to the number of variables (columns), i.e. instead moving
-#' correlation, the normal correlation will be used. See \code{\link{cor_diss}}
-#' function.
-#' @param center a logical indicating if \code{Xr} (and \code{Xu} if provided)
-#' must be centered. If \code{Xu} is provided the data is centered around the
-#' mean of the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}). For
-#' dissimilarity computations based on \code{diss_method = pls}, the data is
-#' always centered.
-#' @param scale a logical indicating if \code{Xr} (and \code{Xu} if
-#' provided) must be  scaled. If \code{Xu} is provided the data is scaled based
-#' on the standard deviation of the the pooled \code{Xr} and \code{Xu} matrices
-#' (\mjeqn{Xr \cup Xu}{Xr U Xu}). If \code{center = TRUE}, scaling is applied after
-#' centering.
-#' @param gh a logical indicating if the Mahalanobis distance (in the pls score
-#' space) between each observation and the pls centre/mean must be
-#' computed.
-#' @param documentation an optional character string that can be used to
-#' describe anything related to the \code{mbl} call (e.g. description of the
-#' input data). Default: \code{character()}. NOTE: his is an experimental
-#' argument.
-#' @param ... other arguments passed to the dissimilarity functions
-#' (\code{\link{ortho_diss}}, \code{\link{cor_diss}}, \code{\link{f_diss}} or
-#' \code{\link{sid}}).
+#' @param Xr A numeric matrix of reference observations (rows) and variables
+#'   (columns).
+#' @param Xu Optional matrix of additional observations with the same variables.
+#' @param diss_method A dissimilarity method object created by one of:
+#'   \itemize{
+#'     \item \code{\link{diss_pca}()}: Mahalanobis distance in PCA space
+#'     \item \code{\link{diss_pls}()}: Mahalanobis distance in PLS space
+#'     \item \code{\link{diss_correlation}()}: Correlation-based dissimilarity
+#'     \item \code{\link{diss_euclidean}()}: Euclidean distance
+#'     \item \code{\link{diss_mahalanobis}()}: Mahalanobis distance
+#'     \item \code{\link{diss_cosine}()}: Cosine dissimilarity
+#'   }
+#'   Default is \code{diss_pca()}.
+#' @param Yr Optional response matrix. Required for PLS methods and when using
+#'   \code{ncomp_by_opc()}.
 #'
 #' @details
-#' This function is a wrapper for \code{\link{ortho_diss}}, \code{\link{cor_diss}},
-#'  \code{\link{f_diss}}, \code{\link{sid}}. Check the documentation of these
-#'  functions for further details.
+#' The function dispatches to the appropriate internal computation based on the
+#' class of \code{diss_method}. Each method constructor (e.g., \code{diss_pca()})
+#' encapsulates all method-specific parameters including component selection,
+#' centering, scaling, and whether to return projections.
 #'
-#' @seealso \code{\link{ortho_diss}} \code{\link{cor_diss}} \code{\link{f_diss}}
-#' \code{\link{sid}}.
+#' \subsection{Output dimensions}{
+#' When only \code{Xr} is provided, the function computes pairwise dissimilarities
+#' among all observations in \code{Xr}, returning a symmetric
+#' \code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xr)} matrix.
 #'
-#' @return A list with the following components:
-#' \itemize{
-#'        \item{\code{dissimilarity}: the resulting dissimilarity matrix.}
-
-#'        \item{\code{projection}: an \code{ortho_projection} object. Only output
-#'        if \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-#'        \code{diss_method = "pca.nipals"},  \code{diss_method = "pls"} or
-#'        \code{diss_method = "mpls"}.
-
-#'        This object contains the projection used to compute
-#'        the dissimilarity matrix. In case of local dissimilarity matrices,
-#'        the projection corresponds to the global projection used to select the
-#'        neighborhoods (see \code{\link{ortho_diss}} function for further
-#'        details).}
-
-#'        \item{\code{gh}: a list containing the GH distances as well as the
-#'        pls projection used to compute the GH.}
-#'        }
+#' When both \code{Xr} and \code{Xu} are provided, the function computes
+#' dissimilarities between each observation in \code{Xr} and each observation
+#' in \code{Xu}, returning a \code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xu)}
+#' matrix where element \mjeqn{(i, j)}{(i, j)} is the dissimilarity between the
+#' \mjeqn{i}{i}-th observation in \code{Xr} and the \mjeqn{j}{j}-th observation
+#' in \code{Xu}.
+#' }
+#'
+#' \subsection{Mahalanobis distance}{
+#' Note that \code{diss_mahalanobis()} computes Mahalanobis distance directly on
+#' the input variables. This requires the covariance matrix to be invertible,
+#' which fails when the number of variables exceeds the number of observations
+#' or when variables are highly correlated (common in spectral data). For such
+#' cases, use \code{diss_pca()} or \code{diss_pls()} instead.
+#' }
+#'
+#' @return A list of class \code{"dissimilarity"} containing:
+#' \describe{
+#'   \item{dissimilarity}{The computed dissimilarity matrix. Dimensions are
+#'     \code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xr)} when \code{Xu = NULL},
+#'     or \code{nrow(Xr)} \mjeqn{\times}{x} \code{nrow(Xu)} otherwise.}
+#'   \item{diss_method}{The \code{diss_*} constructor object used for computation.}
+#'   \item{center}{Vector used to center the data.}
+#'   \item{scale}{Vector used to scale the data.}
+#'   \item{ncomp}{Number of components used (for projection methods).}
+#'   \item{projection}{If \code{return_projection = TRUE} in the method
+#'     constructor, the \code{ortho_projection} object.}
+#' }
+#' 
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
+#' 
+#' @seealso
+#' \code{\link{diss_pca}}, \code{\link{diss_pls}}, 
+#' \code{\link{diss_correlation}}, \code{\link{diss_euclidean}},
+#' \code{\link{diss_mahalanobis}}, \code{\link{diss_cosine}}
+#' 
+#'
 #' @references
-#' Shenk, J., Westerhaus, M., and Berzaghi, P. 1997. Investigation of a LOCAL
-#' calibration procedure for near infrared instruments. Journal of Near Infrared
-#' Spectroscopy, 5, 223-232.
+#' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
+#' Scholten, T. 2013a. The spectrum-based learner: A new local approach for
+#' modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
+#' 268-279.
 #'
-#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding
-#' Wachievements in near infrared spectroscopy: my contributions to
-#' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
+#' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
+#' J.A.M., Scholten, T. 2013b. Distance and similarity-search metrics for use
+#' with soil vis-NIR spectra. Geoderma 199, 43-53.
 #'
-#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+#'
 #' @examples
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
-#' # Filter the data using the first derivative with Savitzky and Golay
-#' # smoothing filter and a window size of 11 spectral variables and a
-#' # polynomial order of 4
+#' # Preprocess
 #' sg <- savitzkyGolay(NIRsoil$spc, m = 1, p = 4, w = 15)
 #'
-#' # Replace the original spectra with the filtered ones
-#' NIRsoil$spc <- sg
-#'
-#' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
-#' Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-#'
+#' Xr <- sg[as.logical(NIRsoil$train), ]
+#' Xu <- sg[!as.logical(NIRsoil$train), ]
 #' Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
-#' Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+#' Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
 #'
 #' Xu <- Xu[!is.na(Yu), ]
 #' Xr <- Xr[!is.na(Yr), ]
-#'
-#' Yu <- Yu[!is.na(Yu)]
 #' Yr <- Yr[!is.na(Yr)]
 #'
-#' dsm_pca <- dissimilarity(
-#'   Xr = Xr, Xu = Xu,
-#'   diss_method = c("pca"),
-#'   Yr = Yr, gh = TRUE,
-#'   pc_selection = list("opc", 30),
-#'   return_projection = TRUE
-#' )
-#' @export
+#' # PCA-based dissimilarity with variance-based selection
+#' d1 <- dissimilarity(Xr, Xu, diss_method = diss_pca())
 #'
-## History:
-## 22.05.2020 Leo     Hello world!
+#' # PCA with OPC selection (requires Yr)
+#' d2 <- dissimilarity(Xr, Xu,
+#'   Yr = Yr,
+#'   diss_method = diss_pca(
+#'     ncomp = ncomp_by_opc(30),
+#'     return_projection = TRUE
+#'   )
+#' )
+#'
+#' # PLS-based dissimilarity 
+#' d3 <- dissimilarity(
+#'   Xr, Xu,
+#'   Yr = Yr,
+#'   diss_method = diss_pls(
+#'     ncomp = ncomp_by_opc(30)
+#'   )
+#' )
+#'
+#' # Euclidean distance
+#' d4 <- dissimilarity(Xr, Xu, diss_method = diss_euclidean())
+#'
+#' # Correlation dissimilarity with moving window
+#' d5 <- dissimilarity(Xr, Xu, diss_method = diss_correlation(ws = 41))
+#'
+#' # Mahalanobis distance (use only when n > p and low collinearity)
+#' # d6 <- dissimilarity(Xr[, 1:20], Xu[, 1:20],
+#' #                     diss_method = diss_mahalanobis())
+#' }
+#'
+#' @export
+dissimilarity <- function(
+  Xr,
+  Xu = NULL,
+  diss_method = diss_pca(),
+  Yr = NULL
+) {
+  # ---------------------------------------------------------------------------
+  # Handle legacy character-based diss_method
+  # ---------------------------------------------------------------------------
+  if (is.character(diss_method)) {
+    stop(
+      "Character-based 'diss_method' is no longer supported.\n\n",
+      "Use method constructors instead:\n\n",
+      "  Old API                          -> New API\n",
+      "  -------                             -------\n",
+      "  diss_method = \"pca\"               -> diss_pca()\n",
+      "  diss_method = \"pca.nipals\"        -> diss_pca(method = \"pca_nipals\")\n",
+      "  diss_method = \"pls\"               -> diss_pls()\n",
+      "  diss_method = \"mpls\"              -> diss_pls(method = \"mpls\")\n",
+      "  diss_method = \"euclid\"            -> diss_euclidean()\n",
+      "  diss_method = \"cosine\"            -> diss_cosine()\n",
+      "  diss_method = \"cor\"               -> diss_correlation()\n\n",
+      "  diss_method = \"sid\"               -> Deprecated\n",
+      "  pc_selection = list(\"opc\", 30)    -> ncomp = ncomp_by_opc(30)\n",
+      "  gh = TRUE                           -> Deprecated\n",
+      call. = FALSE
+    )
+  }
+
+  # ---------------------------------------------------------------------------
+  # Validate diss_method
+  # ---------------------------------------------------------------------------
+  if (!inherits(diss_method, "diss_method")) {
+    stop(
+      "'diss_method' must be a dissimilarity method object.\n",
+      "Use one of: diss_pca(), diss_pls(), diss_correlation(),",  
+      "diss_euclidean(), diss_mahalanobis(), diss_cosine()."
+    )
+  }
+
+  # ---------------------------------------------------------------------------
+  # Validate Yr requirements
+  # ---------------------------------------------------------------------------
+  method_class <- class(diss_method)[[1]]
+
+  requires_yr <- method_class == "diss_pls" ||
+    (method_class == "diss_pca" && inherits(diss_method$ncomp, "ncomp_by_opc"))
+
+  if (requires_yr && is.null(Yr)) {
+    stop("'Yr' is required for this dissimilarity method.")
+  }
+
+  # ---------------------------------------------------------------------------
+  # Dispatch to compute function
+  # ---------------------------------------------------------------------------
+  result <- switch(
+    method_class,
+    diss_pca = .diss_pca_compute(Xr, Xu, Yr, diss_method),
+    diss_pls = .diss_pls_compute(Xr, Xu, Yr, diss_method),
+    diss_euclidean = .diss_euclidean_compute(Xr, Xu, diss_method),
+    diss_mahalanobis = .diss_mahalanobis_compute(Xr, Xu, diss_method),
+    diss_cosine = .diss_cosine_compute(Xr, Xu, diss_method),
+    diss_correlation = .diss_correlation_compute(Xr, Xu, diss_method),
+    stop("Unknown dissimilarity method: ", method_class)
+  )
+  result$diss_method <- diss_method
+  
+  if (diss_method$center) {
+    result$center <- drop(get_column_means(rbind(Xr, Xu)))
+  } else {
+    result$center <- NULL
+  }
+  
+  if (diss_method$scale) {
+    result$scale <- get_col_sds(rbind(Xr, Xu))
+  } else {
+    result$scale <- NULL
+  }  
+
+  class(result) <- c("dissimilarity", "list")
+  result
+}
 
 
-dissimilarity <- function(Xr,
-                          Xu = NULL,
-                          diss_method = c(
-                            "pca",
-                            "pca.nipals",
-                            "pls",
-                            "mpls",
-                            "cor",
-                            "euclid",
-                            "cosine",
-                            "sid"
-                          ),
-                          Yr = NULL,
-                          gh = FALSE,
-                          pc_selection = list("var", 0.01),
-                          return_projection = FALSE,
-                          ws = NULL,
-                          center = TRUE,
-                          scale = FALSE,
-                          documentation = character(),
-                          ...) {
+# =============================================================================
+# Internal compute functions
+# =============================================================================
 
-  ## Future arguments/features?
-  ## - group function to be passed to the opc methods?
-
-  result <- list(dissimilarity = NULL)
-  # Mahalanobis is excluded from this list because when used on matrices with
-  # highly correlated variables, it returns singular covariance matrices. So it
-  # need to be prevented as it doe snot really make sense to compute mahalanobis
-  # on the raw spectra
-  avalmethods <- c(
-    "pca",
-    "pca.nipals",
-    "cor",
-    "movcor",
-    "pls",
-    "mpls",
-    "euclid",
-    "cosine",
-    "sid"
+.diss_pca_compute <- function(Xr, Xu, Yr, method) {
+  proj <- ortho_projection(
+    Xr = Xr,
+    Xu = Xu,
+    Yr = Yr,
+    ncomp = method$ncomp,
+    method = method$method,
+    center = method$center,
+    scale = method$scale
   )
 
-  # if(!is.null(group))
-  # {
-  #   if(length(group) != nrow(Xr))
-  #     stop("The length of 'group' must be equal to the number of observations in 'Xr'")
-  # }
+  # Standardize scores by SD before computing Euclidean distance
+  scores <- proj$scores
+  scores_sd <- apply(scores, 2L, sd)
+  scores_sd[scores_sd < .Machine$double.eps] <- 1
+  scores_std <- sweep(scores, 2L, scores_sd, "/")
 
-  if (length(diss_method) > 1) {
-    warning("'diss_method' has length > 1 and only the first element will be used")
-    diss_method <- diss_method[1]
+  # Split scores
+  n_xr <- nrow(Xr)
+  scores_xr <- scores_std[seq_len(n_xr), , drop = FALSE]
+  scores_xu <- if (!is.null(Xu)) {
+    scores_std[(n_xr + 1L):nrow(scores_std), , drop = FALSE]
+  } else {
+    NULL
   }
 
-  if (is.null(Yr) & gh) {
-    stop("for gh is necessary to supply Yr")
+  # Euclidean distance on standardized scores
+  dmat <- f_diss(
+    Xr = scores_xr,
+    Xu = scores_xu,
+    diss_method = "euclid",
+    center = FALSE,
+    scale = FALSE
+  )
+
+  result <- list(
+    dissimilarity = dmat,
+    ncomp = proj$ncomp
+  )
+
+  if (method$return_projection) {
+    result$projection <- proj
   }
-
-
-  if (!diss_method %in% avalmethods) {
-    stop(paste(
-      "'diss_method' argument needs to be equal to one of the following options:\n",
-      paste("'", avalmethods, "'", collapse = ", ", sep = "")
-    ))
-  }
-
-
-  ortho_dissmethods <- c("pca", "pca.nipals", "pls", "mpls")
-  f_dissmethods <- c("euclid", "cosine")
-  cor_dissmethods <- c("cor")
-  divergencemethods <- c("sid")
-
-  if (diss_method %in% ortho_dissmethods) {
-    if (diss_method == "mpls") {
-      modified <- TRUE
-    } else {
-      modified <- FALSE
-    }
-    pcDistance <- ortho_diss(
-      Xr = Xr,
-      Xu = Xu,
-      pc_selection = pc_selection,
-      Yr = Yr,
-      diss_method = diss_method,
-      center = center,
-      scale = scale,
-      modified = modified,
-      return_projection = ((gh & diss_method == "pls") | return_projection),
-      ...
-    )
-
-    dmat <- pcDistance$dissimilarity
-
-    if (return_projection) {
-      result$projection <- pcDistance$projection
-    }
-  }
-
-  if (gh) {
-    if (diss_method == "pls") {
-      pca <- pcDistance$projection
-      rm(pcDistance)
-    } else {
-      pca <- pls_projection(
-        Xr = rbind(Xr, Xu),
-        Xu = NULL,
-        Yr = c(
-          Yr,
-          rep(NA, ifelse(is.null(Xu), 0, nrow(Xu)))
-        ),
-        pc_selection = pc_selection,
-        scale = scale,
-        ...
-      )
-      if (!is.null(Xu)) {
-        rownames(pca$scores)[-(1:nrow(Xr))] <- paste0("Xu_", 1:nrow(Xu))
-      }
-    }
-
-    scores <- pca$scores
-
-    scoresmean <- t(colMeans(scores[1:nrow(Xr), , drop = FALSE]))
-
-    gh <- as.vector(f_diss(
-      Xr = scores,
-      Xu = scoresmean,
-      center = FALSE,
-      scale = FALSE,
-      diss_method = "mahalanobis"
-    ))
-
-    result$gh <- list(gh_Xr = gh[1:nrow(Xr)])
-    if (!is.null(Xu)) {
-      result$gh$gh_Xu <- gh[(1 + nrow(Xr)):nrow(scores)]
-    }
-    result$gh$projection <- pca
-    rm(scores)
-  }
-
-  if (diss_method %in% f_dissmethods) {
-    dmat <- f_diss(
-      Xr = Xr,
-      Xu = Xu,
-      center = center,
-      scale = scale,
-      diss_method = diss_method
-    )
-  }
-
-  if (diss_method %in% cor_dissmethods) {
-    dmat <- cor_diss(
-      Xr = Xr,
-      Xu = Xu,
-      ws = ws,
-      center = center,
-      scale = scale
-    )
-    result$ws <- ws
-  }
-
-  if (diss_method %in% divergencemethods) {
-    dmat <- sid(
-      Xr = Xr, Xu = Xu,
-      center = center,
-      scale = scale,
-      reg = 10^-4, ...
-    )$sid
-  }
-  result$dissimilarity <- dmat
-  result$documentation <- documentation
 
   result
 }
-#
+
+
+.diss_pls_compute <- function(Xr, Xu, Yr, method) {
+  if (is.null(Yr)) {
+    stop("'Yr' is required for PLS dissimilarity.")
+  }
+
+  proj <- ortho_projection(
+    Xr = Xr,
+    Xu = Xu,
+    Yr = Yr,
+    ncomp = method$ncomp,
+    method = method$method,
+    center = TRUE,
+    scale = method$scale
+  )
+
+  scores <- proj$scores
+  n_xr <- nrow(Xr)
+
+  scores_xr <- scores[seq_len(n_xr), , drop = FALSE]
+  scores_xu <- if (!is.null(Xu)) {
+    scores[(n_xr + 1L):nrow(scores), , drop = FALSE]
+  } else {
+    NULL
+  }
+
+  # Mahalanobis distance in PLS space
+  dmat <- f_diss(
+    Xr = scores_xr,
+    Xu = scores_xu,
+    diss_method = "mahalanobis",
+    center = FALSE,
+    scale = FALSE
+  )
+
+  result <- list(
+    dissimilarity = dmat,
+    ncomp = proj$ncomp
+  )
+
+  if (method$return_projection) {
+    result$projection <- proj
+  }
+  
+  result
+}
+
+
+.diss_euclidean_compute <- function(Xr, Xu, method) {
+  dmat <- f_diss(
+    Xr = Xr,
+    Xu = Xu,
+    diss_method = "euclid",
+    center = method$center,
+    scale = method$scale
+  )
+
+  list(dissimilarity = dmat)
+}
+
+
+.diss_mahalanobis_compute <- function(Xr, Xu, method) {
+  dmat <- f_diss(
+    Xr = Xr,
+    Xu = Xu,
+    diss_method = "mahalanobis",
+    center = method$center,
+    scale = method$scale
+  )
+
+  list(dissimilarity = dmat)
+}
+
+
+.diss_cosine_compute <- function(Xr, Xu, method) {
+  dmat <- f_diss(
+    Xr = Xr,
+    Xu = Xu,
+    diss_method = "cosine",
+    center = method$center,
+    scale = method$scale
+  )
+
+  list(dissimilarity = dmat)
+}
+
+
+.diss_correlation_compute <- function(Xr, Xu, method) {
+  dmat <- .cor_diss_compute(
+    Xr = Xr,
+    Xu = Xu,
+    method = method
+  )
+
+  result <- list(dissimilarity = dmat)
+
+  if (!is.null(method$ws)) {
+    result$ws <- method$ws
+  }
+
+  result
+}
+
+# =============================================================================
+# Helper: Coerce ncomp argument
+# =============================================================================
+
+.coerce_ncomp <- function(ncomp) {
+  if (is.numeric(ncomp) && length(ncomp) == 1L) {
+    if (is.na(ncomp) || ncomp < 1L) {
+      stop("'ncomp' must be a positive integer.")
+    }
+    return(ncomp_fixed(as.integer(ncomp)))
+  }
+  if (!inherits(ncomp, "ncomp_selection")) {
+    stop(
+      "'ncomp' must be a positive integer or an ncomp_*() object.\n",
+      "See ?ncomp_by_var, ?ncomp_by_cumvar, ?ncomp_by_opc, ?ncomp_fixed."
+    )
+  }
+  ncomp
+}
+
+
+# =============================================================================
+# Print method
+# =============================================================================
+
+#' @export
+print.dissimilarity <- function(x, ...) {
+  dmat <- x$dissimilarity
+  cat("Dissimilarity matrix\n")
+  cat("  Dimensions:", nrow(dmat), "x", ncol(dmat), "\n\n")
+  cat("Constructor:\n")
+  print(x$diss_method)
+  if (!is.null(x$ncomp)) {
+    cat("\nUsed ncomp: ", x$ncomp, "\n")
+  }
+  invisible(x)
+}

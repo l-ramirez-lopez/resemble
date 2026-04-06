@@ -1,0 +1,39 @@
+---
+title: "Building a library of models with liblex"
+author: 
+ - name: Leonardo Ramirez-Lopez
+   email: ramirez.lopez.leo@gmail.com
+date: today
+bibliography: resemble.bib
+csl: elsevier-harvard.csl  
+format:
+  html:
+    theme: cosmo
+    highlight-style: github
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    code-overflow: wrap
+    smooth-scroll: true
+vignette: >
+  %\VignetteIndexEntry{Building a library of models with liblex}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{quarto::html}
+---
+
+:::: {.columns}
+::: {.column width="70%"}
+> *All models are wrong but some are useful* -- @box1976science
+:::
+::: {.column width="30%"}
+<img src="logo.png" style="width: 150%; max-width: 150px;">
+:::
+::::
+
+
+
+# Introduction
+
+ddd
+
+# References

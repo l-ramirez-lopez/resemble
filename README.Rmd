@@ -7,6 +7,9 @@ date: "2024-02-15"
 # `resemble` Memory-Based Learning in Spectral Chemometrics
 <!-- badges: start -->
 
+
+![R-CMD-check](https://github.com/l-ramirez-lopez/resemble/actions/workflows/R-CMD-check.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/l-ramirez-lopez/resemble/branch/main/graph/badge.svg)](https://codecov.io/gh/l-ramirez-lopez/resemble)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/resemble)](https://CRAN.R-project.org/package=resemble)
 [![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](https://CRAN.R-project.org/package=resemble)
 

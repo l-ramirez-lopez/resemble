@@ -17,7 +17,7 @@ ith_subsets(x, y, kindx, D = NULL)
 }
 \value{
 An iterator object of class \code{isubset}, \code{abstractiter}, \code{iter}. Each
-call to \code{nextElem()} yields:
+call to \code{nextElem()} produces:
 \itemize{
 \item \code{x}: A subset of \code{x}, optionally prepended with dissimilarities.
 \item \code{y}: Corresponding subset of \code{y}, with NA rows removed.

@@ -36,7 +36,7 @@
 #' the number of components. The optimal number of projected components is the one
 #' for which its distance matrix minimizes the differences between the \code{Yr}
 #' value of each observation and the \code{Yr} value of its closest observation.
-#' See \code{\link{sim_eval}}.}
+#' See \code{\link{diss_evaluate}}.}
 #' }
 #' @param pc_selection a list of length 2 which specifies the method to be used
 #' for optimizing the number of components (principal components or pls factors)
@@ -157,14 +157,14 @@
 #'
 #' @return a \code{list} of class \code{ortho_diss} with the following elements:
 #' \itemize{
-#'  \item{\code{n_components}: the number of components (either principal
+#'  \item{\code{ncomp}: the number of components (either principal
 #'  components or partial least squares components) used for computing the
 #'  global dissimilarities.}
 #'  \item{\code{global_variance_info}: the information about the expalined
 #'  variance(s) of the projection. When \code{.local = TRUE}, the information
 #'  corresponds to the global projection done prior computing the local
 #'  projections.}
-#'  \item{\code{local_n_components}: if \code{.local = TRUE}, a data.table
+#'  \item{\code{local_ncomp}: if \code{.local = TRUE}, a data.frame
 #'  which specifies the number of local components (either principal components
 #'  or partial least squares components) used for computing the dissimilarity
 #'  between each target observation and its neighbor observations.}
@@ -184,7 +184,7 @@
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
 #' J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for use
 #' with soil vis-NIR spectra. Geoderma 199, 43-53.
-#' @seealso \code{\link{ortho_projection}}, \code{\link{sim_eval}}
+#' @seealso \code{\link{ortho_projection}}, \code{\link{diss_evaluate}}
 #' @examples
 #' library(prospectr)
 #' data(NIRsoil)
@@ -221,7 +221,8 @@
 #'   pc_selection = list("opc", 40),
 #'   diss_method = "pls"
 #' )
-#' @export
+#' @keywords internal
+#' @noRd
 
 #######################################################################
 # resemble
@@ -237,29 +238,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #######################################################################
-
-## History:
-## 09.03.2014 Leo     In the doc was specified that multi-threading is
-##                    not working for mac
-## 13.03.2014 Antoine The explanation of the cores argument was modified
-## 07.09.2014 Antoine A bug handling Yr as a matrix was fixed
-## 02.12.2015 Leo     The function now outputs an the object global_variance_info
-##                    which provides information on the explained variance
-##                    of the projections.
-## 10.08.2018 Leo     A wrong message error was found and corrceted. previously was:
-##                    "Yu must be provided either when the 'opc' is used in pc_selection is used or method = 'pls'"
-##                    In fact it is not Yu but Yr ( the correct argument)
-## 01.05.2020 Leo     - Argument scaled renamed to scale
-##                    - Argument return.all renamed to compute_all
-##                    - Refined documentation
-##                    - Argument cores is deprecated
-##                    - When \code{.local = TRUE} a new output is produced:
-##                      'neighborhood_info' which is a data.table containing
-##                      relevant information about the neighborhood of
-##                      each observation (e.g. neighborhood indices, number of
-##                      components used at each neighborhood, etc)
-##                    - Output global.variance.info has been renamed to
-##                      global_variance_info
 
 ortho_diss <- function(Xr, Xu = NULL,
                        Yr = NULL,
@@ -327,7 +305,7 @@ ortho_diss <- function(Xr, Xu = NULL,
     use_distance_method <- "mahalanobis"
   }
 
-  n_components <- projection$n_components
+  n_components <- projection$ncomp
 
   if (is.null(Xu) | compute_all) {
     distnc <- f_diss(
@@ -382,7 +360,7 @@ ortho_diss <- function(Xr, Xu = NULL,
       "Xu_",
       neighborhood_info[k0_indices > n_xr]
     )
-    neighborhood_info <- data.table(
+    neighborhood_info <- data.frame(
       do.call(
         "rbind",
         strsplit(colnames(k0_indices), "_")
@@ -476,12 +454,12 @@ ortho_diss <- function(Xr, Xu = NULL,
     dimnames(local_d$dissimilarity_m) <- d_dimnames
 
     neighborhood_info <- cbind(neighborhood_info[, 2:1],
-      local_n_components = local_d$local_n_components,
+      local_ncomp = local_d$local_ncomp,
       neighborhood_info[, -c(1:2)]
     )
 
     resultsList <- list(
-      n_components = n_components,
+      ncomp = n_components,
       global_variance_info = projection$variance,
       neighborhood_info = neighborhood_info,
       dissimilarity = local_d$dissimilarity_m
@@ -496,7 +474,7 @@ ortho_diss <- function(Xr, Xu = NULL,
     return(resultsList)
   } else {
     resultsList <- list(
-      n_components = n_components,
+      ncomp = n_components,
       global_variance_info = projection$variance,
       dissimilarity = distnc
     )

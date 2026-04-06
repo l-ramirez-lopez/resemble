@@ -56,7 +56,7 @@
 #' to augment the feature set if provided.
 #'
 #' @return
-#' An object of class `isubset`, `abstractiter`, `iter` that yields, on each
+#' An object of class `isubset`, `abstractiter`, `iter` that produces, on each
 #' call to `nextElem()`:
 #' \itemize{
 #'   \item \code{x}: Subset of predictors (optionally prepended with local 
@@ -146,8 +146,8 @@ ith_subsets_by_group <- function(
 #' target observation and its selected neighbors in the `xval` element of each
 #' result.
 #'
-#' @seealso [iterators::iter()], [nextElem()]
-#'
+#' @seealso [iterators::iter()], [iterators::nextElem()]
+#' @noRd
 #' @keywords internal
 ith_subsets_by_group_list <- function(
     x, y, kindx, kgroup, D = NULL, chunk_size = 1
@@ -159,10 +159,10 @@ ith_subsets_by_group_list <- function(
   chunk_size <- as.integer(chunk_size); stopifnot(chunk_size > 0L)
   
   col_indices <- split(seq_len(m), ceiling(seq_len(m) / chunk_size))
-  it_index <- iterators::iter(col_indices)
+  it_index <- iter(col_indices)
   
   nextEl <- function() {
-    idx <- iterators::nextElem(it_index)
+    idx <- nextElem(it_index)
     
     kindx_sub  <- kindx[,  idx, drop = FALSE]
     kgroup_sub <- kgroup[, idx, drop = FALSE]
@@ -218,7 +218,7 @@ ith_subsets_by_group_list <- function(
 #'
 #' @return
 #' An iterator object of class `isubset`, `abstractiter`, `iter`. Each
-#' call to `nextElem()` yields:
+#' call to `nextElem()` produces:
 #' \itemize{
 #'   \item \code{x}: A subset of `x`, optionally prepended with dissimilarities.
 #'   \item \code{y}: Corresponding subset of `y`, with NA rows removed.
@@ -315,10 +315,10 @@ ith_subsets_list <- function(x, y, kindx, D = NULL, chunk_size = 1) {
   
   # Build consecutive column-index chunks of size `chunk_size`
   col_chunks <- split(seq_len(m), ceiling(seq_len(m) / chunk_size))
-  it_chunks <- iterators::iter(col_chunks)
+  it_chunks <- iter(col_chunks)
   
   nextEl <- function() {
-    idx <- iterators::nextElem(it_chunks)  # indices of columns in `kindx`
+    idx <- nextElem(it_chunks)  # indices of columns in `kindx`
     
     lapply(idx, function(i) {
       knns <- as.integer(kindx[, i])
@@ -357,7 +357,7 @@ ith_subsets_list <- function(x, y, kindx, D = NULL, chunk_size = 1) {
 #'
 #' @return
 #' An iterator of class `isubset`, `abstractiter`, `iter`. Each call
-#' to `nextElem()` yields:
+#' to `nextElem()` produces:
 #' \itemize{
 #'   \item \code{iplslib}: Local PLS regression vectors for neighbors.
 #'   \item \code{ixscale}: Scaling vectors for those models.
@@ -469,106 +469,101 @@ ith_pred_subsets <- function(
 #'
 #' @description
 #' Computes predictions from weighted local PLS models for each observation in
-#' the reference set `Xr`, based on its nearest neighbors and optionally using
-#' a dissimilarity matrix as extra predictive information.
+#' the reference set \code{Xr}, based on its nearest neighbors and optionally
+#' using a dissimilarity matrix as extra predictive information.
 #'
-#' @param ..k.. Index (integer) indicating the number of neighbors to use
-#'              from vector `k`.
-#' @param Xr A matrix or data.frame of predictor variables for the reference
-#'           data (rows = observations, columns = variables).
-#' @param Yr A numeric vector of response values corresponding to `Xr`.
-#' @param k A vector indicating the number of nearest neighbors to test for
-#'          each reference observation.
-#' @param min_component Minimum number of components to use in PLS regression.
-#' @param max_component Maximum number of components to use in PLS regression.
-#' @param emgrid A matrix or grid of external evaluation weights.
-#' @param scale Logical; if TRUE, scale predictors before regression.
-#' @param maxiter Maximum number of iterations for the PLS algorithm.
+#' @param ..k.. Index (integer) indicating which element of \code{k} to use
+#'   for the number of neighbors.
+#' @param Xr A numeric matrix of predictor variables for the reference data
+#'   (rows = observations, columns = variables).
+#' @param Yr A numeric vector or single-column matrix of response values
+#'   corresponding to \code{Xr}.
+#' @param k An integer vector of neighborhood sizes to test.
+#' @param ncomp_min Minimum number of PLS components to use.
+#' @param ncomp_max Maximum number of PLS components to use.
+#' @param emgrid A binary matrix indicating which component combinations to
+#'   evaluate. Each row represents a combination; columns correspond to
+#'   components from \code{ncomp_min} to \code{ncomp_max}.
+#' @param scale Logical; if \code{TRUE}, scale predictors before regression.
+#' @param max_iter Maximum number of iterations for the PLS algorithm.
 #' @param tol Convergence tolerance for the PLS algorithm.
-#' @param pc_selection A list specifying the principal component selection
-#'        method. Must contain:
-#' \itemize{
-#'   \item{\code{method}:}{Character string; one of \code{"opc"},
-#'         \code{"cumvar"}, \code{"var"}, or \code{"manual"}.}
-#'   \item{\code{value}:}{Numeric; threshold or fixed number of components,
-#'         depending on the method.}
-#' }
-#' For example, \code{list(method = "opc", value = 40)}.
-#'
-#' @param kidxmat Matrix of neighbor indices for each observation (columns =
-#'        samples, rows = neighbors).
-#' @param kidxgrop Logical matrix indicating which neighbors belong to the
-#'        same group as the target and should be excluded.
-#' @param dissimilarity_mat Optional matrix of dissimilarities between
-#'        reference observations, used to enhance feature input for PLS.
-#' @param pb A progress bar object (e.g., from \code{txtProgressBar()}).
+#' @param algorithm Character string specifying the PLS fitting algorithm to 
+#' use. Options are \code{'mpls'} (default), \code{'pls'} or \code{'nipals'}.
+#' @param kidxmat Integer matrix of neighbor indices (rows = neighbors,
+#'   columns = observations).
+#' @param kidxgrop Logical matrix indicating which neighbors should be
+#'   excluded (e.g., same group as target for leave-group-out validation).
+#' @param dissimilarity_mat Optional numeric matrix of dissimilarities between
+#'   reference observations. Used to augment predictors when dissimilarity
+#'   is used as additional predictive information. Default is \code{NULL}.
+#' @param pb A progress bar object (e.g., from \code{txtProgressBar()}) or
+#'   \code{NULL} to suppress progress display.
+#' @param chunk_size Integer; number of observations to process per parallel
+#'   chunk. Default is \code{1L}.
 #' @param ... Further arguments (currently unused).
 #'
-#' @return A matrix of predicted values (columns = observations in `Xr`,
-#'         rows = emgrid dimensions).
+#' @return A numeric matrix of predicted values. Rows correspond to component
+#'   combinations in \code{emgrid}; columns correspond to observations in
+#'   \code{Xr}.
 #'
 #' @details
-#' For each reference observation in `Xr`, the function builds a local
-#' training subset using the `ith_subsets_by_group()` function, fits a local
-#' weighted PLS model via `ith_local_fit()`, and produces predictions based on
-#' the evaluation grid (`emgrid`). Dissimilarity values can be optionally used
-#' to augment predictive inputs. Parallel computation is handled via
-#' `foreach` + `%dopar%`.
+#' For each reference observation in \code{Xr}, the function:
+#' \enumerate{
+#'   \item Builds a local training subset using \code{ith_subsets_by_group_list()}
+#'   \item Fits a local weighted PLS model via \code{ith_local_fit()}
+#'   \item Produces predictions for each component combination in \code{emgrid}
+#' }
 #'
-#' @author Leonardo Ramirez-Lopez
+#' Parallel computation is handled via \code{foreach} and \code{\%dopar\%}.
+#' Register a parallel backend (e.g., via \pkg{doParallel}) before calling
+#' \code{liblex()} to enable parallelization.
+#'
+#' @author
+#' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #'
 #' @keywords internal
+#' @noRd
 .get_all_fits <- function(
-    ..k.., 
-    Xr, 
-    Yr, 
+    ..k..,
+    Xr,
+    Yr,
     k,
-    min_component, 
-    max_component, 
+    ncomp_min,
+    ncomp_max,
     emgrid,
-    scale, 
-    maxiter, 
-    tol, 
-    pc_selection,
+    scale,
+    max_iter,
+    tol,
+    algorithm,
     kidxmat,
-    kidxgrop, 
+    kidxgrop,
     dissimilarity_mat = NULL,
-    pb,
-    chunk_size,
+    pb = NULL,
+    chunk_size = 1L,
     ...
 ) {
   ik <- seq_len(k[..k..])
   
-  setTxtProgressBar(pb, ..k..)
+  if (!is.null(pb)) {
+    setTxtProgressBar(pb, ..k..)
+  }
   
-  # ---- Optionally setup parallel backend ----
-  # n.cores <- 20
-  # clust <- parallel::makeCluster(n.cores)
-  # doParallel::registerDoParallel(clust)
-  
-  # ith_preds_template <- matrix(
-  #   NA, 
-  #   nrow = nrow(emgrid), 
-  #   ncol = ceiling(nrow(Xr) / n_chunks)
-  # )
-  # ---- Parallel foreach execution (default mode) ----
-  
-  n_chunks <- nrow(Xr) / chunk_size 
-  
+  browser()
   n_xr <- nrow(Xr)
   ith_preds_template <- matrix(
-    NA,
+    NA_real_,
     nrow = nrow(emgrid),
-    ncol = chunk_size 
+    ncol = chunk_size
   )
+  
   innpreds <- foreach(
-    i = 1:nrow(Xr), 
+    i = seq_len(n_xr),
     ksubsets = ith_subsets_by_group_list(
-      x = Xr, 
-      y = Yr, 
-      kindx = kidxmat[ik, ], 
-      kgroup = kidxgrop[ik, ], 
-      D = dissimilarity_mat, 
+      x = Xr,
+      y = Yr,
+      kindx = kidxmat[ik, , drop = FALSE],
+      kgroup = kidxgrop[ik, , drop = FALSE],
+      D = dissimilarity_mat,
       chunk_size = chunk_size
     ),
     .export = c(
@@ -581,26 +576,28 @@ ith_pred_subsets <- function(
     )
   ) %dopar% {
     ith_preds <- ith_preds_template
-    for (j in 1:length(ksubsets)) {
+    for (j in seq_along(ksubsets)) {
       ith_preds[, j] <- ith_local_fit(
         X = ksubsets[[j]]$x,
         Y = ksubsets[[j]]$y,
         xval = ksubsets[[j]]$xval,
         emgrid = emgrid,
-        max_component = max_component,
-        min_component = min_component,
+        ncomp_max = ncomp_max,
+        ncomp_min = ncomp_min,
         scale = scale,
-        maxiter = maxiter,
-        tol = tol
+        max_iter = max_iter,
+        tol = tol, 
+        algorithm = algorithm
       )
     }
     if (j < ncol(ith_preds)) {
-      ith_preds <- ith_preds[, 1:j, drop = FALSE]
+      ith_preds <- ith_preds[, seq_len(j), drop = FALSE]
     }
     ith_preds
   }
+  
   innpreds <- do.call("cbind", innpreds)
-  return(innpreds)
+  innpreds
 }
 
 # #' @title Internal: Fit a local weighted PLS model and predict for a query point
@@ -778,12 +775,12 @@ ith_pred_subsets <- function(
 #' @keywords internal
 ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
   if (is.null(dxrxu)) {
-    ixus <- sweep(xscale, MARGIN = 2, STATS =  Xu, FUN = "/" )
+    ixus <- sweep(xscale, MARGIN = 2, STATS =  Xu, FUN = "/")
     ixus <- 1 / ixus
     ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
   } else {
     dxu <- c(dxrxu, Xu)
-    ixus <- sweep(xscale, MARGIN = 2, STATS =  dxu, FUN = "/" )
+    ixus <- sweep(xscale, MARGIN = 2, STATS =  dxu, FUN = "/")
     ixus <- 1 / ixus
     ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
   }
@@ -800,9 +797,11 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 #' Observations are sorted, weights are normalized to sum to 1, and
 #' cumulative weights are used to determine quantile positions via linear
 #' interpolation.
-#'
+#' @usage
+#' weighted_quantiles(x, weights,
+#'     probs = c(0.05, 0.25, 0.5, 0.75, 0.95))
 #' @param x A numeric vector of observations.
-#' @param w A numeric vector of non-negative weights, the same length as `x`.
+#' @param weights A numeric vector of non-negative weights, the same length as `x`.
 #'   Weights are internally normalized to sum to 1.
 #' @param probs A numeric vector of probabilities in [0, 1] specifying the
 #'   quantile levels to compute (e.g., `c(0.25, 0.5, 0.75)`).
@@ -821,7 +820,7 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 #' x <- c(1, 2, 3, 4, 5)
 #' w <- c(1, 1, 2, 2, 4)
 #' weighted_quantiles(x, w, probs = c(0.25, 0.5, 0.75))
-#'
+#' @noRd
 #' @keywords internal
 weighted_quantiles <- function(
     x,
@@ -890,3 +889,34 @@ weighted_quantiles <- function(
   
   return(result)
 }
+
+#' Cap ncomp bounds against data dimensions
+#' @param ncomp_obj A ncomp_selection object
+#' @param n_obs Number of observations
+#' @param n_vars Number of variables
+#' @param verbose Logical; print messages when capping
+#' @return Validated ncomp_obj (possibly with capped max_ncomp)
+#' @keywords internal
+#' @noRd
+#' @keywords internal
+#' @noRd
+cap_ncomp_to_data <- function(ncomp_obj, n_obs, n_vars, verbose = TRUE) {
+  max_dim <- min(n_obs, n_vars)
+  
+  if (inherits(ncomp_obj, "ncomp_fixed")) {
+    if (ncomp_obj$ncomp > max_dim) {
+      stop("ncomp_fixed(", ncomp_obj$ncomp, ") exceeds maximum (",
+           max_dim, ")", call. = FALSE)
+    }
+  } else if (inherits(ncomp_obj, "ncomp_selection")) {
+    if (ncomp_obj$max_ncomp > max_dim) {
+      if (verbose) {
+        message("max_ncomp capped from ", ncomp_obj$max_ncomp, " to ", max_dim)
+      }
+      ncomp_obj$max_ncomp <- max_dim
+    }
+  }
+  
+  ncomp_obj
+}
+

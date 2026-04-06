@@ -22,10 +22,6 @@
 #' @param scale Logical. Should the data be scaled (divided by column standard
 #'   deviations) before computing dissimilarities? Scaling is applied jointly
 #'   to \code{Xr} and \code{Xu} (if provided). Default is \code{FALSE}.
-#' @param precision Character string, either \code{"double"} (default, 64-bit)
-#'   or \code{"single"} (32-bit). Using \code{"single"} reduces memory usage
-#'   and may improve performance on large datasets at the cost of numerical
-#'   precision.
 #'
 #' @return An object of class \code{c("diss_correlation", "diss_method")} — a
 #'   list holding the validated method parameters. Intended to be passed to
@@ -47,6 +43,17 @@
 #'
 #' where \eqn{ws} is the window size and \eqn{p} is the number of variables.
 #'
+#' @section Parallel execution:
+#' The underlying C++ implementation uses OpenMP for parallel computation.
+#' Thread count is controlled by the \code{OMP_NUM_THREADS} environment
+#' variable. To limit threads (e.g., when calling from within a parallel
+#' backend):
+#' \preformatted{
+#' Sys.setenv(OMP_NUM_THREADS = 1)
+#' }
+#'
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+#'
 #' @seealso \code{\link{dissimilarity}}, \code{\link{diss_euclidean}},
 #'   \code{\link{diss_mahalanobis}}, \code{\link{diss_cosine}}
 #'
@@ -62,20 +69,12 @@
 #'
 #' @export
 diss_correlation <- function(
-    ws        = NULL,
-    center    = TRUE,
-    scale     = FALSE,
-    precision = c("double", "single")
+    ws     = NULL,
+    center = TRUE,
+    scale  = FALSE
 ) {
   
-  # --- validate precision ----------------------------------------------------
-  # done here before passing to .new_diss_method() since it is
-  # correlation-specific (the other methods do not have this argument)
-  precision <- match.arg(precision)
-  
   # --- validate ws -----------------------------------------------------------
-  # Note: upper bound check (ws < ncol(Xr)) is data-dependent and is
-  # therefore deferred to dissimilarity()
   if (!is.null(ws)) {
     if (!is.numeric(ws) || length(ws) != 1L) {
       stop("'ws' must be a single integer value or NULL.")
@@ -90,21 +89,16 @@ diss_correlation <- function(
   }
   
   # --- delegate center/scale validation and object construction --------------
-  # extra fields (ws, precision) are correlation-specific and are passed
-  # through to the structure via the extra argument
   .new_diss_method(
     "correlation",
     center = center,
     scale  = scale,
-    extra  = list(ws = ws, precision = precision)
+    extra  = list(ws = ws)
   )
 }
 
 
 # --- print method ------------------------------------------------------------
-# diss_correlation has extra fields (ws, precision) that the shared
-# print.diss_method does not know about, so it gets its own print method.
-# This takes precedence over print.diss_method due to S3 dispatch order.
 #' @export
 print.diss_correlation <- function(x, ...) {
   ws_label <- if (is.null(x$ws)) "full (no moving window)" else x$ws
@@ -112,8 +106,7 @@ print.diss_correlation <- function(x, ...) {
     "Dissimilarity method: correlation\n",
     "  window size (ws) :", ws_label, "\n",
     "  center           :", x$center, "\n",
-    "  scale            :", x$scale, "\n",
-    "  precision        :", x$precision, "\n"
+    "  scale            :", x$scale, "\n"
   )
   invisible(x)
 }
@@ -133,10 +126,9 @@ print.diss_correlation <- function(x, ...) {
   
   stopifnot(inherits(method, "diss_correlation"))
   
-  ws        <- method$ws
-  center    <- method$center
-  scale     <- method$scale
-  precision <- method$precision
+  ws     <- method$ws
+  center <- method$center
+  scale  <- method$scale
   
   # --- preprocessing ---------------------------------------------------------
   if (center || scale) {
@@ -146,7 +138,11 @@ print.diss_correlation <- function(x, ...) {
       X <- sweep(X, MARGIN = 2, STATS = colMeans(X), FUN = "-")
     }
     if (scale) {
-      X <- sweep(X, MARGIN = 2, STATS = get_col_sds(X), FUN = "/")
+      col_sds <- get_col_sds(X)
+      if (any(col_sds == 0)) {
+        stop("Cannot scale: one or more columns have zero standard deviation.")
+      }
+      X <- sweep(X, MARGIN = 2, STATS = col_sds, FUN = "/")
     }
     
     if (!is.null(Xu)) {
@@ -159,26 +155,24 @@ print.diss_correlation <- function(x, ...) {
     rm(X)
   }
   
-  # --- zero-sd guard ---------------------------------------------------------
-  # Checked after preprocessing because centering can surface zero-variance
-  # observations that were non-constant before centering.
-  xr_sds <- get_col_sds(t(Xr))
-  if (any(xr_sds == 0)) {
+  # --- zero-sd guard (row-level for correlation) -----------------------------
+  xr_row_sds <- get_col_sds(t(Xr))
+  if (any(xr_row_sds == 0)) {
     stop(
       sprintf(
-        "Correlation cannot be computed: Xr contains %d observation(s) with a standard deviation of zero.",
-        sum(xr_sds == 0)
+        "Correlation cannot be computed: Xr contains %d observation(s) with zero variance.",
+        sum(xr_row_sds == 0)
       )
     )
   }
   
   if (!is.null(Xu)) {
-    xu_sds <- get_col_sds(t(Xu))
-    if (any(xu_sds == 0)) {
+    xu_row_sds <- get_col_sds(t(Xu))
+    if (any(xu_row_sds == 0)) {
       stop(
         sprintf(
-          "Correlation cannot be computed: Xu contains %d observation(s) with a standard deviation of zero.",
-          sum(xu_sds == 0)
+          "Correlation cannot be computed: Xu contains %d observation(s) with zero variance.",
+          sum(xu_row_sds == 0)
         )
       )
     }
@@ -195,18 +189,119 @@ print.diss_correlation <- function(x, ...) {
       Xu, Xr, ws,
       compute_block_rows(dim(Xu)),
       compute_block_rows(dim(Xr)),
-      precision = precision
+      precision = "double"
     )
     rownames(result) <- paste("Xr", seq_len(nrow(Xr)), sep = "_")
     colnames(result) <- paste("Xu", seq_len(nrow(Xu)), sep = "_")
   } else {
-    result <- if (precision == "double") {
-      moving_cor_diss_self_f64(Xr, ws, compute_block_rows(dim(Xr)))
-    } else {
-      moving_cor_diss_self_f32(Xr, ws, compute_block_rows(dim(Xr)))
-    }
+    result <- moving_cor_diss_self_f64(Xr, ws, compute_block_rows(dim(Xr)))
     rownames(result) <- colnames(result) <- paste("Xr", seq_len(nrow(Xr)), sep = "_")
   }
   
   result
+}
+
+
+#' Heuristic for cache-aware tile height (block_rows)
+#'
+#' @description
+#' Choose a tile height for tiled rolling-window correlation/distance kernels,
+#' balancing per-tile cache footprint against matrix width and available
+#' threads. Cross-platform (macOS, Linux, Windows).
+#'
+#' @details
+#' Let \eqn{b} be the tile height and \eqn{T} the number of columns.
+#' The working set per tile (in elements) is approximated as:
+#'
+#' \deqn{M(b) \approx 3 b^2 + 2 b T} if \code{include_squares = TRUE}
+#' (materialised \eqn{X_i^2}, \eqn{X_j^2}), and
+#' \deqn{M(b) \approx 3 b^2} otherwise.
+#'
+#' A per-thread budget \eqn{K} (elements) is obtained from \code{target_mb},
+#' divided by the effective OpenMP thread count. The quadratic bound yields
+#' \deqn{b_T = \frac{-T + \sqrt{T^2 + 3K}}{3}}
+#' (or \eqn{b_T = \sqrt{K/3}} when \code{include_squares = FALSE}).
+#'
+#' The final choice is
+#' \code{block_rows = round_to_64( min( max(64, m / min_tiles), b_T ) )},
+#' clamped to \code{[64, min(max_block_cap, m)]}.
+#'
+#' If OpenMP is unavailable (\code{capabilities("openmp") == FALSE}),
+#' the budget assumes a single thread.
+#'
+#' @param dimensions Integer vector of length two \code{c(m, T)}:
+#'   number of rows and columns of \eqn{X}.
+#' @param include_squares Logical. If \code{TRUE}, assumes the kernel
+#'   materialises \code{Xi_sq} and \code{Xj_sq}; if \code{FALSE}, uses the
+#'   lighter memory model.
+#' @param target_mb Numeric. Target MiB of cache to devote per thread to one
+#'   tile. Default is 8.
+#' @param min_tiles Integer. Aim for at least this many tiles along the
+#'   row dimension (default \code{12L}).
+#' @param max_block_cap Integer. Hard upper bound for \code{block_rows}
+#'   (default \code{1024L}).
+#'
+#' @return Integer scalar, the recommended \code{block_rows} (multiple of 64).
+#'
+#' @section Thread detection:
+#' Thread count is determined by:
+#' \enumerate{
+#'   \item \code{OMP_NUM_THREADS} environment variable (if set)
+#'   \item \code{parallel::detectCores(logical = FALSE)} (physical cores)
+#'   \item Falls back to 1 if detection fails or OpenMP is unavailable
+#' }
+#'
+#' @keywords internal
+#' @noRd
+compute_block_rows <- function(
+    dimensions,
+    include_squares = TRUE,
+    target_mb       = 8,
+    min_tiles       = 12L,
+    max_block_cap   = 1024L
+) {
+  mm <- as.integer(dimensions[1])
+  tt <- as.integer(dimensions[2])
+  
+  max_block <- min(max_block_cap, mm)
+  if (max_block < 64L) return(max_block)
+  
+  # --- detect effective thread count -----------------------------------------
+  threads <- suppressWarnings(as.integer(Sys.getenv("OMP_NUM_THREADS", NA)))
+  if (is.na(threads) || threads < 1L) {
+    threads <- parallel::detectCores(logical = FALSE)
+    if (is.na(threads) || threads < 1L) threads <- 1L
+  }
+  if (!isTRUE(capabilities("openmp"))) threads <- 1L
+  
+  # --- per-thread element budget (double -> 8 bytes) -------------------------
+  elt_size <- 8
+  per_thread_mb <- max(8, as.numeric(target_mb) / threads)
+  K <- (per_thread_mb * 1024^2) / elt_size
+  
+  # --- working-set model bound -----------------------------------------------
+  b_T <- if (isTRUE(include_squares)) {
+    (-tt + sqrt(tt * tt + 3 * K)) / 3
+  } else {
+    sqrt(K / 3)
+  }
+  
+  # --- ensure enough tiles along rows ----------------------------------------
+  b_m   <- mm / as.numeric(min_tiles)
+  b_raw <- min(max(64, b_m), b_T)
+  
+  block <- round_to_64(b_raw)
+  block <- max(64L, min(as.integer(block), max_block))
+  block
+}
+
+
+#' Round to nearest multiple of 64
+#' @param x Numeric value to round.
+#' @param mult Integer multiple (default 64).
+#' @return Integer rounded to nearest multiple.
+#' @keywords internal
+#' @noRd
+round_to_64 <- function(x, mult = 64L) {
+  as.integer(mult * round(x / mult))
 }

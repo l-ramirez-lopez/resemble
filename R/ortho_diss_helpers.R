@@ -107,7 +107,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
       "ortho_projection",
       "pc_projection",
       "pls_projection",
-      "sim_eval",
+      "diss_evaluate",
       "dist_vec"
     ),
     .packages = c("resemble")
@@ -142,7 +142,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
       scale = FALSE
     )
     ith_dist[1] <- i
-    ith_dist[2] <- ith_projection$n_components
+    ith_dist[2] <- ith_projection$ncomp
     ith_dist
   }
   ## end of foreach computations
@@ -163,7 +163,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
   distnc[vec_positions] <- as.vector(local_d)
   return(list(
     dissimilarity_m = distnc,
-    local_n_components = data.table(local_n_components)
+    local_ncomp = data.frame(local_n_components)
   ))
 }
 

@@ -13,7 +13,7 @@ optim_sample_strata(y, n)
 \item{n}{number of samples that must be sampled.}
 }
 \value{
-a list with two \code{data.table} objects: \code{sample_strata} contains
+a list with two \code{data.frame} objects: \code{sample_strata} contains
 the optimal strata, whereas \code{samples_to_get} contains information on how
 many samples per stratum are supposed to be drawn.
 }

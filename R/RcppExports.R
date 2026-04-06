@@ -90,6 +90,8 @@ fast_diss_vector <- function(X) {
 #' Suitable for moderate to large `n`. If OpenMP is enabled, the upper-triangle
 #' loop can optionally be parallelized for additional speedup on multicore systems.
 #' Note that the function assumes that the input matrix `X` is not empty and
+#' @keywords internal
+#' @useDynLib resemble
 fast_self_euclid <- function(X) {
     .Call(`_resemble_fast_self_euclid`, X)
 }
@@ -102,6 +104,8 @@ fast_self_euclid <- function(X) {
 #' @param block_y Tile size for rows of Y (default 1024)
 #' @param precision "double" (default) or "float32"/"single"
 #' @return n×m distance matrix (R double matrix)
+#' @noRd
+#' @keywords internal
 moving_cor_diss_xy <- function(X, Y, w, block_x = 1024L, block_y = 1024L, precision = "double") {
     .Call(`_resemble_moving_cor_diss_xy`, X, Y, w, block_x, block_y, precision)
 }
@@ -113,6 +117,8 @@ moving_cor_diss_xy <- function(X, Y, w, block_x = 1024L, block_y = 1024L, precis
 #' @param w Odd window size
 #' @param block_rows Tile size in rows (default 1024)
 #' @return m x m symmetric distance matrix
+#' @noRd
+#' @keywords internal
 #' @useDynLib resemble, .registration=TRUE
 moving_cor_diss_self_f64 <- function(X, w, block_rows = 1024L) {
     .Call(`_resemble_moving_cor_diss_self_f64`, X, w, block_rows)
@@ -124,6 +130,8 @@ moving_cor_diss_self_f64 <- function(X, w, block_rows = 1024L) {
 #' @param w Odd window size
 #' @param block_rows Tile size in rows (default 1024)
 #' @return m x m symmetric distance matrix (returned as double for R)
+#' @keywords internal
+#' @noRd
 #' @useDynLib resemble, .registration=TRUE
 moving_cor_diss_self_f32 <- function(X, w, block_rows = 1024L) {
     .Call(`_resemble_moving_cor_diss_self_f32`, X, w, block_rows)
@@ -135,6 +143,9 @@ moving_cor_diss_self_f32 <- function(X, w, block_rows = 1024L) {
 #' @param block_rows Tile size (default 1024)
 #' @param precision "double" (default) or "single (i.e."float32")
 #' @return m×m distance matrix (double for R)
+#' @keywords internal
+#' @noRd
+#' @useDynLib resemble
 moving_cor_diss_self <- function(X, w, block_rows = 1024L, precision = "double") {
     .Call(`_resemble_moving_cor_diss_self`, X, w, block_rows, precision)
 }
@@ -574,12 +585,12 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w 
     .Call(`_resemble_opls`, X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
 
-#' @title fast orthogonal scores algorithn of partial leat squares (opls)
-#' @description Computes orthogonal socres partial least squares (opls) 
-#' regressions with the NIPALS algorithm. It allows multiple response variables. 
-#' In contrast to \code{opls} function, this one does not compute unnecessary 
-#' data for (local) regression.
-#' For internal use only!
+#' @title Fast orthogonal scores algorithm of partial least squares (PLS)
+#' @description Computes orthogonal scores partial least squares (PLS) 
+#' regression using either NIPALS or SIMPLS algorithm. Supports multiple 
+#' response variables. In contrast to \code{opls}, this function omits 
+#' auxiliary outputs (e.g. scores, explained variance) not required for 
+#' local regression. For internal use only.
 #' @usage 
 #' opls_get_basics(X, Y, ncomp, scale, 
 #'                 maxiter, tol, 
@@ -588,27 +599,54 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w 
 #'                 xls_max_w = 15)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
-#' @param ncomp the number of pls components.
+#' @param ncomp the number of PLS components.
 #' @param scale logical indicating whether \code{X} must be scaled.
-#' @param maxiter maximum number of iterations.
-#' @param tol limit for convergence of the algorithm in the nipals algorithm.
-#' @param algorithm (for weights computation) a character string indicating 
-#' what method to use. Options are:
-#' \code{'pls'} for pls (using covariance between X and Y), 
-#' \code{'mpls'} for modified pls (using correlation between X and Y) or
-#' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
-#' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
-#' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
-#' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
-#' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
-#' @return a list containing the following elements:
+#' @param maxiter maximum number of iterations (only used for NIPALS-based 
+#' algorithms: \code{'pls'}, \code{'mpls'}, \code{'xls'}).
+#' @param tol convergence tolerance for the NIPALS algorithm (only used for 
+#' NIPALS-based algorithms).
+#' @param algorithm a character string indicating the PLS algorithm to use:
 #' \itemize{
-#' \item{\code{coefficients}: the matrix of regression coefficients.}
-#' \item{\code{bo}: a matrix of one row containing the intercepts for each component.}
-#' \item{\code{Y_loadings}: the matrix of Y loadings.}
-#' \item{\code{projection_mat}: the projection matrix.}
-#' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
-#' } 
+#'   \item{\code{'pls'}: standard PLS using covariance between X and Y for 
+#'     weight computation (NIPALS algorithm).}
+#'   \item{\code{'mpls'}: modified PLS using correlation between X and Y for 
+#'     weight computation (NIPALS algorithm). See Shenk and Westerhaus (1991).}
+#'   \item{\code{'xls'}: extended PLS as implemented in BUCHI NIRWise PLUS 
+#'     software (NIPALS algorithm).}
+#'   \item{\code{'simpls'}: SIMPLS algorithm (de Jong, 1993). Computationally 
+#'     faster as it avoids iterative X deflation. Parameters \code{maxiter}, 
+#'     \code{tol}, \code{xls_min_w}, and \code{xls_max_w} are ignored.}
+#' }
+#' @param xls_min_w an integer indicating the minimum window size for the 
+#' \code{'xls'} method. Only used if \code{algorithm = 'xls'}. Default is 3.
+#' @param xls_max_w an integer indicating the maximum window size for the 
+#' \code{'xls'} method. Only used if \code{algorithm = 'xls'}. Default is 15.
+#' @return a list containing:
+#' \itemize{
+#'   \item{\code{ncomp}: the number of PLS components.}
+#'   \item{\code{coefficients}: the matrix of regression coefficients.}
+#'   \item{\code{bo}: a matrix containing the intercepts for each component.}
+#'   \item{\code{X_loadings}: the matrix of X loadings.}
+#'   \item{\code{Y_loadings}: the matrix of Y loadings.}
+#'   \item{\code{projection_mat}: the projection matrix for computing scores 
+#'     from new data.}
+#'   \item{\code{transf}: a list containing:
+#'     \itemize{
+#'       \item{\code{Xcenter}: row vector of column means used for centering.}
+#'       \item{\code{Xscale}: row vector of column standard deviations used 
+#'         for scaling (ones if \code{scale = FALSE}).}
+#'     }
+#'   }
+#'   \item{\code{weights}: the matrix of PLS weights.}
+#' }
+#' @references
+#' de Jong, S. (1993). SIMPLS: An alternative approach to partial least 
+#' squares regression. Chemometrics and Intelligent Laboratory Systems, 
+#' 18(3), 251-263.
+#' 
+#' Shenk, J.S., & Westerhaus, M.O. (1991). Populations structuring of near 
+#' infrared spectra and modified partial least squares regression. Crop 
+#' Science, 31(6), 1548-1555.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
@@ -747,47 +785,101 @@ opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, 
     .Call(`_resemble_opls_cv_cpp`, X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics)
 }
 
-#' @title orthogonal scores algorithm of partial leat squares (opls)
-#' @description Computes orthogonal scores partial least squares (opls) 
-#' regressions with the NIPALS algorithm. It allows multiple response variables. 
-#' It does not return the variance information of the components. NOTE: For 
-#' internal use only!
+#' @title Orthogonal scores algorithm of partial least squares for gesearch
+#' @description Computes orthogonal scores partial least squares (PLS) 
+#' regression using either NIPALS or SIMPLS algorithm. This function is 
+#' optimised for the \code{gesearch} evolutionary search and computes only 
+#' the outputs required for weakness score evaluation: predictions, 
+#' reconstruction error, and score-space dissimilarity.
+#' 
+#' NOTE: This function supports only a single response variable (PLS1). 
+#' For internal use only.
 #' @usage 
-#' opls_gs(Xr, 
-#'         Yr,
-#'         Xu, 
-#'         ncomp,
-#'         scale,     
-#'         response = FALSE, 
-#'         reconstruction = TRUE,
-#'         similarity = TRUE,
-#'         fresponse = TRUE,
-#'         algorithm = "pls")
+#' opls_gesearch(Xr, Yr, Xu, ncomp, scale,
+#'               response = FALSE, reconstruction = TRUE,
+#'               similarity = TRUE, fresponse = TRUE,
+#'               algorithm = "pls")
 #'         
-#' @param Xr a matrix of predictor variables for the training set.
-#' @param Yr a matrix of a single response variable for the training set.
-#' @param Xu a matrix of predictor variables for the test set.
-#' @param ncomp the number of pls components.
-#' @param scale logical indicating whether \code{X} must be scaled.
-#' @param response logical indicating whether to compute the prediction of \code{Yu}.
-#' @param reconstruction logical indicating whether to compute the reconstruction error of \code{Xu}.
-#' @param similarity logical indicating whether to compute the the distance score between \code{Xr} and \code{Xu} (in the pls space).
-#' @param fresponse logical indicating whether to compute the score of the variance not explained for \code{Yu}.
-#' @param algorithm (for weights computation) a character string indicating 
-#' what method to use. Options are:
-#' \code{'pls'} for pls (using covariance between X and Y) or
-#' \code{'mpls'} for modified pls (using correlation between X and Y).
-#' @return a list containing the following elements:
+#' @param Xr a matrix of predictor variables for the reference/training set.
+#' @param Yr a single-column matrix of the response variable for the 
+#' reference/training set. Only single-response (PLS1) is supported.
+#' @param Xu a matrix of predictor variables for the target/test set.
+#' @param ncomp the number of PLS components.
+#' @param scale logical indicating whether \code{Xr} and \code{Xu} must be 
+#' scaled. Centering is always applied using parameters derived from 
+#' \code{Xr}.
+#' @param response logical indicating whether to compute predictions for 
+#' \code{Xu}. Used for the response weakness score (\code{w_r}) in 
+#' \code{gesearch}. Default is \code{FALSE}.
+#' @param reconstruction logical indicating whether to compute the 
+#' reconstruction error of \code{Xu}. Used for the reconstruction weakness 
+#' score (\code{w_q}) in \code{gesearch}. Default is \code{TRUE}.
+#' @param similarity logical indicating whether to compute the distance 
+#' between \code{Xr} and \code{Xu} in the PLS score space. Used for the 
+#' similarity weakness score (\code{w_d}) in \code{gesearch}. Default is 
+#' \code{TRUE}.
+#' @param fresponse logical indicating whether to compute the proportion of 
+#' response variance not explained by the model. Default is \code{TRUE}.
+#' @param algorithm a character string indicating the PLS algorithm to use:
 #' \itemize{
-#' \item{\code{ncomp}: the number of components.}
-#' \item{\code{pred_response}: the response predictions for \code{Xu}.}
-#' \item{\code{rmse_reconstruction}: the rmse of the reconstruction for \code{Xu}.}
-#' \item{\code{score_dissimilarity}: the distance score between \code{Xr} and \code{Xu}.}} 
+#'   \item{\code{'pls'}: standard PLS using covariance between X and Y for 
+#'     weight computation (NIPALS algorithm).}
+#'   \item{\code{'mpls'}: modified PLS using correlation between X and Y for 
+#'     weight computation (NIPALS algorithm). See Shenk and Westerhaus (1991).}
+#'   \item{\code{'simpls'}: SIMPLS algorithm (de Jong, 1993). Computationally 
+#'     faster as it avoids iterative X deflation.}
+#' }
+#' @return a list containing:
+#' \itemize{
+#'   \item{\code{ncomp}: the number of components used.}
+#'   \item{\code{pred_response}: predictions for \code{Xu} (only if 
+#'     \code{response = TRUE}).}
+#'   \item{\code{rmse_reconstruction}: RMSE of the spectral reconstruction 
+#'     for \code{Xu} (only if \code{reconstruction = TRUE}).}
+#'   \item{\code{score_dissimilarity}: mean Euclidean distance between 
+#'     \code{Xr} and \code{Xu} scores in Mahalanobis-scaled PLS space 
+#'     (only if \code{similarity = TRUE}).}
+#'   \item{\code{residual_variance}: proportion of response variance not 
+#'     explained by the model (only if \code{fresponse = TRUE}).}
+#' }
+#' @details
+#' This function is designed for repeated evaluation within the 
+#' \code{gesearch} evolutionary search algorithm, where it may be called 
+#' ~10^5 times per run. It computes only the outputs necessary for 
+#' calculating weakness scores:
+#' \itemize{
+#'   \item{Response weakness (\code{w_r}): prediction RMSE on the target, 
+#'     requires \code{response = TRUE}.}
+#'   \item{Reconstruction weakness (\code{w_q}): spectral reconstruction 
+#'     error, requires \code{reconstruction = TRUE}.}
+#'   \item{Similarity weakness (\code{w_d}): Mahalanobis distance in score 
+#'     space, requires \code{similarity = TRUE}.}
+#' }
+#' 
+#' Preprocessing applies scaling (if requested) followed by centering, 
+#' using parameters derived from \code{Xr}. The same transformation is 
+#' applied to \code{Xu}.
+#' 
+#' The \code{'simpls'} algorithm is faster than NIPALS-based methods 
+#' (\code{'pls'}, \code{'mpls'}) as it avoids iterative X deflation. 
+#' However, reconstruction errors and score-space distances differ 
+#' numerically between algorithms (rankings are typically similar). 
+#' Do not mix algorithms within a single \code{gesearch} run.
+#' 
+#' @references
+#' de Jong, S. (1993). SIMPLS: An alternative approach to partial least 
+#' squares regression. Chemometrics and Intelligent Laboratory Systems, 
+#' 18(3), 251-263.
+#' 
+#' Shenk, J.S., & Westerhaus, M.O. (1991). Populations structuring of 
+#' near infrared spectra and modified partial least squares regression. 
+#' Crop Science, 31(6), 1548-1555.
+#' 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
-opls_gs <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruction = TRUE, similarity = TRUE, fresponse = TRUE, algorithm = "pls") {
-    .Call(`_resemble_opls_gs`, Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm)
+opls_gesearch <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruction = TRUE, similarity = TRUE, fresponse = TRUE, algorithm = "pls") {
+    .Call(`_resemble_opls_gesearch`, Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm)
 }
 
 #' @title Gaussian process regression with linear kernel (gaussian_process)
@@ -909,43 +1001,44 @@ pca_nipals <- function(X, ncomp, center, scale, maxiter, tol, pcSelmethod = "var
 #' and computes a weighted prediction for a target sample. The weighting is
 #' done over multiple components using a provided evaluation grid.
 #'
-#' @param ilocalsubset A list with elements:
-#' \itemize{
-#'   \item{\code{x}}: matrix of predictors from the local neighborhood.
-#'   \item{\code{y}}: vector or 1-col matrix of corresponding responses.
-#'   \item{\code{xval}}: query sample (usually one row) to predict.
-#' }
-#' @param min_component Minimum number of PLS components to use in prediction.
-#' @param max_component Maximum number of PLS components to fit.
-#' @param emgrid A numeric matrix used to weight component-wise predictions.
-#' @param scale Logical; whether to scale predictors before PLS fitting.
-#' @param maxiter Maximum number of iterations for the PLS algorithm.
-#' @param tol Convergence tolerance for the PLS algorithm.
-#' @param pc_selection A list defining the principal component selection
-#'        strategy. (Included for consistency, not used directly here.)
-#' @param ... Additional arguments (currently unused).
+#' @param X Numeric matrix of predictors from the local neighborhood
+#'   (observations in rows, variables in columns).
+#' @param Y Numeric matrix (single column) of corresponding response values.
+#' @param xval Numeric matrix (single row) representing the query sample to
+#'   predict.
+#' @param emgrid Numeric matrix used to weight component-wise predictions.
+#' @param ncomp_max Integer. Maximum number of PLS components to fit.
+#' @param ncomp_min Integer. Minimum number of PLS components to use in
+#'   prediction.
+#' @param scale Logical. Whether to scale predictors before PLS fitting.
+#' @param max_iter Numeric. Maximum number of iterations for the PLS algorithm.
+#' @param tol Numeric. Convergence tolerance for the PLS algorithm.
+#' @param algorithm Character. PLS algorithm to use: \code{"mpls"} (default),
+#'   \code{"pls"} (nipals), or \code{"simpls"}.
 #'
 #' @return
-#' A numeric matrix of weighted predictions (rows = grid rows, 1 column).
+#' A numeric vector of weighted predictions (length equal to number of rows
+#' in \code{emgrid}).
 #'
 #' @details
 #' The function performs the following steps:
 #' \enumerate{
-#'   \item Fits a PLS model on `ilocalsubset$x` and `ilocalsubset$y` with
-#'         up to `max_component` components.
-#'   \item Computes component weights for `ilocalsubset$xval` using
+#'   \item Fits a PLS model on \code{X} and \code{Y} with up to
+#'         \code{ncomp_max} components.
+#'   \item Extracts centering and scaling parameters from the fitted model.
+#'   \item Computes component weights for \code{xval} using
 #'         \code{get_local_pls_weights()}.
 #'   \item Predicts component-wise responses using \code{predict_opls()}.
-#'   \item Applies a weighted average of predictions using `emgrid` and the
-#'         component weights.
+#'   \item Applies \code{emgrid} weights scaled by component weights.
+#'   \item Returns row-normalized weighted average of predictions.
 #' }
-#' The output is a matrix of weighted predictions using the weighted model grid.
 #'
 #' @author Leonardo Ramirez-Lopez
-#' @keywords internal 
+#' @keywords internal
+#' @noRd
 #' @useDynLib resemble
-ith_local_fit <- function(X, Y, xval, emgrid, max_component, min_component, scale, maxiter, tol) {
-    .Call(`_resemble_ith_local_fit`, X, Y, xval, emgrid, max_component, min_component, scale, maxiter, tol)
+ith_local_fit <- function(X, Y, xval, emgrid, ncomp_max, ncomp_min, scale, max_iter, tol, algorithm = "mpls") {
+    .Call(`_resemble_ith_local_fit`, X, Y, xval, emgrid, ncomp_max, ncomp_min, scale, max_iter, tol, algorithm)
 }
 
 #' @title Compute Final Local PLS Model Outputs
@@ -957,11 +1050,12 @@ ith_local_fit <- function(X, Y, xval, emgrid, max_component, min_component, scal
 #' @param X A matrix of predictor variables used for calibration.
 #' @param Y A matrix of response variables used for calibration.
 #' @param new_x A single observation (1 x p) of predictor variables to compute weights.
-#' @param min_component The minimum number of PLS components to include in the final model.
-#' @param max_component The maximum number of PLS components to include in the final model.
+#' @param ncomp_min The minimum number of PLS components to include in the final model.
+#' @param ncomp_max The maximum number of PLS components to include in the final model.
 #' @param scale Logical indicating whether to scale the data.
 #' @param maxiter Maximum number of iterations allowed during the NIPALS algorithm.
 #' @param tol Tolerance threshold for convergence in the iterative algorithm.
+#' @param algorithm \code{'mpls'} (defalt), \code{'pls'} (nipals), \code{'simpls'}.
 #'
 #' @return A list with the following elements:
 #' \itemize{
@@ -973,7 +1067,7 @@ ith_local_fit <- function(X, Y, xval, emgrid, max_component, min_component, scal
 #' }
 #'
 #' @keywords internal
-final_fits_cpp <- function(X, Y, new_x, min_component, max_component, scale, maxiter, tol) {
-    .Call(`_resemble_final_fits_cpp`, X, Y, new_x, min_component, max_component, scale, maxiter, tol)
+final_fits_cpp <- function(X, Y, new_x, ncomp_min, ncomp_max, scale, maxiter, tol, algorithm = "mpls") {
+    .Call(`_resemble_final_fits_cpp`, X, Y, new_x, ncomp_min, ncomp_max, scale, maxiter, tol, algorithm)
 }
 

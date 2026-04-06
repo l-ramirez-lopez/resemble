@@ -16,7 +16,7 @@ pls model.}
 
 \item{type}{type of weight to be computed. The only available option (for
 the moment) is \code{"w1"}. See details on the \code{mbl} function where it
-is explained how \code{"w1"} is computed whitin the \code{"wapls"}
+is explained how \code{"w1"} is computed within the \code{"wapls"}
 regression.}
 
 \item{new_x}{a vector of a new spectral observation. When "w1" is selected, new_x

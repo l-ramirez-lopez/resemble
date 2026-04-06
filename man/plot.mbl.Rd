@@ -4,72 +4,79 @@
 \alias{plot.mbl}
 \title{Plot method for an object of class \code{mbl}}
 \usage{
-\method{plot}{mbl}(x, g = c("validation", "gh"), param = "rmse", pls_c = c(1,2), ...)
+\method{plot}{mbl}(x, what = c("validation", "gh"),
+    metric = "rmse", ncomp = c(1, 2), ...)
 }
 \arguments{
-\item{x}{an object of class \code{mbl} (as returned by \code{mbl}).}
+\item{x}{An object of class \code{mbl} (as returned by \code{\link{mbl}}).}
 
-\item{g}{a character vector indicating what results shall be plotted.
-Options are: \code{"validation"} (for plotting the validation results) and/or
-\code{"gh"} (for plotting the pls scores used to compute the GH distance.
-See details).}
+\item{what}{Character vector specifying what to plot. Options are
+\code{"validation"} (validation statistics) and/or \code{"gh"} (PLS scores
+used for GH distance computation). Default is both.}
 
-\item{param}{a character string indicating what validation statistics shall be
-plotted. The following options are available: \code{"rmse"}, \code{"st_rmse"}
-or \code{"r2"}. These options only available if the \code{mbl} object contains
-validation results.}
+\item{metric}{Character string specifying which validation statistic to plot.
+Options are \code{"rmse"}, \code{"st_rmse"}, or \code{"r2"}. Only used when
+\code{"validation"} is in \code{what}.}
 
-\item{pls_c}{a numeric vector of length one or two indicating the pls factors to be
-plotted. Default is \code{c(1, 2)}. It is only available if \code{"gh"} is
-specified in the \code{g} argument.}
+\item{ncomp}{Integer vector of length 1 or 2 specifying which PLS components
+to plot. Default is \code{c(1, 2)}. Only used when \code{"gh"} is in
+\code{what}.}
 
-\item{...}{some arguments to be passed to the plot methods.}
+\item{...}{Additional arguments passed to \code{\link[graphics]{plot}}.}
+}
+\value{
+Called for side effects (plotting). Returns \code{invisible(x)}.
 }
 \description{
-Plots the content of an object of class \code{mbl}
+Plots validation results and/or GH distance scores from an \code{mbl} object.
 }
 \details{
-For plotting the pls scores from the pls score matrix (of more than one column),
-this matrix is first transformed from the Euclidean space to the Mahalanobis
-space. This is done by multiplying the score matrix by the root square of
-its covariance matrix. The root square of this matrix is estimated using a
-singular value decomposition.
+When plotting PLS scores (\code{what = "gh"}), the score matrix is
+transformed from Euclidean to Mahalanobis space by multiplying by the
+square root of the covariance matrix (computed via singular value
+decomposition).
 }
 \examples{
-\donttest{
-library(prospectr)
+\dontrun{
+# See mbl() examples for full workflow
 
+library(prospectr)
 data(NIRsoil)
 
-Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
-Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
-Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+# Preprocess: detrend + first derivative with Savitzky-Golay
+NIRsoil$spc_pr <- savitzkyGolay(
+  (NIRsoil$spc),
+  m = 1, p = 1, w = 7
+) |> standardNormalVariate()
+NIRsoil$spc_pr <- sg_det
 
-Xu <- Xu[!is.na(Yu), ]
-Yu <- Yu[!is.na(Yu)]
+# Split data
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso), ]
+test_y <- NIRsoil$Ciso[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso)]
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso), ]
+train_y <- NIRsoil$Ciso[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso)]
 
-Xr <- Xr[!is.na(Yr), ]
-Yr <- Yr[!is.na(Yr)]
-
-ctrl <- mbl_control(validation_type = "NNv")
-
-ex_1 <- mbl(
-  Yr = Yr, Xr = Xr, Xu = Xu,
-  diss_method = "cor",
-  diss_usage = "none",
-  gh = TRUE,
-  mblCtrl = ctrl,
-  k = seq(50, 250, 30)
+mbl_result <- mbl(
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  Yu = test_y,
+  neighbors = neighbors_k(seq(40, 140, by = 20)),
+  diss_method = diss_correlation(),
+  fit_method = fit_wapls(min_ncomp = 3, max_ncomp = 15), 
+  gh = TRUE
 )
 
-plot(ex_1)
-plot(ex_1, g = "gh", pls_c = c(2, 3))
+plot(mbl_result)
+plot(mbl_result, what = "validation", metric = "r2")
+plot(mbl_result, what = "gh", ncomp = c(2, 3))
 }
+
 }
 \seealso{
 \code{\link{mbl}}
 }
 \author{
-Leonardo Ramirez-Lopez and Antoine Stevens
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and
+Antoine Stevens
 }

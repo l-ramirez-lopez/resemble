@@ -1,423 +1,288 @@
-#' @title Evolutionary training sample search in spectral libraries
-#' for building context-specific models 
-#'
-#' @aliases gesearch
-#' @aliases gesearch.default
-#' @aliases gesearch.formula
-#' @aliases gesearch.list
-#' @aliases predict.gesearch
+#' @title Evolutionary sample search for context-specific calibrations
+#' @name gesearch
+#' @aliases gesearch gesearch.default gesearch.formula
+#' @aliases predict.gesearch plot.gesearch
 #'
 #' @description
-#' This function implements an evolutionary search algorithm that selects a 
-#' subset from large calibration or reference data,
-#' optimized to build context-specific ('local') calibrations. It applies a
-#' data-driven approach to identify relationships between the response and
-#' predictor variables that are often underrepresented in large calibration
-#' datasets (e.g. spectral libraries).
-#'
+#' Implements an evolutionary search algorithm that selects a subset from large
+#' reference datasets (e.g., spectral libraries) to build context-specific
+#' calibrations. The algorithm iteratively removes weak or non-informative
+#' samples based on prediction error, spectral reconstruction error, or
+#' dissimilarity criteria. This implementation is based on the methods proposed 
+#' in Ramirez-Lopez et al. (2026a).
 #' @usage
-#' \method{gesearch}{formula}(formula, train, test, k, b, target_size,
-#'         method, ..., na_action = na.pass)
 #'
 #' \method{gesearch}{default}(Xr, Yr, Xu, Yu = NULL, Yu_lims = NULL,
-#'         k, b, retain = 0.95, target_size = k,
-#'         method = local_fit_pls(pls_c = min(dim(Xr), 10)),
-#'         optimization = "reconstruction",
-#'         control = search_control(), group = NULL, scale = FALSE,
-#'         verbose = TRUE, seed = NULL, documentation = character(),
-#'         crossover = TRUE, intermediate_models = FALSE,
-#'         pchunks = 1, ...)
+#'          k, b, retain = 0.95, target_size = k,
+#'          fit_method = fit_pls(ncomp = 10),
+#'          optimization = "reconstruction",
+#'          group = NULL, control = gesearch_control(),
+#'          intermediate_models = FALSE,
+#'          verbose = TRUE, seed = NULL, pchunks = 1L, ...)
 #'
-#' \method{predict}{gesearch}(object, newdata, type = 'response', ...)
+#' \method{gesearch}{formula}(formula, train, test, k, b, target_size,
+#'          ..., na_action = na.pass)
 #'
-#' @param formula an object of class \link[stats]{formula} defining the model. 
-#' Can also be a list of formulas with identical right-hand-side terms.
-#' @param train a data.frame with training data, including model variables.
-#' @param test a data.frame with test (local) data, including model variables.
-#' @param Xr a matrix of predictor variables for the reference data 
-#' (rows = observations, columns = variables).
-#' @param Yr a matrix with one or more columns of response values matching Xr.
-#' @param Xu a matrix of predictor variables for 'local' observations 
-#' (same structure as Xr).
-#' @param Yu a matrix with the same number of columns as \code{Yr} containing 
-#' response values for \code{Xu}. Only required when 
-#' \code{optimization = "response"}. Default: \code{NULL}.
-#' @param Yu_lims numeric range indicating expected limits of the response 
-#' variable in the target population. Only used when \code{Yu} is NULL or has 
-#' one column.
-#' @param k integer; number of samples in each sampled subset (gene).
-#' @param b integer; target average number of times each training sample is 
-#' included in the population per iteration. See \code{Details}.
-#' @param retain numeric in (0, 1); proportion of samples retained per iteration. 
-#' Default is 0.95. See \code{search_control()} for retention strategy.
-#' \itemize{
-#'   \item{If \code{control$retain_by == 'proportion'}: }{a fixed proportion 
-#'   \code{retain} is used to retain samples. The rest (\code{1 - retain}) 
-#'   are discarded. See \code{\link{search_control}}.}
-#'   \item{If \code{control$retain_by == 'probability'}: }{the value is used 
-#'   as a percentile cut-off for sample errors. Observations with errors 
-#'   below this percentile are retained.}
-#' }
+#' \method{predict}{gesearch}(object, newdata, type = "response",
+#'          what = c("final", "all_generations"), ...)
 #'
-#' @param target_size integer; the target number of selected training samples 
-#' (gene pool size). Must be ≥ \code{k}. Defaults to \code{k}.
+#' \method{plot}{gesearch}(x, which = c("weakness", "removed"), ...)
 #'
-#' @param method an object of class \code{\link{local_fit}} specifying the 
-#' regression model used during the search. Only methods created with 
-#' \code{local_fit_pls()} are currently supported. See \code{\link{local_fit}}.
-#' @param optimization character; specifies the optimization criterion used to 
-#' guide the sample search. Options include:
-#' \itemize{
-#'   \item{\code{"response"}: }{Retains observations based on the root mean 
-#'   squared error (RMSE) of predicting the response variable in the test set 
-#'   (\code{Yu}). Requires \code{Yu} to be provided.}
-#'
-#'   \item{\code{"reconstruction"} (default): }{Retains observations based on 
-#'   the spectral reconstruction error of the test set (\code{Xu}). The test 
-#'   data are projected onto the PLS space and then reconstructed using a 
-#'   fixed number of PLS components. The RMSE between the original and 
-#'   reconstructed spectra is used as the selection criterion. Does not require 
-#'   \code{Yu}.}
-#'
-#'   \item{\code{"similarity"}: }{Retains observations based on the mean 
-#'   spectral similarity between test samples (\code{Xu}) and the training 
-#'   samples used in each iteration. Test samples are projected into PLS score 
-#'   space, and Mahalanobis distances are calculated between test and training 
-#'   observations. The average distance is used to determine similarity. 
-#'   \code{Yu} is not required.}
-#'
-#'   \item{\code{"range"}: }{Removes observations that yield predictions outside 
-#'   a specified response range defined by \code{Yu_lims}. Used to filter out 
-#'   extreme or unrealistic predictions.}
-#' }
-#'
-#' Multiple methods may be combined by supplying a character vector, e.g., 
-#' \code{c("reconstruction", "similarity")}.
-#' @param control a list created with \code{\link{search_control}} that defines 
-#' additional parameters for controlling the \emph{gesearch} algorithm. Defaults to 
-#' \code{search_control()}. See \code{\link{search_control}} for details.
-#'
-#' @param scale logical; if \code{TRUE}, predictor variables are scaled to unit 
-#' variance before regression at each iteration.
-#'
-#' @param group an optional factor or a vector coercible to a factor (via 
-#' \code{as.factor}) that assigns a group label to each training observation 
-#' (in \code{Xr} or \code{train}). This is used to define cross-validation 
-#' folds for PLS tuning using leave-group-out validation to avoid 
-#' pseudo-replication. All observations in the same group are removed together 
-#' for validation. The length of this vector must match the number of training 
-#' samples (i.e., \code{nrow(Xr)} or \code{nrow(train)}).
-#'
-#' @param verbose logical; if \code{TRUE}, prints progress information at each 
-#' iteration.
-#'
-#' @param seed integer; seed value for random number generation to ensure 
-#' reproducibility during cross-validation and sampling. Default is 
-#' \code{NULL}, meaning no seed is set.
-#'
-#' @param documentation character; optional string used to record metadata or 
-#' comments about the \code{gesearch} call. Default is an empty string. This 
-#' parameter is experimental and may be subject to change.
-#'
-#' @param pchunks integer; number of chunks to split each iteration into during 
-#' resampling. Useful for memory-efficient parallel processing of large 
-#' datasets. Default is \code{1}. Increase this value for better memory 
-#' management in parallel computing environments.
-#
-#' @param intermediate_models store models for each intermediate generation 
-#' before reaching the last one.
-#' 
-#' @param ... additional arguments passed to \code{gesearch.default} when 
-#' calling the formula interface. Not used in \code{default} or 
-#' \code{predict} methods.
-#'
-#' @param na_action function; defines how missing values in the training data 
-#' are handled. Default is \code{\link[stats]{na.pass}}. Note: this only 
-#' applies to \code{train}; no NA handling is applied to \code{test}. If used, 
-#' this argument must be named.
-#'
-#' @param object an object of class \code{gesearch}, as returned by 
-#' \code{\link{gesearch}}.
-#'
-#' @param newdata a data.frame or matrix containing new predictor data for 
-#' prediction.
-#'
-#' @param type character; specifies the prediction output type. Options are 
-#' \code{"response"} (default), which returns predicted values, and 
-#' \code{"scores"}, which returns the PLS scores from the model.
+#' @param Xr A numeric matrix of predictor variables for the reference data
+#'   (observations in rows, variables in columns).
+#' @param Yr A numeric vector or single-column matrix of response values
+#'   corresponding to \code{Xr}. Only one response variable is supported.
+#' @param Xu A numeric matrix of predictor variables for target observations
+#'   (same structure as \code{Xr}).
+#' @param Yu An optional numeric vector or single-column matrix of response 
+#'   values for \code{Xu}. Required when \code{optimization} includes 
+#'   \code{"response"}. Default is \code{NULL}.
+#' @param Yu_lims A numeric vector of length 2 specifying expected response
+#'   limits for the target population. Used with \code{optimization = "range"}.
+#' @param k An integer specifying the number of samples in each resampling
+#'   subset (gene size).
+#' @param b An integer specifying the target average number of times each
+#'   training sample is evaluated per iteration. Higher values (e.g., >40)
+#'   produce more stable results but increase computation time.
+#' @param retain A numeric value in (0, 1] specifying the proportion of samples
+#'   retained per iteration. Default is 0.95. Values >0.9 are recommended for
+#'   stability. See \code{\link{gesearch_control}} for retention strategy.
+#' @param target_size An integer specifying the target number of selected
+#'   samples (gene pool size). Must be >= \code{k}. Default is \code{k}.
+#' @param fit_method A fit method object created with \code{\link{fit_pls}}.
+#'   Specifies the regression model and scaling used during the search.
+#'   Currently only \code{fit_pls()} is supported.
+#' @param optimization A character vector specifying optimization criteria:
+#'   \itemize{
+#'     \item \code{"reconstruction"}: (default) Retains samples based on
+#'       spectral reconstruction error of \code{Xu} in PLS space.
+#'     \item \code{"response"}: Retains samples based on RMSE of predicting
+#'       \code{Yu}. Requires \code{Yu}.
+#'     \item \code{"similarity"}: Retains samples based on Mahalanobis distance
+#'       between \code{Xu} and training samples in PLS score space.
+#'     \item \code{"range"}: Removes samples producing predictions outside
+#'       \code{Yu_lims}.
+#'   }
+#'   Multiple criteria can be combined, e.g.,
+#'   \code{c("reconstruction", "similarity")}.
+#' @param group An optional factor assigning group labels to training
+#'   observations. Used for leave-group-out cross-validation to avoid
+#'   pseudo-replication.
+#' @param control A list created with \code{\link{gesearch_control}} containing
+#'   additional algorithm parameters.
+#' @param intermediate_models A logical indicating whether to store models for
+#'   each intermediate generation. Default is \code{FALSE}.
+#' @param verbose A logical indicating whether to print progress information.
+#'   Default is \code{TRUE}.
+#' @param seed An integer for random number generation to ensure
+#'   reproducibility. Default is \code{NULL}.
+#' @param pchunks An integer specifying the number of chunks for parallel
+#'   processing. Increase for better memory management. Default is \code{1L}.
+#' @param formula A \code{\link[stats]{formula}} defining the model.
+#' @param train A data.frame containing training data with model variables.
+#' @param test A data.frame containing test data with model variables.
+#' @param na_action A function for handling missing values in training data.
+#'   Default is \code{\link[stats]{na.pass}}.
+#' @param object A fitted \code{gesearch} object (for \code{predict}).
+#' @param newdata A matrix or data.frame of new observations. For formula-fitted
+#'   models, a data.frame containing all predictor variables is accepted. For
+#'   non-formula models, a matrix is required.
+#' @param type A character string specifying the prediction type. Currently only
+#'   \code{"response"} is supported.
+#' @param what A character string specifying which models to use for prediction:
+#'   \code{"final"} (default) for predictions from final models only, or
+#'   \code{"all_generations"} for predictions from all intermediate generations
+#'   plus the final models.
+#' @param x A \code{gesearch} object (for \code{plot}).
+#' @param which Character string specifying what to plot: 
+#'   \code{"weakness"} (maximum weakness scores per generation) or 
+#'   \code{"removed"} (cumulative samples removed).
+#' @param ... Additional arguments passed to methods.
 #'
 #' @details
-#' The \emph{gesearch} algorithm requires a large reference dataset (\code{Xr}) where 
-#' the sample search is conducted, a subset of site-specific or target 
-#' observations (\code{Xu}), and three tuning parameters: \code{k}, \code{b}, 
-#' and \code{retain}.
+#' The \code{gesearch} algorithm requires a large reference dataset (\code{Xr})
+#' where the sample search is conducted, target observations (\code{Xu}), and
+#' three tuning parameters: \code{k}, \code{b}, and \code{retain}.
 #'
-#' The \code{Xu} observations should represent the target population. These may 
-#' be selected, for example, via algorithms like Kennard-Stone 
-#' (Kennard & Stone, 1969), especially when response values are unavailable.
+#' The target observations (\code{Xu}) should represent the population of
+#' interest. These may be selected via algorithms like Kennard-Stone when
+#' response values are unavailable.
 #'
-#' \emph{gesearch} uses \code{Xu} to iteratively remove weak or non-informative 
-#' reference samples (\code{Xr}, \code{Yr}), yielding a subset of approximately 
-#' \code{k} reference observations. Weak samples are identified based on one or 
-#' more of the following criteria:
+#' The algorithm iteratively removes weak samples from \code{Xr} based on:
 #' \itemize{
-#'   \item{}{They increase the RMSE of prediction on \code{Yu}.}
-#'   \item{}{They increase the RMSE of PLS-based reconstruction on \code{Xu}.}
-#'   \item{}{They increase dissimilarity between the PLS model subset and 
-#'   \code{Xu}.}
+#'   \item Increased RMSE when predicting \code{Yu}
+#'   \item Increased PLS reconstruction error on \code{Xu}
+#'   \item Increased dissimilarity to \code{Xu} in PLS space
 #' }
 #'
-#' A resampling scheme is used to identify reference samples that consistently 
-#' appear in the highest-error or most-dissimilar subsets. These are labeled 
-#' as weak and removed. The parameter \code{retain} controls the proportion of 
-#' samples kept in each iteration.
+#' A resampling scheme identifies samples that consistently appear in
+#' high-error subsets. These are labeled weak and removed. The process
+#' continues until approximately \code{target_size} samples remain.
 #'
-#' If multiple response variables are provided (i.e., \code{Yu} with multiple 
-#' columns or a list of formulas), separate models are built per response. Weak 
-#' samples identified across models are combined and removed jointly.
-#'
-#' Because optimization is based on prediction error and/or spectral 
-#' dissimilarity, \code{gesearch} aims to find a subset of \code{k} training 
-#' samples that yield the most accurate models for test-like samples 
-#' (\code{Xu}).
-#'
-#' When setting parameters:
+#' ## Parameter guidance
 #' \itemize{
-#'   \item{\code{k}: Number of reference observations to retain. It is also 
-#'   the size of each resampling subset. For guidance, see Lobsey et al. 2017.}
-#'
-#'   \item{\code{b}: Average number of times each training sample is evaluated 
-#'   per iteration. Higher values (e.g., >40) yield more stable results but 
-#'   increase computational cost.}
-#'
-#'   \item{\code{retain}: Proportion of training samples retained in each 
-#'   iteration. Values >0.9 are recommended for stability.}
+#'   \item \code{k}: Number of samples per resampling subset. See Lobsey et
+#'     al. (2017) for guidance.
+#'   \item \code{b}: Resampling intensity. Higher values increase stability
+#'     but computational cost.
+#'   \item \code{retain}: Proportion retained per iteration. Values >0.9
+#'     recommended.
 #' }
-#' @return a list with the following elements:
+#' 
+#' ## Prediction
+#' The \code{predict} method generates predictions from a fitted 
+#' \code{gesearch} object. If the model was fitted with a formula, 
+#' \code{newdata} is validated and transformed to the appropriate model matrix.
+#' 
+#' When \code{what = "all_generations"}, the return value is a named list with
+#' one element per generation, where each element contains a prediction 
+#' matrix. This option requires \code{intermediate_models = TRUE} during 
+#' fitting.
+#'
+#' @return
+#' \strong{For \code{gesearch}:} A list of class \code{"gesearch"} containing:
 #' \itemize{
-#'   \item{\code{x_local}: Matrix of predictor variables for selected observations.}
-#'
-#'   \item{\code{y_local}: Matrix of response values corresponding to \code{x_local}.}
-#'
-#'   \item{\code{indices}: Numeric vector of indices of selected observations from the original training set.}
-#'
-#'   \item{\code{complete_iter}: Number of completed resampling iterations.}
-#'
-#'   \item{\code{iter_weakness}: A list with iteration-level performance data:
-#'     \describe{
-#'       \item{\code{maximum}}{A \code{data.table} showing the highest RMSEs and dissimilarity scores across iterations. RMSEs are for response prediction (if \code{optimization} includes \code{"response"}) and PLS-based spectral reconstruction (if \code{optimization} includes \code{"reconstruction"}). Dissimilarity scores are shown only if \code{optimization} includes \code{"similarity"}.}
-#'       \item{\code{cutoff}}{A \code{data.table} reporting threshold RMSEs and dissimilarity values beyond which samples were discarded. Thresholds reflect either fixed proportions or percentiles, depending on \code{control$retain_by} (see \code{\link{search_control}}).}
-#'     }
-#'   }
-#'
-#'   \item{\code{samples}: List of sample indices retained in each iteration.}
-#'
-#'   \item{\code{n_removed}: A \code{data.table} showing number of samples removed per iteration.}
-#'
-#'   \item{\code{control}: Copy of the control list passed via \code{control}.}
-#'
-#'   \item{\code{scale}: Logical indicating whether scaling was applied.}
-#'
-#'   \item{\code{validation_results}: A list with validation output:
-#'     \describe{
-#'       \item{\code{val_info}}{Indices used for validation in each iteration and a matrix of test-set predictions based on selected samples.}
-#'       \item{\code{results}}{Internal validation outcomes from leave-group-out resampling and, if \code{Yr} was provided, prediction results for the test set.}
-#'     }
-#'   }
-#'
-#'   \item{\code{final_model}: List of models per response variable. Each model contains:
-#'     \itemize{
-#'       \item{\code{npls}: Number of PLS components used.}
-#'       \item{\code{coefficients}: Regression coefficients for all components.}
-#'       \item{\code{bo}: Model intercept(s).}
-#'       \item{\code{scores}: PLS scores matrix.}
-#'       \item{\code{X_loadings}: Loadings for predictor variables.}
-#'       \item{\code{Y_loadings}: Loadings for response variable(s).}
-#'       \item{\code{projection_mat}: Projection matrix used in PLS.}
-#'       \item{\code{vip}: Variable importance in projection (VIP) matrix.}
-#'       \item{\code{selectivity_ratio}: Selectivity ratio matrix per factor (Rajalahti et al., 2009).}
-#'       \item{\code{Y}: Matrix of responses used to train the final PLS model.}
-#'       \item{\code{weights}: Matrix of PLS weights.}
-#'     }
-#'   }
-#'
-#'   \item{\code{seed}: Value of RNG seed used (if provided).}
-#'
-#'   \item{\code{documentation}: Optional string copied from input \code{documentation} argument.}
+#'   \item \code{x_local}: Matrix of predictors for selected samples.
+#'   \item \code{y_local}: Vector of responses for selected samples.
+#'   \item \code{indices}: Indices of selected samples from original training set.
+#'   \item \code{complete_iter}: Number of completed iterations.
+#'   \item \code{iter_weakness}: List with iteration-level weakness statistics.
+#'   \item \code{samples}: List of sample indices retained at each iteration.
+#'   \item \code{n_removed}: data.frame of samples removed per iteration.
+#'   \item \code{control}: Copy of control parameters.
+#'   \item \code{fit_method}: Fit constructor from \code{fit_method}.
+#'   \item \code{validation_results}: Cross-validation and test set prediction results.
+#'   \item \code{final_models}: Final PLS model containing coefficients, loadings, 
+#'     scores, VIP, and selectivity ratios.
+#'   \item \code{intermediate_models}: List of models per generation (if
+#'     \code{intermediate_models = TRUE}).
+#'   \item \code{seed}: RNG seed used.
 #' }
-#' @author Leonardo Ramirez-Lopez, Claudio Orellano, Craig Lobsey and Raphael Viscarra Rossel 
+#' 
+#' \strong{For \code{predict.gesearch}:}
+#' \itemize{
+#'   \item If \code{what = "final"}: a prediction matrix with 
+#'     \code{nrow(newdata)} rows and one column per PLS component.
+#'   \item If \code{what = "all_generations"}: a named list of generations, 
+#'     where each generation contains a prediction matrix as above.
+#' }
+#'
+#' @author
+#' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez},
+#' Claudio Orellano,
+#' \href{https://orcid.org/0000-0001-5416-4520}{Craig Lobsey},
+#' \href{https://orcid.org/0000-0003-1540-4748}{Raphael Viscarra Rossel}
+#'
 #' @references
-#' Lobsey, C. R., Viscarra Rossel, R. A., Roudier, P., & Hedley, C. B. 2017.
+#' Lobsey, C.R., Viscarra Rossel, R.A., Roudier, P., Hedley, C.B. 2017.
 #' rs-local data-mines information from spectral libraries to improve local
-#' calibrations. European Journal of Soil Science, 68(6), 840-852.
+#' calibrations. European Journal of Soil Science 68:840-852.
 #'
-#' Kennard, R.W. & Stone, L.A. 1969. Computer aided design of experiments.
-#' Technometrics, 11(1), pp.137-148.
+#' Kennard, R.W., Stone, L.A. 1969. Computer aided design of experiments.
+#' Technometrics 11:137-148.
 #'
-#' Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J.,
-#' Kvalheim, O. M. 2009. Biomarker discovery in mass spectral profiles by means
-#' of selectivity ratio plot. Chemometrics and Intelligent Laboratory Systems,
-#' 95(1), 35-48.
+#' Rajalahti, T., Arneberg, R., Berven, F.S., Myhr, K.M., Ulvik, R.J.,
+#' Kvalheim, O.M. 2009. Biomarker discovery in mass spectral profiles by means
+#' of selectivity ratio plot. Chemometrics and Intelligent Laboratory Systems
+#' 95:35-48.
+#' 
+#' Ramirez-Lopez, L., Viscarra Rossel, R., Behrens, T., Orellano, C.,
+#' Perez-Fernandez, E., Kooijman, L., Wadoux, A. M. J.-C., Breure, T.,
+#' Summerauer, L., Safanelli, J. L., & Plans, M. (2026a). When spectral
+#' libraries are too complex to search: Evolutionary subset selection for
+#' domain-adaptive calibration. \emph{Analytica Chimica Acta}, under review.
+#'
+#' @seealso
+#' \code{\link{fit_pls}}, \code{\link{gesearch_control}}, \code{\link{mbl}}
+#'
 #' @examples
 #' \dontrun{
-#' # NOTE: These examples are based on a small dataset where the function may  
-#' # not demonstrate substantial benefits. They are intended solely to  
-#' # illustrate how the function works.
-#' 
 #' library(prospectr)
 #' data(NIRsoil)
 #'
-#' # Preprocess the data using detrend + first derivative + Savitzky-Golay
+#' # Preprocess
 #' sg_det <- savitzkyGolay(
-#'   detrend(
-#'     NIRsoil$spc,
-#'     wav = as.numeric(colnames(NIRsoil$spc))
-#'   ),
+#'   detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
 #'   m = 1, p = 1, w = 7
 #' )
 #' NIRsoil$spc_pr <- sg_det
 #'
-#' # Split into training, validation, and testing sets
+#' # Split data
+#' train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso), ]
+#' train_y <- NIRsoil$Ciso[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso)]
 #' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso), ]
 #' test_y <- NIRsoil$Ciso[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso)]
 #'
-#' set.seed(24)
-#' sel <- sample(nrow(test_x), 30)
-#'
-#' val_x <- test_x[-sel, ]
-#' val_y <- test_x[-sel]
-#'
-#' test_x <- test_x[sel, ]
-#' test_y <- test_y[sel]
-#'
-#' train_y <- NIRsoil$Ciso[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso)]
-#' train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso), ]
-#'
-#' # Search based on test set with reference values
-#' my_gs <- gesearch(
+#' # Basic search with reconstruction optimization
+#' gs <- gesearch(
 #'   Xr = train_x, Yr = train_y,
 #'   Xu = test_x, Yu = test_y,
 #'   k = 50, b = 100, retain = 0.97,
-#'   target_size = 350,
-#'   method = local_fit_pls(15, modified = TRUE),
-#'   optimization = c("reconstruction", "similarity", "response"),
-#'   control = search_control(retain_by = "probability"),
-#'   scale = FALSE,
-#'   verbose = TRUE,
-#'   seed = 24
-#' )
-#' my_preds_gs <- predict(my_gs, val_x)
-#'
-#' # Search without reference values
-#' my_gs_no_response <- gesearch(
-#'   Xr = train_x, Yr = train_y,
-#'   Xu = test_x, Yu = NULL,
-#'   k = 50, b = 100, retain = 0.97,
-#'   target_size = 350,
-#'   method = local_fit_pls(15, modified = TRUE),
+#'   target_size = 200,
+#'   fit_method = fit_pls(ncomp = 15, method = "mpls"),
 #'   optimization = c("reconstruction", "similarity"),
-#'   control = search_control(retain_by = "probability"),
-#'   scale = FALSE,
-#'   verbose = TRUE,
-#'   seed = 24
+#'   control = gesearch_control(retain_by = "probability"),
+#'   seed = 42
 #' )
-#' my_preds_gs_no_response <- predict(my_gs_no_response, val_x)
 #'
-#' # Search using a more comprehensive set (no reference values)
-#' my_gs_no_response2 <- gesearch(
+#' # Predict
+#' preds <- predict(gs, test_x)
+#'
+#' # Plot progress
+#' plot(gs)
+#' plot(gs, which = "removed")
+#'
+#' # With response optimization (requires Yu)
+#' gs_response <- gesearch(
 #'   Xr = train_x, Yr = train_y,
-#'   Xu = val_x, Yu = NULL,
+#'   Xu = test_x, Yu = test_y,
 #'   k = 50, b = 100, retain = 0.97,
-#'   target_size = 350,
-#'   method = local_fit_pls(15, modified = TRUE),
-#'   optimization = c("reconstruction", "similarity"),
-#'   control = search_control(retain_by = "probability"),
-#'   scale = FALSE,
-#'   verbose = TRUE,
-#'   seed = 24
+#'   target_size = 200,
+#'   fit_method = fit_pls(ncomp = 15),
+#'   optimization = c("reconstruction", "response"),
+#'   seed = 42
 #' )
-#' my_preds_gs_no_response2 <- predict(my_gs_no_response2, val_x)
-#' 
-#' 
-#' # Using parallel processors
-#' n_cores <- 2
-#' 
-#' if (parallel::detectCores() < 2) {
-#'   n_cores <- 1
-#' }
-#' 
-#' # Alternatively:
-#' # n_cores <- parallel::detectCores() - 1
-#' # if (n_cores == 0) {
-#' #  n_cores <- 1
-#' # }
-#' 
+#'
+#' # Parallel processing
 #' library(doParallel)
-#' clust <- makeCluster(n_cores)
-#' registerDoParallel(clust)
-#' 
-#' # Alernatively:
-#' # library(doSNOW)
-#' # clust <- makeCluster(n_cores, type = "SOCK")
-#' # registerDoSNOW(clust)
-#' # getDoParWorkers()
-#' 
-#' # search based on a small test set with reference values
-#' my_gs <- gesearch(
-#'   Xr = train_x,
-#'   Yr = train_y,
+#' cl <- makeCluster(2)
+#' registerDoParallel(cl)
+#'
+#' gs_parallel <- gesearch(
+#'   Xr = train_x, Yr = train_y,
 #'   Xu = test_x,
-#'   Yu = test_y,
 #'   k = 50, b = 100, retain = 0.97,
-#'   target_size = 350,
-#'   method = local_fit_pls(15, modified = TRUE),
-#'   optimization = c("reconstruction", "similarity", "response"),
-#'   control = search_control(retain_by = "probability"),
-#'   scale = FALSE,
-#'   verbose = TRUE,
-#'   seed = 24,
-#'   pchunks = 3
+#'   target_size = 200,
+#'   fit_method = fit_pls(ncomp = 15),
+#'   pchunks = 3,
+#'   seed = 42
 #' )
+#'
+#' stopCluster(cl)
+#' registerDoSEQ()
 #' }
-#' 
-#' @importFrom stats as.formula update
+#'
+#' @importFrom stats as.formula update na.pass model.frame model.matrix
+#' @importFrom stats model.extract terms .MFclass delete.response
 #' @export gesearch
+#' 
+NULL
+######################################################################
+# resemble
+# Copyright (C) 2026 Leonardo Ramirez-Lopez and Antoine Stevens
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+######################################################################
 
-
-## 2020.03.28 (Leo):    Bug fix. Optimization was wrongly set to "reconstruction"
-##                      in biter(), even when "response" was selected.
-## 2020.03.28 (Leo):    New output. "iter_rmse" is a data.frame containing the
-##                      maximum rmse obtained at each iteration after removing
-##                      the observations.
-## 2020.03.29 (Leo):    Some secondary arguments moved to the new search_control
-##                      function.
-## 2020.03.29 (Craig):  Bug fix. In the original code the final
-##                      return(list(K.x = SL.x[k_idx,], K.y=SL.y[k_idx],
-##                      k_idx=k_idx))
-##                      should have been using sl_idx for indexing, not k_idx as
-##                      k_idx is not updated until the begining of the next
-##                      iteration.
-## 2020.03.30 (Leo):    Bug fix. NAs were not properly handled to produce the
-##                      final validation stats (tables with NA values were
-##                      generated).
-##                      Added a sanity check for missing values when
-##                      optimization == "response"
-## 2020.04.05 (Craig):  Input checking - changed some messages for consistency
-##                      and changed check nrow(Xu)!=nrow(Yu) to be performed
-##                      when optimise is response only
-## 2020.04.05 (Craig):  Changed type conversion of input data variables to
-##                      matrix, only convert Yu if != NULL
-## 2020.04.05 (Craig):  Fixed complete.cases(Yu) to handle Yu=NULL with verbose
-## 2020.06.23 (Leo):    Argument "pls_tune" was removed and passed to search_control
-##                      as tune
-##                      method must be "local_fit" object
-## 2020.10.05 (Leo):    Bug fix:  when optimization = "reconstruction" the local
-##                      spectra were not scaled before the reconstruction
-## 2020.11.05 (Leo):    Sample search can be conducted using both
-##                      "reconstruction" and "response" in argument optimization
-## 2020.11.05 (Leo):    verbose argument moved from search_control to gesearch
-## 2020.12.03 (Leo):    Multiresponse modeling added
-
+#' @aliases gesearch
 "gesearch" <-
   function(...) {
     UseMethod("gesearch")
@@ -442,112 +307,131 @@ gesearch.default <- function(
     b,
     retain = 0.95,
     target_size = k,
-    method = local_fit_pls(pls_c = min(dim(Xr), 10)),
+    fit_method = fit_pls(ncomp = 10),
     optimization = "reconstruction",
-    control = search_control(),
     group = NULL,
-    scale = FALSE,
+    control = gesearch_control(),
+    intermediate_models = FALSE,
     verbose = TRUE,
     seed = NULL,
-    documentation = character(),
-    pchunks = 1,
-    intermediate_models = FALSE,
+    pchunks = 1L,
     ...
 ) {
-  crossover <- TRUE # This was previously a parameter
+  crossover <- TRUE
   Yr <- as.matrix(Yr)
-  # check inputs
   
-  if (ncol(Yr) == 1) {
+  if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
+    old_blas_threads <- blas_get_num_procs()
+    if (old_blas_threads != control$blas_threads) {
+      blas_set_num_threads(control$blas_threads)
+      on.exit(blas_set_num_threads(old_blas_threads), add = TRUE)
+    }
+  } else if (Sys.info()["sysname"] == "Linux" && control$blas_threads == 1L) {
+    message("Tip: Install 'RhpcBLASctl' for optimal performance on Linux:\n",
+            "  install.packages('RhpcBLASctl')")
+  }
+  
+  
+  # --- Input validation ---
+  # --- control validation ---
+  if (!inherits(control, "gesearch_control")) {
+    stop("'control' must be created by gesearch_control()", call. = FALSE)
+  }
+  
+  if (ncol(Yr) == 1L) {
     if (nrow(Xr) != length(Yr)) {
-      stop("The number of spectra in Xr must equal to the length of Yr")
+      stop("nrow(Xr) must equal length(Yr)", call. = FALSE)
     }
   } else {
     if (is.null(colnames(Yr))) {
-      stop("missing column names in Yr")
+      stop("Yr must have column names when it has multiple columns", call. = FALSE)
     }
     if (nrow(Xr) != nrow(Yr)) {
-      stop("The number of spectra in Xr must equal to the number of rows in Yr")
+      stop("nrow(Xr) must equal nrow(Yr)", call. = FALSE)
     }
   }
   
   if (target_size > nrow(Xr)) {
-    stop("'target_size' cannot ne greater than nrow(Xr)")
+    stop("'target_size' cannot be greater than nrow(Xr)", call. = FALSE)
   }
   
   if (!is.logical(verbose)) {
-    stop("verbose argument must be logical")
+    stop("'verbose' must be logical", call. = FALSE)
   }
   
-  if (nrow(Xu) < 3) {
-    stop(paste0("Too few genes (", nrow(Xu), ") in the target set. Minimum required is 3."))
+  if (nrow(Xu) < 3L) {
+    stop("Xu must have at least 3 rows", call. = FALSE)
   }
   
   if (!is.null(Yu)) {
     Yu <- as.matrix(Yu)
-    if (ncol(Yu) == 1) {
+    if (ncol(Yu) == 1L) {
       if (nrow(Xu) != length(Yu)) {
-        stop("The number of spectra in Xu must equal to the length of Yu")
+        stop("nrow(Xu) must equal length(Yu)", call. = FALSE)
       }
     } else {
       if (!is.null(Yu_lims)) {
-        stop("Yu_lims can only be used for one single response variable for the moment.")
+        stop("'Yu_lims' only supported for single-column Yu", call. = FALSE)
       }
       if (ncol(Yr) != ncol(Yu)) {
-        stop("Different number of columns in Yr and Yu")
+        stop("ncol(Yr) must equal ncol(Yu)", call. = FALSE)
       }
-      
       if (nrow(Xu) != nrow(Yu)) {
-        stop("The number of spectra in Xu must equal to the number of rows in Yu")
+        stop("nrow(Xu) must equal nrow(Yu)", call. = FALSE)
       }
-      
       if (is.null(colnames(Yu))) {
-        stop("Missing column names in Yu")
+        stop("Yu must have column names when it has multiple columns", call. = FALSE)
       }
       if (!all(colnames(Yr) == colnames(Yu))) {
-        stop("Column names in Yr and Yu do not match")
+        stop("Column names of Yr and Yu must match", call. = FALSE)
       }
     }
   }
   
+  # Yu required with non-missing values for response optimization
   if ("response" %in% optimization) {
-    if (!any(!is.na(Yu))) {
-      stop("No response values, these are required when optimization == 'response'")
+    if (is.null(Yu) || !any(!is.na(Yu))) {
+      stop("'Yu' with non-missing values required when optimization includes 'response'", 
+           call. = FALSE)
     }
   }
   
+  # No missing values allowed in Xu
   if (anyNA(Xu)) {
-    stop("Missing values detected in the predictor variables of test/Xu")
+    stop("Xu contains missing values", call. = FALSE)
   }
   
-  if (any(is.infinite(Xr)) | any(is.infinite(Yr)) | any(is.infinite(Xu)) | any(is.infinite(Yu))) {
-    stop("Infinite values detected in the input data")
+  # No infinite values in any input
+  if (any(is.infinite(Xr)) || any(is.infinite(Yr)) || 
+      any(is.infinite(Xu)) || (!is.null(Yu) && any(is.infinite(Yu)))) {
+    stop("Infinite values detected in input data", call. = FALSE)
   }
   
+  # Xr and Xu must have same number of variables
   if (ncol(Xr) != ncol(Xu)) {
-    stop("The number of variables in Xr must equal the numnber of variables in Xu")
+    stop("ncol(Xr) must equal ncol(Xu)", call. = FALSE)
   }
   
-  k <- round(k)
+  # Validate k (gene size)
+  k <- as.integer(round(k))
   if (k >= nrow(Xr)) {
-    stop("Argument 'k' must be an integer lower than the number of observations in the train set (Xr)")
+    stop("'k' must be less than nrow(Xr)", call. = FALSE)
   }
   
-  target_size <- round(target_size)
+  # Validate target_size
+  target_size <- as.integer(round(target_size))
   if (target_size < k) {
-    stop("Argument 'taget_size' must be equal or larger than 'k'")
+    stop("'target_size' must be >= k", call. = FALSE)
   }
   
-  if (retain > 1 | retain <= 0) {
-    stop("Argument 'retain' must be a numerical value larger than 0 and below 1")
+  # Validate retain proportion
+  if (retain <= 0 || retain > 1) {
+    stop("'retain' must be in (0, 1]", call. = FALSE)
   }
   
-  if ("response" %in% optimization & is.null(Yu)) {
-    stop("When optimization = 'response', Yu values must be provided")
-  }
-  
+  # Validate optimization options
+  # Note: "fresponse" is undocumented (internal/experimental)
   allowed <- c("response", "reconstruction", "similarity", "range", "fresponse")
-  
   bad <- setdiff(optimization, allowed)
   if (length(bad) > 0L) {
     stop(
@@ -560,24 +444,25 @@ gesearch.default <- function(
     )
   }
   
-  if (!"local_fit" %in% class(method)) {
-    stop("Method must be of class 'local_fit'")
+  # Validate fit_method
+  # TODO: Currently only fit_pls() is supported; fit_wapls(), fit_gpr() may be added later
+  if (!inherits(fit_method, "fit_method")) {
+    stop("'fit_method' must be a fit method object (e.g., fit_pls())", call. = FALSE)
   }
   
-  if (method$method != "pls") {
-    stop(
-      "The only method alowed for the moment is 'pls'", 
-      " generated with the 'local_fit_pls()' fucntion"
-    )
+  if (!inherits(fit_method, "fit_pls")) {
+    stop("Only fit_pls() is supported for the moment", call. = FALSE)
   }
   
-  if ("reconstruction" %in% optimization & control$tune & method$method %in% c("pls", "wapls")) {
+  # Tuning not applied during reconstruction optimization
+  if ("reconstruction" %in% optimization && control$tune) {
     warning(
-      "pls factors are not tuned when optimization = 'reconstruction'",
-      " instead they are fixed to the one(s) provided in the `method` argument,",
-      " therefore the `tune` option passed to control has been ignored."
+      "PLS components are not tuned when optimization includes 'reconstruction'; ",
+      "using fixed ncomp from 'fit_method'. The 'tune' option was ignored.",
+      call. = FALSE
     )
   }
+  
   
   if (control$tune) {
     min_samples <- floor(min(k, dim(Xr)) * control$p) - 1
@@ -594,110 +479,135 @@ gesearch.default <- function(
     min_samples <- floor(min(k, dim(Xr))) - 1
   }
   
-  if (method$method %in% c("pls", "wapls")) {
-    max_pls <- max(method$pls_c)
-    if (any(min_samples < max_pls)) {
-      stop(paste0(
-        "More pls components than observations for one or more \n",
-        "resampling iterations. If 'tuning' is being used, consider that some ",
-        "observations \nin the resampling iterations are hold-out for ",
-        "validation"
-      ))
-    }
+  # Validate ncomp vs available samples
+  # TODO: Add fit_wapls support when implemented
+  if (inherits(fit_method, "fit_pls")) {
+    max_ncomp <- fit_method$ncomp
+  } else if (inherits(fit_method, "fit_wapls")) {
+    max_ncomp <- fit_method$max_ncomp
   }
   
-  call_f <- (match.call())
+  if (min_samples < max_ncomp) {
+    stop(
+      "More PLS components than available observations in some resampling iterations. ",
+      "If tuning is enabled, some observations are held out for validation.",
+      call. = FALSE
+    )
+  }
+  
+  call_f <- match.call()
   
   Xr <- as.matrix(Xr)
   Xu <- as.matrix(Xu)
   
+  # Proportion to remove each iteration
   r <- 1 - round(retain, .Machine$sizeof.longdouble)
   
-  # This list tracks the current selected SL subset (K) at each iteration
-  k_list <- list()
+  # Index into the spectral library (SL); we operate on indices, not copies
+  sl_idx <- seq_len(nrow(Xr))
   
-  # sl_idx is a vector representing an sample index into the SL
-  # note in this implementation we operate with an index into the SL and not copies of the SL spectra
-  sl_idx <- seq(1, nrow(Xr))
-  
-  #
-  # Step 1 - Initialise K as a subset of the SL, initially full.
-  #
+  # Initialize K as full SL
   k_idx <- sl_idx
   
-  #
-  # This while loop contains step 2-6 of the algorithm (See step 7!).
-  #
+  # Iteration counter
+  outer_idx <- 0L
   
-  # use this to keep track of the number of iterations
-  outer_idx <- 0
-  
-  # initialise a vector for the sample rankings (by rmse) that corresponds with the full SL
-  # also initialise a vector to track the number of times each sample was tested in the 'B' iteration
+  # Sample ranking vectors (by RMSE)
   U <- V <- rep(0, length(sl_idx))
-  # names(U) <- names(V) <- sl_idx
-  s_to_drop <- cuts <- max_weakness_score <- NULL
-  pp <- r
-  cat_progress <- cat_iter(c("\\", "|", "/", "-"))
-  cat_progress2 <- cat_iter(c("\\", "|", "/", "-"))
   
-  pool_sizes_log <- c()
-  complete_iterations <- 0
+  # Iteration tracking
+  s_to_drop <- NULL
+  cuts <- NULL
+  max_weakness_score <- NULL
+  pp <- r
+  
+  # # Progress indicators
+  # cat_progress <- cat_iter(c("\\", "|", "/", "-"))
+  # cat_progress2 <- cat_iter(c("\\", "|", "/", "-"))
+  
+  # Define once outside the loop
+  if (verbose) {
+    # spinner <- c("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏")
+    spinner <- c(">  ", ">> ", ">>>", "   ")
+    # spinner <- c("|", "/", "-", "\\")
+    # spinner <- c(".", "o", "O", "o")
+    # spinner <- c("[=   ]", "[ =  ]", "[  = ]", "[   =]", "[  = ]", "[ =  ]")
+    # spinner <- c(".  ", ".. ", "...", "   ")
+    # spinner <- c(">  ", ">> ", ">>>", "   ")
+    # spinner <- c("[-]", "[\\]", "[|]", "[/]")
+    
+    n_spin <- length(spinner)
+    prev_msg_len <- 0L
+  }
+  
+  
+  pool_sizes_log <- integer(0L)
+  complete_iterations <- 0L
   selected <- list()
+  # Step 2-6: Main evolutionary loop (see Step 7 for termination)
   while (length(k_idx) > (target_size * (1 + pp)) & sum(!is.na(sl_idx)) > target_size) {
-    # Step 1 - Initialise K as a subset of the SL, initially full. k_idx only
-    # contains those SL samples still in K
-    #
-    # select k_idx as those in the SL not marked as dropped (zero)
+    # Step 1: Update K to contain only non-dropped samples
     k_idx <- sl_idx[!is.na(sl_idx)]
     selected <- c(selected, list(k_idx))
     
-    outer_idx <- outer_idx + 1
+    outer_idx <- outer_idx + 1L
     
-    # calculate the quantity of samples removed in this iteration
+    # Number of samples to remove this iteration
     cull_quantity <- round(length(k_idx) * round(r, .Machine$sizeof.longdouble))
     
-    ##  This sub-loop contains step 2-4 of the algorithm (See step 5!). This is
-    ##  the B iteration.
+    # Step 2-4: Resampling iterations (B times)
     B <- round(length(k_idx) * b / k)
+    
+    # Progress output
+    # if (verbose) {
+    #   pool_label <- if (outer_idx == 1L) "Initial set of" else "Active"
+    #   
+    #   msg <- paste0(
+    #     "Generation ", outer_idx, ":\t",
+    #     "\033[34m", cat_progress(), " ", pool_label, " genes (samples): ", length(k_idx), "\t\033[39m",
+    #     "\033[34m", cat_progress2(), " Individuals to evaluate: ", B, "\033[39m"
+    #   )
+    #   
+    #   # Pad to fixed width and return cursor to start
+    #   cat(sprintf("\r%-120s", msg))
+    #   flush.console()
+    # }
     if (verbose) {
-      # Clear the full current line
-      cat("\r\033[K")  # \033[K erases to end of line
+      spin <- spinner[(outer_idx %% n_spin) + 1L]
+      pool_label <- if (outer_idx == 1L) "Initial" else "Active"
       
-      cat(paste0("Generation ", outer_idx, ":\t"))
+      # Build message without ANSI codes for length calculation
+      msg_plain <- sprintf(
+        "Generation %d: %s genes (samples): %d %s | Individuals: %d %s",
+        outer_idx, pool_label, length(k_idx), spin, B, spin
+      )
       
-      if (outer_idx == 1) {
-        cat(paste0(
-          "\033[34m", cat_progress(),
-          " Initial gene pool size: ", length(k_idx), "\t\033[39m"
-        ))
-      } else {
-        cat(paste0(
-          "\033[34m", cat_progress(),
-          " Current gene pool size: ", length(k_idx), "\t\033[39m"
-        ))
-      }
+      # Build message with ANSI codes for display
+      msg <- sprintf(
+        "\rGeneration %d: \033[34m%s genes (samples): %d %s\033[39m | \033[34mIndividuals: %d %s\033[39m",
+        outer_idx, pool_label, length(k_idx), spin, B, spin
+      )
       
-      cat(paste0(
-        "\033[34m", cat_progress2(),
-        " Individuals to evaluate: ", B, "\033[39m"
-      ))
-      cat("\r")
+      # Pad with spaces to overwrite previous longer message
+      padding <- max(0L, prev_msg_len - nchar(msg_plain))
+      cat(msg, strrep(" ", padding), sep = "")
+      flush.console()
+      
+      prev_msg_len <- nchar(msg_plain)
     }
     
-    
-    ## Step 2 - sample a training data set of size k from K without replacement
+    # Step 2: Sample training subsets of size k without replacement
     if (!is.null(seed)) {
       set.seed(seed + B)
     }
     
-    if (outer_idx == 1) {
+    if (outer_idx == 1L) {
       ismpl <- replicate(
         n = B,
         expr = sample(x = k_idx, size = k, replace = FALSE)
       )
     } else {
-      # Replace genes that were dropped in last iteration by NA
+      # Replace genes dropped in last iteration with NA
       ismpl[ismpl %in% which(new_nas)] <- NA
       
       if (crossover) {
@@ -712,20 +622,20 @@ gesearch.default <- function(
         )
       }
     }
-    ## this iterator object will avoid to use much memory in the next foreach
-    ## loop this iterator takes from the big matrix only what is needed and
-    ## therefore the whole matrix is not put in the memory.
-    ## This makes parallel computations more memory friendly
-    if (control$allow_parallel & getDoParRegistered()) {
+    
+    # Iterator for memory-efficient parallel chunking:
+    # Takes only needed slices from the matrix rather than loading
+    # the full matrix into memory for each parallel worker
+    if (control$allow_parallel && getDoParRegistered()) {
       leftc <- B %% pchunks
-      if (leftc > 0) {
+      if (leftc > 0L) {
         req_iter <- floor(B / pchunks) + leftc
       } else {
         req_iter <- B / pchunks
       }
     } else {
       req_iter <- B
-      pchunks <- 1
+      pchunks <- 1L
     }
     
     itersubs <- ithrssubsets(
@@ -736,26 +646,28 @@ gesearch.default <- function(
       chunksize = pchunks
     )
     
-    ## Step 3 calibrate a PLS model using the selected SL samples
-    ## Step 4 - validate on the 'm' site specific samples
-    ## Step 5 - repeat 2 to 4 B times
+    # Step 3: Calibrate PLS model using selected samples
+    # Step 4: Validate on target samples
+    # Step 5: Repeat steps 2-4 B times
     
+    # Validate Yu_lims for range optimization
     if ("range" %in% optimization) {
       if (is.null(Yu_lims)) {
-        stop("Yu_lims is missing for 'range' optimization")
+        stop("'Yu_lims' is required for 'range' optimization", call. = FALSE)
       }
-      if (!length(Yu_lims) == 2) {
-        stop("Yu_lims must be a numerical vector of length 2")
+      if (length(Yu_lims) != 2L) {
+        stop("'Yu_lims' must be a numeric vector of length 2", call. = FALSE)
       }
     }
     
-    
-    if (!is.null(Yu_lims) & "range" %in% optimization) {
+    # Set response limits for range filtering
+    if (!is.null(Yu_lims) && "range" %in% optimization) {
       user_min_y <- min(Yu_lims)
       user_max_y <- max(Yu_lims)
     } else {
-      user_min_y <- user_max_y <- NULL
-      optimization <- optimization[!optimization %in% "range"]
+      user_min_y <- NULL
+      user_max_y <- NULL
+      optimization <- optimization[optimization != "range"]
     }
     
     results_df <- biter(
@@ -764,28 +676,26 @@ gesearch.default <- function(
       Yu = Yu,
       y_lim_left = user_min_y,
       y_lim_right = user_max_y,
-      iter_sequence = seq(1, req_iter),
+      iter_sequence = seq_len(req_iter),
       n = nrow(ismpl),
       optimization = optimization,
-      ncomp = method$pls_c,
+      ncomp = fit_method$ncomp,
       tune = control$tune,
       p = control$p,
       number = control$number,
-      scale = scale,
-      max_iter = 1,
+      scale = fit_method$scale,
+      max_iter = 1L,
       tol = 1e-6,
       seed = seed,
-      modified = method$modified,
+      algorithm = fit_method$method,
       allow_parallel = control$allow_parallel,
       pchunks = pchunks
     )
     
-    ## Step 6 - starts here
-    # iterate through all B iteration results and increment the rankings (rmse)
-    # and test count for each sample
+    # Step 6: Rank samples by weakness and identify candidates for removal
     drop_results <- apply(
       results_df$weakness_scores_subset,
-      MARGIN = 2,
+      MARGIN = 2L,
       FUN = drop_indices,
       uu = U,
       vv = V,
@@ -795,63 +705,66 @@ gesearch.default <- function(
       retain_by = control$retain_by,
       cull_quantity = cull_quantity,
       percentile_type = control$percentile_type,
-      max_pls_c = max(method$pls_c)
+      max_ncomp = fit_method$ncomp
     )
     
-    was_interrupted <- sapply(drop_results, FUN = function(x) x$interrupted)
+    # Check for interruptions from drop_indices
+    was_interrupted <- vapply(drop_results, function(x) x$interrupted, logical(1L))
     
     if (any(was_interrupted)) {
-      analysis_name <- gsub(
-        "rmse_|score_dis|residual_| deviation_from", 
-        "", names(drop_results)
-      )
+      # Clean up analysis names for display
+      analysis_name <- gsub("rmse_|score_dis|residual_| deviation_from", "", names(drop_results))
       analysis_name <- gsub("_", " ", analysis_name)
-      messages <- sapply(
-        which(was_interrupted),
-        FUN = function(x, name, i) {
-          message(paste0(name[i], ": ", x[[i]]$message))
-        },
-        x = drop_results,
-        name = analysis_name
-      )
+      
+      # Report which analyses were interrupted
+      for (i in which(was_interrupted)) {
+        message(analysis_name[i], ": ", drop_results[[i]]$message)
+      }
       break
     }
+    
     pool_sizes_log <- c(pool_sizes_log, length(k_idx))
     
-    cuts <- rbind(cuts, sapply(drop_results, FUN = function(x) x$cutoff))
+    # Accumulate cutoff and weakness scores across iterations
+    cuts <- rbind(cuts, vapply(drop_results, function(x) x$cutoff, numeric(1L)))
     max_weakness_score <- rbind(
       max_weakness_score, 
-      sapply(drop_results, FUN = function(x) x$max_weakness_score)
+      vapply(drop_results, function(x) x$max_weakness_score, numeric(1L))
     )
     
+    # Mark dropped samples as NA
     new_nas <- !complete.cases(
-      sapply(drop_results, FUN = function(x) x$obs_indices)
+      vapply(drop_results, function(x) x$obs_indices, numeric(length(sl_idx)))
     )
     sl_idx[new_nas] <- NA
-    complete_iterations <- complete_iterations + 1
+    
+    complete_iterations <- complete_iterations + 1L
     s_to_drop <- c(s_to_drop, sum(is.na(sl_idx)))
     
-    # Inside the while loop (after updating pool_sizes_log)
+    # Check for stagnation (gene pool size unchanged)
     if (length(pool_sizes_log) >= control$stagnation_limit) {
       recent_sizes <- tail(pool_sizes_log, control$stagnation_limit)
-      if (all(recent_sizes == recent_sizes[1])) {
-        cat(paste0(
-          "\n\033[31mEarly termination: Gene pool size remained at ",
-          recent_sizes[1], " for ", control$stagnation_limit,
-          " consecutive iterations. Stopping.\033[39m\n"
-        ))
+      if (all(recent_sizes == recent_sizes[1L])) {
+        cat(
+          "\n\033[31mEarly termination: Active genes remained at ",
+          recent_sizes[1L], " for ", control$stagnation_limit,
+          " consecutive iterations. Stopping.\033[39m\n",
+          sep = ""
+        )
         break
       }
     }
   }
-  
-  # Finalise k_idx following the last iteration
+  # Finalize k_idx after last iteration
   k_idx <- sl_idx[!is.na(sl_idx)]
-  # make sure the final k_idx is at least of target_size
   selected <- c(selected, list(k_idx))
-  msizes <- sapply(selected, FUN = length)
+  
+  # Ensure final selection meets target_size
+  
+  msizes <- vapply(selected, length, integer(1L))
   k_idx <- selected[[max(which(msizes >= target_size))]]
-  selected <- selected[which(msizes >= target_size)]
+  selected <- selected[msizes >= target_size]
+  
   
   models_per_generation <- vector("list", length(selected) - 1)
   if (intermediate_models) {
@@ -861,61 +774,61 @@ gesearch.default <- function(
     for (i in 1:(length(selected) - 1)) {
       ith_selected <- selected[[i]]
       
-      # Prepare the final models
-      pls_models <- NULL
-      validation_results <- NULL
-      for (j in 1:ncol(Yr)) {
-        
+      # Fit models for this generation
+      pls_models <- list()
+      validation_results <- list()
+      for (j in seq_len(ncol(Yr))) {
+        # Fit and validate PLS model for response j
         pls_val <- get_plsr(
-          X = as.matrix(Xr),
-          Y = as.matrix(Yr[, j, drop = FALSE]),
+          X = Xr,
+          Y = Yr[, j, drop = FALSE],
           indices = ith_selected,
-          method = method, # this is an object of class 'local_fit'
-          center = TRUE,
-          scale = scale,
+          fit_method = fit_method,
           number = control$number,
           group = group[ith_selected],
           retrieve = FALSE,
           tune = TRUE,
-          max_iter = 1,
-          tol = 1e-6,
-          seed = seed, 
+          seed = seed,
           p = control$p
         )
-        
         validation <- list(
           val_info = list(train_resamples = pls_val$train_resamples),
           results = list(train = pls_val$cv_results)
         )
         
+        # Add test set predictions if Yu available
         if (!is.null(Yu)) {
-          yuhat <- predict(pls_val, newdata = Xu, ncomp = method$pls_c)
+          yuhat <- predict(pls_val, newdata = Xu, ncomp = fit_method$ncomp)
           
           validation$val_info$test_predictions <- yuhat
           validation$results$test <- get_validation_metrics(yuhat, Yu)
           
-          tmpx <- as.matrix(rbind(Xr[ith_selected, ], Xu))
-          tmpy <- as.matrix(c(Yr[ith_selected, j, drop = FALSE], Yu[, j, drop = FALSE]))
-          tmpx <- tmpx[complete.cases(tmpy), ]
-          tmpy <- tmpy[complete.cases(tmpy), , drop = FALSE]
+          tmpx <- rbind(Xr[ith_selected, , drop = FALSE], Xu)
+          tmpy <- c(Yr[ith_selected, j], Yu[, j])
+          complete_idx <- complete.cases(tmpy)
+          tmpx <- tmpx[complete_idx, , drop = FALSE]
+          tmpy <- tmpy[complete_idx]
         } else {
-          tmpx <- as.matrix(Xr[ith_selected, ])
-          tmpy <- as.matrix(Yr[ith_selected, j, drop = FALSE])
+          tmpx <- Xr[ith_selected, , drop = FALSE]
+          tmpy <- Yr[ith_selected, j]
         }
         
-        intermediate_pls <- opls_get_all(
+        # Fit final PLS model for this generation
+        intermediate_pls <- assign_pls_names(opls_get_all(
           X = tmpx,
-          Y = tmpy,
-          ncomp = method$pls_c,
-          scale = scale,
-          maxiter = 1,
+          Y = as.matrix(tmpy),
+          ncomp = fit_method$ncomp,
+          scale = fit_method$scale,
+          maxiter = 1L,
           tol = 1e-6,
-          algorithm = ifelse(method$modified, "mpls", "pls")
-        ) |> assign_pls_names(x_names = colnames(Xr))
+          algorithm = if (fit_method$fit_method == "mpls") "mpls" else "pls"
+        ), x_names = colnames(Xr))
         
         pls_models[[j]] <- intermediate_pls
         validation_results[[j]] <- validation
       }
+      
+      # Name models by response variable if available
       if (!is.null(colnames(Yu))) {
         names(pls_models) <- names(validation_results) <- colnames(Yu)
       }
@@ -926,37 +839,31 @@ gesearch.default <- function(
       )
     }
   }
-  
-  
+
+  # Progress message for final model fitting
   if (verbose) {
-    cat("\nFitting final model on", length(k_idx), "selected genes... \n")
-    if (!is.null(Yu)) {
-      if (sum(complete.cases(Yu)) != 0) {
-        cat("and", sum(complete.cases(Yu)), "target genes for which response values were available... \n")
-      }
+    cat("\nFitting final model on", length(k_idx), "selected genes...\n")
+    if (!is.null(Yu) && sum(complete.cases(Yu)) > 0L) {
+      cat("and", sum(complete.cases(Yu)), "target genes with available response values...\n")
     }
   }
   
+  # Fit final models on selected samples
+  pls_models <- list()
+  validation_results <- list()
   
-  # Prepare the final models
-  pls_models <- NULL
-  validation_results <- NULL
-  for (j in 1:ncol(Yr)) {
-    
+  for (j in seq_len(ncol(Yr))) {
+    # Fit and validate PLS model for response j
     pls_val <- get_plsr(
-      X = as.matrix(Xr),
-      Y = as.matrix(Yr[, j, drop = FALSE]),
+      X = Xr,
+      Y = Yr[, j, drop = FALSE],
       indices = k_idx,
-      method = method, # this is an object of class 'local_fit'
-      center = TRUE,
-      scale = scale,
+      fit_method = fit_method,
       number = control$number,
       group = group[k_idx],
       retrieve = FALSE,
       tune = TRUE,
-      max_iter = 1,
-      tol = 1e-6,
-      seed = seed, 
+      seed = seed,
       p = control$p
     )
     
@@ -965,72 +872,82 @@ gesearch.default <- function(
       results = list(train = pls_val$cv_results)
     )
     
+    # Add test set predictions if Yu available
     if (!is.null(Yu)) {
-      yuhat <- predict(pls_val, newdata = Xu, ncomp = method$pls_c)
+      yuhat <- predict(pls_val, newdata = Xu, ncomp = fit_method$ncomp)
       
       validation$val_info$test_predictions <- yuhat
       validation$results$test <- get_validation_metrics(yuhat, Yu)
       
-      tmpx <- as.matrix(rbind(Xr[k_idx, ], Xu))
-      tmpy <- as.matrix(c(Yr[k_idx, j, drop = FALSE], Yu[, j, drop = FALSE]))
-      tmpx <- tmpx[complete.cases(tmpy), ]
-      tmpy <- tmpy[complete.cases(tmpy), , drop = FALSE]
+      tmpx <- rbind(Xr[k_idx, , drop = FALSE], Xu)
+      tmpy <- c(Yr[k_idx, j], Yu[, j])
+      complete_idx <- complete.cases(tmpy)
+      tmpx <- tmpx[complete_idx, , drop = FALSE]
+      tmpy <- tmpy[complete_idx]
     } else {
-      tmpx <- as.matrix(Xr[k_idx, ])
-      tmpy <- as.matrix(Yr[k_idx, j, drop = FALSE])
+      tmpx <- Xr[k_idx, , drop = FALSE]
+      tmpy <- Yr[k_idx, j]
     }
     
-    finalpls <- opls_get_all(
+    # Fit final PLS model
+    finalpls <- assign_pls_names(opls_get_all(
       X = tmpx,
-      Y = tmpy,
-      ncomp = method$pls_c,
-      scale = scale,
-      maxiter = 1,
+      Y = as.matrix(tmpy),
+      ncomp = fit_method$ncomp,
+      scale = fit_method$scale,
+      maxiter = 1L,
       tol = 1e-6,
-      algorithm = ifelse(method$modified, "mpls", "pls")
-    ) |> assign_pls_names(x_names = colnames(Xr))
+      algorithm = if (fit_method$fit_method == "mpls") "mpls" else "pls"
+    ), x_names = colnames(Xr))
     
     pls_models[[j]] <- finalpls
     validation_results[[j]] <- validation
   }
   
+  
+  
+  
+  
+  
+  # Name models by response variable if available
   if (!is.null(colnames(Yu))) {
-    names(pls_models) <- names(validation_results) <- colnames(Yu)
+    names(pls_models) <- colnames(Yu)
+    names(validation_results) <- colnames(Yu)
   }
   
-  
-  iter_weakness <- NULL
-  iter_weakness$maximum <- data.table(
-    iteration = 1:nrow(max_weakness_score),
-    max_weakness_score
+  # Compile iteration weakness statistics
+  iter_weakness <- list(
+    maximum = data.frame(
+      iteration = seq_len(nrow(max_weakness_score)),
+      max_weakness_score
+    ),
+    cutoff = data.frame(
+      iteration = seq_len(nrow(max_weakness_score)),
+      cuts
+    )
   )
   
-  iter_weakness$cutoff <- data.table(
-    iteration = 1:nrow(max_weakness_score),
-    cuts
-  )
+  names(selected) <- paste0("iteration_", seq_along(selected))
   
-  names(selected) <- paste0("iteration_", 1:length(selected))
-  
+  # Assemble results
   resultsList <- list(
-    x_local = Xr[k_idx, ],
+    x_local = Xr[k_idx, , drop = FALSE],
     y_local = Yr[k_idx, , drop = FALSE],
     indices = k_idx,
     complete_iter = complete_iterations,
     iter_weakness = iter_weakness,
     samples = selected,
-    n_removed = data.table(
-      iteration = 1:length(s_to_drop),
-      removed = c(s_to_drop[1], diff(s_to_drop)),
-      cummulative = s_to_drop
+    n_removed = data.frame(
+      iteration = seq_along(s_to_drop),
+      removed = c(s_to_drop[1L], diff(s_to_drop)),
+      cumulative = s_to_drop
     ),
     control = control,
-    scale = scale,
+    fit_method = fit_method,
     validation_results = validation_results,
     final_models = pls_models,
-    intermediate_models = models_per_generation, 
-    seed = seed,
-    documentation = documentation
+    intermediate_models = models_per_generation,
+    seed = seed
   )
   
   if (!intermediate_models) {
@@ -1055,19 +972,19 @@ gesearch.formula <- function(
     k,
     b,
     target_size,
-    method,
     ...,
     na_action = na.pass
 ) {
   if (!inherits(formula, "formula")) {
-    stop("'formula' is only for formula objects")
+    stop("'formula' must be a formula object", call. = FALSE)
   }
   
   call_f <- match.call()
   
-  if (missing(method)) {
-    stop("'method' is missing")
+  if (missing(fit_method)) {
+    stop("'fit_method' is missing", call. = FALSE)
   }
+  
   definition <- sys.function(sys.parent())
   mf <- match.call(expand.dots = FALSE)
   formals <- formals(definition)
@@ -1077,62 +994,60 @@ gesearch.formula <- function(
     match.call(definition, mf, TRUE)
   }
   
-  ## Get the model frame
-  
+  # Get the model frame
   mr <- match(x = c("formula", "train", "na_action"), table = names(mf))
   mu <- match(x = c("formula", "test"), table = names(mf))
   
-  mfr <- mf[c(1, mr)]
-  mfu <- mf[c(1, mu)]
+  mfr <- mf[c(1L, mr)]
+  mfu <- mf[c(1L, mu)]
   
-  names(mfr)[names(mfr) %in% "na_action"] <- "na.action"
-  names(mfr)[names(mfr) %in% "train"] <- "data"
-  names(mfu)[names(mfu) %in% "test"] <- "data"
+  names(mfr)[names(mfr) == "na_action"] <- "na.action"
+  names(mfr)[names(mfr) == "train"] <- "data"
+  names(mfu)[names(mfu) == "test"] <- "data"
   
-  yname <- all.vars(formula, functions = FALSE, max.names = 1)
+  yname <- all.vars(formula, functions = FALSE, max.names = 1L)
   
-  mfr[[1]] <- mfu[[1]] <- as.name("model.frame")
+  mfr[[1L]] <- mfu[[1L]] <- as.name("model.frame")
   
   input_list <- list(...)
   
+  # Handle missing response in test data
   if (!yname %in% colnames(eval(mfu$data))) {
     if ("optimization" %in% names(input_list)) {
       if (input_list$optimization == "response") {
-        stop("When optimization = 'response', response values must be provided in test")
+        stop("'optimization = \"response\"' requires response values in test", 
+             call. = FALSE)
       }
     }
-
+    
     test <- local({
       tmp <- make.unique(c(names(test), ".tmp_y"))[length(names(test)) + 1L]
       test[[tmp]] <- NA
       names(test)[names(test) == tmp] <- yname
       test
     })
-    warning(paste(
-      yname, "not found in test. Missing values (NAs) were assigned to",
-      yname, "in test."
-    ))
+    warning(yname, " not found in test; assigned NA.", call. = FALSE)
   }
   
   mfu <- model.frame(mfu, data = test, na.action = NULL)
   mfr <- eval(mfr, parent.frame())
   
   trms <- attr(mfr, "terms")
-  
   formulaclasses <- list(attr(trms, "dataClasses"))
   
-  attr(trms, "intercept") <- 0
-  xr <- model.matrix(trms, model.frame(mfr, drop.unused.levels = T))
+  attr(trms, "intercept") <- 0L
+  xr <- model.matrix(trms, model.frame(mfr, drop.unused.levels = TRUE))
   yr <- model.extract(mfr, "response")
   
   xu <- model.matrix(trms, mfu)
   yu <- model.extract(mfu, "response")
   
-  
+  # Validate response for response optimization
   if ("optimization" %in% names(input_list)) {
     if ("response" %in% input_list$optimization) {
       if (sum(is.na(yu)) == length(yu)) {
-        stop("When optimization = 'response', response values must be provided in test")
+        stop("'optimization = \"response\"' requires response values in test", 
+             call. = FALSE)
       }
     }
   }
@@ -1145,7 +1060,7 @@ gesearch.formula <- function(
     k = k,
     b = b,
     target_size = target_size,
-    method = method,
+    fit_method = fit_method,
     ...
   )
   rsl$formula <- formula
@@ -1157,223 +1072,152 @@ gesearch.formula <- function(
   rsl
 }
 
-#' @aliases gesearch
-#' @importFrom stats quantile complete.cases diffinv na.pass model.extract model.frame model.matrix
-#' @export
-gesearch.list <- function(formula,
-                          train,
-                          test,
-                          k,
-                          b,
-                          method,
-                          ...,
-                          na_action = na.pass) {
-  is_formula <- sapply(formula, FUN = function(x) inherits(x, "formula"))
-  if (any(!is_formula)) {
-    stop("non-forumla objects in formula")
-  }
-  
-  right_side <- sapply(formula, FUN = function(x) labels(terms(x)))
-  left_side <- sapply(formula, FUN = function(x) all.vars(update(x, . ~ 1)))
-  
-  mresponse <- paste(c("matrix_response", left_side), collapse = "_")
-  mfml <- as.formula(paste(mresponse, "~", unique(right_side)))
-  
-  if (length(unique(right_side)) > 1) {
-    stop("The right hand side variables must be the same across all the formulas in the list")
-  }
-  
-  call_f <- match.call()
-  
-  
-  if (missing(method)) {
-    stop("'method' is missing")
-  }
-  definition <- sys.function(sys.parent())
-  mf <- match.call(expand.dots = FALSE)
-  formals <- formals(definition)
-  
-  mf[["formula"]] <- mfml
-  
-  if (!"na_action" %in% names(mf)) {
-    mf[["na_action"]] <- formals[["na_action"]]
-    match.call(definition, mf, TRUE)
-  }
-  
-  ## Get the model frame
-  mr <- match(x = c("formula", "train", "na_action"), table = names(mf))
-  mu <- match(x = c("formula", "test"), table = names(mf))
-  
-  mfr <- mf[c(1, mr)]
-  mfu <- mf[c(1, mu)]
-  
-  names(mfr)[names(mfr) %in% "na_action"] <- "na.action"
-  names(mfr)[names(mfr) %in% "train"] <- "data"
-  names(mfu)[names(mfu) %in% "test"] <- "data"
-  
-  yname <- left_side
-  
-  mfr[[1]] <- mfu[[1]] <- as.name("model.frame")
-  
-  input_list <- list(...)
-  
-  if (!any(yname %in% colnames(eval(mfu$data)))) {
-    if ("optimization" %in% names(input_list)) {
-      if (input_list$optimization == "response") {
-        stop("When optimization = 'response', response values must be provided in test")
-      }
-    }
-    
-    # for (i in 1:length(yname)) {
-    #   test <- cbind(test, yyyyyyyy801124 = NA)
-    #   names(test)[names(test) == "yyyyyyyy801124"] <- yname[i]
-    #   warning(paste(
-    #     yname[i], "not found in test. Missing values (NAs) were assigned to",
-    #     yname[i], "in test."
-    #   ))
-    # }
-    missing <- setdiff(yname, names(test))
-    
-    if (length(missing) > 0L) {
-      test[missing] <- NA
-      warning(sprintf(
-        "%s not found in test. Assigned NA.",
-        paste(missing, collapse = ", ")
-      ))
-    }
-  }
-  
-  train[[mresponse]] <- as.matrix(train[, left_side])
-  test[[mresponse]] <- as.matrix(test[, left_side])
-  
-  mfu <- model.frame(mfu, data = test, na.action = NULL)
-  mfr <- model.frame(mfr, data = train, na.action = NULL)
-  
-  trms <- attr(mfr, "terms")
-  
-  formulaclasses <- NULL
-  wformulaclasses <- attr(trms, "dataClasses")
-  wformulaclasses[[1]] <- "nmatrix.1"
-  for (i in 1:length(yname)) {
-    formulaclasses[[i]] <- wformulaclasses
-    names(formulaclasses[[i]])[1] <- yname[i]
-  }
-  formulaclasses
-  
-  attr(trms, "intercept") <- 0
-  xr <- model.matrix(trms, model.frame(mfr, drop.unused.levels = T))
-  yr <- model.extract(mfr, "response")
-  
-  xu <- model.matrix(trms, mfu)
-  yu <- model.extract(mfu, "response")
-  
-  if (!class(yu) %in% "matrix") {
-    yu <- as.matrix(yu)
-  }
-  
-  for (i in 1:ncol(yu)) {
-    if ("optimization" %in% names(input_list) & sum(is.na(yu[, i])) == length(yu[, i])) {
-      mss <- paste(
-        "When optimization = 'response', response values must be provided in test.",
-        "Check", colnames(yu)[i]
-      )
-      stop(mss)
-    }
-  }
-  
-  rsl <- gesearch(
-    Xr = xr,
-    Yr = yr,
-    Xu = xu,
-    Yu = yu,
-    k = k,
-    b = b,
-    method = method,
-    ...
-  )
-  rsl$formula <- formula
-  rsl$dataclasses <- formulaclasses
-  
-  attr(rsl, "call") <- call_f
-  class(rsl) <- c("gesearch", "gesearch.list", "list")
-  
-  rsl
-}
+## ## THIS IS TO ALLOW A LIST OF FORMULAS TO BE USED FOR MULTI-RESPONSE MODELING
+## @aliases gesearch
+## @importFrom stats quantile complete.cases diffinv na.pass model.extract
+## model.frame model.matrix
+## @export
+# gesearch.list <- function(
+#     formula,
+#     train,
+#     test,
+#     k,
+#     b,
+#     target_size,
+#     fit_method,
+#     ...,
+#     na_action = na.pass
+# ) {
+#   # Validate formula list
+#   is_formula <- vapply(formula, inherits, logical(1L), what = "formula")
+#   if (any(!is_formula)) {
+#     stop("All elements in 'formula' must be formula objects", call. = FALSE)
+#   }
+#   
+#   right_side <- vapply(formula, function(x) labels(terms(x)), character(1L))
+#   left_side <- vapply(formula, function(x) all.vars(update(x, . ~ 1)), character(1L))
+#   
+#   mresponse <- paste(c("matrix_response", left_side), collapse = "_")
+#   mfml <- as.formula(paste(mresponse, "~", unique(right_side)))
+#   
+#   if (length(unique(right_side)) > 1L) {
+#     stop("Right-hand side variables must be identical across all formulas", 
+#          call. = FALSE)
+#   }
+#   
+#   call_f <- match.call()
+#   
+#   
+#   definition <- sys.function(sys.parent())
+#   mf <- match.call(expand.dots = FALSE)
+#   formals <- formals(definition)
+#   
+#   mf[["formula"]] <- mfml
+#   
+#   if (!"na_action" %in% names(mf)) {
+#     mf[["na_action"]] <- formals[["na_action"]]
+#     match.call(definition, mf, TRUE)
+#   }
+#   
+#   # Get the model frame
+#   mr <- match(x = c("formula", "train", "na_action"), table = names(mf))
+#   mu <- match(x = c("formula", "test"), table = names(mf))
+#   
+#   mfr <- mf[c(1L, mr)]
+#   mfu <- mf[c(1L, mu)]
+#   
+#   names(mfr)[names(mfr) == "na_action"] <- "na.action"
+#   names(mfr)[names(mfr) == "train"] <- "data"
+#   names(mfu)[names(mfu) == "test"] <- "data"
+#   
+#   yname <- left_side
+#   
+#   mfr[[1L]] <- mfu[[1L]] <- as.name("model.frame")
+#   
+#   input_list <- list(...)
+#   
+#   # Handle missing response in test data
+#   if (!any(yname %in% colnames(eval(mfu$data)))) {
+#     if ("optimization" %in% names(input_list)) {
+#       if (input_list$optimization == "response") {
+#         stop("'optimization = \"response\"' requires response values in test", 
+#              call. = FALSE)
+#       }
+#     }
+#     
+#     missing_vars <- setdiff(yname, names(test))
+#     if (length(missing_vars) > 0L) {
+#       test[missing_vars] <- NA
+#       warning(
+#         paste(missing_vars, collapse = ", "), " not found in test; assigned NA.",
+#         call. = FALSE
+#       )
+#     }
+#   }
+#   
+#   train[[mresponse]] <- as.matrix(train[, left_side])
+#   test[[mresponse]] <- as.matrix(test[, left_side])
+#   
+#   mfu <- model.frame(mfu, data = test, na.action = NULL)
+#   mfr <- model.frame(mfr, data = train, na.action = NULL)
+#   
+#   trms <- attr(mfr, "terms")
+#   
+#   # Build formula classes
+#   formulaclasses <- vector("list", length(yname))
+#   wformulaclasses <- attr(trms, "dataClasses")
+#   wformulaclasses[[1L]] <- "nmatrix.1"
+#   for (i in seq_along(yname)) {
+#     formulaclasses[[i]] <- wformulaclasses
+#     names(formulaclasses[[i]])[1L] <- yname[i]
+#   }
+#   
+#   attr(trms, "intercept") <- 0L
+#   xr <- model.matrix(trms, model.frame(mfr, drop.unused.levels = TRUE))
+#   yr <- model.extract(mfr, "response")
+#   
+#   xu <- model.matrix(trms, mfu)
+#   yu <- model.extract(mfu, "response")
+#   
+#   if (!inherits(yu, "matrix")) {
+#     yu <- as.matrix(yu)
+#   }
+#   
+#   # Validate response for response optimization
+#   for (i in seq_len(ncol(yu))) {
+#     if ("optimization" %in% names(input_list) && 
+#         sum(is.na(yu[, i])) == length(yu[, i])) {
+#       stop(
+#         "'optimization = \"response\"' requires response values in test. ",
+#         "Check: ", colnames(yu)[i],
+#         call. = FALSE
+#       )
+#     }
+#   }
+#   
+#   rsl <- gesearch(
+#     Xr = xr,
+#     Yr = yr,
+#     Xu = xu,
+#     Yu = yu,
+#     k = k,
+#     b = b,
+#     target_size = target_size,
+#     fit_method = fit_method,
+#     ...
+#   )
+#   rsl$formula <- formula
+#   rsl$dataclasses <- formulaclasses
+#   
+#   attr(rsl, "call") <- call_f
+#   class(rsl) <- c("gesearch", "gesearch.list", "list")
+#   
+#   rsl
+# }
 
 
-#' Predict from a \code{gesearch} object
-#'
-#' @description
-#' Generates predictions from a fitted \code{gesearch} object using the stored
-#' final PLS models, or (optionally) returns predictions for all intermediate
-#' generations as well. If the model was fitted with a formula, \code{newdata}
-#' may be a \code{data.frame} (which will be processed via the stored design
-#' matrix terms) or a \code{matrix}. Otherwise, \code{newdata} must be a
-#' \code{matrix}.
-#'
-#' @param object A fitted object of class \code{gesearch}. It is expected to
-#'   contain elements such as \code{$final_models}, \code{$intermediate_models}
-#'   (optional), \code{$formula} (optional), \code{$dataclasses}, and
-#'   \code{$scale}.
-#' @param newdata New data on which to obtain predictions. If \code{object}
-#'   was created with a formula, \code{newdata} may be a \code{data.frame}
-#'   (containing all required predictor variables) or a \code{matrix}. If no
-#'   formula was used, \code{newdata} must be a \code{matrix}.
-#' @param type Character; prediction type. Currently only \code{"response"} is
-#'   supported. 
-#' @param what Character; which models to use for prediction. Either
-#'   \code{"final"} (default; return predictions from the final models) or
-#'   \code{"all_generations"} (return a list of predictions for each
-#'   intermediate generation plus the final generation).
-#' @param ... Ignored (reserved for future use).
-#'
-#' @details
-#' If the model was fitted with a formula, the function validates and transforms
-#' \code{newdata} to the appropriate model matrix using the stored terms
-#' (no intercept). Factor levels not present in \code{newdata} are dropped via
-#' \code{drop.unused.levels = TRUE}. For non-numeric predictors, the function
-#' supports the case where \code{newdata} is a matrix with appropriately named
-#' columns (matching the fitted design matrix), otherwise a \code{data.frame}
-#' is required.
-#'
-#' For \code{type = "response"}, predictions are generated by delegating to
-#' \code{predict_opls()} for each stored PLS model. Column names of the output
-#' are of the form \code{"pls_1"}, \code{"pls_2"}, \dots. Row names (if present
-#' in \code{newdata}) are propagated to the prediction matrices.
-#'
-#' When \code{what = "all_generations"}, the return value is a named list with
-#' one element per generation (e.g., \code{"generation_1"}, \code{"generation_2"},
-#' \dots), where each element is itself a list of prediction matrices (one per
-#' response), and the last element corresponds to the final models.
-#'
-#' @return
-#' \describe{
-#'   \item{\code{type = "response"} and \code{what = "final"}}{
-#'     A named list of numeric matrices (one per response), each with
-#'     \code{nrow(newdata)} rows and columns corresponding to the number of PLS
-#'     components used in the respective model.
-#'   }
-#'   \item{\code{type = "response"} and \code{what = "all_generations"}}{
-#'     A named list of generations; each generation is a named list of
-#'     prediction matrices as above.
-#'   }
-#'   \item{\code{type = "scores"}}{
-#'     An error is raised (not yet implemented).
-#'   }
-#' }
-#' For \code{type = "scores"}: an error is raised (not yet implemented).
-#'
-#' @section Input validation:
-#' The function checks that all required predictor variables are present in
-#' \code{newdata} when a formula was used. It also enforces that \code{newdata}
-#' is a \code{matrix} when no formula is available.
-#'
-#' @seealso
-#' \code{\link{predict_opls}}, \code{\link[stats]{terms}},
-#' \code{\link[stats]{model.matrix}}, \code{\link[stats]{delete.response}}
-#'
 #' @aliases gesearch
-#' @importFrom stats .MFclass terms delete.response
+#' @importFrom stats .MFclass terms delete.response model.frame model.matrix
 #' @export
 predict.gesearch <- function(
     object, 
@@ -1381,58 +1225,55 @@ predict.gesearch <- function(
     type = "response", 
     what = c("final", "all_generations"), 
     ...
-  ) {
-  
+) {
   what <- match.arg(what)
-  
+  # Validate type
   allowed_types <- c("response")
-  if (!is.character(type) || length(type) != 1L || is.na(type) || !(type %in% allowed_types)) {
+  if (!is.character(type) || length(type) != 1L || is.na(type) || 
+      !(type %in% allowed_types)) {
     stop(
-      "`type` must be one of: ", 
+      "'type' must be one of: ", 
       paste(shQuote(allowed_types), collapse = ", "), 
       call. = FALSE
     )
   }
   
   if (missing(newdata)) {
-    stop("newdata is missing")
+    stop("'newdata' is required", call. = FALSE)
   }
   
+  # Handle formula-fitted models
   if (!is.null(object$formula)) {
-    dcls <- object$dataclasses[[1]][-1]
+    dcls <- object$dataclasses[[1L]][-1L]
     
-    if (!("matrix" %in% class(newdata) | "data.frame" %in% class(newdata))) {
-      stop(paste0(
-        "When predicting from objects of class 'gesearch' fitted with ",
-        "formula, the argument 'newdata' must be a 'data.frame' ",
-        "or alternatively a 'matrix'"
-      ))
+    if (!inherits(newdata, "matrix") && !inherits(newdata, "data.frame")) {
+      stop("'newdata' must be a data.frame or matrix for formula-fitted models", 
+           call. = FALSE)
     }
     
-    if ("data.frame" %in% class(newdata)) {
-      if (!all(names(dcls) %in% names(newdata))) {
-        mss <- names(dcls)[!names(dcls) %in% names(newdata)]
-        stop(paste(
-          "The following predictor variables are missing:",
-          paste(mss, collapse = ", ")
-        ))
+    if (inherits(newdata, "data.frame")) {
+      missing_vars <- setdiff(names(dcls), names(newdata))
+      if (length(missing_vars) > 0L) {
+        stop("Missing predictor variables: ", paste(missing_vars, collapse = ", "), 
+             call. = FALSE)
       }
     }
     
+    # Handle non-numeric predictors
     if (any(dcls != "numeric")) {
-      if ("matrix" %in% class(newdata) & length(dcls) == 1) {
+      if (inherits(newdata, "matrix") && length(dcls) == 1L) {
         if (.MFclass(newdata) == dcls) {
           pnames <- gsub(
             names(dcls), "",
-            colnames(object$final_models[[1]]$coefficients)
+            colnames(object$final_models[[1L]]$coefficients)
           )
           if (all(pnames %in% colnames(newdata))) {
             newdata_temp <- newdata
             newdata <- data.frame(rep(NA, nrow(newdata)))
-            colnames(newdata) <- names(object$dataclasses[[1]])[1]
+            colnames(newdata) <- names(object$dataclasses[[1L]])[1L]
             newdata[[names(dcls)]] <- newdata_temp[, pnames]
           } else {
-            stop("Missing predictor variables")
+            stop("Missing predictor variables", call. = FALSE)
           }
         }
       }
@@ -1440,72 +1281,158 @@ predict.gesearch <- function(
     
     oterms <- terms(object$formula)
     oterms <- delete.response(oterms)
-    attr(oterms, "intercept") <- 0
+    attr(oterms, "intercept") <- 0L
     mf <- model.frame(oterms, newdata)
     newdata <- model.matrix(oterms, model.frame(mf, drop.unused.levels = TRUE))
   }
   
-  if (!"matrix" %in% class(newdata)) {
-    stop("Argument 'newdata' must be a 'matrix'")
+  if (!inherits(newdata, "matrix")) {
+    stop("'newdata' must be a matrix", call. = FALSE)
   }
   
-  # if(all(pnames %in% colnames(newdata)))
+  # Generate predictions from final models
   if (type == "response") {
-    preds <- NULL
-    for (i in 1:length(object$final_models)) {
+    preds <- vector("list", length(object$final_models))
+    for (i in seq_along(object$final_models)) {
       preds[[i]] <- predict_opls(
         bo = object$final_models[[i]]$bo,
         b = t(object$final_models[[i]]$coefficients),
-        ncomp = object$final_models[[i]]$npls,
-        newdata = as.matrix(newdata),
-        scale = object$scale,
+        ncomp = object$final_models[[i]]$ncomp,
+        newdata = newdata,
+        scale = object$fit_method$scale,
         Xscale = object$final_models[[i]]$transf$Xscale
       )
       rownames(preds[[i]]) <- rownames(newdata)
-      colnames(preds[[i]]) <- paste0("pls_", 1:ncol(preds[[i]]))
+      colnames(preds[[i]]) <- paste0("ncomp_", seq_len(ncol(preds[[i]])))
     }
     names(preds) <- names(object$final_models)
   }
   
-  
-  
-  if (type == "response" & what == "all_generations") {
+  # Include intermediate generation predictions if requested
+  if (type == "response" && what == "all_generations") {
     if (is.null(object$intermediate_models)) {
       warning(
-        "The model object does not contain intermediate models.", 
-        "Predictions were generated only from the final model."
+        "Model object does not contain intermediate models; ",
+        "predictions generated only from final model.",
+        call. = FALSE
       )
-    }
-    intermediate_preds <- NULL
-    for (j in 1:length(object$intermediate_models)) {
-      intermediate_preds[[j]] <- list()
-      for (i in 1:length(object$intermediate_models[[j]]$pls_models)) {
-        intermediate_preds[[j]][[i]] <- predict_opls(
-          bo = object$intermediate_models[[j]]$pls_models[[i]]$bo,
-          b = t(object$intermediate_models[[j]]$pls_models[[i]]$coefficients),
-          ncomp = object$intermediate_models[[j]]$pls_models[[i]]$npls,
-          newdata = as.matrix(newdata),
-          scale = object$scale,
-          Xscale = object$intermediate_models[[j]]$pls_models[[i]]$transf$Xscale
-        )
-        rownames(intermediate_preds[[j]][[i]]) <- rownames(newdata)
-        colnames(intermediate_preds[[j]][[i]]) <- paste0(
-          "pls_", 1:ncol(intermediate_preds[[j]][[i]])
+    } else {
+      n_intermediate <- length(object$intermediate_models)
+      intermediate_preds <- vector("list", n_intermediate + 1L)
+      
+      for (j in seq_len(n_intermediate)) {
+        n_models <- length(object$intermediate_models[[j]]$pls_models)
+        intermediate_preds[[j]] <- vector("list", n_models)
+        
+        for (i in seq_len(n_models)) {
+          intermediate_preds[[j]][[i]] <- predict_opls(
+            bo = object$intermediate_models[[j]]$pls_models[[i]]$bo,
+            b = t(object$intermediate_models[[j]]$pls_models[[i]]$coefficients),
+            ncomp = object$intermediate_models[[j]]$pls_models[[i]]$ncomp,
+            newdata = newdata,
+            scale = object$fit_method$scale,
+            Xscale = object$intermediate_models[[j]]$pls_models[[i]]$transf$Xscale
+          )
+          rownames(intermediate_preds[[j]][[i]]) <- rownames(newdata)
+          colnames(intermediate_preds[[j]][[i]]) <- paste0(
+            "ncomp_", seq_len(ncol(intermediate_preds[[j]][[i]]))
+          )
+        }
+        names(intermediate_preds[[j]]) <- names(
+          object$intermediate_models[[j]]$pls_models
         )
       }
-      names(intermediate_preds[[j]]) <- names(
-        object$intermediate_models[[j]]$pls_models
-      )
+      
+      # Add final model predictions as last generation
+      intermediate_preds[[n_intermediate + 1L]] <- preds
+      names(intermediate_preds) <- paste0("generation_", seq_along(intermediate_preds))
+      preds <- intermediate_preds
     }
-    intermediate_preds[[j + 1]] <- preds
-    names(intermediate_preds) <- paste0(
-      "generation_", 1:length(intermediate_preds)
-    )
-    preds <- intermediate_preds
   }
   
-  # if (type == "scores") {
-  #   stop("not yet implemented") # FIXME!!
-  # }
   preds
+}
+
+
+#' @aliases gesearch
+#' @export
+plot.gesearch <- function(x, which = c("weakness", "removed"), ...) {
+  which <- match.arg(which)
+  
+  # Save and restore graphical parameters on exit
+  opar <- par(no.readonly = TRUE)
+  on.exit(par(opar), add = TRUE)
+  
+  if (which == "weakness") {
+    nbox <- ceiling(sqrt(ncol(x$iter_weakness$maximum) - 1L))
+    par(mfrow = c(nbox, nbox), mar = c(4, 5.5, 2.5, 2))
+  }
+  
+  # Process plot arguments
+  plot_dots <- list(...)
+  
+  if (!"col" %in% names(plot_dots)) {
+    plot_dots$col <- "dodgerblue"
+  }
+  
+  if (!"type" %in% names(plot_dots)) {
+    plot_dots$type <- "b"
+  }
+  
+  # Remove axis labels from dots (set explicitly below)
+  plot_dots$xlab <- NULL
+  plot_dots$ylab <- NULL
+  
+  # Extract or set main title
+  if ("main" %in% names(plot_dots)) {
+    main <- plot_dots$main
+    plot_dots$main <- NULL
+  } else {
+    main <- "gesearch results"
+  }
+  
+  grid_col <- rgb(0.3, 0.3, 0.3, 0.3)
+  
+  # Plot weakness scores
+  if (which == "weakness") {
+    pnames <- colnames(x$iter_weakness$maximum)[-1L]
+    for (i in seq_along(pnames)) {
+      ith_ylab <- gsub("_", " ", pnames[i])
+      ith_ylab <- gsub("rmse ", "", ith_ylab)
+      ith_ylab <- paste0("Max. ", ith_ylab)
+      do.call(
+        plot,
+        c(
+          list(
+            x = x$iter_weakness$maximum[[1L]],
+            y = x$iter_weakness$maximum[[1L + i]],
+            xlab = "Generation",
+            ylab = ith_ylab
+          ),
+          plot_dots
+        )
+      )
+      grid(col = grid_col, lty = 1L)
+    }
+  }
+  
+  # Plot cumulative removals
+  if (which == "removed") {
+    do.call(
+      plot,
+      c(
+        list(
+          x = x$n_removed$iteration,
+          y = x$n_removed$cumulative,
+          xlab = "Generation",
+          ylab = "Samples removed (cumulative)"
+        ),
+        plot_dots
+      )
+    )
+    grid(col = grid_col, lty = 1L)
+  }
+  
+  mtext(main, outer = TRUE, cex = 2, line = -2)
+  invisible(NULL)
 }

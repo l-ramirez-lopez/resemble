@@ -32,7 +32,7 @@ biter <- function(
     max_iter,
     tol,
     seed = NULL,
-    modified = FALSE,
+    algorithm, 
     allow_parallel, 
     pchunks = 1
 ) {
@@ -120,14 +120,14 @@ biter <- function(
             max_iter = max_iter,
             tol = tol, 
             seed = seed, 
-            modified = modified
+            algorithm = algorithm
           )
           
           selected_pls_c <- which.min(plsv$cv_results$rmse_cv)[1]
         } else {
           selected_pls_c <- ncomp
         }
-        gs_pls <- opls_gs(
+        gs_pls <- opls_gesearch(
           Xr = its$x[hsub_subset, , drop = FALSE],
           Yr = its$y[hsub_subset, i, drop = FALSE],     
           Xu = Xu, 
@@ -137,7 +137,7 @@ biter <- function(
           reconstruction = "reconstruction" %in% optimization,
           similarity = "similarity" %in% optimization,
           fresponse = "fresponse" %in% optimization,
-          algorithm =  ifelse(modified, "mpls", "pls")
+          algorithm =  algorithm
         )
         
         deviation_from_boundaries <- residual_variance <- rmse_reconstruction <- rmse_response <- score_dissimilarity <- NULL
@@ -298,7 +298,7 @@ drop_indices <- function(
     retain_by, 
     cull_quantity, 
     percentile_type, 
-    max_pls_c
+    max_ncomp
 ) {
   
   # vv <- as.vector(table(resampling_indices))
@@ -355,11 +355,11 @@ drop_indices <- function(
       cutoff <- quantile(uu, 1 - r, na.rm = TRUE, type = percentile_type)
       worst_reference_set <- u_ordered[u_ordered$weakness_score >= cutoff, ]
       ok_reference_set <- u_ordered[u_ordered$weakness_score < cutoff, ]
-      if (nrow(ok_reference_set) < max_pls_c) {
+      if (nrow(ok_reference_set) < max_ncomp) {
         mss <- (paste0(
           "Iteration interrupted as the number of selected observations (",
           nrow(ok_reference_set),
-          ") is lower than the number of pls factors (", max_pls_c, ")"
+          ") is lower than the number of pls factors (", max_ncomp, ")"
         ))
         return(list(interrupted = TRUE,
                     message = mss))
@@ -383,7 +383,7 @@ combine_individuals <- function(x, k, k_idx) {
   # Select two individuals out of x (i.e. columns), randomly (without replacements)
   sel_individuals <- sample(1:ncol(x), 2, replace = FALSE)
   # Combine the two samples and remove duplicated entries and NAs
-  combined_individuals <- c(x[, sel_individuals]) |> na.omit() |> unique()
+  combined_individuals <- unique(na.omit(c(x[, sel_individuals])))
   # If the combined individual has more than k samples, we draw k samples from 
   # the combined gene pool
   # Otherwise, do mutation: randomly selected genes from the global gene pool 

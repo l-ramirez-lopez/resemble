@@ -7,10 +7,11 @@
 #'
 #' @param Xr A numeric matrix of reference observations (rows) and variables
 #'   (columns).
-#' @param Xu Optional matrix of additional observations to project.
-#' @param Yr Optional response matrix. Required for PLS methods (\code{"pls"},
-#'   \code{"mpls"}) and when using \code{ncomp_by_opc()}.
-#' @param ncomp Component selection. Either:
+#' @param Xu An optional matrix of additional observations to project.
+#' @param Yr An optional response matrix. Required for PLS methods
+#'   (\code{"pls"}, \code{"mpls"}, \code{"simpls"}) and when using 
+#'   \code{\link{ncomp_by_opc}()}.
+#' @param ncomp Component selection method. Either:
 #'   \itemize{
 #'     \item A positive integer (equivalent to \code{ncomp_fixed(n)})
 #'     \item An \code{ncomp_selection} object: \code{\link{ncomp_by_var}()},
@@ -18,86 +19,105 @@
 #'           \code{\link{ncomp_fixed}()}
 #'   }
 #'   Default is \code{ncomp_by_var(0.01)}.
-#' @param method Character. Projection method:
+#' @param method A character string specifying the projection method:
 #'   \itemize{
 #'     \item \code{"pca"}: PCA via singular value decomposition (default)
 #'     \item \code{"pca_nipals"}: PCA via NIPALS algorithm
-#'     \item \code{"pls"}: Partial least squares
-#'     \item \code{"mpls"}: Modified PLS (Shenk & Westerhaus, 1991)
+#'     \item \code{"pls"}: PLS via NIPALS algorithm
+#'     \item \code{"mpls"}: Modified PLS via NIPALS (Shenk and Westerhaus, 1991)
+#'     \item \code{"simpls"}: PLS via SIMPLS algorithm (de Jong, 1993)
 #'   }
-#' @param center Logical. Center the data? Default \code{TRUE}. Note: PLS
-#'   methods always center internally regardless of this setting.
-#' @param scale Logical. Scale the data? Default \code{FALSE}.
-#' @param tol Numeric. Convergence tolerance for NIPALS algorithm.
-#'   Default \code{1e-6}.
-#' @param max_iter Integer. Maximum iterations for NIPALS. Default \code{1000}.
-#' @param pc_selection \lifecycle{deprecated} Use \code{ncomp} instead.
+#' @param center A logical indicating whether to center the data. Default is
+#'   \code{TRUE}. PLS methods always center internally regardless of this
+#'   setting.
+#' @param scale A logical indicating whether to scale the data to unit
+#'   variance. Default is \code{FALSE}.
+#' @param tol Convergence tolerance for the NIPALS algorithm. Default is
+#'   \code{1e-6}. Ignored when \code{method = "simpls"}.
+#' @param max_iter Maximum number of iterations for NIPALS. Default is
+#'   \code{1000}. Ignored when \code{method = "simpls"}.
+#' @param pc_selection `r lifecycle::badge("deprecated")` Use \code{ncomp} instead.
 #' @param ... Additional arguments (currently unused).
 #'
 #' @details
-#' In the case of \code{method = "pca"}, the algorithm used is the singular
-#' value decomposition in which a given data matrix (\mjeqn{X}{X}) is
-#' factorized as follows:
+#' ## PCA methods
+#'
+#' When \code{method = "pca"}, singular value decomposition factorizes the
+#' data matrix \mjeqn{X}{X} as:
 #'
 #' \mjdeqn{X = UDV^{T}}{X = UDV^T}
 #'
 #' where \mjeqn{U}{U} and \mjeqn{V}{V} are orthogonal matrices (left and right
-#' singular vectors), and \mjeqn{D}{D} is a diagonal matrix containing the
-#' singular values. The matrix of scores is \mjeqn{UD}{UD}, and the loadings
-#' are \mjeqn{V}{V}.
+#' singular vectors), and \mjeqn{D}{D} is a diagonal matrix of singular values.
+#' The score matrix is \mjeqn{UD}{UD} and the loadings are \mjeqn{V}{V}.
 #'
 #' When \code{method = "pca_nipals"}, the non-linear iterative partial least
 #' squares (NIPALS) algorithm is used instead.
 #'
-#' For PLS methods, the NIPALS regression algorithm is used. Modified PLS
-#' (\code{"mpls"}) differs from standard PLS in using correlation rather than
-#' covariance to compute weights, which can explain a larger portion of the
-#' response variable (Shenk & Westerhaus, 1991).
+#' ## PLS methods
 #'
-#' When \code{ncomp_by_opc()} is used, component selection is based on
-#' minimizing the RMSD (continuous \code{Yr}) or maximizing kappa (categorical
+#' Three PLS variants are available:
+#'
+#' \itemize{
+#'   \item \code{"pls"}: Standard PLS using the NIPALS algorithm with 
+#'     covariance-based weights.
+#'   \item \code{"mpls"}: Modified PLS using the NIPALS algorithm with 
+#'     correlation-based weights, giving equal influence to all predictors 
+#'     regardless of variance (Shenk and Westerhaus, 1991).
+#'   \item \code{"simpls"}: SIMPLS algorithm (de Jong, 1993), which deflates 
+#'     the cross-product matrix rather than X itself. Computationally faster 
+#'     than NIPALS, especially for wide matrices.
+#' }
+#'
+#' ## Component selection
+#'
+#' When \code{\link{ncomp_by_opc}()} is used, component selection minimizes
+#' RMSD (for continuous \code{Yr}) or maximizes kappa (for categorical
 #' \code{Yr}) between observations and their nearest neighbors. See
-#' \code{\link{sim_eval}} for details.
+#' \code{\link{diss_evaluate}}.
 #'
 #' @return
 #' An object of class \code{"ortho_projection"} containing:
-#' \describe{
-#'   \item{scores}{Matrix of projected scores for \code{Xr} (and \code{Xu})}
-#'   \item{X_loadings}{Matrix of X loadings}
-#'   \item{Y_loadings}{Matrix of Y loadings (PLS only)}
-#'   \item{weights}{Matrix of PLS weights (PLS only)}
-#'   \item{projection_mat}{Projection matrix for new data (PLS only)}
-#'   \item{variance}{List with original variance and explained variance info}
-#'   \item{scores_sd}{Standard deviation of scores}
-#'   \item{n_components}{Number of components retained}
-#'   \item{center}{Centering vector used}
-#'   \item{scale}{Scaling vector used}
-#'   \item{method}{Method used}
-#'   \item{opc_evaluation}{OPC optimization results (if applicable)}
+#' \itemize{
+#'   \item \code{scores}: Matrix of projected scores for \code{Xr} (and \code{Xu}).
+#'   \item \code{X_loadings}: Matrix of X loadings.
+#'   \item \code{Y_loadings}: Matrix of Y loadings (PLS only).
+#'   \item \code{weights}: Matrix of PLS weights (PLS only).
+#'   \item \code{projection_mat}: Projection matrix for new data (PLS only).
+#'   \item \code{variance}: List with original and explained variance.
+#'   \item \code{scores_sd}: Standard deviation of scores.
+#'   \item \code{ncomp}: Number of components retained.
+#'   \item \code{center}: Centering vector used.
+#'   \item \code{scale}: Scaling vector used.
+#'   \item \code{method}: Projection method used.
+#'   \item \code{ncomp_method}: The value passed to the `ncomp` argument.
+#'   \item \code{opc_evaluation}: opc optimization results (if applicable).
 #' }
 #'
 #' @author
 #' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
 #'
 #' @references
-#' Martens, H. (1991). Multivariate calibration. John Wiley & Sons.
+#' de Jong, S. 1993. SIMPLS: An alternative approach to partial least squares 
+#' regression. Chemometrics and Intelligent Laboratory Systems 18:251-263.
+#'
+#' Martens, H. 1991. Multivariate calibration. John Wiley & Sons.
 #'
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 #' Scholten, T. 2013a. The spectrum-based learner: A new local approach for
-#' modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
-#' 268-279.
+#' modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196:268-279.
 #'
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
 #' J.A.M., Scholten, T. 2013b. Distance and similarity-search metrics for use
-#' with soil vis-NIR spectra. Geoderma 199, 43-53.
+#' with soil vis-NIR spectra. Geoderma 199:43-53.
 #'
-#' Shenk, J.S., & Westerhaus, M.O. 1991. Populations structuring of near
+#' Shenk, J.S., Westerhaus, M.O. 1991. Populations structuring of near
 #' infrared spectra and modified partial least squares regression. Crop
-#' Science, 31(6), 1548-1555.
+#' Science 31:1548-1555.
 #'
 #' @seealso
 #' \code{\link{ncomp_by_var}}, \code{\link{ncomp_by_opc}},
-#' \code{\link{sim_eval}}, \code{\link{mbl}}
+#' \code{\link{diss_evaluate}}, \code{\link{mbl}}
 #'
 #' @examples
 #' \donttest{
@@ -125,13 +145,17 @@
 #' proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
 #'                          ncomp = ncomp_by_opc(40))
 #'
-#' # PLS projection
+#' # PLS projection (NIPALS)
 #' proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
 #'                          method = "pls", ncomp = ncomp_by_opc(40))
 #'
 #' # Modified PLS
 #' proj <- ortho_projection(train_x, Yr = train_y,
 #'                          method = "mpls", ncomp = 10)
+#'
+#' # SIMPLS (faster for wide matrices)
+#' proj <- ortho_projection(train_x, Yr = train_y,
+#'                          method = "simpls", ncomp = 10)
 #' }
 #'
 #' @rdname ortho_projection
@@ -139,7 +163,7 @@
 ortho_projection <- function(
     Xr, Xu = NULL, Yr = NULL,
     ncomp = ncomp_by_var(0.01),
-    method = c("pca", "pca_nipals", "pls", "mpls"),
+    method = c("pca", "pca_nipals", "pls", "mpls", "simpls"),
     center = TRUE,
     scale = FALSE,
     tol = 1e-6,
@@ -151,8 +175,8 @@ ortho_projection <- function(
   # ---------------------------------------------------------------------------
   # Handle deprecated pc_selection
   # ---------------------------------------------------------------------------
-  if (lifecycle::is_present(pc_selection)) {
-    lifecycle::deprecate_warn(
+  if (is_present(pc_selection)) {
+    deprecate_warn(
       when = "3.0.0",
       what = "ortho_projection(pc_selection)",
       with = "ortho_projection(ncomp)",
@@ -164,25 +188,19 @@ ortho_projection <- function(
   # ---------------------------------------------------------------------------
   # Handle legacy method names
   # ---------------------------------------------------------------------------
-  method_arg <- tryCatch(
-    match.arg(method, c("pca", "pca_nipals", "pls", "mpls", "pca.nipals")),
-    error = function(e) {
-      stop("'method' must be one of: 'pca', 'pca_nipals', 'pls', 'mpls'.")
-    }
-  )
-  
-  if (method_arg == "pca.nipals") {
-    lifecycle::deprecate_warn(
+  if (identical(method, "pca.nipals")) {
+    
+    deprecate_warn(
       when = "3.0.0",
       what = I('ortho_projection(method = "pca.nipals")'),
       with = I('ortho_projection(method = "pca_nipals")')
     )
-    method_arg <- "pca_nipals"
+    method <- "pca_nipals"
   }
   
-  method <- method_arg
+  method <- match.arg(method)
   is_pca <- method %in% c("pca", "pca_nipals")
-  is_pls <- method %in% c("pls", "mpls")
+  is_pls <- method %in% c("pls", "mpls", "simpls")
   
   # ---------------------------------------------------------------------------
   # Coerce ncomp
@@ -232,6 +250,7 @@ ortho_projection <- function(
   }
   
   proj$method <- method
+  proj$ncomp_method <- ncomp
   class(proj) <- c("ortho_projection", "list")
   proj
 }
@@ -241,8 +260,8 @@ ortho_projection <- function(
 # Deprecated wrappers
 # =============================================================================
 
-#' @rdname ortho_projection
-#' @export
+#' @keywords internal
+#' @noRd
 pc_projection <- function(
     Xr, Xu = NULL, Yr = NULL,
     pc_selection = list(method = "var", value = 0.01),
@@ -251,7 +270,7 @@ pc_projection <- function(
     tol = 1e-6, max_iter = 1000,
     ...
 ) {
-  lifecycle::deprecate_warn(
+  deprecate_warn(
     when = "3.0.0",
     what = "pc_projection()",
     with = "ortho_projection()"
@@ -272,8 +291,8 @@ pc_projection <- function(
 }
 
 
-#' @rdname ortho_projection
-#' @export
+#' @keywords internal
+#' @noRd
 pls_projection <- function(
     Xr, Xu = NULL, Yr,
     pc_selection = list(method = "opc", value = min(dim(Xr), 40)),
@@ -282,7 +301,7 @@ pls_projection <- function(
     tol = 1e-6, max_iter = 1000,
     ...
 ) {
-  lifecycle::deprecate_warn(
+  deprecate_warn(
     when = "3.0.0",
     what = "pls_projection()",
     with = "ortho_projection()"
@@ -384,25 +403,6 @@ predict.ortho_projection <- function(object, newdata, ...) {
 }
 
 
-# =============================================================================
-# Helper: Coerce ncomp argument
-# =============================================================================
-
-.coerce_ncomp <- function(ncomp) {
-  if (is.numeric(ncomp) && length(ncomp) == 1L) {
-    if (is.na(ncomp) || ncomp < 1L) {
-      stop("'ncomp' must be a positive integer.")
-    }
-    return(ncomp_fixed(as.integer(ncomp)))
-  }
-  if (!inherits(ncomp, "ncomp_selection")) {
-    stop(
-      "'ncomp' must be a positive integer or an ncomp_*() object.\n",
-      "See ?ncomp_by_var, ?ncomp_by_cumvar, ?ncomp_by_opc, ?ncomp_fixed."
-    )
-  }
-  ncomp
-}
 
 
 # =============================================================================
@@ -416,7 +416,6 @@ predict.ortho_projection <- function(object, newdata, ...) {
   ncomp$max_ncomp
 }
 
-
 # =============================================================================
 # Helper: Bridge ncomp_selection to legacy pc_selection list
 # =============================================================================
@@ -424,14 +423,16 @@ predict.ortho_projection <- function(object, newdata, ...) {
 .ncomp_to_pc_selection <- function(ncomp_obj) {
   stopifnot(inherits(ncomp_obj, "ncomp_selection"))
   
-  switch(class(ncomp_obj)[[1]],
-         ncomp_fixed = list(method = "manual", value = ncomp_obj$ncomp),
-         ncomp_by_var = list(method = "var", value = ncomp_obj$min_var),
-         ncomp_by_cumvar = list(method = "cumvar", value = ncomp_obj$min_cumvar),
-         ncomp_by_opc = list(method = "opc", value = ncomp_obj$max_ncomp),
-         stop("Unknown ncomp_selection class: ", class(ncomp_obj)[[1]])
+  switch(
+    class(ncomp_obj)[[1]],
+    ncomp_fixed = list(method = "manual", value = ncomp_obj$ncomp),
+    ncomp_by_var = list(method = "var", value = ncomp_obj$min_var),
+    ncomp_by_cumvar = list(method = "cumvar", value = ncomp_obj$min_cumvar),
+    ncomp_by_opc = list(method = "opc", value = ncomp_obj$max_ncomp),
+    stop("Unknown ncomp_selection class: ", class(ncomp_obj)[[1]])
   )
 }
+
 
 
 # =============================================================================
@@ -592,7 +593,7 @@ predict.ortho_projection <- function(object, newdata, ...) {
       x_var = variance[, 1:selected_pcs, drop = FALSE]
     ),
     scores_sd = scores_sd,
-    n_components = selected_pcs,
+    ncomp = selected_pcs,
     center = mean_vector,
     scale = sd_vector
   )
@@ -631,7 +632,6 @@ predict.ortho_projection <- function(object, newdata, ...) {
   }
   
   ny <- ncol(Yr)
-  
   # Handle missing values in Yr
   nas <- rowSums(is.na(Yr)) > 0
   X0 <- Xr
@@ -639,7 +639,6 @@ predict.ortho_projection <- function(object, newdata, ...) {
   non_nas_yr <- seq_len(nrow(Xr))
   nas_yr <- integer(0)
   Xout <- NULL
-  
   if (any(nas)) {
     nas_yr <- which(nas)
     non_nas_yr <- which(!nas)
@@ -656,7 +655,6 @@ predict.ortho_projection <- function(object, newdata, ...) {
       }
     }
   }
-  
   effective_rows_xr <- nrow(X0)
   max_comp <- min(max_comp, effective_rows_xr, ncol(X0))
   
@@ -672,7 +670,6 @@ predict.ortho_projection <- function(object, newdata, ...) {
   } else {
     pc_selection$value
   }
-  
   # Run PLS
   plsp <- opls_for_projection(
     X = X0,
@@ -790,7 +787,7 @@ predict.ortho_projection <- function(object, newdata, ...) {
       y_var = yex
     ),
     scores_sd = scores_sd,
-    n_components = max_comp,
+    ncomp = max_comp,
     center = plsp$transf$Xcenter,
     scale = plsp$transf$Xscale
   )

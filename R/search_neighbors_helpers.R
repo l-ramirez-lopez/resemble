@@ -21,27 +21,55 @@
 #' not. Default is \code{FALSE}. This is used when the search is being conducted
 #' in symmetric matrix of distances (i.e. to avoid that the nearest neighbor of
 #' each observation is itself).
+#' @param keep_self an logical indicating that the indices of the observations 
+#' themselves (i.e. the diagonal of the dissimilarity matrix) must be considered 
+#' when the spike argument has negative values to exclude samples from the 
+#' neighborhood. 
 #' @description internal
+#' @noRd
 #' @keywords internal
 diss_to_neighbors <- function(diss_matrix,
                               k = NULL, k_diss = NULL, k_range = NULL,
                               spike = NULL,
                               return_dissimilarity = FALSE,
-                              skip_first = FALSE) {
+                              skip_first = FALSE, 
+                              keep_self = FALSE) {
   if (!is.null(spike)) {
     
     spike_hold <- spike[spike > 0]
     spike_rm <- -spike[spike < 0]
     
-    f_order_neigh <- function(x, s_hold, s_remove, skip_first = FALSE) {
+    f_order_neigh <- function(x, s_hold, s_remove, skip_first = FALSE, keep_self = FALSE) {
       x <- order(x)
       if (skip_first) {
         x <- x[-1]
       }
       x <- c(s_hold, x[!x %in% s_hold])
-      x <- x[!x %in% s_remove]
+      if (keep_self && x[1] %in% s_remove) {
+        keep_self_index <- x[1]
+        x <- x[!x %in% s_remove]
+        x <- c(keep_self_index, x)
+      } else {
+        x <- x[!x %in% s_remove]
+      }
       x
     }
+    
+    # f_order_neigh <- function(x, s_hold, s_remove, skip_first = FALSE, keep_self = FALSE) {
+    #   x <- order(x)
+    #   if (skip_first) {
+    #     x <- x[-1]
+    #   }
+    #   x <- c(s_hold, x[!x %in% s_hold])
+    #   if (keep_self) {
+    #     keep_self_index <- x[1]
+    #   } else {
+    #     keep_self_index <- NULL
+    #   }
+    #   x <- x[!x %in% s_remove]
+    #   x <- c(keep_self_index, x)
+    #   x
+    # }
     
     neighbor_indcs <- apply(
       diss_matrix,
@@ -49,7 +77,8 @@ diss_to_neighbors <- function(diss_matrix,
       FUN = f_order_neigh,
       s_hold = spike_hold,
       s_remove = spike_rm,
-      skip_first = skip_first
+      skip_first = skip_first, 
+      keep_self = keep_self
     )
     
     if (is.list(neighbor_indcs)) {
@@ -90,9 +119,12 @@ diss_to_neighbors <- function(diss_matrix,
     k_max <- max(k_range)
     neighbors <- neighbors_diss <= k_diss
     if (!is.null(spike)) {
-      neighbors[1:length(spike), ] <- TRUE
+      n_spike_hold <- sum(spike > 0)
+      if (n_spike_hold > 0) {
+        neighbors[1:n_spike_hold, ] <- TRUE
+      }
     }
-    n_neighbors <- original_n_neighbors <- colSums(neighbors)
+    n_neighbors <- original_n_neighbors <- colSums(neighbors, na.rm = TRUE)
     n_neighbors[original_n_neighbors < k_min] <- k_min
     n_neighbors[original_n_neighbors > k_max] <- k_max
     neighbor_indcs <- neighbor_indcs[1:max(n_neighbors), , drop = FALSE]
@@ -119,7 +151,7 @@ diss_to_neighbors <- function(diss_matrix,
   )
   
   if (!is.null(k_diss)) {
-    results$k_diss_info <- data.table(
+    results$k_diss_info <- data.frame(
       Xu_index = 1:ncol(diss_matrix),
       n_k = original_n_neighbors,
       final_n_k = n_neighbors

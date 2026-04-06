@@ -14,7 +14,7 @@ drop_indices(
   retain_by,
   cull_quantity,
   percentile_type,
-  max_pls_c
+  max_ncomp
 )
 }
 \description{

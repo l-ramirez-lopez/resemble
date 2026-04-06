@@ -6,15 +6,11 @@ vers <- paste("R package version", meta$Version)
 
 bibentry(
   bibtype    = "Manual",
-  title    = "resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics. ",
+  title    = "resemble: Sample Retrieval and Local Learning in Spectral Chemometrics. ",
   author = c(
     person("Leonardo", "Ramirez-Lopez", role = c("aut", "cre")),
     person("Antoine", "Stevens", role = c("ctb", "cre")),
-    person("Claudio", "Orellano", role = c("ctb")),
-    person("Raphael", "Viscarra Rossel", role = c("ctb")),
-    person("Zefang", "Shen", role = c("ctb")),
-    person("Alex", "Wadoux", role = c("ctb")), 
-    person("Timo", "Breure", role = c("ctb"))
+    person("Claudio", "Orellano", role = c("ctb"))
     ),
   publication = "R package Vignette",
   year = year,
@@ -23,10 +19,7 @@ bibentry(
   url      = "https://CRAN.R-project.org/package=resemble",
   textVersion = paste0("Ramirez-Lopez, L., ",
                        "and Stevens, A., ",
-                       "and Viscarra Rossel, R., ",
-                       "and Shen, Z., ",
-                       "and Wadoux, A., ",
-                       "and Breure, T. ",
+                       "and Orellano, C., ",
                        "(", year, "). ",
                        "resemble: Regression and similarity evaluation for memory-based learning in spectral chemometrics. R package Vignette ",
                        vers, 

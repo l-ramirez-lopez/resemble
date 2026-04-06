@@ -33,8 +33,8 @@ print.local_ortho_diss <- function(x, ...) {
     obj$dissimilarity[is.na(obj$dissimilarity)] <- "*"
     dm <- format(obj$dissimilarity, digits = getOption("digits"), justify = "right")
     print(list(
-      n.components = object$n_components,
-      loc_n_components = object$neighborhood_info$local_n_components,
+      n.components = object$ncomp,
+      loc_ncomp = object$neighborhood_info$local_ncomp,
       dissimilarity = noquote(dm)
     ))
     cat("*: Not a (local) neighbor")

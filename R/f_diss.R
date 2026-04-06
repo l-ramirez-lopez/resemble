@@ -1,8 +1,6 @@
 #' @title Euclidean, Mahalanobis and cosine dissimilarity measurements
 #' @description
 #' \loadmathjax
-#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
-#'
 #' This function is used to compute the dissimilarity between observations
 #' based on Euclidean or Mahalanobis distance measures or on cosine
 #' dissimilarity measures (a.k.a spectral angle mapper).
@@ -114,7 +112,8 @@
 #' # Cosine dissimilarity matrix
 #' cdiss_xr_xu <- f_diss(Xr, Xu, "cosine")
 #' }
-#' @export
+#' @noRd
+#' @keywords internal
 
 ######################################################################
 # resemble
@@ -247,7 +246,6 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
 #' @importFrom stats cov
 euclid_to_mahal <- function(X, sm_method = c("svd", "eigen")) {
   nms <- dimnames(X)
-
   if (ncol(X) > nrow(X)) {
     stop("In order to project the matrix to a Mahalanobis space, the number of observations of the input matrix must larger than its number of variables")
   }

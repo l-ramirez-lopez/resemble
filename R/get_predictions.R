@@ -7,7 +7,7 @@
 #' @usage
 #' get_predictions(object)
 #' @param object an object of class \code{mbl} as returned by \code{mbl}
-#' @return a data.table of predicted values according to either \code{k} or \code{k_dist}
+#' @return a data.frame of predicted values according to either \code{k} or \code{k_dist}
 #' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and Antoine Stevens
 #' @seealso \code{\link{mbl}}
 #' @export
@@ -34,6 +34,6 @@ get_predictions <- function(object) {
     prediction <- x$pred
     return(prediction)
   }
-  predictions <- data.table(sapply(object$results, ext_pred))
+  predictions <- data.frame(sapply(object$results, ext_pred))
   return(predictions)
 }

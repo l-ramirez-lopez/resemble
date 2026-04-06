@@ -4,400 +4,297 @@
 \alias{gesearch}
 \alias{gesearch.default}
 \alias{gesearch.formula}
-\alias{gesearch.list}
 \alias{predict.gesearch}
-\title{Evolutionary training sample search in spectral libraries
-for building context-specific models}
+\alias{plot.gesearch}
+\title{Evolutionary sample search for context-specific calibrations}
 \usage{
-\method{gesearch}{formula}(formula, train, test, k, b, target_size,
-        method, ..., na_action = na.pass)
-
 \method{gesearch}{default}(Xr, Yr, Xu, Yu = NULL, Yu_lims = NULL,
-        k, b, retain = 0.95, target_size = k,
-        method = local_fit_pls(pls_c = min(dim(Xr), 10)),
-        optimization = "reconstruction",
-        control = search_control(), group = NULL, scale = FALSE,
-        verbose = TRUE, seed = NULL, documentation = character(),
-        crossover = TRUE, intermediate_models = FALSE,
-        pchunks = 1, ...)
+         k, b, retain = 0.95, target_size = k,
+         fit_method = fit_pls(ncomp = 10),
+         optimization = "reconstruction",
+         group = NULL, control = gesearch_control(),
+         intermediate_models = FALSE,
+         verbose = TRUE, seed = NULL, pchunks = 1L, ...)
 
-\method{predict}{gesearch}(object, newdata, type = 'response', ...)
+\method{gesearch}{formula}(formula, train, test, k, b, target_size,
+         ..., na_action = na.pass)
+
+\method{predict}{gesearch}(object, newdata, type = "response",
+         what = c("final", "all_generations"), ...)
+
+\method{plot}{gesearch}(x, which = c("weakness", "removed"), ...)
 }
 \arguments{
-\item{...}{additional arguments passed to \code{gesearch.default} when
-calling the formula interface. Not used in \code{default} or
-\code{predict} methods.}
+\item{Xr}{A numeric matrix of predictor variables for the reference data
+(observations in rows, variables in columns).}
 
-\item{formula}{an object of class \link[stats]{formula} defining the model.
-Can also be a list of formulas with identical right-hand-side terms.}
+\item{Yr}{A numeric vector or single-column matrix of response values
+corresponding to \code{Xr}. Only one response variable is supported.}
 
-\item{train}{a data.frame with training data, including model variables.}
+\item{Xu}{A numeric matrix of predictor variables for target observations
+(same structure as \code{Xr}).}
 
-\item{test}{a data.frame with test (local) data, including model variables.}
+\item{Yu}{An optional numeric vector or single-column matrix of response
+values for \code{Xu}. Required when \code{optimization} includes
+\code{"response"}. Default is \code{NULL}.}
 
-\item{Xr}{a matrix of predictor variables for the reference data
-(rows = observations, columns = variables).}
+\item{Yu_lims}{A numeric vector of length 2 specifying expected response
+limits for the target population. Used with \code{optimization = "range"}.}
 
-\item{Yr}{a matrix with one or more columns of response values matching Xr.}
+\item{k}{An integer specifying the number of samples in each resampling
+subset (gene size).}
 
-\item{Xu}{a matrix of predictor variables for 'local' observations
-(same structure as Xr).}
+\item{b}{An integer specifying the target average number of times each
+training sample is evaluated per iteration. Higher values (e.g., >40)
+produce more stable results but increase computation time.}
 
-\item{Yu}{a matrix with the same number of columns as \code{Yr} containing
-response values for \code{Xu}. Only required when
-\code{optimization = "response"}. Default: \code{NULL}.}
+\item{retain}{A numeric value in (0, 1] specifying the proportion of samples
+retained per iteration. Default is 0.95. Values >0.9 are recommended for
+stability. See \code{\link{gesearch_control}} for retention strategy.}
 
-\item{Yu_lims}{numeric range indicating expected limits of the response
-variable in the target population. Only used when \code{Yu} is NULL or has
-one column.}
+\item{target_size}{An integer specifying the target number of selected
+samples (gene pool size). Must be >= \code{k}. Default is \code{k}.}
 
-\item{k}{integer; number of samples in each sampled subset (gene).}
+\item{fit_method}{A fit method object created with \code{\link{fit_pls}}.
+Specifies the regression model and scaling used during the search.
+Currently only \code{fit_pls()} is supported.}
 
-\item{b}{integer; target average number of times each training sample is
-included in the population per iteration. See \code{Details}.}
-
-\item{retain}{numeric in (0, 1); proportion of samples retained per iteration.
-Default is 0.95. See \code{search_control()} for retention strategy.
+\item{optimization}{A character vector specifying optimization criteria:
 \itemize{
-\item{If \code{control$retain_by == 'proportion'}: }{a fixed proportion
-\code{retain} is used to retain samples. The rest (\code{1 - retain})
-are discarded. See \code{\link{search_control}}.}
-\item{If \code{control$retain_by == 'probability'}: }{the value is used
-as a percentile cut-off for sample errors. Observations with errors
-below this percentile are retained.}
-}}
-
-\item{target_size}{integer; the target number of selected training samples
-(gene pool size). Must be ≥ \code{k}. Defaults to \code{k}.}
-
-\item{method}{an object of class \code{\link{local_fit}} specifying the
-regression model used during the search. Only methods created with
-\code{local_fit_pls()} are currently supported. See \code{\link{local_fit}}.}
-
-\item{optimization}{character; specifies the optimization criterion used to
-guide the sample search. Options include:
-\itemize{
-\item{\code{"response"}: }{Retains observations based on the root mean
-squared error (RMSE) of predicting the response variable in the test set
-(\code{Yu}). Requires \code{Yu} to be provided.}
-
-\item{\code{"reconstruction"} (default): }{Retains observations based on
-the spectral reconstruction error of the test set (\code{Xu}). The test
-data are projected onto the PLS space and then reconstructed using a
-fixed number of PLS components. The RMSE between the original and
-reconstructed spectra is used as the selection criterion. Does not require
-\code{Yu}.}
-
-\item{\code{"similarity"}: }{Retains observations based on the mean
-spectral similarity between test samples (\code{Xu}) and the training
-samples used in each iteration. Test samples are projected into PLS score
-space, and Mahalanobis distances are calculated between test and training
-observations. The average distance is used to determine similarity.
-\code{Yu} is not required.}
-
-\item{\code{"range"}: }{Removes observations that yield predictions outside
-a specified response range defined by \code{Yu_lims}. Used to filter out
-extreme or unrealistic predictions.}
+\item \code{"reconstruction"}: (default) Retains samples based on
+spectral reconstruction error of \code{Xu} in PLS space.
+\item \code{"response"}: Retains samples based on RMSE of predicting
+\code{Yu}. Requires \code{Yu}.
+\item \code{"similarity"}: Retains samples based on Mahalanobis distance
+between \code{Xu} and training samples in PLS score space.
+\item \code{"range"}: Removes samples producing predictions outside
+\code{Yu_lims}.
 }
-
-Multiple methods may be combined by supplying a character vector, e.g.,
+Multiple criteria can be combined, e.g.,
 \code{c("reconstruction", "similarity")}.}
 
-\item{control}{a list created with \code{\link{search_control}} that defines
-additional parameters for controlling the \emph{gesearch} algorithm. Defaults to
-\code{search_control()}. See \code{\link{search_control}} for details.}
+\item{group}{An optional factor assigning group labels to training
+observations. Used for leave-group-out cross-validation to avoid
+pseudo-replication.}
 
-\item{scale}{logical; if \code{TRUE}, predictor variables are scaled to unit
-variance before regression at each iteration.}
+\item{control}{A list created with \code{\link{gesearch_control}} containing
+additional algorithm parameters.}
 
-\item{group}{an optional factor or a vector coercible to a factor (via
-\code{as.factor}) that assigns a group label to each training observation
-(in \code{Xr} or \code{train}). This is used to define cross-validation
-folds for PLS tuning using leave-group-out validation to avoid
-pseudo-replication. All observations in the same group are removed together
-for validation. The length of this vector must match the number of training
-samples (i.e., \code{nrow(Xr)} or \code{nrow(train)}).}
+\item{intermediate_models}{A logical indicating whether to store models for
+each intermediate generation. Default is \code{FALSE}.}
 
-\item{verbose}{logical; if \code{TRUE}, prints progress information at each
-iteration.}
+\item{verbose}{A logical indicating whether to print progress information.
+Default is \code{TRUE}.}
 
-\item{seed}{integer; seed value for random number generation to ensure
-reproducibility during cross-validation and sampling. Default is
-\code{NULL}, meaning no seed is set.}
+\item{seed}{An integer for random number generation to ensure
+reproducibility. Default is \code{NULL}.}
 
-\item{documentation}{character; optional string used to record metadata or
-comments about the \code{gesearch} call. Default is an empty string. This
-parameter is experimental and may be subject to change.}
+\item{pchunks}{An integer specifying the number of chunks for parallel
+processing. Increase for better memory management. Default is \code{1L}.}
 
-\item{pchunks}{integer; number of chunks to split each iteration into during
-resampling. Useful for memory-efficient parallel processing of large
-datasets. Default is \code{1}. Increase this value for better memory
-management in parallel computing environments.}
+\item{formula}{A \code{\link[stats]{formula}} defining the model.}
 
-\item{intermediate_models}{store models for each intermediate generation
-before reaching the last one.}
+\item{train}{A data.frame containing training data with model variables.}
 
-\item{na_action}{function; defines how missing values in the training data
-are handled. Default is \code{\link[stats]{na.pass}}. Note: this only
-applies to \code{train}; no NA handling is applied to \code{test}. If used,
-this argument must be named.}
+\item{test}{A data.frame containing test data with model variables.}
 
-\item{object}{an object of class \code{gesearch}, as returned by
-\code{\link{gesearch}}.}
+\item{na_action}{A function for handling missing values in training data.
+Default is \code{\link[stats]{na.pass}}.}
 
-\item{newdata}{a data.frame or matrix containing new predictor data for
-prediction.}
+\item{object}{A fitted \code{gesearch} object (for \code{predict}).}
 
-\item{type}{character; specifies the prediction output type. Options are
-\code{"response"} (default), which returns predicted values, and
-\code{"scores"}, which returns the PLS scores from the model.}
+\item{newdata}{A matrix or data.frame of new observations. For formula-fitted
+models, a data.frame containing all predictor variables is accepted. For
+non-formula models, a matrix is required.}
+
+\item{type}{A character string specifying the prediction type. Currently only
+\code{"response"} is supported.}
+
+\item{what}{A character string specifying which models to use for prediction:
+\code{"final"} (default) for predictions from final models only, or
+\code{"all_generations"} for predictions from all intermediate generations
+plus the final models.}
+
+\item{x}{A \code{gesearch} object (for \code{plot}).}
+
+\item{which}{Character string specifying what to plot:
+\code{"weakness"} (maximum weakness scores per generation) or
+\code{"removed"} (cumulative samples removed).}
+
+\item{...}{Additional arguments passed to methods.}
 }
 \value{
-a list with the following elements:
+\strong{For \code{gesearch}:} A list of class \code{"gesearch"} containing:
 \itemize{
-\item{\code{x_local}: Matrix of predictor variables for selected observations.}
-
-\item{\code{y_local}: Matrix of response values corresponding to \code{x_local}.}
-
-\item{\code{indices}: Numeric vector of indices of selected observations from the original training set.}
-
-\item{\code{complete_iter}: Number of completed resampling iterations.}
-
-\item{\code{iter_weakness}: A list with iteration-level performance data:
-\describe{
-\item{\code{maximum}}{A \code{data.table} showing the highest RMSEs and dissimilarity scores across iterations. RMSEs are for response prediction (if \code{optimization} includes \code{"response"}) and PLS-based spectral reconstruction (if \code{optimization} includes \code{"reconstruction"}). Dissimilarity scores are shown only if \code{optimization} includes \code{"similarity"}.}
-\item{\code{cutoff}}{A \code{data.table} reporting threshold RMSEs and dissimilarity values beyond which samples were discarded. Thresholds reflect either fixed proportions or percentiles, depending on \code{control$retain_by} (see \code{\link{search_control}}).}
-}
-}
-
-\item{\code{samples}: List of sample indices retained in each iteration.}
-
-\item{\code{n_removed}: A \code{data.table} showing number of samples removed per iteration.}
-
-\item{\code{control}: Copy of the control list passed via \code{control}.}
-
-\item{\code{scale}: Logical indicating whether scaling was applied.}
-
-\item{\code{validation_results}: A list with validation output:
-\describe{
-\item{\code{val_info}}{Indices used for validation in each iteration and a matrix of test-set predictions based on selected samples.}
-\item{\code{results}}{Internal validation outcomes from leave-group-out resampling and, if \code{Yr} was provided, prediction results for the test set.}
-}
+\item \code{x_local}: Matrix of predictors for selected samples.
+\item \code{y_local}: Vector of responses for selected samples.
+\item \code{indices}: Indices of selected samples from original training set.
+\item \code{complete_iter}: Number of completed iterations.
+\item \code{iter_weakness}: List with iteration-level weakness statistics.
+\item \code{samples}: List of sample indices retained at each iteration.
+\item \code{n_removed}: data.frame of samples removed per iteration.
+\item \code{control}: Copy of control parameters.
+\item \code{fit_method}: Fit constructor from \code{fit_method}.
+\item \code{validation_results}: Cross-validation and test set prediction results.
+\item \code{final_models}: Final PLS model containing coefficients, loadings,
+scores, VIP, and selectivity ratios.
+\item \code{intermediate_models}: List of models per generation (if
+\code{intermediate_models = TRUE}).
+\item \code{seed}: RNG seed used.
 }
 
-\item{\code{final_model}: List of models per response variable. Each model contains:
+\strong{For \code{predict.gesearch}:}
 \itemize{
-\item{\code{npls}: Number of PLS components used.}
-\item{\code{coefficients}: Regression coefficients for all components.}
-\item{\code{bo}: Model intercept(s).}
-\item{\code{scores}: PLS scores matrix.}
-\item{\code{X_loadings}: Loadings for predictor variables.}
-\item{\code{Y_loadings}: Loadings for response variable(s).}
-\item{\code{projection_mat}: Projection matrix used in PLS.}
-\item{\code{vip}: Variable importance in projection (VIP) matrix.}
-\item{\code{selectivity_ratio}: Selectivity ratio matrix per factor (Rajalahti et al., 2009).}
-\item{\code{Y}: Matrix of responses used to train the final PLS model.}
-\item{\code{weights}: Matrix of PLS weights.}
-}
-}
-
-\item{\code{seed}: Value of RNG seed used (if provided).}
-
-\item{\code{documentation}: Optional string copied from input \code{documentation} argument.}
+\item If \code{what = "final"}: a prediction matrix with
+\code{nrow(newdata)} rows and one column per PLS component.
+\item If \code{what = "all_generations"}: a named list of generations,
+where each generation contains a prediction matrix as above.
 }
 }
 \description{
-This function implements an evolutionary search algorithm that selects a
-subset from large calibration or reference data,
-optimized to build context-specific ('local') calibrations. It applies a
-data-driven approach to identify relationships between the response and
-predictor variables that are often underrepresented in large calibration
-datasets (e.g. spectral libraries).
+Implements an evolutionary search algorithm that selects a subset from large
+reference datasets (e.g., spectral libraries) to build context-specific
+calibrations. The algorithm iteratively removes weak or non-informative
+samples based on prediction error, spectral reconstruction error, or
+dissimilarity criteria. This implementation is based on the methods proposed
+in Ramirez-Lopez et al. (2026a).
 }
 \details{
-The \emph{gesearch} algorithm requires a large reference dataset (\code{Xr}) where
-the sample search is conducted, a subset of site-specific or target
-observations (\code{Xu}), and three tuning parameters: \code{k}, \code{b},
-and \code{retain}.
+The \code{gesearch} algorithm requires a large reference dataset (\code{Xr})
+where the sample search is conducted, target observations (\code{Xu}), and
+three tuning parameters: \code{k}, \code{b}, and \code{retain}.
 
-The \code{Xu} observations should represent the target population. These may
-be selected, for example, via algorithms like Kennard-Stone
-(Kennard & Stone, 1969), especially when response values are unavailable.
+The target observations (\code{Xu}) should represent the population of
+interest. These may be selected via algorithms like Kennard-Stone when
+response values are unavailable.
 
-\emph{gesearch} uses \code{Xu} to iteratively remove weak or non-informative
-reference samples (\code{Xr}, \code{Yr}), yielding a subset of approximately
-\code{k} reference observations. Weak samples are identified based on one or
-more of the following criteria:
+The algorithm iteratively removes weak samples from \code{Xr} based on:
 \itemize{
-\item{}{They increase the RMSE of prediction on \code{Yu}.}
-\item{}{They increase the RMSE of PLS-based reconstruction on \code{Xu}.}
-\item{}{They increase dissimilarity between the PLS model subset and
-\code{Xu}.}
+\item Increased RMSE when predicting \code{Yu}
+\item Increased PLS reconstruction error on \code{Xu}
+\item Increased dissimilarity to \code{Xu} in PLS space
 }
 
-A resampling scheme is used to identify reference samples that consistently
-appear in the highest-error or most-dissimilar subsets. These are labeled
-as weak and removed. The parameter \code{retain} controls the proportion of
-samples kept in each iteration.
+A resampling scheme identifies samples that consistently appear in
+high-error subsets. These are labeled weak and removed. The process
+continues until approximately \code{target_size} samples remain.
+\subsection{Parameter guidance}{
 
-If multiple response variables are provided (i.e., \code{Yu} with multiple
-columns or a list of formulas), separate models are built per response. Weak
-samples identified across models are combined and removed jointly.
-
-Because optimization is based on prediction error and/or spectral
-dissimilarity, \code{gesearch} aims to find a subset of \code{k} training
-samples that yield the most accurate models for test-like samples
-(\code{Xu}).
-
-When setting parameters:
 \itemize{
-\item{\code{k}: Number of reference observations to retain. It is also
-the size of each resampling subset. For guidance, see Lobsey et al. 2017.}
+\item \code{k}: Number of samples per resampling subset. See Lobsey et
+al. (2017) for guidance.
+\item \code{b}: Resampling intensity. Higher values increase stability
+but computational cost.
+\item \code{retain}: Proportion retained per iteration. Values >0.9
+recommended.
+}
+}
 
-\item{\code{b}: Average number of times each training sample is evaluated
-per iteration. Higher values (e.g., >40) yield more stable results but
-increase computational cost.}
+\subsection{Prediction}{
 
-\item{\code{retain}: Proportion of training samples retained in each
-iteration. Values >0.9 are recommended for stability.}
+The \code{predict} method generates predictions from a fitted
+\code{gesearch} object. If the model was fitted with a formula,
+\code{newdata} is validated and transformed to the appropriate model matrix.
+
+When \code{what = "all_generations"}, the return value is a named list with
+one element per generation, where each element contains a prediction
+matrix. This option requires \code{intermediate_models = TRUE} during
+fitting.
 }
 }
 \examples{
 \dontrun{
-# NOTE: These examples are based on a small dataset where the function may  
-# not demonstrate substantial benefits. They are intended solely to  
-# illustrate how the function works.
-
 library(prospectr)
 data(NIRsoil)
 
-# Preprocess the data using detrend + first derivative + Savitzky-Golay
+# Preprocess
 sg_det <- savitzkyGolay(
-  detrend(
-    NIRsoil$spc,
-    wav = as.numeric(colnames(NIRsoil$spc))
-  ),
+  detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
   m = 1, p = 1, w = 7
 )
 NIRsoil$spc_pr <- sg_det
 
-# Split into training, validation, and testing sets
+# Split data
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso), ]
+train_y <- NIRsoil$Ciso[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso)]
 test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso), ]
 test_y <- NIRsoil$Ciso[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso)]
 
-set.seed(24)
-sel <- sample(nrow(test_x), 30)
-
-val_x <- test_x[-sel, ]
-val_y <- test_x[-sel]
-
-test_x <- test_x[sel, ]
-test_y <- test_y[sel]
-
-train_y <- NIRsoil$Ciso[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso)]
-train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso), ]
-
-# Search based on test set with reference values
-my_gs <- gesearch(
+# Basic search with reconstruction optimization
+gs <- gesearch(
   Xr = train_x, Yr = train_y,
   Xu = test_x, Yu = test_y,
   k = 50, b = 100, retain = 0.97,
-  target_size = 350,
-  method = local_fit_pls(15, modified = TRUE),
-  optimization = c("reconstruction", "similarity", "response"),
-  control = search_control(retain_by = "probability"),
-  scale = FALSE,
-  verbose = TRUE,
-  seed = 24
-)
-my_preds_gs <- predict(my_gs, val_x)
-
-# Search without reference values
-my_gs_no_response <- gesearch(
-  Xr = train_x, Yr = train_y,
-  Xu = test_x, Yu = NULL,
-  k = 50, b = 100, retain = 0.97,
-  target_size = 350,
-  method = local_fit_pls(15, modified = TRUE),
+  target_size = 200,
+  fit_method = fit_pls(ncomp = 15, method = "mpls"),
   optimization = c("reconstruction", "similarity"),
-  control = search_control(retain_by = "probability"),
-  scale = FALSE,
-  verbose = TRUE,
-  seed = 24
+  control = gesearch_control(retain_by = "probability"),
+  seed = 42
 )
-my_preds_gs_no_response <- predict(my_gs_no_response, val_x)
 
-# Search using a more comprehensive set (no reference values)
-my_gs_no_response2 <- gesearch(
+# Predict
+preds <- predict(gs, test_x)
+
+# Plot progress
+plot(gs)
+plot(gs, which = "removed")
+
+# With response optimization (requires Yu)
+gs_response <- gesearch(
   Xr = train_x, Yr = train_y,
-  Xu = val_x, Yu = NULL,
+  Xu = test_x, Yu = test_y,
   k = 50, b = 100, retain = 0.97,
-  target_size = 350,
-  method = local_fit_pls(15, modified = TRUE),
-  optimization = c("reconstruction", "similarity"),
-  control = search_control(retain_by = "probability"),
-  scale = FALSE,
-  verbose = TRUE,
-  seed = 24
+  target_size = 200,
+  fit_method = fit_pls(ncomp = 15),
+  optimization = c("reconstruction", "response"),
+  seed = 42
 )
-my_preds_gs_no_response2 <- predict(my_gs_no_response2, val_x)
 
-
-# Using parallel processors
-n_cores <- 2
-
-if (parallel::detectCores() < 2) {
-  n_cores <- 1
-}
-
-# Alternatively:
-# n_cores <- parallel::detectCores() - 1
-# if (n_cores == 0) {
-#  n_cores <- 1
-# }
-
+# Parallel processing
 library(doParallel)
-clust <- makeCluster(n_cores)
-registerDoParallel(clust)
+cl <- makeCluster(2)
+registerDoParallel(cl)
 
-# Alernatively:
-# library(doSNOW)
-# clust <- makeCluster(n_cores, type = "SOCK")
-# registerDoSNOW(clust)
-# getDoParWorkers()
-
-# search based on a small test set with reference values
-my_gs <- gesearch(
-  Xr = train_x,
-  Yr = train_y,
+gs_parallel <- gesearch(
+  Xr = train_x, Yr = train_y,
   Xu = test_x,
-  Yu = test_y,
   k = 50, b = 100, retain = 0.97,
-  target_size = 350,
-  method = local_fit_pls(15, modified = TRUE),
-  optimization = c("reconstruction", "similarity", "response"),
-  control = search_control(retain_by = "probability"),
-  scale = FALSE,
-  verbose = TRUE,
-  seed = 24,
-  pchunks = 3
+  target_size = 200,
+  fit_method = fit_pls(ncomp = 15),
+  pchunks = 3,
+  seed = 42
 )
+
+stopCluster(cl)
+registerDoSEQ()
 }
 
 }
 \references{
-Lobsey, C. R., Viscarra Rossel, R. A., Roudier, P., & Hedley, C. B. 2017.
+Lobsey, C.R., Viscarra Rossel, R.A., Roudier, P., Hedley, C.B. 2017.
 rs-local data-mines information from spectral libraries to improve local
-calibrations. European Journal of Soil Science, 68(6), 840-852.
+calibrations. European Journal of Soil Science 68:840-852.
 
-Kennard, R.W. & Stone, L.A. 1969. Computer aided design of experiments.
-Technometrics, 11(1), pp.137-148.
+Kennard, R.W., Stone, L.A. 1969. Computer aided design of experiments.
+Technometrics 11:137-148.
 
-Rajalahti, T., Arneberg, R., Berven, F. S., Myhr, K. M., Ulvik, R. J.,
-Kvalheim, O. M. 2009. Biomarker discovery in mass spectral profiles by means
-of selectivity ratio plot. Chemometrics and Intelligent Laboratory Systems,
-95(1), 35-48.
+Rajalahti, T., Arneberg, R., Berven, F.S., Myhr, K.M., Ulvik, R.J.,
+Kvalheim, O.M. 2009. Biomarker discovery in mass spectral profiles by means
+of selectivity ratio plot. Chemometrics and Intelligent Laboratory Systems
+95:35-48.
+
+Ramirez-Lopez, L., Viscarra Rossel, R., Behrens, T., Orellano, C.,
+Perez-Fernandez, E., Kooijman, L., Wadoux, A. M. J.-C., Breure, T.,
+Summerauer, L., Safanelli, J. L., & Plans, M. (2026a). When spectral
+libraries are too complex to search: Evolutionary subset selection for
+domain-adaptive calibration. \emph{Analytica Chimica Acta}, under review.
+}
+\seealso{
+\code{\link{fit_pls}}, \code{\link{gesearch_control}}, \code{\link{mbl}}
 }
 \author{
-Leonardo Ramirez-Lopez, Claudio Orellano, Craig Lobsey and Raphael Viscarra Rossel
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez},
+Claudio Orellano,
+\href{https://orcid.org/0000-0001-5416-4520}{Craig Lobsey},
+\href{https://orcid.org/0000-0003-1540-4748}{Raphael Viscarra Rossel}
 }

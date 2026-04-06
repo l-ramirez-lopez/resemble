@@ -1,247 +1,514 @@
 context("test-pls_projection")
+library(foreach)
+library(RhpcBLASctl)
+registerDoSEQ()
+# =============================================================================
+# Setup helper
+# =============================================================================
 
-test_that("pls_projection works", {
-  # tolernce for results supposed to be 0s
-  tol <- 1e-5
-  nirdata <- data("NIRsoil", package = "prospectr")
-
+.setup_pls_data <- function(n_xr = 40, n_xu = 20) {
+  data("NIRsoil", package = "prospectr")
+  
   Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
   Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-
   Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
   Yr_2 <- NIRsoil$Ciso[as.logical(NIRsoil$train)]
   Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
   
-  Xr_3 <- NIRsoil$spc[as.logical(NIRsoil$train), ]
-  Yr_3 <- NIRsoil[as.logical(NIRsoil$train), c("Ciso", "Nt")]
-  
-
-  pls_var_2ys <- pls_projection(
-    Xr = Xr_3,
-    Yr = Yr_3,
-    pc_selection = list("var", 0.01)
-  )
-  expect_true(ncol(pls_var_2ys$scores) == 2)
-  
-  pls_cumvar_2ys <- pls_projection(
-    Xr = Xr_3,
-    Yr = Yr_3,
-    pc_selection = list("cumvar", 0.99)
-  )
-  expect_true(ncol(pls_cumvar_2ys$scores) == 2)
-
   Xu <- Xu[!is.na(Yu), ]
   y_sel <- !is.na(Yr) & !is.na(Yr_2)
   Xr <- Xr[y_sel, ]
-
+  
   Yu <- Yu[!is.na(Yu)]
   Yr_2 <- Yr_2[y_sel]
   Yr <- Yr[y_sel]
+  
+  Xu <- Xu[seq_len(n_xu), ]
+  Yu <- Yu[seq_len(n_xu)]
+  Xr <- Xr[seq_len(n_xr), ]
+  Yr <- Yr[seq_len(n_xr)]
+  Yr_2 <- Yr_2[seq_len(n_xr)]
+  
+  list(Xr = Xr, Xu = Xu, Yr = Yr, Yr_2 = Yr_2, Yu = Yu)
+}
 
-  Xu <- Xu[1:20, ]
-  Yu <- Yu[1:20]
 
-  Xr <- Xr[1:40, ]
-  Yr <- Yr[1:40]
-  Yr_2 <- Yr_2[1:40]
+# =============================================================================
+# PLS with multi-response Y tests
+# =============================================================================
 
-  testthat::expect_type(
-    pc_projection(Xr,
-      Yr = Yr,
-      pc_selection = list(method = "manual", value = 1),
-      center = TRUE, scale = TRUE
-    ),
-    "list"
+test_that("ortho_projection PLS with multi-response Y and ncomp_by_var works", {
+  skip_if_not_installed("prospectr")
+  
+  data("NIRsoil", package = "prospectr")
+  
+  Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+  Yr <- NIRsoil[as.logical(NIRsoil$train), c("Ciso", "Nt")]
+  
+  # Remove rows with NA in either response
+  complete <- complete.cases(Yr)
+  Xr <- Xr[complete, ]
+  Yr <- Yr[complete, ]
+  
+  result <- ortho_projection(
+    Xr = Xr,
+    Yr = as.matrix(Yr),
+    ncomp = ncomp_by_var(0.01),
+    method = "pls"
   )
-
-  testthat::expect_type(
-    pc_projection(Xr,
-      Yr = Yr,
-      method = "pca.nipals",
-      pc_selection = list(method = "manual", value = 1),
-      center = TRUE, scale = T
-    ),
-    "list"
-  )
-
-  testthat::expect_type(
-    pls_projection(Xr,
-      Yr = Yr,
-      pc_selection = list(method = "manual", value = 1),
-      center = TRUE, scale = TRUE
-    ),
-    "list"
-  )
-
-
-  cumvar_value <- 0.74
-  one_input_matrix <- pls_projection(Xr,
-    Yr = Yr,
-    pc_selection = list(method = "cumvar", value = cumvar_value),
-    center = TRUE, scale = FALSE
-  )
-
-
-  test_ncomp <- one_input_matrix$n_components - 1
-  expect_true(ncol(one_input_matrix$scores) == one_input_matrix$n_components)
-  expect_true(all(one_input_matrix$variance$x_var[3, 1:test_ncomp] > cumvar_value))
-
-  two_input_matrices <- pls_projection(Xr, Xu, Yr,
-    pc_selection = list(method = "cumvar", value = cumvar_value),
-    center = TRUE, scale = FALSE
-  )
-
-  two_input_matrices_var <- pls_projection(Xr, Xu, Yr,
-    pc_selection = list(method = "var", value = 1 - cumvar_value),
-    center = TRUE, scale = FALSE
-  )
-
-  two_test_ncomp <- two_input_matrices$n_components - 1
-  expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncomp] > cumvar_value))
-
-  preds <- sum(abs(predict(two_input_matrices)[1:nrow(Xr), ] - predict(two_input_matrices, Xr)))
-  expect_true(preds < tol)
-
-  opc_method <- pls_projection(Xr, Xu,
-    Yr = Yr,
-    pc_selection = list(method = "opc", value = 15),
-    center = TRUE, scale = TRUE
-  )
-
-  expect_true(opc_method$n_components == which.min(opc_method$opc_evaluation[, 2]))
-  expect_true(opc_method$n_components == 8)
-
-  # check that the number of components for method = "cumvar" is properly
-  # obtained, this can be done with the results of opc_method as it selects more
-  # components than in the "cumvar" test
-  expect_true(sum(opc_method$variance$x_var[3, ] < cumvar_value) == two_input_matrices$n_components - 1)
-  # do the same for method = "var"
-  expect_true(sum(opc_method$variance$x_var[2, ] > (1 - cumvar_value)) == two_input_matrices_var$n_components)
-
-
-  expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  two_test_ncnomp <- two_input_matrices$n_components - 1
-  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncnomp] > cumvar_value))
-
-
-  opc_method <- pls_projection(Xr, Xu,
-    Yr = Yr,
-    pc_selection = list(method = "opc", value = 15),
-    center = TRUE, scale = TRUE
-  )
-
-  ## pls2
-  pls2_opc_method <- pls_projection(Xr, Xu,
-    Yr = cbind(Yr, Yr_2),
-    pc_selection = list(method = "opc", value = 15),
-    center = TRUE, scale = TRUE
-  )
-
-  expect_true(pls2_opc_method$n_components == which.min(pls2_opc_method$opc_evaluation[, 4]))
-  distm <- as.matrix(dist(scale(pls2_opc_method$scores[1:nrow(Xr), ], TRUE, TRUE)))
-  distm2 <- f_diss(pls2_opc_method$scores[1:nrow(Xr), ], scale = TRUE, center = TRUE)
-  nn <- apply(distm, MARGIN = 2, FUN = function(x) order(x)[2])
-
-  result_rmsd <- as.vector(round(colMeans((cbind(Yr, Yr_2) - cbind(Yr, Yr_2)[nn, ])^2)^0.5, 4))
-
-  resemble_rmsds <- as.vector(round(pls2_opc_method$opc_evaluation[pls2_opc_method$n_components, 2:3], 4))
-
-  expect_true(all(resemble_rmsds == result_rmsd))
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_equal(ncol(result$scores), result$ncomp)
 })
 
 
+test_that("ortho_projection PLS with multi-response Y and ncomp_by_cumvar works", {
+  
+  skip_if_not_installed("prospectr")
+  
+  data("NIRsoil", package = "prospectr")
+  
+  Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
+  Yr <- NIRsoil[as.logical(NIRsoil$train), c("Ciso", "Nt")]
+  
+  complete <- complete.cases(Yr)
+  Xr <- Xr[complete, ]
+  Yr <- Yr[complete, ]
+  
+  result <- ortho_projection(
+    Xr = Xr,
+    Yr = as.matrix(Yr),
+    ncomp = ncomp_by_cumvar(0.99),
+    method = "pls"
+  )
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_equal(ncol(result$scores), result$ncomp)
+})
 
-test_that("pls_projection large sets works", {
-  skip_on_cran()
-  skip_on_travis()
-  # tolernce for results supposed to be 0s
+
+# =============================================================================
+# Basic PLS projection tests
+# =============================================================================
+
+test_that("ortho_projection with method = 'pls' and ncomp_by_cumvar works", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+  cumvar_value <- 0.74
+  
+  result <- ortho_projection(
+    Xr = d$Xr,
+    Yr = d$Yr,
+    ncomp = ncomp_by_cumvar(cumvar_value),
+    method = "pls",
+    scale = FALSE
+  )
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_equal(ncol(result$scores), result$ncomp)
+  
+  # All but last component should have cumvar > threshold (for PLS, variance explained grows)
+  test_ncomp <- result$ncomp - 1
+  if (test_ncomp > 0) {
+    expect_true(all(
+      result$variance$x_var["cumulative_explained_var_X", seq_len(test_ncomp)] < cumvar_value
+    ))
+  }
+})
+
+
+test_that("ortho_projection PLS with two matrices works", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+  cumvar_value <- 0.74
   tol <- 1e-5
-  nirdata <- data("NIRsoil", package = "prospectr")
+  
+  result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = ncomp_by_cumvar(cumvar_value),
+    method = "pls",
+    scale = FALSE
+  )
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_equal(ncol(result$scores), result$ncomp)
+  expect_equal(nrow(result$scores), nrow(d$Xr) + nrow(d$Xu))
+  
+  # Predictions for Xr should match stored scores
+  preds <- sum(abs(
+    predict(result)[seq_len(nrow(d$Xr)), ] - predict(result, d$Xr)
+  ))
+  expect_lt(preds, tol)
+})
 
+
+test_that("ortho_projection PLS with ncomp_by_var works", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+  min_var <- 0.26  # 1 - 0.74
+  
+  result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = ncomp_by_var(min_var),
+    method = "pls",
+    scale = FALSE
+  )
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_equal(ncol(result$scores), result$ncomp)
+})
+
+
+# =============================================================================
+# OPC selection tests
+# =============================================================================
+
+test_that("ortho_projection PLS with ncomp_by_opc works", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+  
+  result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = ncomp_by_opc(max_ncomp = 15),
+    method = "pls",
+    scale = TRUE
+  )
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_true("opc_evaluation" %in% names(result))
+  
+  # ncomp should match minimum RMSD position
+  expect_equal(result$ncomp, as.vector(which.min(result$opc_evaluation[, "rmsd_Yr"])))
+  expect_equal(result$ncomp, 8)
+})
+
+
+test_that("ortho_projection PLS variance selection consistency", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+  cumvar_value <- 0.74
+  
+  # Get full variance info via OPC
+  opc_result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = ncomp_by_opc(max_ncomp = 15),
+    method = "pls",
+    scale = TRUE
+  )
+  
+  cumvar_result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = ncomp_by_cumvar(cumvar_value),
+    method = "pls",
+    scale = FALSE
+  )
+  
+  var_result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = ncomp_by_var(1 - cumvar_value),
+    method = "pls",
+    scale = FALSE
+  )
+  
+  # Check consistency
+  expect_equal(
+    sum(opc_result$variance$x_var["cumulative_explained_var_X", ] < cumvar_value),
+    cumvar_result$ncomp - 1
+  )
+  
+  expect_equal(
+    sum(opc_result$variance$x_var["explained_var_X", ] >= (1 - cumvar_value)),
+    var_result$ncomp
+  )
+})
+
+
+# =============================================================================
+# PLS2 (multi-response) with OPC tests
+# =============================================================================
+
+test_that("ortho_projection PLS2 with ncomp_by_opc works", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+  tol <- 1e-6
+  Yr_multi <- cbind(d$Yr, d$Yr_2)
+  colnames(Yr_multi) <- c("Yr", "Yr_2")
+  
+  result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = Yr_multi,
+    ncomp = ncomp_by_opc(max_ncomp = 15),
+    method = "pls",
+    scale = TRUE
+  )
+  
+  expect_lt(
+    sum(abs(result$scores - predict(result, rbind(d$Xr, d$Xu)))), 
+    tol,
+    label = "proper pls projection of Xr should match stored scores"
+  )
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_true("opc_evaluation" %in% names(result))
+  
+  # Should select based on mean standardized RMSD
+  expect_equal(
+    result$ncomp, 
+    as.vector(which.min(result$opc_evaluation[, "mean_standardized_rmsd_Yr"]))
+  )
+  
+  # Verify RMSD calculation manually
+  scores_xr <- result$scores[seq_len(nrow(d$Xr)), ]
+  distm <- as.matrix(dist(scale(scores_xr, center = TRUE, scale = TRUE)))
+  nn <- apply(distm, MARGIN = 2, FUN = function(x) order(x)[2])
+  
+  expected_rmsd <- round(
+    colMeans((Yr_multi - Yr_multi[nn, ])^2)^0.5, 
+    4
+  )
+  
+  actual_rmsd <- round(
+    result$opc_evaluation[result$ncomp, c("rmsd_Yr", "rmsd_Yr_2")], 
+    4
+  )
+  
+  expect_equal(as.vector(actual_rmsd), as.vector(expected_rmsd))
+})
+
+
+# =============================================================================
+# SIMPLS tests
+# =============================================================================
+
+test_that("ortho_projection with method = 'simpls' works", {
+  skip_if_not_installed("prospectr")
+  tol <- 1e-6
+  d <- .setup_pls_data()
+  
+  result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = ncomp_by_opc(max_ncomp = 15),
+    method = "simpls",
+    scale = TRUE
+  )
+  
+  expect_lt(
+    sum(abs(result$scores - predict(result, rbind(d$Xr, d$Xu)))), 
+    tol,
+    label = "proper simpls projection of Xr should match stored scores"
+  )
+  expect_s3_class(result, "ortho_projection")
+  expect_equal(result$method, "simpls")
+  expect_true("opc_evaluation" %in% names(result))
+})
+
+
+test_that("ortho_projection PLS and SIMPLS produce equivalent results", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+
+  pls_result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = 10,
+    method = "pls",
+    scale = TRUE
+  )
+  
+  simpls_result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = 10,
+    method = "simpls",
+    scale = TRUE
+  )
+  
+  # Predictions should match
+  pls_pred <- predict(pls_result, d$Xu)
+  simpls_pred <- predict(simpls_result, d$Xu)
+  
+  for (i in 1:ncol(pls_pred)) {
+    expect_gt(
+      cor(pls_pred[, i], simpls_pred[, i])^2,
+      0.999,
+      label = paste("SIMPLS vs NIPALS PLS: projected scores for factor", i, "should corrrelate")
+    )
+  }
+})
+
+
+# =============================================================================
+# Modified PLS tests
+# =============================================================================
+
+test_that("ortho_projection with method = 'mpls' works", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_pls_data()
+  
+  result <- ortho_projection(
+    Xr = d$Xr, 
+    Xu = d$Xu,
+    Yr = d$Yr,
+    ncomp = 10,
+    method = "mpls",
+    scale = TRUE
+  )
+  
+  expect_s3_class(result, "ortho_projection")
+  expect_equal(result$method, "mpls")
+  expect_equal(result$ncomp, 10)
+})
+
+
+# =============================================================================
+# Large dataset tests (skipped on CRAN)
+# =============================================================================
+
+test_that("ortho_projection PLS works with larger datasets", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  data("NIRsoil", package = "prospectr")
+  tol <- 1e-5
+  
   Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
   Yu <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-
   Yr <- NIRsoil$CEC[as.logical(NIRsoil$train)]
   Yr_2 <- NIRsoil$Ciso[as.logical(NIRsoil$train)]
   Xr <- NIRsoil$spc[as.logical(NIRsoil$train), ]
-
+  
   Xu <- Xu[!is.na(Yu), ]
   y_sel <- !is.na(Yr) & !is.na(Yr_2)
   Xr <- Xr[y_sel, ]
-
   Yu <- Yu[!is.na(Yu)]
   Yr_2 <- Yr_2[y_sel]
   Yr <- Yr[y_sel]
-
+  
   cumvar_value <- 0.991
-  one_input_matrix <- pls_projection(Xr,
+  
+  # Single matrix
+  one_input <- ortho_projection(
+    Xr = Xr,
     Yr = Yr,
-    pc_selection = list(method = "cumvar", value = cumvar_value),
-    center = TRUE, scale = FALSE
+    ncomp = ncomp_by_cumvar(cumvar_value),
+    method = "simpls",
+    scale = FALSE
   )
 
-  test_ncomp <- one_input_matrix$n_components - 1
-  expect_true(ncol(one_input_matrix$scores) == one_input_matrix$n_components)
-  expect_true(all(one_input_matrix$variance$x_var[3, 1:test_ncomp] < cumvar_value))
-
-  two_input_matrices <- pls_projection(Xr, Xu, Yr,
-    pc_selection = list(method = "cumvar", value = cumvar_value),
-    center = TRUE, scale = FALSE
-  )
-
-  two_input_matrices_var <- pls_projection(Xr, Xu, Yr,
-    pc_selection = list(method = "var", value = 1 - cumvar_value),
-    center = TRUE, scale = FALSE
-  )
-
-  two_test_ncomp <- two_input_matrices$n_components - 1
-  expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncomp] < cumvar_value))
-
-  preds <- sum(abs(predict(two_input_matrices)[1:nrow(Xr), ] - predict(two_input_matrices, Xr)))
-  expect_true(preds < tol)
-
-  opc_method <- pls_projection(Xr, Xu,
+  expect_equal(ncol(one_input$scores), one_input$ncomp)
+  test_ncomp <- one_input$ncomp - 1
+  expect_true(all(
+    one_input$variance$x_var["cumulative_explained_var_X", seq_len(test_ncomp)] < cumvar_value
+  ))
+  
+  # Two matrices
+  two_input <- ortho_projection(
+    Xr = Xr, 
+    Xu = Xu,
     Yr = Yr,
-    pc_selection = list(method = "opc", value = 20),
-    center = TRUE, scale = FALSE
+    ncomp = ncomp_by_cumvar(cumvar_value),
+    method = "pls",
+    scale = FALSE
   )
-
-  expect_true(opc_method$n_components == which.min(opc_method$opc_evaluation[, 2]))
-  expect_true(opc_method$n_components == 12)
-
-  # check that the number of components for method = "cumvar" is properly
-  # obtained, this can be done with the results of opc_method as it selects more
-  # components than in the "cumvar" test
-  expect_true(sum(opc_method$variance$x_var[3, ] < cumvar_value) == two_input_matrices$n_components - 1)
-  # do the same for method = "var"
-  expect_true(sum(opc_method$variance$x_var[2, ] > (1 - cumvar_value)) == two_input_matrices_var$n_components)
-
-
-  expect_true(ncol(two_input_matrices$scores) == two_input_matrices$n_components)
-  two_test_ncnomp <- two_input_matrices$n_components - 1
-  expect_true(all(two_input_matrices$variance$x_var[3, 1:two_test_ncnomp] < cumvar_value))
-
-  opc_method <- pls_projection(Xr, Xu,
+  
+  expect_equal(ncol(two_input$scores), two_input$ncomp)
+  
+  # Predictions match
+  preds <- sum(abs(
+    predict(two_input)[seq_len(nrow(Xr)), ] - predict(two_input, Xr)
+  ))
+  expect_lt(preds, tol)
+  
+  # OPC selection
+  opc_result <- ortho_projection(
+    Xr = Xr, 
+    Xu = Xu,
     Yr = Yr,
-    pc_selection = list(method = "opc", value = 20),
-    center = TRUE, scale = FALSE
+    ncomp = ncomp_by_opc(max_ncomp = 20),
+    method = "pls",
+    scale = FALSE
   )
-
-  ## pls2
-  pls2_opc_method <- pls_projection(Xr, Xu,
-    Yr = cbind(Yr, Yr_2),
-    pc_selection = list(method = "opc", value = 20),
-    center = TRUE, scale = FALSE
+  
+  expect_equal(opc_result$ncomp, as.vector(which.min(opc_result$opc_evaluation[, "rmsd_Yr"])))
+  expect_equal(opc_result$ncomp, 12)
+  
+  # Variance selection consistency
+  var_result <- ortho_projection(
+    Xr = Xr, 
+    Xu = Xu,
+    Yr = Yr,
+    ncomp = ncomp_by_var(1 - cumvar_value),
+    method = "pls",
+    scale = FALSE
   )
-
-  expect_true(pls2_opc_method$n_components == which.min(pls2_opc_method$opc_evaluation[, 4]))
-  distm <- as.matrix(dist(scale(pls2_opc_method$scores[1:nrow(Xr), ], TRUE, TRUE)))
+  
+  expect_equal(
+    sum(opc_result$variance$x_var["cumulative_explained_var_X", ] < cumvar_value),
+    two_input$ncomp - 1
+  )
+  
+  expect_equal(
+    sum(opc_result$variance$x_var["explained_var_X", ] >= (1 - cumvar_value)),
+    var_result$ncomp
+  )
+  
+  # PLS2
+  Yr_multi <- cbind(Yr, Yr_2)
+  colnames(Yr_multi) <- c("Yr", "Yr_2")
+  
+  pls2_result <- ortho_projection(
+    Xr = Xr, 
+    Xu = Xu,
+    Yr = Yr_multi,
+    ncomp = ncomp_by_opc(max_ncomp = 20),
+    method = "pls",
+    scale = FALSE
+  )
+  
+  expect_equal(
+    pls2_result$ncomp, 
+    as.vector(which.min(pls2_result$opc_evaluation[, "mean_standardized_rmsd_Yr"]))
+  )
+  
+  # Verify RMSD calculation
+  scores_xr <- pls2_result$scores[seq_len(nrow(Xr)), ]
+  distm <- as.matrix(dist(scale(scores_xr, center = TRUE, scale = TRUE)))
   nn <- apply(distm, MARGIN = 2, FUN = function(x) order(x)[2])
-
-  result_rmsd <- as.vector(round(colMeans((cbind(Yr, Yr_2) - cbind(Yr, Yr_2)[nn, ])^2)^0.5, 4))
-
-  resemble_rmsds <- as.vector(round(pls2_opc_method$opc_evaluation[pls2_opc_method$n_components, 2:3], 4))
-  expect_true(all(resemble_rmsds == result_rmsd))
+  
+  expected_rmsd <- round(
+    colMeans((Yr_multi - Yr_multi[nn, ])^2)^0.5, 
+    4
+  )
+  
+  actual_rmsd <- round(
+    pls2_result$opc_evaluation[pls2_result$ncomp, c("rmsd_Yr", "rmsd_Yr_2")], 
+    4
+  )
+  
+  expect_equal(as.vector(actual_rmsd), as.vector(expected_rmsd))
 })

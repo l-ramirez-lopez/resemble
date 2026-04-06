@@ -31,6 +31,9 @@
 #'   Default \code{FALSE}.
 #'
 #' @return An object of class \code{c("diss_euclidean", "diss_method")}.
+#' 
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
+#' 
 #' @seealso \code{\link{dissimilarity}}, \code{\link{diss_mahalanobis}},
 #'   \code{\link{diss_cosine}}
 #' @examples
@@ -72,6 +75,9 @@ diss_euclidean <- function(center = TRUE, scale = FALSE) {
 #'   Default \code{FALSE}.
 #'
 #' @return An object of class \code{c("diss_mahalanobis", "diss_method")}.
+#' 
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
+#' 
 #' @seealso \code{\link{dissimilarity}}, \code{\link{diss_euclidean}},
 #'   \code{\link{diss_cosine}}
 #' @examples
@@ -109,6 +115,9 @@ diss_mahalanobis <- function(center = TRUE, scale = FALSE) {
 #'   Default \code{FALSE}.
 #'
 #' @return An object of class \code{c("diss_cosine", "diss_method")}.
+#' 
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
+#' 
 #' @seealso \code{\link{dissimilarity}}, \code{\link{diss_euclidean}},
 #'   \code{\link{diss_mahalanobis}}
 #' @examples

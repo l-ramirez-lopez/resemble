@@ -2,6 +2,8 @@
 
 <!-- badges: start -->
 
+![R-CMD-check](https://github.com/l-ramirez-lopez/resemble/actions/workflows/R-CMD-check.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/l-ramirez-lopez/resemble/branch/main/graph/badge.svg)](https://codecov.io/gh/l-ramirez-lopez/resemble)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/resemble)](https://CRAN.R-project.org/package=resemble)
 [![Total\_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](https://CRAN.R-project.org/package=resemble)
 
@@ -9,9 +11,9 @@
 
 <!-- badges: end -->
 
-*Last update: 2025-10-17*
+*Last update: 2026-04-03*
 
-Version: 2.2.5 – dstatements
+Version: 3.0.0 – vortex
 
 <em>
 <p align="right">
@@ -206,7 +208,7 @@ Simply type and you will get the info you need:
 
     citation(package = "resemble")
 
-## News: Memory based learnig (MBL) and `resemble`
+## News: Memory based learning (MBL) and `resemble`
 
 -   **2025.10:** [Summerauer et al.,
     2025](https://doi.org/10.5194/egusphere-2025-4625) used `resemble`
