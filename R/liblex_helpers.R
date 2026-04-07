@@ -80,7 +80,7 @@ ith_subsets_by_group <- function(
     x, 
     y, 
     kindx,
-    kgroup, 
+    kgroup,
     D = NULL
 ){
   
@@ -95,7 +95,7 @@ ith_subsets_by_group <- function(
       list(x = x[knns, , drop = FALSE], 
            y = y[knns, , drop = FALSE], 
            xval = nextElem(it_xval)) 
-    }else{
+    } else {
       idsm <- D[knns, knns]
       list(x = cbind(idsm, x[knns, , drop = FALSE]), 
            y = y[knns, , drop = FALSE], 
@@ -124,6 +124,11 @@ ith_subsets_by_group <- function(
 #'   the `k` nearest neighbors for the corresponding observation.
 #' @param kgroup A logical or integer matrix (k × m) indicating a group
 #'   (subset) of rows from `kindx` to be selected for each observation.
+#' @param neighborhood_sizes An integer vector of length `m` indicating the 
+#' number of neighbors to consider for each observation. This is constant if the 
+#' method of retaining by a fix number of neighbors is employed. If the method 
+#' to retain neighbors is based on a distance threshold, this vector will have 
+#' varying values.   
 #' @param D Optional numeric matrix (n × n) representing a dissimilarity or
 #'   distance matrix. If provided, its values for selected neighbors will be
 #'   embedded into the `xval` vector.
@@ -150,7 +155,7 @@ ith_subsets_by_group <- function(
 #' @noRd
 #' @keywords internal
 ith_subsets_by_group_list <- function(
-    x, y, kindx, kgroup, D = NULL, chunk_size = 1
+    x, y, kindx, kgroup, neighborhood_sizes, D = NULL, chunk_size = 1
 ) {
   stopifnot(nrow(x) == nrow(y), ncol(kindx) == ncol(kgroup))
   if (!is.null(D)) stopifnot(nrow(D) == nrow(x), ncol(D) == nrow(x))
@@ -166,6 +171,7 @@ ith_subsets_by_group_list <- function(
     
     kindx_sub  <- kindx[,  idx, drop = FALSE]
     kgroup_sub <- kgroup[, idx, drop = FALSE]
+    kneighborhoods_sub <- neighborhood_sizes[idx]
     
     # Anchor sample per column = first row of kindx
     anchor_idx <- as.integer(kindx_sub[1L, ])
@@ -173,7 +179,10 @@ ith_subsets_by_group_list <- function(
     
     chunks <- vector("list", length(idx))
     for (i in seq_along(idx)) {
-      sel <- as.logical(kgroup_sub[, i]); sel[is.na(sel)] <- FALSE
+      ith_k <- seq_len(kneighborhoods_sub[i])
+      sel <- as.logical(kgroup_sub[, i])
+      sel[-ith_k] <- FALSE # keep the non-neighbors out
+      sel[is.na(sel)] <- FALSE
       sel[1L] <- FALSE  # never include anchor among neighbours
       
       knns <- as.integer(kindx_sub[sel, i])
@@ -201,6 +210,60 @@ ith_subsets_by_group_list <- function(
   class(obj) <- c("isubsetgroup", "abstractiter", "iter")
   obj
 }
+
+
+# ith_subsets_by_group_list <- function(
+    #     x, y, kindx, kgroup, D = NULL, chunk_size = 1
+# ) {
+#   stopifnot(nrow(x) == nrow(y), ncol(kindx) == ncol(kgroup))
+#   if (!is.null(D)) stopifnot(nrow(D) == nrow(x), ncol(D) == nrow(x))
+#   
+#   m <- ncol(kindx)
+#   chunk_size <- as.integer(chunk_size); stopifnot(chunk_size > 0L)
+#   
+#   col_indices <- split(seq_len(m), ceiling(seq_len(m) / chunk_size))
+#   it_index <- iter(col_indices)
+#   
+#   nextEl <- function() {
+#     idx <- nextElem(it_index)
+#     
+#     kindx_sub  <- kindx[,  idx, drop = FALSE]
+#     kgroup_sub <- kgroup[, idx, drop = FALSE]
+#     
+#     # Anchor sample per column = first row of kindx
+#     anchor_idx <- as.integer(kindx_sub[1L, ])
+#     xval_sub   <- x[anchor_idx, , drop = FALSE]
+#     
+#     chunks <- vector("list", length(idx))
+#     for (i in seq_along(idx)) {
+#       sel <- as.logical(kgroup_sub[, i]); sel[is.na(sel)] <- FALSE
+#       sel[1L] <- FALSE  # never include anchor among neighbours
+#       
+#       knns <- as.integer(kindx_sub[sel, i])
+#       
+#       if (is.null(D)) {
+#         chunks[[i]] <- list(
+#           x = x[knns, , drop = FALSE],
+#           y = y[knns, , drop = FALSE],
+#           xval = xval_sub[i, , drop = FALSE]
+#         )
+#       } else {
+#         idsm  <- D[knns, knns, drop = FALSE]
+#         xdata <- cbind(idsm, x[knns, , drop = FALSE])
+#         chunks[[i]] <- list(
+#           x = xdata,
+#           y = y[knns, , drop = FALSE],
+#           xval = t(c(D[anchor_idx[i], knns], xval_sub[i, , drop = FALSE]))
+#         )
+#       }
+#     }
+#     chunks
+#   }
+#   
+#   obj <- list(nextElem = nextEl)
+#   class(obj) <- c("isubsetgroup", "abstractiter", "iter")
+#   obj
+# }
 
 
 
@@ -274,6 +337,11 @@ ith_subsets <- function(
 #'   dimension `n × 1`.
 #' @param kindx An integer matrix of size `k × n`, where each column contains
 #'   the indices of the `k` nearest neighbors for the corresponding observation.
+#' @param neighborhood_sizes An integer vector of length `m` indicating the 
+#' number of neighbors to consider for each observation. This is constant if the 
+#' method of retaining by a fix number of neighbors is employed. If the method 
+#' to retain neighbors is based on a distance threshold, this vector will have 
+#' varying values.   
 #' @param D Optional numeric matrix of pairwise dissimilarities (n × n).
 #'   If provided, for each subset the dissimilarities among the selected
 #'   neighbors are prepended as additional columns to the predictors.
@@ -301,9 +369,9 @@ ith_subsets <- function(
 #'   print(length(chunk))  # Number of subsets in the batch
 #' }
 #' }
-#'
+#' @noRd
 #' @keywords internal
-ith_subsets_list <- function(x, y, kindx, D = NULL, chunk_size = 1) {
+ith_subsets_list <- function(x, y, kindx, neighborhood_sizes, D = NULL, chunk_size = 1) {
   stopifnot(nrow(x) == nrow(y))
   if (!is.null(D)) stopifnot(nrow(D) == nrow(x), ncol(D) == nrow(x))
   
@@ -319,9 +387,8 @@ ith_subsets_list <- function(x, y, kindx, D = NULL, chunk_size = 1) {
   
   nextEl <- function() {
     idx <- nextElem(it_chunks)  # indices of columns in `kindx`
-    
     lapply(idx, function(i) {
-      knns <- as.integer(kindx[, i])
+      knns <- as.integer(kindx[seq_len(neighborhood_sizes[i]), i])
       ixr  <- x[knns, , drop = FALSE]
       iyr  <- y[knns, , drop = FALSE]
       
@@ -344,14 +411,14 @@ ith_subsets_list <- function(x, y, kindx, D = NULL, chunk_size = 1) {
 
 
 
-
 #' @title Iterator for Prediction Subsets (PLS Local Models)
 #' @description
 #' Internal helper to iterate over prediction inputs for local PLS models.
 #'
 #' @param plslib Matrix of PLS regression vectors (one per reference spectrum).
 #' @param Xu Matrix of new observations to predict (rows = samples).
-#' @param xunn Matrix of nearest neighbor indices for each row of Xu.
+#' @param xunn List of integer vectors containing nearest neighbor indices for 
+#'   each row of Xu.
 #' @param xscale Matrix of scaling vectors for each reference model.
 #' @param dxrxu Optional dissimilarity matrix (ref vs. new samples).
 #'
@@ -371,6 +438,7 @@ ith_subsets_list <- function(x, y, kindx, D = NULL, chunk_size = 1) {
 #' with corresponding PLS vectors, scaling vectors, and optional
 #' dissimilarity values. Intended for local PLS prediction routines.
 #' @author Leonardo Ramirez-Lopez
+#' @noRd
 #' @keywords internal
 ith_pred_subsets <- function(
     plslib,
@@ -378,38 +446,32 @@ ith_pred_subsets <- function(
     xunn,
     xscale,
     dxrxu = NULL
-){
-  it_xunn <- iter(xunn, by = "column")
-  it_xu <- iter(Xu, by = "row")
-  
-  if (!is.null(dxrxu)) {
-    it_dxrxu <- iter(dxrxu, by = "column")
-  } else {
-    it_dxrxu <- NULL
-  }
+) {
+  n <- length(xunn)
+  i <- 0L
   
   nextEl <- function() {
-    ixunn <- nextElem(it_xunn)
-    ixu <- nextElem(it_xu)
+    i <<- i + 1L
+    if (i > n) stop("StopIteration", call. = FALSE)
     
-    if (!is.null(it_dxrxu)) {
-      idxrxu <- nextElem(it_dxrxu)
-      idxrxu <- idxrxu[ixunn]
+    ixunn <- xunn[[i]]
+    ixu <- Xu[i, , drop = TRUE]
+    
+    if (!is.null(dxrxu)) {
+      idxrxu <- dxrxu[ixunn, i]
     } else {
       idxrxu <- NULL
     }
-
-    ixscale <- xscale[ixunn, ]
-    iplslib <- plslib[ixunn, ]
     
     list(
-      iplslib = iplslib,
-      ixscale = ixscale,
+      iplslib = plslib[ixunn, , drop = FALSE],
+      ixscale = xscale[ixunn, , drop = FALSE],
       ixunn = ixunn,
       ixu = ixu,
       idxrxu = idxrxu
     )
   }
+  
   obj <- list(nextElem = nextEl)
   class(obj) <- c("isubset", "abstractiter", "iter")
   obj
@@ -478,7 +540,10 @@ ith_pred_subsets <- function(
 #'   (rows = observations, columns = variables).
 #' @param Yr A numeric vector or single-column matrix of response values
 #'   corresponding to \code{Xr}.
-#' @param k An integer vector of neighborhood sizes to test.
+#' @param k A matrix where each row corresponds to a given neighbor size which 
+#' can be constant if the method of retaining neighbors is based on a fix number 
+#' of neighbors, or varying if the method of retaining neighbors is based on a 
+#' disimilarity threshold.
 #' @param ncomp_min Minimum number of PLS components to use.
 #' @param ncomp_max Maximum number of PLS components to use.
 #' @param emgrid A binary matrix indicating which component combinations to
@@ -542,13 +607,14 @@ ith_pred_subsets <- function(
     chunk_size = 1L,
     ...
 ) {
-  ik <- seq_len(k[..k..])
+  
+  neighborhood_sizes <- k[..k.., ]
+  ik <- seq_len(max(neighborhood_sizes))
   
   if (!is.null(pb)) {
     setTxtProgressBar(pb, ..k..)
   }
   
-  browser()
   n_xr <- nrow(Xr)
   ith_preds_template <- matrix(
     NA_real_,
@@ -563,6 +629,7 @@ ith_pred_subsets <- function(
       y = Yr,
       kindx = kidxmat[ik, , drop = FALSE],
       kgroup = kidxgrop[ik, , drop = FALSE],
+      neighborhood_sizes = neighborhood_sizes, 
       D = dissimilarity_mat,
       chunk_size = chunk_size
     ),
@@ -739,53 +806,53 @@ ith_pred_subsets <- function(
 # }
 
 
-#' @title Internal: Predict using local PLS coefficients and optional
-#' dissimilarities
-#'
-#' @description
-#' Computes a prediction for a new observation using a local PLS model
-#' represented by coefficients (`plslib`). The prediction is based on
-#' inverse-scaled feature values. If a dissimilarity vector is provided, it is
-#' appended to the input features before inverse scaling.
-#'
-#' @param plslib A matrix of PLS model coefficients. First column is the
-#'        intercept; remaining columns are coefficients for scaled features.
-#' @param xscale A matrix of scaling values for each feature (same dimensions
-#'        as \code{plslib[,-1]}).
-#' @param Xu A numeric vector (or single-row matrix) representing the query
-#'        sample to be predicted.
-#' @param xunn Currently unused; placeholder for nearest neighbor indices.
-#' @param dxrxu Optional numeric vector of dissimilarities between `Xu` and
-#'        reference samples. If provided, used as additional predictive
-#'        features.
-#' @param ... Additional arguments (currently ignored).
-#'
-#' @return A numeric scalar containing the predicted response for `Xu`.
-#'
-#' @details
-#' The function constructs a synthetic predictor vector by dividing
-#' `xscale` by `Xu` (or by the concatenation of `dxrxu` and `Xu`), then
-#' inverting the result. This reflects a distance- or similarity-based
-#' transformation. The resulting vector is then multiplied element-wise with
-#' the PLS coefficients, and the sum is added to the intercept to compute
-#' the final prediction.
-#'
-#' @author Leonardo Ramirez-Lopez
-#'
-#' @keywords internal
-ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
-  if (is.null(dxrxu)) {
-    ixus <- sweep(xscale, MARGIN = 2, STATS =  Xu, FUN = "/")
-    ixus <- 1 / ixus
-    ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
-  } else {
-    dxu <- c(dxrxu, Xu)
-    ixus <- sweep(xscale, MARGIN = 2, STATS =  dxu, FUN = "/")
-    ixus <- 1 / ixus
-    ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
-  }
-  ipred
-}
+# #' @title Internal: Predict using local PLS coefficients and optional
+# #' dissimilarities
+# #'
+# #' @description
+# #' Computes a prediction for a new observation using a local PLS model
+# #' represented by coefficients (`plslib`). The prediction is based on
+# #' inverse-scaled feature values. If a dissimilarity vector is provided, it is
+# #' appended to the input features before inverse scaling.
+# #'
+# #' @param plslib A matrix of PLS model coefficients. First column is the
+# #'        intercept; remaining columns are coefficients for scaled features.
+# #' @param xscale A matrix of scaling values for each feature (same dimensions
+# #'        as \code{plslib[,-1]}).
+# #' @param Xu A numeric vector (or single-row matrix) representing the query
+# #'        sample to be predicted.
+# #' @param xunn Currently unused; placeholder for nearest neighbor indices.
+# #' @param dxrxu Optional numeric vector of dissimilarities between `Xu` and
+# #'        reference samples. If provided, used as additional predictive
+# #'        features.
+# #' @param ... Additional arguments (currently ignored).
+# #'
+# #' @return A numeric scalar containing the predicted response for `Xu`.
+# #'
+# #' @details
+# #' The function constructs a synthetic predictor vector by dividing
+# #' `xscale` by `Xu` (or by the concatenation of `dxrxu` and `Xu`), then
+# #' inverting the result. This reflects a distance- or similarity-based
+# #' transformation. The resulting vector is then multiplied element-wise with
+# #' the PLS coefficients, and the sum is added to the intercept to compute
+# #' the final prediction.
+# #'
+# #' @author Leonardo Ramirez-Lopez
+# #'
+# #' @keywords internal
+# ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
+#   if (is.null(dxrxu)) {
+#     ixus <- sweep(xscale, MARGIN = 2, STATS =  Xu, FUN = "/")
+#     ixus <- 1 / ixus
+#     ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
+#   } else {
+#     dxu <- c(dxrxu, Xu)
+#     ixus <- sweep(xscale, MARGIN = 2, STATS =  dxu, FUN = "/")
+#     ixus <- 1 / ixus
+#     ipred <- plslib[, 1] + rowSums(plslib[, -1] * ixus)
+#   }
+#   ipred
+# }
 
 
 
@@ -805,6 +872,8 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 #'   Weights are internally normalized to sum to 1.
 #' @param probs A numeric vector of probabilities in [0, 1] specifying the
 #'   quantile levels to compute (e.g., `c(0.25, 0.5, 0.75)`).
+#' @param exclude_last Logical; if `TRUE`, the last non-NA observation is excluded 
+#' from each observation to avoid edge effects.
 #'
 #' @return A numeric vector of weighted quantiles corresponding to `probs`.
 #'
@@ -825,12 +894,13 @@ ith_pred <- function(plslib, xscale, Xu, xunn, dxrxu = NULL, ...){
 weighted_quantiles <- function(
     x,
     weights,
-    probs = c(0.05, 0.25, 0.5, 0.75, 0.95)
+    probs = c(0.05, 0.25, 0.5, 0.75, 0.95), 
+    exclude_last = TRUE
 ) {
   stopifnot(is.matrix(x), is.matrix(weights))
   stopifnot(all(dim(x) == dim(weights)))
   stopifnot(all(probs >= 0 & probs <= 1))
-  
+
   n_rows <- nrow(x)
   n_probs <- length(probs)
   result <- matrix(NA_real_, nrow = n_rows, ncol = n_probs)
@@ -851,6 +921,9 @@ weighted_quantiles <- function(
     
     # Remove NA values
     valid <- !(is.na(xi) | is.na(wi))
+    if (exclude_last) {
+      valid[sum(valid)] <- FALSE
+    }
     xi <- xi[valid]
     wi <- wi[valid]
     
