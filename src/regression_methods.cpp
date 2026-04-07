@@ -3337,3 +3337,81 @@ Rcpp::List final_fits_cpp(
 }
 
 
+//' @title Internal: Predict using local PLS coefficients and optional
+//' dissimilarities
+//'
+//' @description
+//' Computes predictions for a new observation using local PLS models
+//' represented by coefficients (\code{plslib}). The prediction is based on
+//' inverse-scaled feature values. If a dissimilarity vector is provided, it is
+//' prepended to the input features before inverse scaling.
+//'
+//' @param plslib A numeric matrix of PLS model coefficients (n_models × p+1).
+//'   First column is the intercept; remaining columns are coefficients for 
+//'   scaled features.
+//' @param xscale A numeric matrix of scaling values (n_models × p), same 
+//'   number of columns as \code{plslib[,-1]}.
+//' @param Xu A numeric vector of length p representing the query sample to 
+//'   be predicted.
+//' @param dxrxu Optional numeric vector of dissimilarities between \code{Xu} 
+//'   and reference samples. If provided, prepended to \code{Xu} as additional 
+//'   predictive features. Default is \code{R_NilValue} (NULL).
+//'
+//' @return A numeric vector of length \code{nrow(plslib)} containing the 
+//'   predicted response for \code{Xu} from each local model.
+//'
+//' @details
+//' For each local model (row of \code{plslib}), the function:
+//' \enumerate{
+//'   \item Optionally prepends \code{dxrxu} to \code{Xu}
+//'   \item Computes inverse-scaled features: \code{Xu / xscale[i,]}
+//'   \item Computes prediction: \code{intercept + sum(coefficients * scaled_features)}
+//' }
+//'
+//' @note
+//' This is an internal function optimised for performance in the prediction
+//' loop of \code{predict.liblex}.
+//'
+//' @keywords internal
+//' @noRd
+//' @author Leonardo Ramirez-Lopez
+// [[Rcpp::export]]
+NumericVector ith_pred_cpp(
+   const NumericMatrix& plslib,
+   const NumericMatrix& xscale,
+   const NumericVector& Xu,
+   Rcpp::Nullable<NumericVector> dxrxu = R_NilValue
+) {
+ int n_models = plslib.nrow();
+ int p = xscale.ncol();
+ NumericVector ipred(n_models);
+ 
+ // Build input vector: optionally prepend dissimilarities
+ NumericVector dxu;
+ if (dxrxu.isNotNull()) {
+   NumericVector dxrxu_vec(dxrxu);
+   int nd = dxrxu_vec.size();
+   dxu = NumericVector(nd + Xu.size());
+   for (int i = 0; i < nd; i++) {
+     dxu[i] = dxrxu_vec[i];
+   }
+   for (int i = 0; i < Xu.size(); i++) {
+     dxu[nd + i] = Xu[i];
+   }
+ } else {
+   dxu = Xu;
+ }
+ 
+ // Compute predictions for each model
+ for (int i = 0; i < n_models; i++) {
+   double pred = plslib(i, 0);  // intercept
+   for (int j = 0; j < p; j++) {
+     double scaled = dxu[j] / xscale(i, j);
+     pred += plslib(i, j + 1) * scaled;
+   }
+   ipred[i] = pred;
+ }
+ 
+ return ipred;
+}
+
