@@ -1071,7 +1071,6 @@ NumericMatrix extract_by_index(NumericMatrix mat, IntegerMatrix idx) {
 //' @noRd
 //' @keywords internal
 //' @author Leonardo Ramirez-Lopez
-
 // [[Rcpp::export]]
 Rcpp::LogicalMatrix not_in_same_group(
     const Rcpp::IntegerMatrix& kidxmat,
@@ -1107,8 +1106,9 @@ Rcpp::LogicalMatrix not_in_same_group(
 //'        based on group membership.
 //' @param Yr A numeric vector of reference response values. The
 //'        values are indexed by `kidxmat` to compute quantiles.
-//' @param k An integer vector of the number of neighbors to use
-//'        for each observation (length must match `ncol(kidxmat)`).
+//' @param k An integer specifying the number of neighbors to use.
+//'        Either a single value (applied to all observations) or a
+//'        vector of length `ncol(kidxmat)` (per-observation neighborhood sizes).
 //' @param probs A numeric vector of probabilities for which to
 //'        compute quantiles (e.g., `c(0, 0.05, 0.5, 0.95, 1)`).
 //'
@@ -1142,47 +1142,148 @@ NumericMatrix compute_nn_quantiles(
     const IntegerVector& k,
     const NumericVector& probs
 ) {
-  int n_samples = k.size();
-  int n_neighbors = kidxmat.ncol();
+  int n_obs = kidxmat.ncol();
   int n_quantiles = probs.size();
   
-  NumericMatrix result(n_samples * n_neighbors, n_quantiles);
+  // k can be length 1 (same for all) or length n_obs (per-observation)
+  bool single_k = (k.size() == 1);
+  
+  NumericMatrix result(n_obs, n_quantiles);
   
 #pragma omp parallel for
-  for (int i = 0; i < n_samples; i++) {
-    int ik = k[i];
-    for (int j = 0; j < n_neighbors; j++) {
-      std::vector<double> values;
-      for (int n = 0; n < ik; n++) {
-        if (kidxgrop(n, j)) {
-          int idx = kidxmat(n, j) - 1;
-          if (!NumericVector::is_na(Yr[idx])) {
-            values.push_back(Yr[idx]);
-          }
+  for (int j = 0; j < n_obs; j++) {
+    int ik = single_k ? k[0] : k[j];
+    
+    std::vector<double> values;
+    values.reserve(ik);
+    
+    for (int n = 0; n < ik; n++) {
+      if (kidxgrop(n, j)) {
+        int idx = kidxmat(n, j) - 1;
+        if (!NumericVector::is_na(Yr[idx])) {
+          values.push_back(Yr[idx]);
         }
       }
-      
-      NumericVector q(n_quantiles, NA_REAL);
-      if (!values.empty()) {
-        std::sort(values.begin(), values.end());
-        for (int qidx = 0; qidx < n_quantiles; qidx++) {
-          double pos = probs[qidx] * (values.size() - 1);
-          int idx_below = std::floor(pos);
-          int idx_above = std::ceil(pos);
-          double weight = pos - idx_below;
-          if (idx_below == idx_above) {
-            q[qidx] = values[idx_below];
-          } else {
-            q[qidx] = (1 - weight) * values[idx_below] + weight * values[idx_above];
-          }
-        }
-      }
-      
+    }
+    
+    if (!values.empty()) {
+      std::sort(values.begin(), values.end());
       for (int qidx = 0; qidx < n_quantiles; qidx++) {
-        result(i * n_neighbors + j, qidx) = q[qidx];
+        double pos = probs[qidx] * (values.size() - 1);
+        int idx_below = std::floor(pos);
+        int idx_above = std::ceil(pos);
+        double weight = pos - idx_below;
+        if (idx_below == idx_above) {
+          result(j, qidx) = values[idx_below];
+        } else {
+          result(j, qidx) = (1 - weight) * values[idx_below] + weight * values[idx_above];
+        }
+      }
+    } else {
+      for (int qidx = 0; qidx < n_quantiles; qidx++) {
+        result(j, qidx) = NA_REAL;
       }
     }
   }
   
   return result;
+}
+
+//' @title Find Nearest Neighbors by Dissimilarity
+//' 
+//' @description
+//' Internal C++ function to identify nearest neighbors from a dissimilarity
+//' matrix, with optional thresholding. Uses partial sorting for efficiency
+//' when only the top-k neighbors are needed.
+//'
+//' @param D A numeric matrix of dissimilarities (n × m), where rows are
+//'   reference observations and columns are query observations.
+//' @param k_min Integer. Minimum number of neighbors to return per 
+//'   observation. When \code{threshold} is \code{NULL}, exactly \code{k_min}
+//'   neighbors are returned. When \code{threshold} is specified, at least
+//'   \code{k_min} neighbors are returned even if fewer fall below the
+//'   threshold.
+//' @param k_max Integer. Maximum number of neighbors to consider. Only the
+//'   \code{k_max} nearest neighbors are evaluated against the threshold.
+//'   Must satisfy \code{k_max >= k_min} and \code{k_max <= nrow(D)}.
+//' @param threshold Either \code{NULL} or a numeric scalar. When \code{NULL},
+//'   exactly \code{k_min} neighbors are returned. When specified, all
+//'   neighbors among the top \code{k_max} with dissimilarity ≤ \code{threshold}
+//'   are returned, subject to the \code{k_min} floor.
+//'
+//' @return A list of length \code{ncol(D)}. Each element is an integer vector
+//'   of 1-indexed row indices identifying the nearest neighbors for that
+//'   column, sorted by increasing dissimilarity.
+//'
+//' @details
+//' For each column (query observation), the function:
+//' \enumerate{
+//'   \item Performs a partial sort to identify the \code{k_max} smallest
+//'     dissimilarities in O(n + k log k) time.
+//'   \item If \code{threshold} is \code{NULL}, returns the first \code{k_min}
+//'     indices.
+//'   \item If \code{threshold} is specified, counts how many of the top
+//'     \code{k_max} neighbors have dissimilarity ≤ \code{threshold}, then
+//'     returns \code{max(k_min, n_below)} indices.
+//' }
+//'
+//' @section Parallel execution:
+//' The function uses OpenMP for parallel computation across columns.
+//' Thread count is controlled by the \code{OMP_NUM_THREADS} environment
+//' variable.
+//'
+//' @note
+//' Tie-breaking may differ slightly from R's \code{order()} function, which
+//' uses stable sorting. In practice, exact ties in dissimilarity matrices
+//' are rare.
+//'
+//' @keywords internal
+//' @noRd
+//' @author Leonardo Ramirez-Lopez
+// [[Rcpp::export]]
+List top_k_neighbors(
+    const NumericMatrix& D,
+    int k_min,
+    int k_max,
+    Rcpp::Nullable<double> threshold = R_NilValue
+) {
+  int n = D.nrow();
+  int m = D.ncol();
+  
+  bool has_threshold = threshold.isNotNull();
+  double thresh = has_threshold ? Rcpp::as<double>(threshold) : 0.0;
+  
+  // Thread-safe storage: vector of vectors
+  std::vector<std::vector<int>> results(m);
+  
+#pragma omp parallel for
+  for (int j = 0; j < m; j++) {
+    std::vector<std::pair<double, int>> col(n);
+    for (int i = 0; i < n; i++) {
+      col[i] = {D(i, j), i + 1};
+    }
+    std::partial_sort(col.begin(), col.begin() + k_max, col.end());
+    
+    int k_use = k_min;
+    if (has_threshold) {
+      int n_below = 0;
+      for (int i = 0; i < k_max && col[i].first <= thresh; i++) {
+        n_below++;
+      }
+      k_use = std::max(k_min, n_below);
+    }
+    
+    results[j].resize(k_use);
+    for (int i = 0; i < k_use; i++) {
+      results[j][i] = col[i].second;
+    }
+  }
+  
+  // Convert to List after parallel region
+  List out(m);
+  for (int j = 0; j < m; j++) {
+    out[j] = wrap(results[j]);
+  }
+  
+  return out;
 }
