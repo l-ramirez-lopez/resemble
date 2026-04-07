@@ -176,6 +176,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// top_k_neighbors
+List top_k_neighbors(const NumericMatrix& D, int k_min, int k_max, Rcpp::Nullable<double> threshold);
+RcppExport SEXP _resemble_top_k_neighbors(SEXP DSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP thresholdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type D(DSEXP);
+    Rcpp::traits::input_parameter< int >::type k_min(k_minSEXP);
+    Rcpp::traits::input_parameter< int >::type k_max(k_maxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<double> >::type threshold(thresholdSEXP);
+    rcpp_result_gen = Rcpp::wrap(top_k_neighbors(D, k_min, k_max, threshold));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_col_largest_sd
 NumericVector get_col_largest_sd(arma::mat X);
 RcppExport SEXP _resemble_get_col_largest_sd(SEXP XSEXP) {
@@ -553,6 +567,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ith_pred_cpp
+NumericVector ith_pred_cpp(const NumericMatrix& plslib, const NumericMatrix& xscale, const NumericVector& Xu, Rcpp::Nullable<NumericVector> dxrxu);
+RcppExport SEXP _resemble_ith_pred_cpp(SEXP plslibSEXP, SEXP xscaleSEXP, SEXP XuSEXP, SEXP dxrxuSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type plslib(plslibSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type xscale(xscaleSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type Xu(XuSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<NumericVector> >::type dxrxu(dxrxuSEXP);
+    rcpp_result_gen = Rcpp::wrap(ith_pred_cpp(plslib, xscale, Xu, dxrxu));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fast_diss", (DL_FUNC) &_resemble_fast_diss, 3},
@@ -568,6 +596,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_extract_by_index", (DL_FUNC) &_resemble_extract_by_index, 2},
     {"_resemble_not_in_same_group", (DL_FUNC) &_resemble_not_in_same_group, 2},
     {"_resemble_compute_nn_quantiles", (DL_FUNC) &_resemble_compute_nn_quantiles, 5},
+    {"_resemble_top_k_neighbors", (DL_FUNC) &_resemble_top_k_neighbors, 4},
     {"_resemble_get_col_largest_sd", (DL_FUNC) &_resemble_get_col_largest_sd, 1},
     {"_resemble_get_column_sds", (DL_FUNC) &_resemble_get_column_sds, 1},
     {"_resemble_overall_var", (DL_FUNC) &_resemble_overall_var, 1},
@@ -591,6 +620,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_pca_nipals", (DL_FUNC) &_resemble_pca_nipals, 8},
     {"_resemble_ith_local_fit", (DL_FUNC) &_resemble_ith_local_fit, 10},
     {"_resemble_final_fits_cpp", (DL_FUNC) &_resemble_final_fits_cpp, 9},
+    {"_resemble_ith_pred_cpp", (DL_FUNC) &_resemble_ith_pred_cpp, 4},
     {NULL, NULL, 0}
 };
 
