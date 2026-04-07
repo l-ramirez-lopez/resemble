@@ -158,6 +158,7 @@ for prediction.
 \item \code{neighborhood_stats}: Statistics (response quantiles) for
 each neighborhood size.
 \item \code{anchor_indices}: The anchor indices used.
+\item \code{neighbors}: The object passed to \code{neighbors}.
 }
 
 \strong{For \code{predict.liblex}:} A list with the following components:
