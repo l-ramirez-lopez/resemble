@@ -211,6 +211,7 @@
 #'   \item \code{neighborhood_stats}: Statistics (response quantiles) for 
 #'     each neighborhood size.
 #'   \item \code{anchor_indices}: The anchor indices used.
+#'   \item \code{neighbors}: The object passed to \code{neighbors}.
 #' }
 #'
 #' \strong{For \code{predict.liblex}:} A list with the following components:
@@ -762,38 +763,64 @@ liblex <- function(
   }
   
   if (inherits(neighbors, "neighbors_k")) {
-    kidxmat <- diss_to_neighbors(
-      diss_matrix = dsm$dissimilarity,
-      k = max_k,
-      k_diss = NULL,
-      k_range = NULL,
-      spike = -which(is.na(Yr)),
-      return_dissimilarity = FALSE,
-      skip_first = FALSE,
-      keep_self = TRUE
-    )
+    # kidxmat <- diss_to_neighbors(
+    #   diss_matrix = dsm$dissimilarity,
+    #   k = max_k,
+    #   k_diss = NULL,
+    #   k_range = NULL,
+    #   spike = -which(is.na(Yr)),
+    #   return_dissimilarity = FALSE,
+    #   skip_first = FALSE,
+    #   keep_self = TRUE
+    # )
     k <- neighbors$k
     len_neighbors <- length(k)
-    names_nnstats <- paste0("k_", k)
-    
+    names_nnstats <- paste0(
+      "neighbor ", 
+      neighbors$method, 
+      " index ", 
+      seq_along(neighbors$k), 
+      " (k = ", neighbors$k, ")"
+    )
   }
   
   if (inherits(neighbors, "neighbors_diss")) {
-    kidxmat <- diss_to_neighbors(
-      diss_matrix = dsm$dissimilarity,
-      k = NULL,
-      k_diss = neighbors$threshold,
-      k_range = c(neighbors$k_min, neighbors$k_max),
-      spike = -which(is.na(Yr)),
-      return_dissimilarity = FALSE,
-      skip_first = FALSE,
-      keep_self = TRUE
-    )
+    # kidxmat <- diss_to_neighbors(
+    #   diss_matrix = dsm$dissimilarity,
+    #   k = NULL,
+    #   k_diss = neighbors$threshold,
+    #   k_range = c(neighbors$k_min, neighbors$k_max),
+    #   spike = -which(is.na(Yr)),
+    #   return_dissimilarity = FALSE,
+    #   skip_first = FALSE,
+    #   keep_self = TRUE
+    # )
     len_neighbors <- length(neighbors$threshold)
-    names_nnstats <- paste0("k_diss", neighbors$threshold)
+    
+    format_threshold <- function(x, digits = 4) {
+      natural <- format(x, scientific = FALSE, trim = TRUE, digits = 8)
+      rounded <- formatC(x, format = "f", digits = digits)
+      
+      decimal_part <- sub("^[^.]*\\.?", "", natural)
+      decimal_places <- nchar(decimal_part)
+      
+      if (decimal_places > digits) {
+        paste0(rounded, "...")
+      } else {
+        natural
+      }
+    }
+    
+    names_nnstats <- paste0(
+      "neighbor ", 
+      neighbors$method, 
+      " index ", 
+      seq_along(neighbors$threshold), 
+      " (diss < ", sapply(neighbors$threshold, format_threshold), ")"
+    )
   }
+
   
-  browser()
   # 
   # 
   # kidxmat2 <- diss_to_neighbors(
@@ -811,16 +838,16 @@ liblex <- function(
   # 
 
   # Find indices of the nearest neighbors
-  # kidxmat <- list(
-  #   neighbors = top_k_order(
-  #     dsm$dissimilarity,
-  #     k = max_k,
-  #     skip = which(is.na(Yr))
-  #   )
-  # )
+  kidxmat <- list(
+    neighbors = top_k_order(
+      dsm$dissimilarity,
+      k = max_k,
+      skip = which(is.na(Yr))
+    )
+  )
   
   # Extract dissimilarities for the selected neighbors
-  # kdissmat <- extract_by_index(dsm$dissimilarity, kidxmat)
+  kidxmat$neighbors_diss <- extract_by_index(dsm$dissimilarity, kidxmat$neighbors)
   
   # kidxmat$neighbors_diss
   # kidxmat$neighbors
@@ -877,22 +904,24 @@ liblex <- function(
     )
     ks[ks < neighbors$k_min] <- neighbors$k_min
     ks[ks > neighbors$k_max] <- neighbors$k_max
-    ks[, 1:4]
-  } 
-  browser()
-  
+    thresholds_ks <- neighbors$threshold
+  } else {
+    ks <- matrix(k, nrow = length(k), ncol = nrow(Xr)) 
+    thresholds_ks <- neighbors$k
+  }
+
   for (ii in seq_len(len_neighbors)) {
-    # nnstats[[ii]] <- compute_nn_quantiles(
-    #   kidxmat = kidxmat$neighbors,
-    #   kidxgrop = kidxgrop,
-    #   Yr = Yr,
-    #   k = k[ii],
-    #   probs = probs
-    # )
-    # dimnames(nnstats[[ii]]) <- dnms
+    nnstats[[ii]] <- compute_nn_quantiles(
+      kidxmat = kidxmat$neighbors,
+      kidxgrop = kidxgrop,
+      Yr = Yr,
+      k = ks[ii, ],
+      probs = probs
+    )
+    dimnames(nnstats[[ii]]) <- dnms
   }
   names(nnstats) <- names_nnstats
-  
+
   #######################################################################
   #######################################################################
   #######################################################################
@@ -904,9 +933,9 @@ liblex <- function(
   # McBratney, A., 2010. Critical review of chemometric indicators commonly 
   # used for assessing the quality of the prediction of soil attributes by 
   # NIR spectroscopy. TrAC Trends in Analytical Chemistry, 29(9), pp.1073-1081.
-  # itq <- vapply(nnstats, function(x) {
-  #   x[, "75%"] - x[, "25%"]
-  # }, numeric(nrow(nnstats[[1L]])))
+  itq <- vapply(nnstats, function(x) {
+    x[, "75%"] - x[, "25%"]
+  }, numeric(nrow(nnstats[[1L]])))
   
   # Dissimilarity as predictors setup
   # (Note: diss_usage not yet implemented in liblex, placeholder for future)
@@ -963,13 +992,12 @@ liblex <- function(
   if (verbose) cat("Fitting models...\n")
   ## perform the nearest neighbor predictions  
   if (control$mode == "validate" || control$tune) {
-    browser()
     nnpreds <- sapply(
       seq_len(len_neighbors),
       FUN = .get_all_fits,
       Xr = Xr,
       Yr = Yr,
-      k = k,
+      k = ks,
       ncomp_min = min_ncomp,
       ncomp_max = max_ncomp,
       emgrid = emgrid,
@@ -983,7 +1011,6 @@ liblex <- function(
       pb = if (verbose) pb else NULL,
       chunk_size = control$chunk_size
     )
-    
     # Organize the results (in nnpreds)
     # Compute prediction statistics: R², RMSE, bias, and RPIQ-like metric
     pparam <- matrix(NA_real_, nrow(emgrid), 4L)
@@ -1050,19 +1077,33 @@ liblex <- function(
       pparam = pparam,
       y = Yr_anchor
     )
-    
+
     # Combine prediction statistics into a data.frame
     predperformance <- data.frame(do.call("rbind", predperformance))
     colnames(predperformance) <- c("r2", "rmse", "me", "st_rmse")
     
     # Add PLS component range and neighborhood size columns
-    predperformance <- data.frame(
-      min_ncomp = rep(sgrid$minpls, times = length(k)),
-      max_ncomp = rep(sgrid$maxpls, times = length(k)),
-      k = rep(k, each = nrow(pparam)),
-      predperformance
-    )
     
+    if (inherits(neighbors, "neighbors_k")) {
+      predperformance <- data.frame(
+        min_ncomp = rep(sgrid$minpls, times = length(thresholds_ks)),
+        max_ncomp = rep(sgrid$maxpls, times = length(thresholds_ks)),
+        k = rep(thresholds_ks, each = nrow(pparam)),
+        predperformance
+      )
+      ks_param_name <- "k"
+    } else {
+      predperformance <- data.frame(
+        min_ncomp = rep(sgrid$minpls, times = length(thresholds_ks)),
+        max_ncomp = rep(sgrid$maxpls, times = length(thresholds_ks)),
+        diss_threshold = rep(thresholds_ks, each = nrow(pparam)),
+        k_min = rep(neighbors$k_min, each = nrow(pparam)),
+        k_max = rep(neighbors$k_max, each = nrow(pparam)),
+        predperformance
+      )
+      ks_param_name <- "diss_threshold"
+    }
+      
     
     # Find optimal parameters based on selected metric
     if (control$metric == "rmse") {
@@ -1072,7 +1113,7 @@ liblex <- function(
       bestp <- predperformance[which.max(predperformance[, "r2"]), , drop = FALSE][1L, ]
     }
     # Extract optimal parameters
-    optimal_k <- bestp$k
+    optimal_param <- bestp[[ks_param_name]]
     optimal_min_ncomp <- bestp$min_ncomp
     optimal_max_ncomp <- bestp$max_ncomp
     
@@ -1084,12 +1125,12 @@ liblex <- function(
     )
     pls_item_idx <- seq(pls_item_idx, by = nrow(pparam), length.out = length(Yr_anchor))
     
-    best_preds <- itr$nextElem(which(k == optimal_k))$nnpreds[pls_item_idx]
+    best_preds <- itr$nextElem(which(thresholds_ks == optimal_param))$nnpreds[pls_item_idx]
     best_preds_residuals <- Yr_anchor - best_preds
     
   } else {
     # No validation: use maximum k and full PLS range
-    optimal_k <- max(k)
+    optimal_param <- max(thresholds_ks)
     optimal_min_ncomp <- min_ncomp
     optimal_max_ncomp <- max_ncomp
     best_preds_residuals <- NULL
@@ -1102,14 +1143,12 @@ liblex <- function(
   }
   
   if (control$mode == "build") {
+    
+    # final vector of optimal ks
+    optimal_ks <- ks[which(thresholds_ks == optimal_param), ]
+    
     # Calculate number of variables for library storage
-    # (diss_predictors not yet implemented, placeholder for future)
-    diss_predictors <- FALSE
-    if (diss_predictors) {
-      n_var <- 1L + (5L * (optimal_k + ncol(Xr)))
-    } else {
-      n_var <- 1L + (5L * ncol(Xr))
-    }
+    n_var <- 1L + (5L * ncol(Xr))
     
     # Template matrix for storing PLS library coefficients
     plslib_template <- matrix(
@@ -1120,7 +1159,7 @@ liblex <- function(
     
     # Number of iterations for parallel processing
     n_iter <- ceiling(ncol(dsm$dissimilarity) / control$chunk_size)
-    
+
     # Build PLS library in parallel (or sequentially if no backend registered)
     # Declare foreach variables to avoid R CMD check NOTE
     ksubsets <- ithbarrio <- iset <- NULL
@@ -1137,7 +1176,8 @@ liblex <- function(
       ithbarrio = ith_subsets_list(
         x = Xr,
         y = Yr,
-        kindx = kidxmat$neighbors[seq_len(optimal_k), , drop = FALSE],
+        kindx = kidxmat$neighbors[seq_len(max(optimal_ks)), , drop = FALSE],
+        neighborhood_sizes = optimal_ks,
         D = dssm,
         chunk_size = control$chunk_size
       )
@@ -1164,26 +1204,20 @@ liblex <- function(
       }
       iplslib
     }
-    
+
     # Combine parallel results
     plslib <- do.call("cbind", plslib)
     
     if (verbose) {
-      setTxtProgressBar(pb, length(k) + 1L)
+      setTxtProgressBar(pb, length(thresholds_ks) + 1L)
     }
     
     plslib <- t(plslib)
     
     # Setup column names based on whether dissimilarity is used as predictors
-    # (diss_predictors not yet implemented)
     namesk <- NULL
-    if (diss_predictors) {
-      npredictors <- optimal_k + ncol(Xr)
-      namesk <- paste0("k", seq_len(optimal_k))
-    } else {
-      npredictors <- ncol(Xr)
-    }
-    
+    npredictors <- ncol(Xr)
+
     # Extract scaling vectors from library matrix
     xscale <- plslib[, -seq_len((4L * npredictors) + 1L), drop = FALSE]
     plslib <- plslib[, seq_len((4L * npredictors) + 1L), drop = FALSE]
@@ -1204,18 +1238,11 @@ liblex <- function(
     colnames(plssratios) <- colnames(plsvips) <- c(namesk, colnames(Xr))
     
     # Extract regression coefficients
-    if (diss_predictors) {
-      bs <- list(
-        B0 = plslib[, 1L],
-        B = plslib[, colnames(plslib) %in% colnames(Xr), drop = FALSE],
-        Bk = plslib[, colnames(plslib) %in% namesk, drop = FALSE]
-      )
-    } else {
-      bs <- list(
-        B0 = plslib[, 1L],
-        B = plslib[, colnames(plslib) %in% colnames(Xr), drop = FALSE]
-      )
-    }
+    bs <- list(
+      B0 = plslib[, 1L],
+      B = plslib[, colnames(plslib) %in% colnames(Xr), drop = FALSE]
+    )
+    
     
     # Global centering/scaling vectors for prediction
     # (used when applying the library to new observations)
@@ -1240,21 +1267,21 @@ liblex <- function(
       local_x_scale = xscale
     )
     
-    if (diss_predictors) {
-      iscale$local_diss_scale <- xscale[, colnames(xscale) %in% namesk, drop = FALSE]
-    }
+    param_name <- if (inherits(neighbors, "neighbors_k")) "k" else "diss_threshold"
+    optimal_params <- c(
+      setNames(list(optimal_param), param_name),
+      list(ncomp = c(min = optimal_min_ncomp, max = optimal_max_ncomp))
+    )
     
-
     fresults <- list(
       dissimilarity = dsm[!names(dsm) %in% "gh"],
       fit_method = fit_method,
       gh = dsm$gh,
       results = predperformance,
       best = bestp,
-      optimal_params = list(
-        k = optimal_k,
-        ncomp = c(min = optimal_min_ncomp, max = optimal_max_ncomp)
-      ),
+      optimal_params = optimal_params,
+      
+      
       residuals = best_preds_residuals,
       coefficients = bs,
       vips = plsvips,
@@ -1335,6 +1362,9 @@ liblex <- function(
     names(fresults$residuals) <- row_names
   }
   
+  # add the original object passed to neighbors
+  fresults$neighbors <- neighbors
+  
   attr(fresults, "call") <- f_call
   class(fresults) <- c("liblex", "list")
   fresults
@@ -1344,543 +1374,6 @@ liblex <- function(
 
 #' @aliases liblex
 #' @export
-# predict.liblex <- function(
-#     object,
-#     newdata,
-#     diss_method,
-#     weighting = c(
-#       "gaussian", "tricube", "triweight", "triangular",
-#       "quartic", "parabolic", "cauchy", "none"
-#     ),
-#     probs = c(0.05, 0.25, 0.5, 0.75, 0.95),
-#     range_prediction_limits = FALSE,
-#     residual_cutoff = NULL,
-#     enforce_indices = NULL,
-#     verbose = TRUE,
-#     allow_parallel = TRUE,
-#     blas_threads = 1L,
-#     ...
-# ) {
-#   
-#   # --- Validate allow_parallel ---
-#   if (!is.logical(allow_parallel) || length(allow_parallel) != 1L) {
-#     stop("'allow_parallel' must be TRUE or FALSE", call. = FALSE)
-#   }
-#   
-#   # ---------------------------------------------------------------------------
-#   # Parallel setup
-#   # ---------------------------------------------------------------------------
-#   "%mydo%" <- get("%do%")
-#   if (allow_parallel && getDoParRegistered()) {
-#     "%mydo%" <- get("%dopar%")
-#   }
-#   
-#   # --- Validate blas_threads ---
-#   if (!is.numeric(blas_threads) || length(blas_threads) != 1L || 
-#       blas_threads < 1L || blas_threads != as.integer(blas_threads)) {
-#     stop("'blas_threads' must be a positive integer", call. = FALSE)
-#   }
-#   blas_threads <- as.integer(blas_threads)
-#   
-#   if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
-#     old_blas_threads <- RhpcBLASctl::blas_get_num_procs()
-#     if (old_blas_threads != blas_threads) {
-#       RhpcBLASctl::blas_set_num_threads(blas_threads)
-#       on.exit(RhpcBLASctl::blas_set_num_threads(old_blas_threads), add = TRUE)
-#     }
-#   } else if (Sys.info()["sysname"] == "Linux" && blas_threads == 1L) {
-#     message(
-#       "Tip: Install 'RhpcBLASctl' for optimal performance on Linux:\n",
-#       "  install.packages('RhpcBLASctl')"
-#     )
-#   }
-#   
-#   # Validate weighting argument
-#   weighting <- match.arg(weighting)
-#   
-#   # --- Validate object ---
-#   if (!inherits(object, "liblex")) {
-#     stop("'object' must be of class 'liblex'", call. = FALSE)
-#   }
-#   
-#   if (is.null(object$coefficients)) {
-#     stop("Cannot predict: object was built with mode = 'validate'", call. = FALSE)
-#   }
-#   # --- Validate probs ---
-#   if (!is.numeric(probs) || any(is.na(probs)) || any(probs < 0) || any(probs > 1)) {
-#     stop("'probs' must be a numeric vector with values in [0, 1]", call. = FALSE)
-#   }
-#   
-#   # --- Validate range_prediction_limits ---
-#   if (!is.logical(range_prediction_limits) || length(range_prediction_limits) != 1L || is.na(range_prediction_limits)) {
-#     stop("'range_prediction_limits' must be TRUE or FALSE", call. = FALSE)
-#   }
-#   
-#   # --- Validate residual_cutoff ---
-#   if (!is.null(residual_cutoff)) {
-#     if (!is.numeric(residual_cutoff) || length(residual_cutoff) != 1L || residual_cutoff <= 0) {
-#       stop("'residual_cutoff' must be a single positive number or NULL", call. = FALSE)
-#     }
-#   }
-#   
-#   # --- Validate enforce_indices ---
-#   if (!is.null(enforce_indices)) {
-#     if (!is.numeric(enforce_indices) || any(enforce_indices < 1L)) {
-#       stop("'enforce_indices' must be positive integers or NULL", call. = FALSE)
-#     }
-#     enforce_indices <- as.integer(enforce_indices)
-#     n_models <- nrow(object$coefficients$B)
-#     if (any(enforce_indices > n_models)) {
-#       stop("'enforce_indices' contains values exceeding number of models (", n_models, ")", 
-#            call. = FALSE)
-#     }
-#   }
-# 
-#   # --- Validate verbose ---
-#   if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
-#     stop("'verbose' must be TRUE or FALSE", call. = FALSE)
-#   }
-#   
-#   # --- Validate diss_method ---
-#   stored_diss <- object$dissimilarity$diss_method
-#   
-#   if (missing(diss_method)) {
-#     if (is.character(stored_diss) && stored_diss == "Precomputed dissimilarity matrix") {
-#       stop(
-#         "Model built with precomputed dissimilarity matrix; ",
-#         "'diss_method' argument is required for prediction",
-#         call. = FALSE
-#       )
-#     }
-#     diss_method <- stored_diss
-#   } else {
-#     # Validate user-provided diss_method
-#     if (!inherits(diss_method, "diss_method")) {
-#       stop("'diss_method' must be a diss_*() object", call. = FALSE)
-#     }
-#     # User provided diss_method — warn if different from stored
-#     if (inherits(stored_diss, "diss_method") && !identical(diss_method, stored_diss)) {
-#       warning(
-#         "Overriding stored 'diss_method' with user-supplied value",
-#         call. = FALSE
-#       )
-#     }
-#   }
-# 
-#   # --- Validate newdata ---
-#   required_vars <- colnames(object$coefficients$B)
-#   
-#   if (!all(required_vars %in% colnames(newdata))) {
-#     missing_vars <- setdiff(required_vars, colnames(newdata))
-#     stop(
-#       "Missing predictor variables in 'newdata': ",
-#       paste(missing_vars[seq_len(min(5L, length(missing_vars)))], collapse = ", "),
-#       if (length(missing_vars) > 5L) paste0(" ... and ", length(missing_vars) - 5L, " more"),
-#       call. = FALSE
-#     )
-#   }
-#   
-#   newdata <- as.matrix(newdata[, required_vars, drop = FALSE])
-#   
-#   # --- Compute dissimilarities between newdata and anchor observations ---
-#   if (inherits(diss_method, c("diss_pca", "diss_pls"))) {
-#     # Projection-based methods: compute distances in score space
-#     
-#     # Project newdata onto the stored projection
-#     scores_newdata <- predict(object$dissimilarity$projection, newdata)
-#     
-#     # Get scores for anchor observations
-#     scores_anchors <- object$dissimilarity$projection$scores[object$anchor_indices, , drop = FALSE]
-#     
-#     # Standardize using moments from all training scores (not just anchors)
-#     score_center <- get_column_means(object$dissimilarity$projection$scores)
-#     score_scale <- get_column_sds(object$dissimilarity$projection$scores)
-#     
-#     scores_anchors_scaled <- scale(scores_anchors, center = score_center, scale = score_scale)
-#     scores_newdata_scaled <- scale(scores_newdata, center = score_center, scale = score_scale)
-#     
-#     # Euclidean distance in standardized score space
-#     dsmxu <- dissimilarity(
-#       Xr = scores_anchors_scaled,
-#       Xu = scores_newdata_scaled,
-#       diss_method = diss_euclidean(center = FALSE, scale = FALSE)
-#     )
-#     
-#   } else {
-#     # Non-projection methods: compute distances in original variable space
-#     # Use stored neighborhood centers as reference points
-#     
-#     # Apply stored global centering/scaling$
-#     # Scale the local centers and newdata using the global center and 
-#     # scaling vectors 
-#     local_centers_scaled <- scale(
-#       object$scaling$local_x_center,
-#       center = object$scaling$center,
-#       scale = object$scaling$scale
-#     )
-#     newdata_scaled <- scale(
-#       newdata,
-#       center = object$scaling$center,
-#       scale = object$scaling$scale
-#     )
-#     
-#     # Copy diss_method to avoid modifying the original object
-#     # Disable center/scale since already applied above
-#     diss_method_copy <- diss_method
-#     diss_method_copy$center <- FALSE
-#     diss_method_copy$scale <- FALSE
-#     
-#     dsmxu <- dissimilarity(
-#       Xr = local_centers_scaled,
-#       Xu = newdata_scaled,
-#       diss_method = diss_method_copy
-#     )
-#   }
-#   # --- Compute GH distance for newdata (if available) ---
-#   gh_newdata <- NULL
-#   if (!is.null(object$gh)) {
-#     # Project newdata onto the stored GH projection space
-#     gh_scores_newdata <- predict(object$gh$projection, newdata)
-#     
-#     # GH = distance from each observation to the training centroid
-#     gh_center <- colMeans(object$gh$projection$scores)
-#     
-#     gh_newdata <- as.vector(dissimilarity(
-#       Xr = gh_scores_newdata,
-#       Xu = t(gh_center),
-#       diss_method = diss_euclidean(center = TRUE, scale = TRUE)
-#     )$dissimilarity)
-#   }
-#   
-#   
-#   # --- Progress message for model retrieval ---
-#   if (verbose) {
-#     diss_type <- class(diss_method)[1L]
-#     
-#     if (inherits(diss_method, "diss_cor")) {
-#       if (!is.null(diss_method$ws)) {
-#         cat("Retrieving models using correlation dissimilarity with window size", 
-#             diss_method$ws, "...\n")
-#       } else {
-#         cat("Retrieving models using correlation dissimilarity with full window...\n")
-#       }
-#     } else {
-#       cat("Retrieving models using", sub("^diss_", "", diss_type), "dissimilarity...\n")
-#     }
-#   }
-#   # --- Identify nearest neighbors for each new observation ---
-#   # Neighbors are sorted by dissimilarity (ascending order)
-#   k_optimal <- object$optimal_params$k
-#   neighbor_indices <- apply(
-#     dsmxu$dissimilarity, 
-#     MARGIN = 2L, 
-#     FUN = order
-#   )[seq_len(k_optimal), , drop = FALSE]  
-#   
-#   # --- Filter models with high residuals (optional) ---
-#   # Models exceeding residual_cutoff are penalized with max dissimilarity
-#   # to prevent their selection as neighbors
-#   if (!is.null(object$residuals) && !is.null(residual_cutoff)) {
-#     abs_res <- abs(object$residuals)
-#     
-#     # Flag models with residuals exceeding cutoff
-#     high_residual_flag <- abs_res >= residual_cutoff
-#     high_residual_flag[is.na(high_residual_flag)] <- TRUE
-#     
-#     # Penalize high-residual models by assigning max dissimilarity
-#     neighbor_diss <- sapply(
-#       seq_len(ncol(neighbor_indices)),
-#       FUN = function(col_idx, diss, nn, flag) {
-#         d <- diss[nn[, col_idx], col_idx]
-#         # Assign max dissimilarity to flagged models
-#         d[flag[nn[, col_idx]]] <- max(d)
-#         d
-#       },
-#       diss = dsmxu$dissimilarity,
-#       nn = neighbor_indices,
-#       flag = high_residual_flag
-#     )
-#     
-#   } else {
-#     # No residual filtering: extract sorted dissimilarities for neighbors
-#     neighbor_diss <- apply(
-#       dsmxu$dissimilarity,
-#       MARGIN = 2L,
-#       FUN = sort
-#     )[seq_len(k_optimal), , drop = FALSE]
-#     
-#     high_residual_flag <- rep(FALSE, nrow(object$coefficients$B))
-#   }
-#   ## this deactivates model cancelling (for the moment)
-#   # res[] <- FALSE 
-#   
-#   # FIXME! this needs to be otpimised
-#   # --- Enforce specific models into all neighborhoods (optional) ---
-#   # Enforced models are prepended with minimal dissimilarity to ensure selection
-#   if (!is.null(enforce_indices)) {
-#     n_enforce <- length(enforce_indices)
-#     n_obs <- ncol(neighbor_indices)
-#     
-#     # Prepend enforced indices to neighbor matrix
-#     enforce_matrix <- matrix(
-#       rep(enforce_indices, n_obs),
-#       nrow = n_enforce,
-#       ncol = n_obs
-#     )
-#     neighbor_indices <- rbind(enforce_matrix, neighbor_indices)
-#     
-#     # Assign minimal dissimilarity to enforced models
-#     min_diss_per_obs <- apply(neighbor_diss, 2L, FUN = min)
-#     enforce_diss <- matrix(
-#       rep(min_diss_per_obs, each = n_enforce),
-#       nrow = n_enforce,
-#       ncol = n_obs
-#     )
-#     neighbor_diss <- rbind(enforce_diss, neighbor_diss)
-#   }
-#   # --- Compute neighbor weights ---
-#   # Normalize dissimilarities to [0, 1] range per observation
-#   dweights <- sweep(
-#     neighbor_diss,
-#     MARGIN = 2L,
-#     STATS = get_column_maxs(neighbor_diss),
-#     FUN = "/",
-#     check.margin = FALSE
-#   )
-#   
-#   # --- Apply kernel weighting function ---
-#   if (weighting == "none") {
-#     # Equal weights for all neighbors
-#     dweights <- neighbor_diss
-#     dweights[] <- 1 / nrow(neighbor_diss)
-#   } else {
-#     dweights <- compute_pred_weights(dweights, weighting = weighting)
-#   }
-#   # --- Prepare coefficient library and scaling parameters ---
-#   if ("Bk" %in% names(object$coefficients)) {
-#     # Model includes dissimilarity-based predictors
-#     coef_library <- cbind(
-#       object$coefficients$B0,
-#       object$coefficients$Bk,
-#       object$coefficients$B
-#     )
-#     local_scale <- cbind(
-#       object$scaling$local_diss_scale,
-#       object$scaling$local_x_scale
-#     )
-#     diss_predictors <- dsmxu$dissimilarity
-#   } else {
-#     # Standard model without dissimilarity predictors
-#     coef_library <- cbind(
-#       object$coefficients$B0,
-#       object$coefficients$B
-#     )
-#     local_scale <- object$scaling$local_x_scale
-#     diss_predictors <- NULL
-#   }
-# 
-#   # --- Extract local prediction subsets for each new observation ---
-#   local_subsets <- ith_pred_subsets(
-#     plslib = coef_library,
-#     Xu = newdata,
-#     xunn = neighbor_indices,
-#     xscale = local_scale,
-#     dxrxu = diss_predictors
-#   )
-#   
-#   # --- Compute predictions for each new observation ---
-#   if (verbose) {
-#     cat("Computing predictions...\n")
-#   }
-#   
-#   predictions_raw <- foreach(
-#     i = seq_len(nrow(newdata)),
-#     iset = local_subsets
-#   ) %mydo% {
-#     ith_pred(
-#       plslib = iset$iplslib,
-#       xscale = iset$ixscale,
-#       Xu = iset$ixu,
-#       xunn = iset$ixunn,
-#       dxrxu = iset$idxrxu
-#     )
-#   }
-#   
-#   # --- Combine predictions into matrix ---
-#   predictions_raw <- do.call("rbind", predictions_raw)
-#   
-#   colnames(predictions_raw) <- paste0("expert_", seq_len(ncol(predictions_raw)))
-#   rownames(predictions_raw) <- if (is.null(rownames(newdata))) {
-#     seq_len(nrow(newdata))
-#   } else {
-#     rownames(newdata)
-#   }
-#   
-#   # --- Compute weighted predictions and uncertainty ---
-#   # Transpose weights to match predictions matrix layout
-#   dweights <- t(dweights)
-#   rownames(dweights) <- rownames(predictions_raw)
-#   colnames(dweights) <- colnames(predictions_raw)
-#   
-#   # Weighted predictions per expert
-#   weighted_predictions <- predictions_raw * dweights
-#   
-#   # Weighted mean prediction per observation
-#   pred_mean <- rowSums(weighted_predictions)
-#   
-#   # Weighted standard deviation
-#   centered_dev <- sweep(predictions_raw, 1L, pred_mean, FUN = "-")^2
-#   pred_var <- rowSums(centered_dev * dweights)
-#   pred_sd <- sqrt(pred_var)
-#   
-#   # Weighted quantiles (exclude last column to avoid edge effects)
-#   pred_quantiles <- weighted_quantiles(
-#     predictions_raw[, -ncol(dweights), drop = FALSE],
-#     w = dweights[, -ncol(dweights), drop = FALSE],
-#     probs = probs
-#   )
-#   
-#   # Assemble predictions data frame
-#   predictions <- data.frame(
-#     pred = pred_mean,
-#     pred_sd = pred_sd,
-#     pred_quantiles
-#   )
-#   
-#   # --- Add GH distance to predictions ---
-#   predictions$gh <- gh_newdata
-#   
-#   # --- Preserve row names ---
-#   if (!is.null(rownames(newdata))) {
-#     rownames(predictions) <- rownames(newdata)
-#   }
-#   
-#   # --- Assemble output list ---
-#   result <- list(
-#     predictions = predictions,
-#     neighbors = list(
-#       indices = neighbor_indices,
-#       dissimilarities = neighbor_diss
-#     ),
-#     expert_predictions = list(
-#       weights = dweights,
-#       predictions = predictions_raw,
-#       weighted = weighted_predictions
-#     )
-#   )
-#   
-#   # --- Compute prediction limits from neighbor statistics ---
-#   nn_stats_key <- paste0("k.", k_optimal)
-#   neighborhood_stats <- object$neighborhood_stats[[nn_stats_key]]
-#   
-#   # Extract min/max response values across neighbors for each observation
-#   min_yr <- sapply(
-#     seq_len(nrow(newdata)),
-#     FUN = function(i, stats, nn) min(stats[nn[, i], "5%"]),
-#     stats = neighborhood_stats,
-#     nn = neighbor_indices
-#   )
-#   max_yr <- sapply(
-#     seq_len(nrow(newdata)),
-#     FUN = function(i, stats, nn) max(stats[nn[, i], "95%"]),
-#     stats = neighborhood_stats,
-#     nn = neighbor_indices
-#   )
-#   
-#   result$predictions$min_yr <- min_yr
-#   result$predictions$max_yr <- max_yr
-#   
-#   # Flag predictions outside neighborhood range
-#   result$predictions$below_min <- result$predictions$pred < min_yr
-#   result$predictions$above_max <- result$predictions$pred > max_yr
-#   
-#   # Clip predictions to neighborhood range (optional)
-#   if (range_prediction_limits) {
-#     below <- result$predictions$below_min
-#     above <- result$predictions$above_max
-#     result$predictions$pred[below] <- min_yr[below]
-#     result$predictions$pred[above] <- max_yr[above]
-#   }
-#   return(result)
-# }
-# 
-# 
-# # predict.validationliblex <- function(object,...){
-# #   stop("this object only contains validation data")
-# # }
-# 
-# 
-# 
-# .get_coefficient_sds <- function(object) {
-#   if (!inherits(object, "liblex")) {
-#     stop("'object' must be of class 'liblex'", call. = FALSE)
-#   }
-#   nf <- if (is.null(object$coefficients$Bk)) {
-#     ncol(object$coefficients$B)
-#   } else {
-#     ncol(object$coefficients$B) + ncol(object$coefficients$Bk)
-#   }
-#   
-#   b0 <- object$coefficients$B0 / nf
-#   
-#   stdb <- list()
-#   stdb$b <- sweep(
-#     object$coefficients$B,
-#     MARGIN = 1L,
-#     FUN = "+",
-#     STATS = b0
-#   )
-#   
-#   if (!is.null(object$coefficients$Bk)) {
-#     stdb$bk <- sweep(
-#       object$coefficients$Bk,
-#       MARGIN = 1L,
-#       FUN = "+",
-#       STATS = b0
-#     )
-#   }
-#   stdb
-# }
-# 
-# compute_pred_weights <- function(
-#     xudss, weighting = "gaussian",
-#     sigma = 0.5, gamma = 0.3, normalize = TRUE
-# ) {
-#   # 1 Validate kernel choice
-#   valid_methods <- c(
-#     "triangular", "quartic", "triweight", "tricube",
-#     "parabolic", "gaussian", "cauchy"
-#   )
-#   weighting <- match.arg(weighting, valid_methods)
-#   
-#   # 2 Normalize distances per column to [0, 1]
-#   dscaled <- sweep(xudss, 2, STATS = get_column_maxs(xudss), FUN =  "/")
-#   dscaled <- pmin(pmax(dscaled, 0), 1)
-#   
-#   # Compute kernel weights
-#   dweights <- switch(
-#     weighting,
-#     triangular = (1 - dscaled),
-#     parabolic  = (1 - dscaled^2),
-#     quartic    = (1 - dscaled^2)^2,
-#     triweight  = (1 - dscaled^2)^3,
-#     tricube    = (1 - dscaled^3)^3,
-#     gaussian   = exp(-(dscaled^2) / (2 * sigma^2)),
-#     cauchy     = 1 / (1 + (dscaled / gamma)^2)
-#   )
-#   
-#   dweights[!is.finite(dweights)] <- 0
-#   dweights <- pmax(dweights, 0)
-#   
-#   if (normalize) {
-#     col_sums <- colSums(dweights, na.rm = TRUE)
-#     col_sums[col_sums == 0] <- 1
-#     dweights <- sweep(dweights, 2, col_sums, "/", check.margin = FALSE)
-#   }
-#   
-#   attr(dweights, "weighting") <- weighting
-#   return(dweights)
-# }
 predict.liblex <- function(
     object,
     newdata,
@@ -1990,7 +1483,7 @@ predict.liblex <- function(
   if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
     stop("'verbose' must be TRUE or FALSE", call. = FALSE)
   }
-  
+ 
   # --- Validate diss_method ---
   stored_diss <- object$dissimilarity$diss_method
   
@@ -2107,7 +1600,7 @@ predict.liblex <- function(
   if (verbose) {
     diss_type <- class(diss_method)[1L]
     
-    if (inherits(diss_method, "diss_cor")) {
+    if (inherits(diss_method, "diss_correlation")) {
       if (!is.null(diss_method$ws)) {
         cat("Retrieving models using correlation dissimilarity with window size", 
             diss_method$ws, "...\n")
@@ -2121,12 +1614,22 @@ predict.liblex <- function(
   
   # --- Identify nearest neighbors for each new observation ---
   # Neighbors are sorted by dissimilarity (ascending order)
-  k_optimal <- object$optimal_params$k
-  neighbor_indices <- apply(
-    dsmxu$dissimilarity, 
-    MARGIN = 2L, 
-    FUN = order
-  )[seq_len(k_optimal), , drop = FALSE]  
+  
+  k_min <- diss_threshold <- NULL
+  if (inherits(object$neighbors, "neighbors_diss")) {
+    k_min <- object$neighbors$k_min
+    k_max <- object$neighbors$k_max
+    diss_threshold <- object$optimal_params$diss_threshold
+  } else {
+    k_min <- k_max <- object$optimal_params$k    
+  }
+
+  neighbor_indices <- top_k_neighbors(
+    D = dsmxu$dissimilarity,
+    k_min = k_min,
+    k_max = k_max,
+    threshold = diss_threshold
+  )
   
   # --- Filter models with high residuals (optional) ---
   # Models exceeding residual_cutoff are penalized with max dissimilarity
@@ -2140,11 +1643,12 @@ predict.liblex <- function(
     
     # Penalize high-residual models by assigning max dissimilarity
     neighbor_diss <- sapply(
-      seq_len(ncol(neighbor_indices)),
+      seq_along(neighbor_indices),
       FUN = function(col_idx, diss, nn, flag) {
-        d <- diss[nn[, col_idx], col_idx]
+        knns <- nn[[col_idx]]
+        d <- diss[knns, col_idx]
         # Assign max dissimilarity to flagged models
-        d[flag[nn[, col_idx]]] <- max(d)
+        d[flag[knns]] <- max(d)
         d
       },
       diss = dsmxu$dissimilarity,
@@ -2154,11 +1658,16 @@ predict.liblex <- function(
     
   } else {
     # No residual filtering: extract sorted dissimilarities for neighbors
-    neighbor_diss <- apply(
-      dsmxu$dissimilarity,
-      MARGIN = 2L,
-      FUN = sort
-    )[seq_len(k_optimal), , drop = FALSE]
+    # neighbor_diss <- apply(
+    #   dsmxu$dissimilarity,
+    #   MARGIN = 2L,
+    #   FUN = sort
+    # )[seq_len(k_max), , drop = FALSE]
+    
+    neighbor_diss <- lapply(
+      seq_along(neighbor_indices),
+      function(i) dsmxu$dissimilarity[neighbor_indices[[i]], i]
+    )
     
     high_residual_flag <- rep(FALSE, nrow(object$coefficients$B))
   }
@@ -2166,44 +1675,26 @@ predict.liblex <- function(
   # --- Enforce specific models into all neighborhoods (optional) ---
   # Enforced models are prepended with minimal dissimilarity to ensure selection
   if (!is.null(enforce_indices)) {
-    n_enforce <- length(enforce_indices)
-    n_obs <- ncol(neighbor_indices)
-    
-    # Prepend enforced indices to neighbor matrix
-    enforce_matrix <- matrix(
-      rep(enforce_indices, n_obs),
-      nrow = n_enforce,
-      ncol = n_obs
-    )
-    neighbor_indices <- rbind(enforce_matrix, neighbor_indices)
+    neighbor_indices <- lapply(neighbor_indices, function(x) c(enforce_indices, x))
     
     # Assign minimal dissimilarity to enforced models
-    min_diss_per_obs <- apply(neighbor_diss, 2L, FUN = min)
-    enforce_diss <- matrix(
-      rep(min_diss_per_obs, each = n_enforce),
-      nrow = n_enforce,
-      ncol = n_obs
-    )
-    neighbor_diss <- rbind(enforce_diss, neighbor_diss)
+    min_diss_per_obs <- lapply(
+      neighbor_diss, 
+      FUN = function(x, repetitions) rep(min(x), repetitions), 
+      repetitions = length(enforce_indices)
+    ) 
+    # add the minimal dissimilarity for the enforced models to the existing 
+    # neighbor dissimilarities
+    neighbor_diss <- Map(c, min_diss_per_obs, neighbor_diss)
   }
   
   # --- Compute neighbor weights ---
   if (weighting == "none") {
     # Equal weights for all neighbors
-    dweights <- matrix(
-      1 / nrow(neighbor_indices),
-      nrow = nrow(neighbor_indices),
-      ncol = ncol(neighbor_indices)
-    )
+    dweights <- lapply(neighbor_diss, function(x) rep(1 / length(x), length(x)))
   } else {
     # Normalize dissimilarities to [0, 1] range per observation
-    dweights <- sweep(
-      neighbor_diss,
-      MARGIN = 2L,
-      STATS = get_column_maxs(neighbor_diss),
-      FUN = "/",
-      check.margin = FALSE
-    )
+    dweights <- lapply(neighbor_diss, function(d) d / max(d))
     
     # Apply kernel weighting function
     sigma <- if (adaptive_bandwidth) NULL else 0.5
@@ -2213,52 +1704,38 @@ predict.liblex <- function(
   # --- Apply reliability weighting (based on model residuals) ---
   if (reliability_weighting && !is.null(object$residuals)) {
     # Extract residuals for neighbor models
-    neighbor_residuals <- matrix(
-      object$residuals[neighbor_indices],
-      nrow = nrow(neighbor_indices),
-      ncol = ncol(neighbor_indices)
-    )
+    neighbor_residuals <- lapply(neighbor_indices, function(idx) object$residuals[idx])
     
     # Reliability: inverse of squared residual magnitude
     # Scale by median absolute residual to make dimensionless
     eps <- median(abs(object$residuals), na.rm = TRUE) * 0.1
     eps <- max(eps, .Machine$double.eps)  # ensure non-zero
-    reliability <- 1 / (1 + (neighbor_residuals / eps)^2)
     
-    # Handle NAs (models with missing residuals get neutral weight)
-    reliability[is.na(reliability)] <- 0.5
+    reliability <- lapply(neighbor_residuals, function(r) {
+      rel <- 1 / (1 + (r / eps)^2)
+      rel[is.na(rel)] <- 0.5  # models with missing residuals get neutral weight
+      rel
+    })
     
     # Combine distance and reliability weights
-    dweights <- dweights * reliability
+    dweights <- Map(`*`, dweights, reliability)
     
     # Re-normalize
-    col_sums <- colSums(dweights, na.rm = TRUE)
-    col_sums[col_sums == 0] <- 1
-    dweights <- sweep(dweights, 2L, col_sums, "/", check.margin = FALSE)
+    dweights <- lapply(dweights, function(w) {
+      s <- sum(w, na.rm = TRUE)
+      if (s == 0) s <- 1
+      w / s
+    })
   }
   
   # --- Prepare coefficient library and scaling parameters ---
-  if ("Bk" %in% names(object$coefficients)) {
-    # Model includes dissimilarity-based predictors
-    coef_library <- cbind(
-      object$coefficients$B0,
-      object$coefficients$Bk,
-      object$coefficients$B
-    )
-    local_scale <- cbind(
-      object$scaling$local_diss_scale,
-      object$scaling$local_x_scale
-    )
-    diss_predictors <- dsmxu$dissimilarity
-  } else {
-    # Standard model without dissimilarity predictors
-    coef_library <- cbind(
-      object$coefficients$B0,
-      object$coefficients$B
-    )
-    local_scale <- object$scaling$local_x_scale
-    diss_predictors <- NULL
-  }
+  # Standard model without dissimilarity predictors
+  coef_library <- cbind(
+    object$coefficients$B0,
+    object$coefficients$B
+  )
+  local_scale <- object$scaling$local_x_scale
+  
   
   # --- Extract local prediction subsets for each new observation ---
   local_subsets <- ith_pred_subsets(
@@ -2266,7 +1743,7 @@ predict.liblex <- function(
     Xu = newdata,
     xunn = neighbor_indices,
     xscale = local_scale,
-    dxrxu = diss_predictors
+    dxrxu = NULL
   )
   
   # --- Compute predictions for each new observation ---
@@ -2278,28 +1755,34 @@ predict.liblex <- function(
     i = seq_len(nrow(newdata)),
     iset = local_subsets
   ) %mydo% {
-    ith_pred(
+    ith_pred_cpp(
       plslib = iset$iplslib,
       xscale = iset$ixscale,
       Xu = iset$ixu,
-      xunn = iset$ixunn,
       dxrxu = iset$idxrxu
     )
   }
   
   # --- Combine predictions into matrix ---
-  predictions_raw <- do.call("rbind", predictions_raw)
+  max_len <- max(lengths(predictions_raw))
+  predictions_raw <- t(do.call("cbind", lapply(predictions_raw, function(x) {
+    length(x) <- max_len
+    x
+  })))
   
   colnames(predictions_raw) <- paste0("expert_", seq_len(ncol(predictions_raw)))
-  rownames(predictions_raw) <- if (is.null(rownames(newdata))) {
-    seq_len(nrow(newdata))
-  } else {
-    rownames(newdata)
-  }
+  rownames(predictions_raw) <- rownames(newdata) %||% seq_len(nrow(newdata))
   
+  
+  
+  max_len_weights <- max(lengths(dweights))
+  dweights <- t(do.call("cbind", lapply(dweights, function(x) {
+    length(x) <- max_len_weights
+    x
+  })))
+
   # --- Compute weighted predictions and uncertainty ---
   # Transpose weights to match predictions matrix layout
-  dweights <- t(dweights)
   rownames(dweights) <- rownames(predictions_raw)
   colnames(dweights) <- colnames(predictions_raw)
   
@@ -2307,18 +1790,19 @@ predict.liblex <- function(
   weighted_predictions <- predictions_raw * dweights
   
   # Weighted mean prediction per observation
-  pred_mean <- rowSums(weighted_predictions)
+  pred_mean <- rowSums(weighted_predictions, na.rm = TRUE)
   
   # Weighted standard deviation
   centered_dev <- sweep(predictions_raw, 1L, pred_mean, FUN = "-")^2
-  pred_var <- rowSums(centered_dev * dweights)
+  pred_var <- rowSums(centered_dev * dweights, na.rm = TRUE)
   pred_sd <- sqrt(pred_var)
-  
+
   # Weighted quantiles (exclude last column to avoid edge effects)
   pred_quantiles <- weighted_quantiles(
-    predictions_raw[, -ncol(dweights), drop = FALSE],
-    weights = dweights[, -ncol(dweights), drop = FALSE],
-    probs = probs
+    predictions_raw,
+    weights = dweights,
+    probs = probs,
+    exclude_last = TRUE
   )
   
   # Assemble predictions data frame
@@ -2349,21 +1833,27 @@ predict.liblex <- function(
       weighted = weighted_predictions
     )
   )
-  
+
   # --- Compute prediction limits from neighbor statistics ---
-  nn_stats_key <- paste0("k.", k_optimal)
-  neighborhood_stats <- object$neighborhood_stats[[nn_stats_key]]
   
+  if ( inherits(object$neighbors, "neighbors_diss") ) {
+    nn_stats_indx <- which(object$neighbors$threshold == object$optimal_params[[1]])
+  } else {
+    nn_stats_indx <- which(object$neighbors$k == object$optimal_params[[1]])
+  }
+  
+  neighborhood_stats <- object$neighborhood_stats[[nn_stats_indx]]
+
   # Extract min/max response values across neighbors for each observation
   min_yr <- sapply(
     seq_len(nrow(newdata)),
-    FUN = function(i, stats, nn) min(stats[nn[, i], "5%"]),
+    FUN = function(i, stats, nn) min(stats[nn[[i]], "5%"]),
     stats = neighborhood_stats,
     nn = neighbor_indices
   )
   max_yr <- sapply(
     seq_len(nrow(newdata)),
-    FUN = function(i, stats, nn) max(stats[nn[, i], "95%"]),
+    FUN = function(i, stats, nn) max(stats[nn[[i]], "95%"]),
     stats = neighborhood_stats,
     nn = neighbor_indices
   )
@@ -2400,52 +1890,52 @@ compute_pred_weights <- function(
   )
   weighting <- match.arg(weighting, valid_methods)
   
-  # Normalize distances per column to [0, 1]
-  dscaled <- sweep(xudss, 2L, STATS = get_column_maxs(xudss), FUN = "/")
-  dscaled <- pmin(pmax(dscaled, 0), 1)
+  # Normalize distances per observation to [0, 1]
+  dscaled <- lapply(xudss, function(d) {
+    d <- d / max(d)
+    pmin(pmax(d, 0), 1)
+  })
   
   # Adaptive bandwidth: use median neighbor distance per observation
-  if (is.null(sigma) && weighting == "gaussian") {
-    sigma <- apply(xudss, 2L, median) * 0.5
-    sigma[sigma == 0] <- min(sigma[sigma > 0], na.rm = TRUE)
-    # Ensure no NA/Inf
-    sigma[!is.finite(sigma)] <- 0.5
-  } else if (is.null(sigma)) {
-    sigma <- 0.5
+  if (weighting == "gaussian") {
+    if (is.null(sigma)) {
+      sigma <- vapply(xudss, function(d) median(d) * 0.5, numeric(1))
+      sigma[sigma == 0] <- min(sigma[sigma > 0], na.rm = TRUE)
+      sigma[!is.finite(sigma)] <- 0.5
+    }
+    single_sigma <- length(sigma) == 1L
   }
   
   # Compute kernel weights
   dweights <- switch(
     weighting,
-    triangular = (1 - dscaled),
-    parabolic  = (1 - dscaled^2),
-    quartic    = (1 - dscaled^2)^2,
-    triweight  = (1 - dscaled^2)^3,
-    tricube    = (1 - dscaled^3)^3,
+    triangular = lapply(dscaled, function(d) 1 - d),
+    parabolic  = lapply(dscaled, function(d) 1 - d^2),
+    quartic    = lapply(dscaled, function(d) (1 - d^2)^2),
+    triweight  = lapply(dscaled, function(d) (1 - d^2)^3),
+    tricube    = lapply(dscaled, function(d) (1 - d^3)^3),
     gaussian   = {
-      if (length(sigma) == 1L) {
-        exp(-(dscaled^2) / (2 * sigma^2))
+      if (single_sigma) {
+        s2 <- 2 * sigma^2
+        lapply(dscaled, function(d) exp(-(d^2) / s2))
       } else {
-        # Per-observation adaptive bandwidth
-        sigma_mat <- matrix(
-          sigma, 
-          nrow = nrow(dscaled), 
-          ncol = ncol(dscaled), 
-          byrow = TRUE
-        )
-        exp(-(dscaled^2) / (2 * sigma_mat^2))
+        Map(function(d, s) exp(-(d^2) / (2 * s^2)), dscaled, sigma)
       }
     },
-    cauchy = 1 / (1 + (dscaled / gamma)^2)
+    cauchy = lapply(dscaled, function(d) 1 / (1 + (d / gamma)^2))
   )
   
-  dweights[!is.finite(dweights)] <- 0
-  dweights <- pmax(dweights, 0)
+  dweights <- lapply(dweights, function(w) {
+    w[!is.finite(w)] <- 0
+    pmax(w, 0)
+  })
   
   if (normalize) {
-    col_sums <- colSums(dweights, na.rm = TRUE)
-    col_sums[col_sums == 0] <- 1
-    dweights <- sweep(dweights, 2L, col_sums, "/", check.margin = FALSE)
+    dweights <- lapply(dweights, function(w) {
+      s <- sum(w, na.rm = TRUE)
+      if (s == 0) s <- 1
+      w / s
+    })
   }
   
   attr(dweights, "weighting") <- weighting
