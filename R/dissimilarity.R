@@ -159,7 +159,27 @@ dissimilarity <- function(
       call. = FALSE
     )
   }
-
+  
+  # ---------------------------------------------------------------------------
+  # check Xr and Xu
+  # ---------------------------------------------------------------------------
+  if (is.numeric(Xr) && is.null(dim(Xr))) {
+    Xr <- matrix(Xr, nrow = 1)
+  }
+  
+  if (!is.null(Xu)) {
+    if (is.numeric(Xu) && is.null(dim(Xu))) {
+      Xu <- matrix(Xu, nrow = 1)
+    }
+    if (ncol(Xr) != ncol(Xu)) {
+      stop("'Xr' and 'Xu' must have the same number of columns.", call. = FALSE)
+    }
+  } else {
+    if (nrow(Xr) < 2L) {
+      stop("'Xr' must have at least 2 rows when 'Xu' is not provided.", call. = FALSE)
+    }
+  }
+  
   # ---------------------------------------------------------------------------
   # Validate diss_method
   # ---------------------------------------------------------------------------
