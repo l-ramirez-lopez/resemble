@@ -7,7 +7,7 @@
 #' @usage
 #' mbl_control(
 #'   return_dissimilarity = FALSE,
-#'   validation_type = c("NNv", "local_cv", "none"),
+#'   validation_type = "NNv",
 #'   tune_locally = TRUE,
 #'   number = 10,
 #'   p = 0.75,
@@ -114,7 +114,7 @@
 #' @export
 mbl_control <- function(
     return_dissimilarity = FALSE,
-    validation_type = c("NNv", "local_cv", "none"),
+    validation_type = "NNv",
     tune_locally = TRUE,
     number = 10,
     p = 0.75,
@@ -131,6 +131,13 @@ mbl_control <- function(
   # Validate and match validation_type
   valid_types <- c("NNv", "local_cv", "none")
   validation_type <- match.arg(validation_type, valid_types, several.ok = TRUE)
+  
+  if ("none" %in% validation_type && length(validation_type) > 1L) {
+    stop(
+      "'validation_type' cannot combine 'none' with other values.",
+      call. = FALSE
+    )
+  }
   
   # Remove "none" if other methods specified
   if ("none" %in% validation_type && length(validation_type) > 1L) {
