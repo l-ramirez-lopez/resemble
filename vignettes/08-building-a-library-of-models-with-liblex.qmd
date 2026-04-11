@@ -12,6 +12,7 @@ format:
     highlight-style: github
     toc: true
     toc-depth: 3
+    number-sections: true
     toc-location: left
     code-overflow: wrap
     smooth-scroll: true
@@ -36,4 +37,6 @@ vignette: >
 
 ddd
 
-# References
+# Chosing anchor samples
+
+# References {-}

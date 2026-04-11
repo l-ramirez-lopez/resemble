@@ -31,13 +31,21 @@ vignette: >
 :::
 ::::
 
+
+```{r}
+#| message: false
+#| echo: false
+library(resemble)
+```
+
+
 # Introduction
 
 Large reference datasets, such as spectral libraries, can support model development when only a limited number of target-domain samples are available. The `gesearch()` function implements the _gesearch_ algorithm described in @ramirezlopez2026a, which builds on the sample-selection idea introduced by @lobsey2017rs. The algorithm uses an evolutionary search to identify a subset of library samples that is most relevant to a target domain and then uses the selected subset to fit a context-specific model.
 
 In its current implementation, `gesearch()` uses partial least squares (PLS) models to evaluate candidate subsets. Sample selection is guided by how well a subset predicts the target response, reconstructs the target spectra, or aligns with the target domain in latent space. The method can therefore be used for calibration transfer or domain adaptation, with or without response values from the target domain.
 
-It is important to note that the _gesearch_ algorithm is designed to identify a single subset of samples that is most relevant to the target domain. Accordingly, some data from the target domain must be available. In addition, the relationships between spectra and response values in the target domain are expected to be predominantly linear @ramirezlopez2026a, even though the search process itself is non-linear.
+It is important to note that the _gesearch_ algorithm is designed to identify a single subset of samples that is most relevant to the target domain. Accordingly, some data from the target domain must be available. In addition, __an important assumption underlying__ ___gesearch___ __is that the relationships between spectra and response values in the target domain are expected to be predominantly linear__ [@ramirezlopez2026a], even though the search process itself is non-linear.
 
 This vignette introduces the main workflow for `gesearch`, including how to define the search, control the selection process, inspect the selected subsets, and generate predictions from the final model. It also highlights key tuning arguments such as `k`, `b`, `retain`, and the control settings available through `gesearch_control()`.
 
@@ -47,8 +55,8 @@ As _gesearch_ is an evolutionary search algorithm, it draws on terminology from 
 
 | Term | Meaning |
 |:-----|:--------|
-| Target set ($\mathcal{D}_u$) | The population of interest (`Xu`, `Yu`), typically small ($m$ samples). Response values may be partially or entirely unavailable. |
-| Spectral library ($\mathcal{D}_r$) | A large, heterogeneous collection of candidate samples for model training (`Xr`, `Yr`), with $n \gg m$. |
+| Target set ($\mathcal{D}_u$) | The population of interest (`Xu`, `Yu`), typically small ($m$ samples). Response values may be partially or entirely unavailable. The subscript $u$ denotes the target domain (partially "unknown").|
+| Spectral library ($\mathcal{D}_r$) | A large, heterogeneous collection of candidate samples for model training (`Xr`, `Yr`), with $n \gg m$. The subscript $r$ denotes the reference library.|
 | Gene | A sample from the spectral library. |
 | Gene pool | The set of genes currently eligible for selection. |
 | Individual | A subset of `k` genes used to fit a candidate PLS model. |
@@ -57,8 +65,6 @@ As _gesearch_ is an evolutionary search algorithm, it draws on terminology from 
 | Weakness score | A measure of how poorly a gene contributes to model performance for the target set. |
 | Generation | One iteration of the evolutionary cycle. |
 | Incidence count | The number of individuals in which a gene appears. |
-
-The subscript $u$ denotes the target domain (partially “unknown”), whereas $r$ denotes the reference library. The target set does not need to be a subset of the library ($\mathcal{D}_u \not\subseteq \mathcal{D}_r$).
 
 # The _gesearch_ algorithm: How it works
 
@@ -104,8 +110,8 @@ The `optimization` argument controls which weakness criteria are applied. Multip
 
 | Criterion | Individual-level score | Requires `Yu`? |
 |:----------|:-----------------------|:---------------|
-| `"reconstruction"` (default) | RMSE of reconstructing $\mathbf{X}_u$ from the PLS latent space | No |
-| `"similarity"` | Mahalanobis distance between the target and training score centroids | No |
+| `"reconstruction"` (default) | Error of reconstructing $\mathbf{X}_u$ from the PLS latent space | No |
+| `"similarity"` (default) | Mahalanobis distance between the target and training score centroids | No |
 | `"response"` | RMSE of predicting $\mathbf{y}_u$ | Yes |
 | `"range"` | Penalty for predictions outside `Yu_lims` | No (bounds only) |
 
@@ -144,8 +150,171 @@ where $n^{(\gamma)}$ is the number of active genes remaining.
 
 The `NIRSoil` dataset is also used here to illustrate how to perform an evolutionary subset search with `gesearch()`. The workflow includes defining the search, controlling the selection process, inspecting the selected subsets, and generating predictions from the final model.
 
-It is important to note that the `NIRSoil` dataset may not be an ideal test case for `gesearch()`, because of two reasons: _i_) the target set is a subset of the library and the sample size is relatively small. _ii_) the test set, which could be used as the target set, appears to be dominated by non-linear relationships between spectra and response values, which may limit the performance of the search. This is mainly because the dataset originates from samples from a large geographical area, which may introduce complex interactions between soil properties and spectral features. However, it serves to illustrate the main workflow and key parameters of the method. To mitigate these issues, the target set 
+It is important to note that the `NIRSoil` dataset may not be an ideal test case for `gesearch()`, because of two reasons: _i_) the target set is a subset of the library and the sample size is relatively small. _ii_) the test set, which could be used as the target set, appears to be dominated by non-linear relationships between spectra and response values, which may limit the performance of the search. This is mainly because the dataset originates from samples from a large geographical area, which may introduce complex interactions between soil properties and spectral features. 
 
+
+## The dataset and the "target set" 
+
+To better illustrate the main workflow and key parameters of the method, the target set was extracted from the test set using a simple filtering strategy intended to reduce potential non-linearities between spectra and response values. Spectra that were substantially dissimilar to the median spectrum of the test set were removed. Although this does not guarantee the elimination of non-linear relationships, it provides a straightforward way to define a more spectrally homogeneous target set for demostration purposes.
+
+```{r}
+#| message: false
+library(prospectr)
+data(NIRsoil)
+
+# Preprocess spectra
+NIRsoil$spc_pr <- savitzkyGolay(
+  detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1, p = 1, w = 7
+)
+
+# Missing values in the response are allowed
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
+train_y <- NIRsoil$Ciso[NIRsoil$train == 1]
+test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
+
+md <- dissimilarity(
+  test_x,
+  matrixStats::colMedians(test_x), 
+  diss_method = diss_correlation(ws = 101, center = T, scale = T)
+)
+
+threshold <- 0.4
+```
+
+```{r}
+#| label: fig-diss-threshold
+#| fig-cap: "Left: Dissimilarity of the test spectra to the median test spectrum. Samples above the threshold (dashed line and red) were excluded from the target set as a simple attempt to reduce spectral heterogeneity and potential non-linearities in the spectra-response relationship. Right: Spectra of the samples above (red, to be excluded) and below (blue, to be kept) the dissimilarity threshold."
+#| fig-align: "center"
+#| fig-width: 7.5
+#| fig-height: 4.5
+op <- par(mfrow = c(1, 2), mar = c(4.5, 4.5, 2, 1))
+
+plot(
+  seq_along(md$dissimilarity),
+  md$dissimilarity, 
+  ylim = c(0, 1), 
+  col = "steelblue",
+  pch = 16,
+  cex = 1.5,
+  xlab = "Sample index", 
+  ylab = "Dissimilarity to median spectrum"
+)
+points(
+  which(md$dissimilarity >= threshold),
+  md$dissimilarity[md$dissimilarity >= threshold],
+  col = "tomato",
+  pch = 16,
+  cex = 1.5
+)
+abline(h = threshold, col = "tomato", lty = 2, lwd = 2)
+grid(lty = 1)
+
+matplot(
+  as.numeric(colnames(train_x)),
+  t(test_x[md$dissimilarity >= threshold, ]),
+  col = "tomato",
+  ylab = "Preprocessed spectra",
+  xlab = "Wavelengths, nm",
+  lty = 1,
+  type = "l"
+)
+grid(lty = 1)
+matlines(
+  as.numeric(colnames(train_x)),
+  t(test_x[md$dissimilarity < threshold, ]),
+  col = "steelblue",
+  lty = 1,
+  type = "l"
+)
+
+par(op)
+```
+
+To construct the final target set, samples whose dissimilarity to the median spectrum falls below the correlation-dissimilarity threshold (`r threshold`) are retained. This set is then split into two subsets: a very small subset, used to guide the search within `gesearch()`, and a second subset, used to validate the models built from the reference samples selected by `gesearch()`. The use of only a very small subset to drive the search reflects a typical practical constraint in target-domain applications, where only a limited number of samples with laboratory reference measurements are available within a short time frame. The "target" subsets are then obtained as follows: 
+
+```{r}
+keep <- md$dissimilarity < threshold
+
+cat("Number of samples retained:", sum(keep))
+
+test_x_test <- test_x[keep, ]
+test_y_test <- test_y[keep]
+
+# sample a very small subset to guide the search, 
+# and use the rest for testing the final model
+set.seed(1124)
+ref_ind <- sample(sum(keep), 8)
+test_x_ref <- test_x_test[ref_ind, ]
+test_y_ref <- test_y_test[ref_ind]
+
+test_x_test <- test_x_test[-ref_ind, ]
+test_y_test <- test_y_test[-ref_ind]
+```
+
+## A simple linear model for predicting in the target set (baseline)
+
+Here, the full training set is combined with the small subset of target samples to fit a simple PLS model. This serves as a baseline for comparison with the models generated by `gesearch()`. The optimal number of components is selected by cross-validation, and the resulting model is evaluated on the test subset of the target set.
+
+```{r}
+set.seed(1124)
+
+pls_model <- model(
+  Xr = rbind(
+    train_x[!is.na(train_y), ],
+    test_x_ref[!is.na(test_y_ref), ]
+  ), 
+  Yr = c(
+    train_y[!is.na(train_y)],
+    test_y_ref[!is.na(test_y_ref)]
+  ),
+  fit_method = fit_pls(ncomp = 15, method = "mpls", scale = TRUE),
+  control = model_control(validation_type = "lgo", number = 10)
+)
+
+best_ncomp <- which(pls_model$cv_results$optimal)
+
+pred <- predict(pls_model, test_x_test, ncomp = best_ncomp)
+```
+
+A quick function for computing the $R^2$ and root mean square error ($RMSE$) of the predictions is defined here for convenience: 
+
+```{r}
+reg_metrics <- function(obs, pred, na.rm = TRUE) {
+  if (na.rm) {
+    ok <- complete.cases(obs, pred)
+    obs <- obs[ok]
+    pred <- pred[ok]
+  }
+  
+  c(RMSE = sqrt(mean((obs - pred)^2)), R2   = stats::cor(obs, pred)^2)
+}
+```
+
+The $RMSE$ and $R^2$ of the globla PLS model:
+```{r}
+reg_metrics(test_y_test, pred)
+```
+
+## The model built with the samples found by _gesearch_ 
+
+```{r}
+# Basic search with reconstruction optimization
+gs <- gesearch(
+  Xr = train_x[!is.na(train_y), ], Yr = train_y[!is.na(train_y)],
+  Xu = test_x_ref, Yu = test_y_ref,
+  k = 50, b = 100, retain = 0.98,
+  target_size = 80,
+  fit_method = fit_pls(ncomp = 15, method = "simpls", scale = TRUE),
+  optimization = c("reconstruction", "similarity", "response"),
+  control = gesearch_control(retain_by = "probability"),
+  seed = 1124
+)
+
+pred_gs <- predict(gs, test_x_test)[[1]]
+
+```
 
 # References {-} 
 
