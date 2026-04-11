@@ -24,7 +24,7 @@ vignette: >
 
 :::: {.columns}
 ::: {.column width="70%"}
-> *Similarity has two faces: causal and derivative*, @tversky1977features
+> *Similarity has two faces: causal and derivative* -- [@tversky1977features]
 :::
 ::: {.column width="30%"}
 <img src="logo.png" style="width: 150%; max-width: 150px;">

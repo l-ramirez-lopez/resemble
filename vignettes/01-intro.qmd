@@ -24,7 +24,7 @@ vignette: >
 
 :::: {.columns}
 ::: {.column width="70%"}
-> *Think Globally, Fit Locally* -- @saul2003think
+> *Think Globally, Fit Locally* -- [@saul2003think]
 :::
 ::: {.column width="30%"}
 <img src="logo.png" style="width: 150%; max-width: 150px;">

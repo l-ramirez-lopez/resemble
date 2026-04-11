@@ -24,7 +24,7 @@ vignette: >
 
 :::: {.columns}
 ::: {.column width="70%"}
-> *Probability mass concentrates near regions that have a much smaller dimensionality than the original space where the data lives* -- @bengio2013representation
+> *Probability mass concentrates near regions that have a much smaller dimensionality than the original space where the data lives* -- [@bengio2013representation]
 :::
 ::: {.column width="30%"}
 <img src="logo.png" style="width: 150%; max-width: 150px;">

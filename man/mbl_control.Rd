@@ -6,7 +6,7 @@
 \usage{
 mbl_control(
   return_dissimilarity = FALSE,
-  validation_type = c("NNv", "local_cv", "none"),
+  validation_type = "NNv",
   tune_locally = TRUE,
   number = 10,
   p = 0.75,
