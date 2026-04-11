@@ -396,9 +396,15 @@ gesearch.default <- function(
     }
   }
   
-  # No missing values allowed in Xu
+  # No missing values allowed in Xr, Yr, or Xu
+  if (anyNA(Xr)) {
+    stop("'Xr' contains missing values.", call. = FALSE)
+  }
+  if (anyNA(Yr)) {
+    stop("'Yr' contains missing values.", call. = FALSE)
+  }
   if (anyNA(Xu)) {
-    stop("Xu contains missing values", call. = FALSE)
+    stop("'Xu' contains missing values.", call. = FALSE)
   }
   
   # No infinite values in any input
