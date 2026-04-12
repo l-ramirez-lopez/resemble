@@ -12,3 +12,9 @@ src-x64/
 .Rproj.user/
 packrat/lib*/
 *.html
+vignettes/*.html
+vignettes/*_files/
+
+
+!logo.png
+!MBL.gif
