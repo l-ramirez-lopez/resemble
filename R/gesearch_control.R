@@ -21,10 +21,13 @@
 #'   (e.g., number of PLS components) via cross-validation at each iteration.
 #'   Increases computation time substantially. Default is \code{FALSE}.
 #' @param number An integer specifying the number of groups for leave-group-out
-#'   cross-validation when \code{tune = TRUE}. Default is 10.
+#'   cross-validation. Default is 10. This is used for validating the final 
+#'   models built the samples found. When \code{tune = TRUE}, this value is also 
+#'   used in the internal CV for tuning regression parameters at each iteration. 
 #' @param p A numeric value in (0, 1) specifying the proportion of observations
-#'   per group in leave-group-out cross-validation when \code{tune = TRUE}.
-#'   Default is 0.75.
+#'   per group in leave-group-out cross-validation. Default is 0.75. When 
+#'   \code{tune = TRUE}, this value is also used in the internal CV for tuning 
+#'   regression parameters at each iteration. 
 #' @param stagnation_limit An integer specifying the maximum number of
 #'   consecutive iterations with no change in gene pool size before early
 #'   termination. Prevents infinite loops when target size cannot be reached.

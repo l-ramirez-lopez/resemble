@@ -76,8 +76,9 @@
 #'   Default is \code{TRUE}.
 #' @param seed An integer for random number generation to ensure
 #'   reproducibility. Default is \code{NULL}.
-#' @param pchunks An integer specifying the number of chunks for parallel
-#'   processing. Increase for better memory management. Default is \code{1L}.
+#' @param pchunks An integer specifying the chunk size used for memory-efficient
+#' parallel processing. Larger values divide the workload into smaller pieces,
+#' which can help reduce memory pressure. Default is 1L.
 #' @param formula A \code{\link[stats]{formula}} defining the model.
 #' @param train A data.frame containing training data with model variables.
 #' @param test A data.frame containing test data with model variables.
@@ -119,6 +120,14 @@
 #' high-error subsets. These are labeled weak and removed. The process
 #' continues until approximately \code{target_size} samples remain.
 #'
+#' The `gesearch()` function also returns a final model fitted on the selected
+#' samples, which can be used for prediction. This model is internally validated
+#' by cross-validation using only the selected samples from the training/reference
+#' set. If `Yu` is available, a model fitted only on the selected reference samples
+#' is first used to predict the target samples. The final model is then refitted
+#' using both the selected reference samples and the target samples used to guide
+#' the search, provided that response values are available for those target samples.
+#'
 #' ## Parameter guidance
 #' \itemize{
 #'   \item \code{k}: Number of samples per resampling subset. See Lobsey et
@@ -151,7 +160,8 @@
 #'   \item \code{n_removed}: data.frame of samples removed per iteration.
 #'   \item \code{control}: Copy of control parameters.
 #'   \item \code{fit_method}: Fit constructor from \code{fit_method}.
-#'   \item \code{validation_results}: Cross-validation and test set prediction results.
+#'   \item \code{validation_results}: Cross-validation in the training only set 
+#'   validation on the test set using models built only with the samples found.
 #'   \item \code{final_models}: Final PLS model containing coefficients, loadings, 
 #'     scores, VIP, and selectivity ratios.
 #'   \item \code{intermediate_models}: List of models per generation (if
@@ -894,7 +904,7 @@ gesearch.default <- function(
       tmpx <- Xr[k_idx, , drop = FALSE]
       tmpy <- Yr[k_idx, j]
     }
-    
+
     # Fit final PLS model
     finalpls <- assign_pls_names(opls_get_all(
       X = tmpx,
