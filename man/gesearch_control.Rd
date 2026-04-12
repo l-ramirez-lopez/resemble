@@ -36,11 +36,14 @@ argument of \code{\link[stats]{quantile}}. Default is 7. Ignored when
 Increases computation time substantially. Default is \code{FALSE}.}
 
 \item{number}{An integer specifying the number of groups for leave-group-out
-cross-validation when \code{tune = TRUE}. Default is 10.}
+cross-validation. Default is 10. This is used for validating the final
+models built the samples found. When \code{tune = TRUE}, this value is also
+used in the internal CV for tuning regression parameters at each iteration.}
 
 \item{p}{A numeric value in (0, 1) specifying the proportion of observations
-per group in leave-group-out cross-validation when \code{tune = TRUE}.
-Default is 0.75.}
+per group in leave-group-out cross-validation. Default is 0.75. When
+\code{tune = TRUE}, this value is also used in the internal CV for tuning
+regression parameters at each iteration.}
 
 \item{stagnation_limit}{An integer specifying the maximum number of
 consecutive iterations with no change in gene pool size before early
