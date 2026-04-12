@@ -176,7 +176,7 @@ test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
 
 md <- dissimilarity(
   test_x,
-  matrixStats::colMedians(test_x), 
+  apply(test_x, 2, median),
   diss_method = diss_correlation(ws = 101, center = T, scale = T)
 )
 
@@ -287,8 +287,7 @@ reg_metrics <- function(obs, pred, na.rm = TRUE) {
     obs <- obs[ok]
     pred <- pred[ok]
   }
-  
-  c(RMSE = sqrt(mean((obs - pred)^2)), R2   = stats::cor(obs, pred)^2)
+  c(RMSE = sqrt(mean((obs - pred)^2)), R2 = cor(obs, pred)^2)
 }
 ```
 
@@ -299,22 +298,320 @@ reg_metrics(test_y_test, pred)
 
 ## The model built with the samples found by _gesearch_ 
 
+The `gesearch()` function is then used to identify a subset of samples from the library that is most relevant to the target set. In the following example, the search is guided by three optimisation criteria: reconstruction error, similarity in latent space, and response prediction error. The parameters used are `k = 50`, meaning that each individual contains 50 active genes or samples; `b = 100`, meaning that each gene is expected to appear in approximately 100 individuals; and `retain = 0.98`, meaning that, for each weakness metric, samples with weakness scores above the 98th quantile are silenced. The search terminates when the gene pool shrinks to `target_size = 80` samples. During evolution, a PLS model with a fixed number of components (`ncomp = 15`) is used for comparability across individuals, but the optimal number of components for the final model is selected by cross-validation independently of this fixed value.
+
+Using the `gesearch_control()` additional aspects of the search can be controlled, such as the strategy for retaining genes based on their weakness scores. In this example, a probability-based retention strategy is used, where genes with weakness scores below the `retain` quantile are kept. This approach is more robust to outliers compared to a fixed proportion-based strategy. Here, tuning the number of factors for each individual is also disbaled for comparability across individuals, but it can be enabled by setting `tune = TRUE` in the control settings. The way the final models (and also the intermediate models during evolution in case `tune = TRUE`) is controlled by the parameters `number` and `p`, which specify the number of groups and the proportion of observations per group for leave-group-out cross-validation, respectively.
+
+**Note** that `tune = FALSE` is recommended for most applications (and it is the default), as it enables a more direct comparison of the performance of different subsets during evolution. This is especially advisable when the search is guided by the `"reconstruction"` and/or `"similarity"` criteria. The reason is that tuning targets only the minimization of the RMSE of the response variable. As a result, models with different numbers of components may be selected during evolution. Models with too few components may reconstruct the target set poorly, which can in turn bias the weakness scores and, consequently, the selection of samples. This may also artificially increase the apparent similarity of some subsets to the target set in latent space. In additon, when `tune = FALSE`, the search process is considerable faster than if that is set to `TRUE`.
+
 ```{r}
+my_control <- gesearch_control(
+  retain_by = "probability",
+  tune = FALSE,
+  number = 10L,
+  p = 0.75
+)
+```
+
+```{r}
+#| eval: true
+#| echo: false 
 # Basic search with reconstruction optimization
 gs <- gesearch(
-  Xr = train_x[!is.na(train_y), ], Yr = train_y[!is.na(train_y)],
-  Xu = test_x_ref, Yu = test_y_ref,
+  Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
+  Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
+  Xu = test_x_ref, # the available target domain spectra
+  Yu = test_y_ref, # the available target domain response (accepts NAs)
+  k = 50, b = 100, retain = 0.98,
+  target_size = 120,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
+  optimization = c("reconstruction", "similarity", "response"),
+  control = my_control,
+  seed = 1124, 
+  verbose = FALSE
+)
+```
+
+
+```{r}
+#| eval: false
+# Basic search with reconstruction optimization
+gs <- gesearch(
+  Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
+  Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
+  Xu = test_x_ref, # the available target domain spectra
+  Yu = test_y_ref, # the available target domain response (accepts NAs)
   k = 50, b = 100, retain = 0.98,
   target_size = 80,
-  fit_method = fit_pls(ncomp = 15, method = "simpls", scale = TRUE),
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
   optimization = c("reconstruction", "similarity", "response"),
-  control = gesearch_control(retain_by = "probability"),
+  control = my_control,
   seed = 1124
 )
+```
 
+@fig-evolution-gs presents the evolution of the weakness scores through the generations of the search. 
+
+```{r}
+#| eval: false
+plot(gs)
+```
+
+```{r}
+#| label: fig-evolution-gs
+#| echo: false 
+#| fig-cap: "Evolution of the three weakness metrics (response, reconstruction and dissimilarity) used in the search."
+#| fig-align: "center"
+#| fig-width: 8.5
+#| fig-height: 5.5
+plot(gs, main = NA)
+```
+
+The final model is validated in two ways. First, it is internally validated on the selected samples using leave-group-out cross-validation. Second, a model fitted only on the selected samples is applied to the target samples that drove the search and for which response values are available (`Yu`).
+
+The validation results can be accessed from the final object. For the internal leave-group-out cross-validation (CV) carried out on the training set, the following summary metrics are provided: the mean RMSE across CV groups (`rmse_cv`), the standardised RMSE (`st_rmse_cv`), computed as the RMSE divided by the range of the response values (maximum minus minimum), the standard deviation of the RMSE across CV groups (`rmse_sd_cv`), and the mean (R^2) across CV groups (`r2_cv`).
+
+```{r}
+# the internal leave-group out CV results for the data found
+gs$validation_results[[1]]$results$train
+```
+
+
+```{r}
+# the CV on the target samples that drove the search (note that this is not a proper test set, as these samples were used to guide the search, but it can provide some insight into the performance of the final model on the target domain)
+gs$validation_results[[1]]$results$test
+```
+
+Assume that the final model is chosen as the one with the lowest CV RMSE obtained from the samples found:
+
+```{r}
+best_ncomp <- which.min(gs$validation_results[[1]]$results$train$rmse_cv)
+```
+
+The predictions on the samples that represent the target set and that did not participate in the search process:
+
+```{r}
 pred_gs <- predict(gs, test_x_test)[[1]]
 
+reg_metrics(test_y_test, pred_gs[, best_ncomp])
 ```
+
+@fig-pred-comparison compares the observed versus predicted values for the model fitted using all available training samples and the model fitted using the subset of samples selected by `gesearch()`.
+
+
+```{r}
+#| label: fig-pred-comparison
+#| fig-cap: "Comparison of observed versus predicted total carbon values. Left: model fitted using all available training samples. Right: model fitted using the subset of samples selected by gesearch()."
+#| fig-align: "center"
+#| fig-width: 7.5
+#| fig-height: 4.5
+op <- par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
+
+rng <- range(pred, pred_gs, test_y_test, na.rm = TRUE)
+
+plot(
+  pred, test_y_test,
+  xlim = rng,
+  ylim = rng,
+  xlab = "Predicted Total Carbon, %",
+  ylab = "Observed Total Carbon, %",
+  main = "Model with all training \nsamples",
+  cex = 1.5,
+  pch = 16,
+  col = rgb(0.5, 0.5, 0.5, 0.6)
+)
+grid(lty = 1)
+abline(0, 1, col = "red")
+
+plot(
+  pred_gs[, best_ncomp], test_y_test,
+  xlim = rng,
+  ylim = rng,
+  xlab = "Predicted Total Carbon, %",
+  ylab = "Observed Total Carbon, %",
+  main = "Model with gesearch-selected \nsamples",
+  cex = 1.5,
+  pch = 16,
+  col = rgb(0.5, 0.5, 0.5, 0.6)
+)
+grid(lty = 1)
+abline(0, 1, col = "red")
+
+par(op)
+```
+
+
+
+
+## Further examples of _gesearch_ 
+
+### No response values available for the target set
+
+The search process can be conducted when no information on the response variable is available for the target set:
+
+```{r}
+#| eval: true
+#| echo: false 
+# Basic search with reconstruction optimization
+gs_nr <- gesearch(
+  Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
+  Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
+  Xu = test_x_ref, # the available target domain spectra
+  Yu = NULL, # NO available target domain response (accepts NAs)
+  k = 50, b = 100, retain = 0.98,
+  target_size = 120,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
+  optimization = c("reconstruction", "similarity"),
+  control = my_control,
+  seed = 1124, 
+  verbose = FALSE
+)
+```
+
+
+```{r}
+#| eval: false
+# Basic search with reconstruction optimization
+gs_nr <- gesearch(
+  Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
+  Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
+  Xu = test_x_ref, # the available target domain spectra
+  Yu = NULL, # NO available target domain response (accepts NAs)
+  k = 50, b = 100, retain = 0.98,
+  target_size = 120,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
+  optimization = c("reconstruction", "similarity"),
+  control = my_control,
+  seed = 1124
+)
+```
+
+
+```{r}
+best_ncomp_nr <- which.min(gs_nr$validation_results[[1]]$results$train$rmse_cv)
+best_ncomp_nr
+pred_gs_nr <- predict(gs_nr, test_x_test)[[1]]
+
+reg_metrics(test_y_test, pred_gs_nr[, best_ncomp_nr])
+```
+
+
+### No response values in the target set but with information about the response range
+
+In some cases, the response values for the target set may not be available, but the range of possible response values may be known. This information can be used to guide the search by penalizing predictions that fall outside the specified range. The `Yu_lims` argument can be used for this purpose, and the `"range"` criterion must be included in the `optimization` argument. The `"range"` option penalizes samples that tend to generate models that predict values for the target spectra that fall outside the specified limits.
+
+```{r}
+#| eval: true
+#| echo: false 
+# Basic search with reconstruction optimization
+gs_nr2 <- gesearch(
+  Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
+  Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
+  Xu = test_x_ref, # the available target domain spectra
+  Yu = NULL, # NO available target domain response (accepts NAs)
+  Yu_lims = c(0, 5), # the response range in the target domain
+  k = 50, b = 100, retain = 0.98,
+  target_size = 120,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
+  optimization = c("reconstruction", "similarity", "range"),
+  control = my_control,
+  seed = 1124, 
+  verbose = FALSE
+)
+```
+
+
+```{r}
+#| eval: false
+# Basic search with reconstruction optimization
+gs_nr2 <- gesearch(
+  Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
+  Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
+  Xu = test_x_ref, # the available target domain spectra
+  Yu = NULL, # NO available target domain response (accepts NAs)
+  Yu_lims = c(0, 5), # the response range in the target domain
+  k = 50, b = 100, retain = 0.98,
+  target_size = 120,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
+  optimization = c("reconstruction", "similarity", "range"),
+  control = my_control,
+  seed = 1124
+)
+```
+
+
+```{r}
+best_ncomp_nr2 <- which.min(gs_nr2$validation_results[[1]]$results$train$rmse_cv)
+best_ncomp_nr2
+pred_gs_nr2 <- predict(gs_nr2, test_x_test)[[1]]
+
+reg_metrics(test_y_test, pred_gs_nr2[, best_ncomp_nr2])
+```
+
+
+
+# Supported parallel processing 
+
+The `gesearch()` function supports parallel execution for evaluating individuals during the evolutionary search. To improve memory efficiency, the data are not sent in full to each worker. Instead, only the subsets of samples required for the individuals being evaluated are extracted and passed to the parallel workers. The `pchunks` argument controls how many individuals are processed together at each iterator step during parallel execution. Its effect on speed and memory usage depends on the size of the subsets and the available computing resources. By default, `pchunks = 1L`, meaning that individuals are processed one at a time. Increasing `pchunks` can reduce parallelisation overhead, but it may also increase memory usage because more data may need to be sent to each worker at once. The optimal value depends on the dataset and computational environment, and may require some experimentation.
+
+In the example below, the [doParallel package](https://CRAN.R-project.org/package=doParallel) is used to register the cores for parallel execution. The [doSNOW package](https://CRAN.R-project.org/package=doSNOW) can also be used. The example illustrates how to run `gesearch()` using multiple cores.
+
+```{r}
+#| label: parallel-gesearch
+#| eval: false
+# Running gesearch() using multiple cores
+
+# Execute with two cores, if available, ...
+n_cores <- 2
+
+# ... if not then go with 1 core
+if (parallel::detectCores() < 2) {
+  n_cores <- 1
+}
+
+# Set the number of cores
+library(doParallel)
+clust <- makeCluster(n_cores)
+registerDoParallel(clust)
+
+# Alternatively:
+# library(doSNOW)
+# clust <- makeCluster(n_cores, type = "SOCK")
+# registerDoSNOW(clust)
+# getDoParWorkers()
+
+my_control <- gesearch_control(
+  retain_by = "probability",
+  tune = FALSE,
+  number = 10L,
+  p = 0.75
+)
+
+gs_p <- gesearch(
+  Xr = train_x[!is.na(train_y), ],
+  Yr = train_y[!is.na(train_y)],
+  Xu = test_x_ref,
+  Yu = test_y_ref,
+  k = 50,
+  b = 100,
+  retain = 0.98,
+  target_size = 80,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
+  optimization = c("reconstruction", "similarity", "response"),
+  control = my_control,
+  seed = 1124,
+  pchunks = 2L
+)
+
+# Go back to sequential processing
+registerDoSEQ()
+try(stopCluster(clust))
+
+gs_p
+```
+
+Parallel processing is particularly useful when the search requires fitting a large number of intermediate models per generation. However, the computational gain depends on the number of available cores, the size of the population, and the cost of fitting each individual model.
+
 
 # References {-} 
 
@@ -328,15 +625,6 @@ pred_gs <- predict(gs, test_x_test)[[1]]
 
 
 
-
-
-
-regession coefficients are not shown
-commas and points as decimal separators
-they do not use 20 samples ... samples are duplicated
-
-the custiomer does not have idea of chemometrics do not blame them
-8 samples (not 20)
 
 
 
