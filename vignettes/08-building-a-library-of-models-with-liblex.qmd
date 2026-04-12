@@ -35,7 +35,16 @@ vignette: >
 
 # Introduction
 
-ddd
+
+
+
+regession coefficients are not shown
+commas and points as decimal separators
+they do not use 20 samples ... samples are duplicated
+
+the custiomer does not have idea of chemometrics do not blame them
+8 samples (not 20)
+
 
 # Chosing anchor samples
 

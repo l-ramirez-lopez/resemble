@@ -654,7 +654,7 @@ pc_pred_cec_yu <- mbl(
 pc_pred_cec_yu
 ```
 
-# Supported Parallel Processing
+# Supported parallel processing
 
 The `mbl()` function uses `foreach()` from the [foreach package](https://CRAN.R-project.org/package=foreach) to iterate over the rows in `Xu`. In the example below, the [doParallel package](https://CRAN.R-project.org/package=doParallel) is used to register the cores for parallel execution. The [doSNOW package](https://CRAN.R-project.org/package=doSNOW) can also be used. This example uses parallel processing to predict CEC.
 
