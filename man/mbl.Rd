@@ -13,8 +13,10 @@ mbl(Xr, Yr, Xu, Yu = NULL,
     gh = FALSE,
     control = mbl_control(),
     verbose = TRUE, seed = NULL,
-   k, k_diss, k_range, method, pc_selection,
-   center, scale, documentation, ...)
+    k, k_diss, k_range, method, pc_selection,
+    center, scale, documentation, ...)
+
+\method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
 }
 \arguments{
 \item{Xr}{A matrix of predictor variables for the reference data
@@ -113,6 +115,20 @@ cross-validation results. Default is \code{NULL}.}
 \item{documentation}{Deprecated.}
 
 \item{...}{Additional arguments (currently unused).}
+
+\item{x}{An object of class \code{mbl} (as returned by \code{\link{mbl}}).}
+
+\item{what}{Character vector specifying what to plot. Options are
+\code{"validation"} (validation statistics) and/or \code{"gh"} (PLS scores
+used for GH distance computation). Default is both.}
+
+\item{metric}{Character string specifying which validation statistic to plot.
+Options are \code{"rmse"}, \code{"st_rmse"}, or \code{"r2"}. Only used when
+\code{"validation"} is in \code{what}.}
+
+\item{ncomp}{Integer vector of length 1 or 2 specifying which PLS components
+to plot. Default is \code{c(1, 2)}. Only used when \code{"gh"} is in
+\code{what}.}
 }
 \value{
 A list of class \code{mbl} containing:

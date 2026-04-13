@@ -18,6 +18,8 @@ liblex(Xr, Yr, neighbors,
         range_prediction_limits = FALSE, residual_cutoff = NULL,
         enforce_indices = NULL, probs = c(0.05, 0.25, 0.5, 0.75, 0.95),
         verbose = TRUE, allow_parallel = TRUE, blas_threads = 1L, ...)
+        
+\method{plot}{liblex}(x, ...)
 }
 \arguments{
 \item{Xr}{A numeric matrix of predictor variables with dimensions \verb{n × p}
@@ -129,6 +131,8 @@ permitted if a backend is registered. Default is \code{TRUE}.}
 \item{blas_threads}{Integer specifying the number of BLAS threads to use.
 Default is \code{1L}. Requires the \pkg{RhpcBLASctl} package for thread
 control.}
+
+\item{x}{An object of class \code{"liblex"} as returned by \code{\link[=liblex]{liblex()}}.}
 }
 \value{
 \strong{For \code{liblex}:} A list of class \code{"liblex"} (when
@@ -204,8 +208,6 @@ implementation is based on the methods proposed in
 Ramirez-Lopez et al. (2026b).
 }
 \details{
-\subsection{Anchor indices}{
-
 By default, local models are constructed for all \code{n} observations in the
 reference set. Alternatively, specify a subset of \code{m} observations
 (\code{m < n}) via \code{anchor_indices} to reduce computation.
@@ -220,8 +222,17 @@ response values of anchor observations are excluded during dissimilarity
 computation for efficiency. However, anchor response values are always
 used when fitting local models.
 
-The number of anchors must not exceed 90
-use \code{anchor_indices = NULL} to build models for all observations.
+The number of anchors must not exceed 90\% of \code{nrow(Xr)}; to build models
+for all observations, use \code{anchor_indices = NULL}.
+\subsection{Relationship between anchors and neighborhood size}{
+
+The \code{neighbors} argument controls the neighborhood size (\code{k}) used both
+for fitting local models and for retrieving experts during prediction.
+When \code{anchor_indices} is specified, the number of available experts equals
+the number of anchors. If \code{max(k)} exceeds the number of anchors and
+tuning selects a large optimal \code{k}, prediction will retrieve fewer experts
+than specified. For reliable predictions, ensure the number of anchors is
+at least as large as the maximum \code{k} value being evaluated.
 }
 
 \subsection{Missing values in Yr}{

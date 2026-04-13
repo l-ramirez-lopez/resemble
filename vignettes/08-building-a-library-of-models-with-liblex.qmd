@@ -29,6 +29,15 @@ library(resemble)
 library(prospectr)
 ```
 
+:::: {.columns}
+::: {.column width="70%"}
+> *All models are wrong, but some are useful* -- [@box1976science]
+:::
+::: {.column width="30%"}
+<img src="logo.png" style="width: 150%; max-width: 150px;">
+:::
+::::
+
 # Introduction
 
 Traditional memory-based learning (MBL) methods fit a new local model for each 
@@ -44,13 +53,13 @@ This design offers several advantages:
 - **Computational efficiency**: Models are fitted once; prediction requires only 
   retrieval and weighted averaging.
 - **Privacy preservation**: Only model coefficients and centroids need to be 
-  stored—not the original training spectra.
+  stored (not the original training spectra).
 - **Intrinsic uncertainty**: Disagreement among retrieved experts provides a 
   natural measure of prediction uncertainty.
 - **Interpretability**: Each expert retains its regression coefficients and 
   variable importance, enabling inspection of local relationships.
 
-The method is described in detail in @ramirezlopez2026b.
+The method is introduced and described in detail in @ramirezlopez2026b.
 
 # How liblex works
 
@@ -59,28 +68,35 @@ The `liblex` algorithm operates in two phases:
 ## Build phase
 
 1. **Anchor selection**: A subset of reference observations (anchors) is 
-   selected. Each anchor will generate one local expert model.
+   selected. Each anchor will generate one local expert model. By default, 
+   all observations serve as anchors; for large datasets, a representative 
+   subset can be specified via `anchor_indices`.
 
 2. **Neighborhood construction**: For each anchor, the $k$ nearest neighbors 
-   are identified using a dissimilarity measure.
+   are identified from the full reference set using a dissimilarity measure. 
+   Note that neighbors are drawn from all reference observations, not just 
+   anchors.
 
-3. **Local model fitting**: A weighted average PLS (waPLS) model is fitted 
-   within each neighborhood, producing regression coefficients and storing the 
-   neighborhood centroid.
+3. **Local model fitting**: A partial least squares (PLS) regression model 
+   (or variant such as weigthed average PLS or modified PLS) is fitted within each neighborhood, producing regression coefficients. The neighborhood centroid is stored for use during prediction.
 
 4. **Validation** (optional): Nearest-neighbor cross-validation assesses 
-   performance and optimizes hyperparameters ($k$, PLS component range).
+   performance and optimizes hyperparameters ($k$ and PLS component range).
 
 ## Prediction phase
 
 1. **Expert retrieval**: For a new observation, dissimilarities to all stored 
-   centroids are computed, and the $h$ nearest experts are retrieved.
+   centroids are computed, and the $k$ nearest experts are retrieved. The 
+   same optimal $k$ determined during fitting is used here, so the number of 
+   anchors should be at least as large as the maximum $k$ being evaluated.
 
 2. **Weighted combination**: Each retrieved expert generates a prediction. 
-   These predictions are combined via distance-based kernel weighting.
+   These predictions are combined via distance-based kernel weighting, with 
+   closer experts receiving higher weights.
 
 3. **Uncertainty estimation**: The weighted variance across expert predictions 
-   provides a per-sample uncertainty estimate.
+   provides a per-sample uncertainty estimate, reflecting disagreement among 
+   retrieved experts.
 
 # Data preparation
 
@@ -151,8 +167,7 @@ diss_pca(ncomp = ncomp_by_opc())
 
 ## Fitting method
 
-Local regressions use weighted average PLS (waPLS), which combines predictions 
-from multiple PLS component counts. The `fit_wapls()` constructor specifies the 
+The default method in the `liblex()` function to fit the local regressions is the weighted average PLS (waPLS), which combines predictions from multiple PLS component counts. The `fit_wapls()` constructor specifies the 
 component range and algorithm:
 
 ```{r}
@@ -190,9 +205,33 @@ liblex_control(mode = "build", tune = TRUE)
 The following example builds a library using fixed-$k$ neighbor selection with 
 moving-window correlation dissimilarity:
 
+
+
+```{r}
+#| eval: false
+ciso_lib_k <- liblex(
+  Xr = train_x, 
+  Yr = train_y, 
+  neighbors = neighbors_k(seq(40, 120, by = 20)),
+  diss_method = diss_correlation(ws = 37, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 3,
+    max_ncomp = 15,
+    scale = TRUE,
+    method = "mpls"
+  ),
+  control = liblex_control(tune = TRUE)
+)
+
+ciso_lib_k
+```
+
 ```{r}
 #| label: liblex-fixed-k
 #| cache: true
+#| echo: false
+#| message: false
+#| warning: false
 ciso_lib_k <- liblex(
   Xr = train_x, 
   Yr = train_y, 
@@ -209,6 +248,15 @@ ciso_lib_k <- liblex(
 )
 
 ciso_lib_k
+```
+
+```{r}
+#| label: fig-liblex
+#| fig-cap: "Top: Best model obatined for each neighborhood size (based on the RMSE). Bottom: Centroids of the neighborhoods, usled later in prediction to selet the models to be used."
+#| fig-align: "center"
+#| fig-width: 7.5
+#| fig-height: 6.5
+plot(ciso_lib_k)
 ```
 
 ## Using dissimilarity thresholds
