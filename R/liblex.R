@@ -23,6 +23,8 @@
 #'         range_prediction_limits = FALSE, residual_cutoff = NULL,
 #'         enforce_indices = NULL, probs = c(0.05, 0.25, 0.5, 0.75, 0.95),
 #'         verbose = TRUE, allow_parallel = TRUE, blas_threads = 1L, ...)
+#'         
+#' \method{plot}{liblex}(x, ...)
 #'
 #' @param Xr A numeric matrix of predictor variables with dimensions `n × p`
 #'   (observations in rows, variables in columns). Column names are required.
@@ -111,12 +113,10 @@
 #' @param blas_threads Integer specifying the number of BLAS threads to use.
 #'   Default is \code{1L}. Requires the \pkg{RhpcBLASctl} package for thread
 #'   control.
+#' @param x An object of class `"liblex"` as returned by [liblex()].
 #' @param ... Additional arguments (currently unused).
-#'
+#' 
 #' @details
-#' 
-#' ## Anchor indices
-#' 
 #' By default, local models are constructed for all `n` observations in the
 #' reference set. Alternatively, specify a subset of `m` observations 
 #' (`m < n`) via `anchor_indices` to reduce computation.
@@ -131,9 +131,19 @@
 #' computation for efficiency. However, anchor response values are always
 #' used when fitting local models.
 #'
-#' The number of anchors must not exceed 90
-#' use `anchor_indices = NULL` to build models for all observations.
+#' The number of anchors must not exceed 90% of `nrow(Xr)`; to build models 
+#' for all observations, use `anchor_indices = NULL`.
 #'
+#' ## Relationship between anchors and neighborhood size
+#'
+#' The `neighbors` argument controls the neighborhood size (`k`) used both 
+#' for fitting local models and for retrieving experts during prediction. 
+#' When `anchor_indices` is specified, the number of available experts equals 
+#' the number of anchors. If `max(k)` exceeds the number of anchors and 
+#' tuning selects a large optimal `k`, prediction will retrieve fewer experts 
+#' than specified. For reliable predictions, ensure the number of anchors is 
+#' at least as large as the maximum `k` value being evaluated.
+#' 
 #' ## Missing values in Yr
 #' 
 #' Missing values in `Yr` are permitted. Observations with missing response
@@ -492,6 +502,24 @@ liblex <- function(
            "set anchor_indices = NULL to build models for all observations",
            call. = FALSE)
     }
+    if (any(duplicated(anchor_indices))) {
+      stop("'anchor_indices' contains duplicate values", call. = FALSE)
+    }
+    maximum_k <- if (inherits(neighbors, "neighbors_k")) {
+      max(neighbors$k)
+    } else {
+      neighbors$k_max
+    }
+    
+    if (maximum_k > length(anchor_indices)) {
+      warning(
+        "Max. number of neighbors (", maximum_k, ") exceeds number of anchors (", 
+        length(anchor_indices), "); prediction may retrieve fewer experts than ",
+        "optimal if tuning selects a large k.",
+        call. = FALSE
+      )
+    }
+    
   }
   
   # --- gh validation ---
@@ -1413,7 +1441,7 @@ predict.liblex <- function(
     stop("'blas_threads' must be a positive integer", call. = FALSE)
   }
   blas_threads <- as.integer(blas_threads)
-  
+
   if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
     old_blas_threads <- blas_get_num_procs()
     if (old_blas_threads != blas_threads) {
@@ -1509,7 +1537,7 @@ predict.liblex <- function(
       )
     }
   }
-  
+
   # --- Validate newdata ---
   required_vars <- colnames(object$coefficients$B)
   
@@ -1572,7 +1600,7 @@ predict.liblex <- function(
     diss_method_copy <- diss_method
     diss_method_copy$center <- FALSE
     diss_method_copy$scale <- FALSE
-    
+   
     dsmxu <- dissimilarity(
       Xr = local_centers_scaled,
       Xu = newdata_scaled,
@@ -1623,7 +1651,16 @@ predict.liblex <- function(
   } else {
     k_min <- k_max <- object$optimal_params$k    
   }
-
+  
+  if (k_max > nrow(dsmxu$dissimilarity)) {
+    k_max <- nrow(dsmxu$dissimilarity)
+    message("Number of available models is", nrow(dsmxu$dissimilarity)) 
+  }
+  
+  if (k_min > nrow(dsmxu$dissimilarity)) {
+    k_min <- nrow(dsmxu$dissimilarity)
+  }
+  
   neighbor_indices <- top_k_neighbors(
     D = dsmxu$dissimilarity,
     k_min = k_min,
@@ -1942,3 +1979,98 @@ compute_pred_weights <- function(
   attr(dweights, "sigma") <- sigma
   dweights
 }
+
+
+#' @aliases liblex
+#' @export
+plot.liblex <- function(x, ...) {
+  if (!inherits(x, "liblex")) {
+    stop("'x' must be an object of class 'liblex'", call. = FALSE)
+  }
+  
+  
+  # Set up 2-panel layout
+  
+  old_par <- par(no.readonly = TRUE)
+  on.exit(par(old_par), add = TRUE)
+  par(mfrow = c(2, 1), mar = c(4, 4, 3, 1))
+  
+  # --- Panel 1: Best RMSE per neighborhood parameter ---
+  if (!is.null(x$results)) {
+    bresult <- NULL
+    
+    if (inherits(x$neighbors, "neighbors_k")) {
+      for (k in unique(x$results$k)) {
+        kth_r <- x$results[x$results$k == k, , drop = FALSE]
+        kth_r <- kth_r[which.min(kth_r$rmse), , drop = FALSE]
+        bresult <- rbind(bresult, kth_r)
+      }
+      param <- "k"
+      param_name <- "Number of neighbors (k)"
+    } else {
+      for (thr in unique(x$results$diss_threshold)) {
+        kth_r <- x$results[x$results$diss_threshold == thr, , drop = FALSE]
+        kth_r <- kth_r[which.min(kth_r$rmse), , drop = FALSE]
+        bresult <- rbind(bresult, kth_r)
+      }
+      param <- "diss_threshold"
+      param_name <- "Dissimilarity threshold"
+    }
+    
+    plot(
+      bresult[[param]],
+      bresult$rmse,
+      type = "b",
+      pch = 16,
+      col = "dodgerblue",
+      xlab = param_name,
+      ylab = "RMSE",
+      main = "Best RMSE at each neighbor selection parameter"
+    )
+    grid(lty = 1)
+    
+    # Mark optimal point
+    opt_idx <- which.min(bresult$rmse)
+    points(
+      bresult[[param]][opt_idx],
+      bresult$rmse[opt_idx],
+      pch = 16,
+      col = "red",
+      cex = 1.5
+    )
+  } else {
+    plot.new()
+    text(0.5, 0.5, "No validation results available\n(tune = FALSE)", cex = 1.2)
+  }
+  
+  # --- Panel 2: Neighborhood centroids ---
+  if (!is.null(x$scaling$local_x_center)) {
+    centroids <- x$scaling$local_x_center
+    coords <- as.numeric(colnames(centroids))
+    
+    if (any(is.na(coords))) {
+      coords <- seq_len(ncol(centroids))
+      xlab_text <- "Variable index"
+    } else {
+      xlab_text <- "Spectral coordinate"
+    }
+    
+    matplot(
+      coords,
+      t(centroids),
+      col = rgb(0, 0, 1, 0.3),
+      lty = 1,
+      type = "l",
+      xlab = xlab_text,
+      ylab = "Intensity",
+      main = paste0("Neighborhood centroids (n = ", nrow(centroids), ")")
+    )
+    grid(lty = 1)
+  } else {
+    plot.new()
+    text(0.5, 0.5, "No centroids available\n(mode = 'validate')", cex = 1.2)
+  }
+  
+  invisible(NULL)
+}
+
