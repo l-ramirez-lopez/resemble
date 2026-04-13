@@ -22,19 +22,555 @@ vignette: >
   %\VignetteEngine{quarto::html}
 ---
 
-:::: {.columns}
-::: {.column width="70%"}
-> *All models are wrong but some are useful* -- @box1976science
-:::
-::: {.column width="30%"}
-<img src="logo.png" style="width: 150%; max-width: 150px;">
-:::
-::::
-
-
+```{r}
+#| message: false
+#| echo: false
+library(resemble)
+library(prospectr)
+```
 
 # Introduction
 
+Traditional memory-based learning (MBL) methods fit a new local model for each 
+query observation. While effective, this per-query refitting can be 
+computationally expensive and requires access to the full reference library at 
+prediction time.
+
+The `liblex()` function (*library of localised experts*) takes a different 
+approach: it pre-computes a library of local models during a build phase, then 
+retrieves and combines relevant experts at prediction time without refitting. 
+This design offers several advantages:
+ 
+- **Computational efficiency**: Models are fitted once; prediction requires only 
+  retrieval and weighted averaging.
+- **Privacy preservation**: Only model coefficients and centroids need to be 
+  stored—not the original training spectra.
+- **Intrinsic uncertainty**: Disagreement among retrieved experts provides a 
+  natural measure of prediction uncertainty.
+- **Interpretability**: Each expert retains its regression coefficients and 
+  variable importance, enabling inspection of local relationships.
+
+The method is described in detail in @ramirezlopez2026b.
+
+# How liblex works
+
+The `liblex` algorithm operates in two phases:
+
+## Build phase
+
+1. **Anchor selection**: A subset of reference observations (anchors) is 
+   selected. Each anchor will generate one local expert model.
+
+2. **Neighborhood construction**: For each anchor, the $k$ nearest neighbors 
+   are identified using a dissimilarity measure.
+
+3. **Local model fitting**: A weighted average PLS (waPLS) model is fitted 
+   within each neighborhood, producing regression coefficients and storing the 
+   neighborhood centroid.
+
+4. **Validation** (optional): Nearest-neighbor cross-validation assesses 
+   performance and optimizes hyperparameters ($k$, PLS component range).
+
+## Prediction phase
+
+1. **Expert retrieval**: For a new observation, dissimilarities to all stored 
+   centroids are computed, and the $h$ nearest experts are retrieved.
+
+2. **Weighted combination**: Each retrieved expert generates a prediction. 
+   These predictions are combined via distance-based kernel weighting.
+
+3. **Uncertainty estimation**: The weighted variance across expert predictions 
+   provides a per-sample uncertainty estimate.
+
+# Data preparation
+
+```{r}
+#| label: data-prep
+#| message: false
+library(resemble)
+library(prospectr)
+
+data(NIRsoil)
+
+# Wavelengths
+wavs <- as.numeric(colnames(NIRsoil$spc))
+
+# Preprocess: detrend + first derivative
+NIRsoil$spc_pr <- savitzkyGolay(
+  detrend(NIRsoil$spc, wav = wavs),
+  m = 1, p = 1, w = 7
+)
+
+# Split into training and test sets
+# Note: missing values in the response are allowed in liblex
+train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
+train_y <- NIRsoil$Ciso[NIRsoil$train == 1]
+test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
+
+cat("Training set:", nrow(train_x), "observations\n")
+cat("Test set:", nrow(test_x), "observations\n")
+```
+
+# Core components
+
+## Neighbor selection
+
+Neighborhood size is specified using `neighbors_k()` for fixed-$k$ selection 
+or `neighbors_diss()` for threshold-based selection. Multiple values can be 
+provided for hyperparameter tuning.
+
+```{r}
+#| label: neighbors-example
+# Fixed neighborhood sizes to evaluate
+neighbors_k(k = seq(40, 120, by = 20))
+
+# Threshold-based selection with bounds
+neighbors_diss(
+  threshold = seq(0.05, 0.5, length.out = 10), 
+  k_min = 40, 
+  k_max = 150
+)
+```
+
+## Dissimilarity methods
+
+The dissimilarity measure determines how neighbors are identified. Available 
+methods include `diss_pca()`, `diss_pls()`, `diss_correlation()`, and 
+`diss_euclidean()`. The moving-window correlation dissimilarity is particularly 
+effective for spectral data:
+
+```{r}
+#| label: diss-example
+# Moving-window correlation dissimilarity (recommended for spectra)
+diss_correlation(ws = 37, scale = TRUE)
+
+# PCA-based Mahalanobis distance with optimized components
+diss_pca(ncomp = ncomp_by_opc())
+```
+
+## Fitting method
+
+Local regressions use weighted average PLS (waPLS), which combines predictions 
+from multiple PLS component counts. The `fit_wapls()` constructor specifies the 
+component range and algorithm:
+
+```{r}
+#| label: fit-method-example
+# waPLS with modified PLS algorithm and scaling
+fit_wapls(
+  min_ncomp = 3, 
+  max_ncomp = 15, 
+  scale = TRUE, 
+  method = "mpls"
+)
+```
+
+## Control parameters
+
+The `liblex_control()` function specifies operational settings:
+
+| Parameter | Description |
+|-----------|-------------|
+| `mode` | `"build"` (fit models) or `"validate"` (evaluate only) |
+| `tune` | If `TRUE`, optimize hyperparameters via nearest-neighbor validation |
+| `metric` | Optimization metric: `"rmse"` or `"r2"` |
+| `allow_parallel` | Enable parallel computation |
+
+```{r}
+#| label: control-example
+# Build library with hyperparameter tuning
+liblex_control(mode = "build", tune = TRUE)
+```
+
+# Building a library of models
+
+## Using fixed neighborhood size
+
+The following example builds a library using fixed-$k$ neighbor selection with 
+moving-window correlation dissimilarity:
+
+```{r}
+#| label: liblex-fixed-k
+#| cache: true
+ciso_lib_k <- liblex(
+  Xr = train_x, 
+  Yr = train_y, 
+  neighbors = neighbors_k(seq(40, 120, by = 20)),
+  diss_method = diss_correlation(ws = 37, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 3,
+    max_ncomp = 15,
+    scale = TRUE,
+    method = "mpls"
+  ),
+  control = liblex_control(tune = TRUE),
+  verbose = FALSE
+)
+
+ciso_lib_k
+```
+
+## Using dissimilarity thresholds
+
+Alternatively, neighbors can be selected based on a dissimilarity threshold. 
+The `k_min` and `k_max` arguments ensure reasonable neighborhood sizes:
+
+```{r}
+#| label: liblex-threshold
+#| cache: true
+ciso_lib_thr <- liblex(
+  Xr = train_x, 
+  Yr = train_y, 
+  neighbors = neighbors_diss(
+    threshold = seq(0.05, 0.5, length.out = 10), 
+    k_min = 40, 
+    k_max = 150
+  ),
+  diss_method = diss_correlation(ws = 37, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 3,
+    max_ncomp = 15,
+    scale = TRUE,
+    method = "mpls"
+  ),
+  control = liblex_control(tune = TRUE),
+  verbose = FALSE
+)
+
+ciso_lib_thr
+```
+
+## Visualizing neighborhood centroids
+
+The stored neighborhood centroids can be compared against the spectra to be 
+predicted. Good coverage of the prediction space by the centroids indicates 
+that relevant experts are available:
+
+```{r}
+#| label: fig-centroids
+#| fig-cap: "Neighborhood centroids (blue) compared to test spectra (red)"
+#| fig-width: 8
+#| fig-height: 5
+#| fig-align: center
+wavs_pr <- as.numeric(colnames(ciso_lib_k$scaling$local_x_center))
+
+matplot(
+  wavs_pr,
+  t(test_x),
+  col = rgb(1, 0, 0, 0.3),
+  lty = 1,
+  type = "l",
+  xlab = "Wavelength (nm)",
+  ylab = "First derivative detrended absorbance"
+)
+
+matlines(
+  wavs_pr,
+  t(ciso_lib_k$scaling$local_x_center),
+  col = rgb(0, 0, 1, 0.3),
+  lty = 1
+)
+
+grid(lty = 1)
+
+legend(
+  "topright",
+  legend = c("Samples to predict", "Neighborhood centroids"),
+  col = c(rgb(1, 0, 0, 0.8), rgb(0, 0, 1, 0.8)),
+  lty = 1,
+  lwd = 2,
+  bty = "n"
+)
+```
+
+# Choosing anchor samples
+
+For large libraries, building models for every observation may be 
+computationally prohibitive. The `anchor_indices` argument allows specifying a 
+subset of observations as anchors while still using the full library for 
+neighbor retrieval.
+
+## Using k-means sampling
+
+The `naes()` function from the `prospectr` package implements Kennard-Stone 
+and k-means sampling algorithms, which are effective for selecting 
+representative anchor samples:
+
+```{r}
+#| label: kmeans-anchors
+# Select 50 representative anchors using k-means sampling
+# on the first 10 principal components
+anchor_km <- naes(
+  train_x, 
+  k = 50, 
+  pc = 10, 
+  .center = TRUE, 
+  .scale = TRUE
+)
+
+cat("Selected", length(anchor_km$model), "anchors via k-means\n")
+```
+
+## Building the library with selected anchors
+
+```{r}
+#| label: liblex-anchored
+#| cache: true
+ciso_lib_anchored <- liblex(
+  Xr = train_x, 
+  Yr = train_y, 
+  neighbors = neighbors_k(seq(40, 120, by = 20)),
+  diss_method = diss_correlation(ws = 37, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 3,
+    max_ncomp = 15,
+    scale = TRUE,
+    method = "mpls"
+  ),
+  anchor_indices = anchor_km$model,
+  control = liblex_control(tune = TRUE),
+  verbose = FALSE
+)
+
+ciso_lib_anchored
+```
+
+```{r}
+#| label: fig-centroids-anchored
+#| fig-cap: "Neighborhood centroids from anchored library (50 experts)"
+#| fig-width: 8
+#| fig-height: 5
+#| fig-align: center
+wavs_pr <- as.numeric(colnames(ciso_lib_anchored$scaling$local_x_center))
+
+matplot(
+  wavs_pr,
+  t(test_x),
+  col = rgb(1, 0, 0, 0.3),
+  lty = 1,
+  type = "l",
+  xlab = "Wavelength (nm)",
+  ylab = "First derivative detrended absorbance"
+)
+
+matlines(
+  wavs_pr,
+  t(ciso_lib_anchored$scaling$local_x_center),
+  col = rgb(0, 0, 1, 0.3),
+  lty = 1
+)
+
+grid(lty = 1)
+
+legend(
+  "topright",
+  legend = c("Samples to predict", "Neighborhood centroids"),
+  col = c(rgb(1, 0, 0, 0.8), rgb(0, 0, 1, 0.8)),
+  lty = 1,
+  lwd = 2,
+  bty = "n"
+)
+```
+
+# Prediction
+
+The `predict()` method retrieves relevant experts for each new observation and 
+combines their predictions:
+
+```{r}
+#| label: predict-basic
+ciso_pred <- predict(ciso_lib_k, newdata = test_x, verbose = FALSE)
+
+# Prediction output structure
+names(ciso_pred)
+
+# Main predictions with uncertainty
+head(ciso_pred$predictions)
+```
+
+## Prediction output
+
+The prediction result contains:
+
+| Component | Description |
+|-----------|-------------|
+| `pred` | Weighted mean prediction |
+| `pred_sd` | Weighted standard deviation (uncertainty proxy) |
+| `pred_q*` | Weighted quantiles of expert predictions |
+| `gh` | GH distance (Mahalanobis distance in PLS space) |
+| `min_yr`, `max_yr` | Response range in the neighborhood |
+| `below_min`, `above_max` | Flags for extrapolation |
+
+## Weighting options
+
+The `weighting` argument controls how expert predictions are combined:
+
+```{r}
+#| label: weighting-options
+#| eval: false
+# Gaussian kernel (default)
+predict(ciso_lib_k, newdata = test_x, weighting = "gaussian")
+
+# Tricubic kernel (similar to LOCAL algorithm)
+predict(ciso_lib_k, newdata = test_x, weighting = "tricube")
+
+# Equal weights
+predict(ciso_lib_k, newdata = test_x, weighting = "none")
+```
+
+Available kernels include `"gaussian"`, `"tricube"`, `"triweight"`, 
+`"triangular"`, `"quartic"`, `"parabolic"`, and `"cauchy"`.
+
+## Enforcing specific experts
+
+The `enforce_indices` argument ensures certain experts are always included in 
+the prediction neighborhood. This is useful when some anchors are known to be 
+from the same domain as the target observations.
+
+```{r}
+#| label: enforce-indices
+#| eval: false
+# Always include specific experts in predictions
+predict(ciso_lib_k, newdata = test_x, enforce_indices = c(1, 5, 10))
+```
+
+# Validation and performance
+
+## Evaluation metrics
+
+```{r}
+#| label: evaluation
+pred_values <- ciso_pred$predictions$pred
+pred_sd <- ciso_pred$predictions$pred_sd
+
+# Performance metrics (excluding missing values)
+complete <- !is.na(test_y)
+r2 <- cor(pred_values[complete], test_y[complete])^2
+rmse <- sqrt(mean((pred_values[complete] - test_y[complete])^2))
+
+cat("R²:  ", round(r2, 3), "\n")
+cat("RMSE:", round(rmse, 3), "\n")
+```
+
+## Uncertainty as a quality filter
+
+The prediction standard deviation (`pred_sd`) reflects disagreement among 
+experts and can be used to identify unreliable predictions:
+
+```{r}
+#| label: uncertainty-filter
+# Filter predictions by uncertainty threshold
+unc_threshold <- quantile(pred_sd[complete], 0.75)
+reliable <- complete & (pred_sd < unc_threshold)
+
+r2_filtered <- cor(pred_values[reliable], test_y[reliable])^2
+rmse_filtered <- sqrt(mean((pred_values[reliable] - test_y[reliable])^2))
+
+cat("After filtering high-uncertainty predictions:\n")
+cat("  Retained:", sum(reliable), "/", sum(complete), "observations\n")
+cat("  R²:      ", round(r2_filtered, 3), "\n")
+cat("  RMSE:    ", round(rmse_filtered, 3), "\n")
+```
+
+## Visualization
+
+```{r}
+#| label: fig-validation
+#| fig-cap: "Predicted versus observed values"
+#| fig-width: 6
+#| fig-height: 5
+#| fig-align: center
+lims <- range(pred_values[complete], test_y[complete], na.rm = TRUE)
+
+plot(
+  pred_values[complete],
+  test_y[complete],
+  pch = 16,
+  col = rgb(0, 0, 0, 0.5),
+  xlab = "Predicted",
+  ylab = "Observed",
+  xlim = lims,
+  ylim = lims
+)
+
+abline(0, 1, col = "red", lwd = 2)
+grid(lty = 1)
+```
+
+# Comparison with classical MBL
+
+The key difference between `liblex()` and `mbl()` is when models are fitted:
+
+| Aspect | `mbl()` | `liblex()` |
+|--------|---------|------------|
+| Model fitting | Per query (on demand) | Once (build phase) |
+| Prediction | Fit + predict | Retrieve + combine |
+| Storage | Reference library | Coefficients + centroids |
+| Uncertainty | Requires resampling | Intrinsic (expert dispersion) |
+
+For applications requiring repeated predictions on new data, `liblex()` offers 
+computational advantages once the library is built.
+
+# Parallel processing
+
+The `liblex()` function supports parallel execution via the `foreach` package. 
+Register a parallel backend before calling `liblex()`:
+ 
+```{r}
+#| label: parallel-example
+#| eval: false
+library(doParallel)
+
+# Register parallel backend
+n_cores <- min(parallel::detectCores() - 1, 4)
+cl <- makeCluster(n_cores)
+registerDoParallel(cl)
+
+# Build library with parallel processing
+ciso_lib_parallel <- liblex(
+  Xr = train_x, 
+  Yr = train_y, 
+  neighbors = neighbors_k(seq(40, 120, by = 20)),
+  diss_method = diss_correlation(ws = 37, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 3,
+    max_ncomp = 15,
+    scale = TRUE,
+    method = "mpls"
+  ),
+  control = liblex_control(
+    tune = TRUE,
+    allow_parallel = TRUE,
+    chunk_size = 10
+  )
+)
+
+# Clean up
+stopCluster(cl)
+registerDoSEQ()
+```
+
+The `chunk_size` parameter in `liblex_control()` controls how many models are 
+processed per parallel task. Larger values reduce scheduling overhead but may 
+cause load imbalance.
+
+# Summary
+
+The `liblex()` function provides a retrieval-based approach to memory-based 
+learning that separates model building from prediction. Key features include:
+
+- Pre-computed library of local waPLS experts
+- Retrieval-gated prediction via centroid similarity
+- Intrinsic uncertainty quantification through expert dispersion
+- Support for anchor subsampling to handle large libraries (e.g., via `naes()`)
+- Flexible weighting schemes for combining expert predictions
+
+For large spectral libraries where predictions need to be made repeatedly, 
+this approach offers efficiency and interpretability advantages over 
+traditional per-query refitting methods.
+
+# References {-}
 
 
 
@@ -44,8 +580,3 @@ they do not use 20 samples ... samples are duplicated
 
 the custiomer does not have idea of chemometrics do not blame them
 8 samples (not 20)
-
-
-# Chosing anchor samples
-
-# References {-}
