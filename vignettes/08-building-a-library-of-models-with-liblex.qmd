@@ -137,10 +137,14 @@ or `neighbors_diss()` for threshold-based selection. Multiple values can be
 provided for hyperparameter tuning.
 
 ```{r}
-#| label: neighbors-example
+#| label: neighbors-example1
 # Fixed neighborhood sizes to evaluate
 neighbors_k(k = seq(40, 120, by = 20))
+```
 
+
+```{r}
+#| label: neighbors-example2
 # Threshold-based selection with bounds
 neighbors_diss(
   threshold = seq(0.05, 0.5, length.out = 10), 
@@ -152,9 +156,8 @@ neighbors_diss(
 ## Dissimilarity methods
 
 The dissimilarity measure determines how neighbors are identified. Available 
-methods include `diss_pca()`, `diss_pls()`, `diss_correlation()`, and 
-`diss_euclidean()`. The moving-window correlation dissimilarity is particularly 
-effective for spectral data:
+methods include `diss_pca()`, `diss_pls()`, `diss_correlation()`, 
+`diss_cosine()`, etc (see the `dissimilarity()` function for all methods). The moving-window correlation dissimilarity is particularly effective for spectral data:
 
 ```{r}
 #| label: diss-example
@@ -162,7 +165,7 @@ effective for spectral data:
 diss_correlation(ws = 37, scale = TRUE)
 
 # PCA-based Mahalanobis distance with optimized components
-diss_pca(ncomp = ncomp_by_opc())
+diss_pca()
 ```
 
 ## Fitting method
@@ -194,13 +197,14 @@ The `liblex_control()` function specifies operational settings:
 
 ```{r}
 #| label: control-example
+#| eval: false
 # Build library with hyperparameter tuning
 liblex_control(mode = "build", tune = TRUE)
 ```
 
 # Building a library of models
 
-## Using fixed neighborhood size
+## Using fixed neighborhood size(s)
 
 The following example builds a library using fixed-$k$ neighbor selection with 
 moving-window correlation dissimilarity:
@@ -250,6 +254,8 @@ ciso_lib_k <- liblex(
 ciso_lib_k
 ```
 
+The plot method for liblex objects visualizes the performance of the fitted experts across different neighborhood sizes and shows the centroids of the neighborhoods. @fig-liblex shows the resulting plots for the library built with fixed neighborhood sizes. The top panel compares the performance of the best model obtained for each neighborhood size based on the RMSE, while the bottom panel displays the centroids of the neighborhoods, which are used later in prediction to select the models to be used.
+
 ```{r}
 #| label: fig-liblex
 #| fig-cap: "Top: Best model obatined for each neighborhood size (based on the RMSE). Bottom: Centroids of the neighborhoods, usled later in prediction to selet the models to be used."
@@ -259,14 +265,18 @@ ciso_lib_k
 plot(ciso_lib_k)
 ```
 
+The centroids in @fig-liblex represent the average spectra of the neighbors for each expert. During prediction, the similarity between the new observation and these centroids is used to determine which experts to retrieve and how to weight their predictions.
+
 ## Using dissimilarity thresholds
 
 Alternatively, neighbors can be selected based on a dissimilarity threshold. 
 The `k_min` and `k_max` arguments ensure reasonable neighborhood sizes:
 
+
 ```{r}
 #| label: liblex-threshold
 #| cache: true
+#| echo: false
 ciso_lib_thr <- liblex(
   Xr = train_x, 
   Yr = train_y, 
@@ -284,6 +294,30 @@ ciso_lib_thr <- liblex(
   ),
   control = liblex_control(tune = TRUE),
   verbose = FALSE
+)
+
+ciso_lib_thr
+```
+
+```{r}
+#| cache: true
+#| eval: false
+ciso_lib_thr <- liblex(
+  Xr = train_x, 
+  Yr = train_y, 
+  neighbors = neighbors_diss(
+    threshold = seq(0.05, 0.5, length.out = 10), 
+    k_min = 40, 
+    k_max = 150
+  ),
+  diss_method = diss_correlation(ws = 37, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 3,
+    max_ncomp = 15,
+    scale = TRUE,
+    method = "mpls"
+  ),
+  control = liblex_control(tune = TRUE)
 )
 
 ciso_lib_thr
@@ -332,6 +366,86 @@ legend(
 )
 ```
 
+
+
+
+## Visualizing the regression models
+
+The stored regression coefficients provide insight into how different spectral 
+regions contribute to predictions across the library. Each expert model has 
+its own set of coefficients, reflecting the local relationships learned within 
+its neighborhood. @fig-regression-coefficients shows an example of how the regression models can be visualized.
+
+```{r}
+#| label: fig-regression-coefficients
+#| fig-cap: "Regression coefficients (top) and intercept distribution (bottom) of the local experts"
+#| fig-width: 8
+#| fig-height: 7
+#| fig-align: center
+
+par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
+
+# Regression coefficients across wavelengths
+models <- ciso_lib_k$coefficients
+
+matplot(
+  x = wavs_pr,
+  y = t(models$B),
+  type = "l",
+  lty = 1,
+  col = rgb(0.23, 0.51, 0.96, 0.15),
+  xlab = "Wavelength (nm)",
+  ylab = "Regression coefficient",
+  main = paste0("Regression coefficients (", nrow(models$B), " experts)")
+)
+
+# Add mean coefficient profile
+lines(wavs_pr, colMeans(models$B), col = "red", lwd = 2)
+grid(lty = 1)
+legend(
+  "topright",
+  legend = c("Individual experts", "Mean"),
+  col = c(rgb(0.23, 0.51, 0.96, 0.6), "red"),
+  lty = 1,
+  lwd = c(1, 2),
+  bty = "n"
+)
+
+# Distribution of intercepts
+plot(
+  density(models$B0, na.rm = TRUE),
+  col = rgb(0.23, 0.51, 0.96),
+  lwd = 2,
+  xlab = "Intercept value",
+  ylab = "Density",
+  main = "Distribution of intercepts"
+)
+polygon(
+  density(models$B0, na.rm = TRUE),
+  col = rgb(0.23, 0.51, 0.96, 0.2),
+  border = NA
+)
+abline(v = mean(models$B0, na.rm = TRUE), col = "red", lty = 2, lwd = 2)
+grid(lty = 1)
+legend(
+  "topright",
+  legend = c("Density", "Mean"),
+  col = c(rgb(0.23, 0.51, 0.96), "red"),
+  lty = c(1, 2),
+  lwd = 2,
+  bty = "n"
+)
+
+par(mfrow = c(1, 1))
+```
+
+The top panel shows regression coefficients for each expert model across the 
+spectral range, with the mean profile highlighted in red. Regions with high 
+coefficient variability indicate wavelengths where local relationships differ 
+substantially across the reference set. The bottom panel shows the distribution 
+of intercepts, reflecting the range of baseline predictions across experts.
+
+
 # Choosing anchor samples
 
 For large libraries, building models for every observation may be 
@@ -341,23 +455,26 @@ neighbor retrieval.
 
 ## Using k-means sampling
 
-The `naes()` function from the `prospectr` package implements Kennard-Stone 
-and k-means sampling algorithms, which are effective for selecting 
+The `naes()` function from the `prospectr` package implements the _k_-means sampling algorithm, which is a reasonable approach for selecting 
 representative anchor samples:
 
 ```{r}
 #| label: kmeans-anchors
-# Select 50 representative anchors using k-means sampling
-# on the first 10 principal components
-anchor_km <- naes(
+# Select 350 representative anchors using k-means sampling
+# on the first 20 principal components
+set.seed(1124)
+kms <- naes(
   train_x, 
-  k = 50, 
-  pc = 10, 
+  k = 350, 
+  pc = 20, 
+  iter.max = 100,
   .center = TRUE, 
   .scale = TRUE
 )
 
-cat("Selected", length(anchor_km$model), "anchors via k-means\n")
+anchor_km <- kms$model
+
+cat("Selected", length(anchor_km), "anchors via k-means\n")
 ```
 
 ## Building the library with selected anchors
@@ -365,6 +482,7 @@ cat("Selected", length(anchor_km$model), "anchors via k-means\n")
 ```{r}
 #| label: liblex-anchored
 #| cache: true
+#| echo: false
 ciso_lib_anchored <- liblex(
   Xr = train_x, 
   Yr = train_y, 
@@ -376,7 +494,7 @@ ciso_lib_anchored <- liblex(
     scale = TRUE,
     method = "mpls"
   ),
-  anchor_indices = anchor_km$model,
+  anchor_indices = anchor_km,
   control = liblex_control(tune = TRUE),
   verbose = FALSE
 )
@@ -384,42 +502,89 @@ ciso_lib_anchored <- liblex(
 ciso_lib_anchored
 ```
 
+
+
+```{r}
+#| cache: true
+#| eval: false
+ciso_lib_anchored <- liblex(
+  Xr = train_x, 
+  Yr = train_y, 
+  neighbors = neighbors_k(seq(40, 120, by = 20)),
+  diss_method = diss_correlation(ws = 37, scale = TRUE),
+  fit_method = fit_wapls(
+    min_ncomp = 3,
+    max_ncomp = 15,
+    scale = TRUE,
+    method = "mpls"
+  ),
+  anchor_indices = anchor_km,
+  control = liblex_control(tune = TRUE)
+)
+
+ciso_lib_anchored
+```
+the final number of models here can be verifyied by looking at the number of rows in the `ciso_lib_anchored$coefficients$B` matrix, which contains regression coefficients for each expert. 
+
+```{r}
+# Number of experts in the anchored library
+n_experts <- nrow(ciso_lib_anchored$coefficients$B)
+cat("Number of experts in the anchored library:", n_experts, "\n")
+```
+
+
+Is good practice to compare the spectra of the samples to be predicted against the centroids of the models stored in the library. @fig-centroids-anchored shows the centroids of the anchored library compared to the test spectra. This visualization helps assess whether the selected anchors provide good coverage of the spectral space of the test samples, which is crucial for reliable predictions.
+
+
+
 ```{r}
 #| label: fig-centroids-anchored
-#| fig-cap: "Neighborhood centroids from anchored library (50 experts)"
+#| fig-cap: "Neighborhood centroids from anchored library compared to test spectra"
 #| fig-width: 8
 #| fig-height: 5
 #| fig-align: center
-wavs_pr <- as.numeric(colnames(ciso_lib_anchored$scaling$local_x_center))
 
+wavs_pr <- as.numeric(colnames(ciso_lib_anchored$scaling$local_x_center))
+n_experts <- nrow(ciso_lib_anchored$scaling$local_x_center)
+n_test <- nrow(test_x)
+
+# Plot test spectra first (background)
 matplot(
   wavs_pr,
   t(test_x),
-  col = rgb(1, 0, 0, 0.3),
+  col = rgb(0.8, 0.2, 0.2, 0.2),
   lty = 1,
   type = "l",
   xlab = "Wavelength (nm)",
-  ylab = "First derivative detrended absorbance"
+  ylab = "First derivative detrended absorbance",
+  main = paste0("Coverage: ", n_experts, " experts vs ", n_test, " test samples")
 )
 
+# Overlay centroids
 matlines(
   wavs_pr,
   t(ciso_lib_anchored$scaling$local_x_center),
-  col = rgb(0, 0, 1, 0.3),
+  col = rgb(0.23, 0.51, 0.96, 0.3),
   lty = 1
 )
-
 grid(lty = 1)
 
 legend(
   "topright",
-  legend = c("Samples to predict", "Neighborhood centroids"),
-  col = c(rgb(1, 0, 0, 0.8), rgb(0, 0, 1, 0.8)),
+  legend = c(
+    paste0("Test samples (n = ", n_test, ")"),
+    paste0("Centroids (n = ", n_experts, ")")
+  ),
+  col = c(
+    rgb(0.8, 0.2, 0.2, 0.5),
+    rgb(0.23, 0.51, 0.96, 0.5)
+  ),
   lty = 1,
-  lwd = 2,
+  lwd = c(1, 1, 2, 2),
   bty = "n"
 )
 ```
+
 
 # Prediction
 
@@ -555,7 +720,7 @@ The key difference between `liblex()` and `mbl()` is when models are fitted:
 | Model fitting | Per query (on demand) | Once (build phase) |
 | Prediction | Fit + predict | Retrieve + combine |
 | Storage | Reference library | Coefficients + centroids |
-| Uncertainty | Requires resampling | Intrinsic (expert dispersion) |
+| Uncertainty | Typically requires resampling | Intrinsic (expert dispersion) |
 
 For applications requiring repeated predictions on new data, `liblex()` offers 
 computational advantages once the library is built.
@@ -620,11 +785,3 @@ traditional per-query refitting methods.
 
 # References {-}
 
-
-
-regession coefficients are not shown
-commas and points as decimal separators
-they do not use 20 samples ... samples are duplicated
-
-the custiomer does not have idea of chemometrics do not blame them
-8 samples (not 20)
