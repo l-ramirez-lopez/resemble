@@ -258,7 +258,7 @@ The plot method for liblex objects visualizes the performance of the fitted expe
 
 ```{r}
 #| label: fig-liblex
-#| fig-cap: "Top: Best model obatined for each neighborhood size (based on the RMSE). Bottom: Centroids of the neighborhoods, usled later in prediction to selet the models to be used."
+#| fig-cap: "Top: Best model obtained for each neighborhood size (based on the RMSE). Bottom: Centroids of the neighborhoods, usled later in prediction to selet the models to be used."
 #| fig-align: "center"
 #| fig-width: 7.5
 #| fig-height: 6.5
