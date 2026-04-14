@@ -1,0 +1,69 @@
+set -eu
+
+echo "==> checking OpenMP support"
+OPENMP_CXXFLAGS=""
+OPENMP_LIBS=""
+UNAME=$(uname -s || echo "")
+
+# Try to find Homebrew/MacPorts libomp (macOS)
+if [ "$UNAME" = "Darwin" ]; then
+  echo "   macOS detected; probing Homebrew/MacPorts for libomp..."
+  BREW_PREFIX=""
+  if command -v brew >/dev/null 2>&1; then
+    # Prefer libomp keg; otherwise use llvm's bundled libomp
+    BREW_PREFIX=$(brew --prefix libomp 2>/dev/null || true)
+    [ -z "$BREW_PREFIX" ] && BREW_PREFIX=$(brew --prefix llvm 2>/dev/null || true)
+  fi
+  # Common fallbacks for Intel and Apple Silicon
+  [ -z "$BREW_PREFIX" ] && [ -d /opt/homebrew/opt/libomp ] && BREW_PREFIX=/opt/homebrew/opt/libomp
+  [ -z "$BREW_PREFIX" ] && [ -d /usr/local/opt/libomp ]   && BREW_PREFIX=/usr/local/opt/libomp
+  # MacPorts
+  if [ -z "$BREW_PREFIX" ] && [ -d /opt/local/lib/libomp ]; then
+    OPENMP_CXXFLAGS="-Xpreprocessor -fopenmp -I/opt/local/include/libomp"
+    OPENMP_LIBS="-L/opt/local/lib/libomp -lomp"
+  elif [ -n "$BREW_PREFIX" ]; then
+    OPENMP_CXXFLAGS="-Xpreprocessor -fopenmp -I${BREW_PREFIX}/include"
+    OPENMP_LIBS="-L${BREW_PREFIX}/lib -lomp"
+  fi
+else
+  # Linux/others: GCC/Clang generally use -fopenmp
+  OPENMP_CXXFLAGS="-fopenmp"
+  OPENMP_LIBS="-fopenmp"
+fi
+
+# Tiny compile+link test
+cat > conftest.cpp <<'EOF'
+#include <cstdlib>
+#ifdef _OPENMP
+  #include <omp.h>
+#endif
+int main() {
+  int n = 0;
+  #ifdef _OPENMP
+  #pragma omp parallel reduction(+:n)
+  { n += 1; }
+  #endif
+  return (n>=0)?0:1;
+}
+EOF
+
+CXXCMD=${CXX:-c++}
+if ${CXXCMD} ${CPPFLAGS:-} ${CXXFLAGS:-} ${OPENMP_CXXFLAGS} -c conftest.cpp -o conftest.o >/dev/null 2>&1 &&
+   ${CXXCMD} conftest.o ${LDFLAGS:-} ${OPENMP_LIBS} -o conftest >/dev/null 2>&1; then
+  echo "   OpenMP: yes"
+else
+  echo "   OpenMP: no (building single-threaded)"
+  OPENMP_CXXFLAGS=""
+  OPENMP_LIBS=""
+fi
+rm -f conftest.cpp conftest.o conftest
+
+# Emit flags for Makevars to include
+mkdir -p src
+{
+  echo "SHLIB_OPENMP_CXXFLAGS=${OPENMP_CXXFLAGS}"
+  echo "OPENMP_LIBS=${OPENMP_LIBS}"
+} > src/Makevars.omp
+
+echo "   SHLIB_OPENMP_CXXFLAGS='${OPENMP_CXXFLAGS}'"
+echo "   OPENMP_LIBS='${OPENMP_LIBS}'"

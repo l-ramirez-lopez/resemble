@@ -1,5 +1,14 @@
 # resemble
 
+# version 2.2.5
+
+Dear CRAN maintainers,
+I am submitting my package "resemble" to CRAN. This version fixes problems related to deprecated dependencies in RcppArmadillo. 
+Prior to this submission, this tarball has been checked with in the winbuilder service. 
+Best regards,
+Leonardo
+
+
 # version 2.2.4
 
 Dear CRAN maintainers,

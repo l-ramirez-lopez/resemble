@@ -78,8 +78,11 @@ the group of neighbors of each observation to be predicted, the nearest observat
 using the remaining neighbors. This model is then used to predict the value
 of the target response variable of the nearest observation. These predicted
 values are finally cross validated with the actual values (See Ramirez-Lopez
-et al. (2013a) for additional details). This method is faster than
-\code{"local_cv"}.}
+et al. (2013a) for additional details). If the nearest sample belongs to a
+group of samples that are labelled (through the \code{group} argument in
+\code{\link{mbl}}, then these samples are all excluded from the temporary
+local fit used for the validation step). This validation method is faster
+than \code{"local_cv"}.}
 \item{Local leave-group-out cross-validation (\code{"local_cv"}): The
 group of neighbors of each observation to be predicted is partitioned into
 different equal size subsets. Each partition is selected based on a

@@ -631,6 +631,14 @@ pls_projection <- function(Xr, Xu = NULL, Yr,
     if (!is.numeric(Yr)) {
       stop("'Yr' must be a numeric matrix")
     }
+    if (nrow(Yr) != nrow(Xr)) {
+      stop(
+        paste0(
+          "The number of observations in 'Yr' does not match with the ",
+          "number of observations in 'Xr'"
+        )
+      )
+    }
   }
 
   if (!is.null(Xu)) {

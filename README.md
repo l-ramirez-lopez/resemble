@@ -9,9 +9,9 @@
 
 <!-- badges: end -->
 
-*Last update: 2025-05-20*
+*Last update: 2025-10-17*
 
-Version: 2.2.4 – olbap
+Version: 2.2.5 – dstatements
 
 <em>
 <p align="right">
@@ -205,6 +205,218 @@ set of p-dimesnional variables.
 Simply type and you will get the info you need:
 
     citation(package = "resemble")
+
+## News: Memory based learnig (MBL) and `resemble`
+
+-   **2025.10:** [Summerauer et al.,
+    2025](https://doi.org/10.5194/egusphere-2025-4625) used `resemble`
+    for MBL modelling of soil physico-chemical properties from infrared
+    spectra across tropical hillslopes in Eastern Africa. The study
+    revealed severe soil degradation and SOC losses (up to –69 %)
+    following deforestation, with limited recovery from Eucalyptus
+    reforestation.
+
+-   **2025.05:** [Sun and Shi,
+    2025](https://doi.org/10.1016/j.geoderma.2025.117298) introduced a
+    local MBL-style strategy combining spectral and geographical
+    similarity for SOC prediction from RGB, DRS, and Sentinel-2 data;
+    local PLSR outperformed global models and maintained accuracy across
+    scales.
+
+-   **2025.03:** [Breure et al.,
+    2025](https://doi.org/10.1038/s41467-025-57355-y) published in
+    *Nature Communications*: `resemble` used to model NIR–soil property
+    relations for particulate and mineral-associated organic carbon
+    across European agricultural soils, enabling an EU-wide SOC risk
+    index based on effective MAOC capacity and observed SOC change.
+
+-   **2025.03:** [Purushothaman et al.,
+    2025](https://doi.org/10.1109/TGRS.2025.3569059) applied MBL
+    (`resemble`) to BRDF-corrected AVIRIS-NG hyperspectral data for
+    predicting soil properties in India; BRDF correction improved
+    accuracy (R² up to 0.83) and reduced RMSE by up to 47 %, enabling 5
+    m mapping.
+
+-   **2025.03:** [Kohlmann et al.,
+    2025](https://doi.org/10.1002/jpln.202400364) fused vis–NIR and MIR
+    with SVMR to predict total organic C, biochar C and native SOC in
+    loess soils; cited MBL as a localisation strategy alongside spiking
+    for site-specific transferability.
+
+-   **2025.02:** Adam & Jackisch (LfULG report; no DOI). MIR-DRIFTS
+    soil-C monitoring workflow, regional spectral library; compared
+    PLSR, Cubist and MBL (`resemble`). (Leave unlinked or link to an
+    institutional page if available.)
+
+-   **2025.01:** [Dai et al.,
+    2025](https://doi.org/10.1016/j.still.2024.106297) used MBL and
+    non-linear MBL (N-MBL) for POC and MAOC from VNIR in Guangdong;
+    local `resemble` models outperformed global ML (Cubist, PLSR, RF).
+
+-   **2024.12:** [Asrat et al.,
+    2024](https://doi.org/10.1016/j.geoderma.2024.117116) MBL
+    (`resemble`) for local calibration sample selection in the Moroccan
+    Soil Spectral Library; improved prediction of Olsen P, pH, CEC vs
+    global PLSR.
+
+-   **2024.11:** [Dai et al.,
+    2024](https://doi.org/10.1016/j.seh.2024.100113) used VNIR lab and
+    in-situ spectra from wheat–rice fields in SE China (n=202) to
+    predict SOC, POC, MAOC; PLSR/MBL performed best (lab SOC R² up to
+    0.91), and EPO gave modest in-situ gains, indicating feasible
+    in-situ monitoring under low soil moisture.
+
+-   **2024.10:** [Lippolis et al.,
+    2024](https://doi.org/10.1016/j.fochx.2024.101583) MBL (`resemble`)
+    for high-throughput NIR prediction of faba bean seed traits;
+    compared with PLS, Elastic Net and Bayes-B.
+
+-   **2024.09:** [Barbetti et al.,
+    2024](https://doi.org/10.1109/TAFE.2024.3449215) MBL to detect SOC
+    changes in long-term experiments using vis–NIR; R² up to 0.91;
+    compared with Cubist, SVM and RF.
+
+-   **2024.09:** [Moloney et al.,
+    2024](https://doi.org/10.1016/j.soisec.2024.100161) MBL with the NZ
+    Soil Spectral Library for SOC, TN and pH in Tonga; supplementing
+    with small local sets markedly improved accuracy.
+
+-   **2024.08:** [Sherman et al.,
+    2024](https://doi.org/10.1002/gea.22014) MBL with NIR for
+    non-destructive characterisation of silicate materials
+    (geoarchaeology).
+
+-   **2023.11:** [Wang et al.,
+    2023](https://doi.org/10.1016/j.geoderma.2023.116752) N-MBL (MBL +
+    RF within local fitting) improved regional vis–NIR models for SOM,
+    TN, TP vs MBL/PLSR/Cubist/SVM/CNN.
+
+-   **2023.04:** [Zhao et al.,
+    2023](https://doi.org/10.1016/j.still.2023.105718) used MBL
+    (`resemble`) + compositional data analysis to quantify soil
+    properties relevant to SOC biogeochemical cycles from IR spectra.
+
+-   **2022:** [Sanderman et al.,
+    2022](https://doi.org/10.1002/saj2.20513) evaluated transferability
+    of large MIR spectral databases across instruments; MBL via
+    `resemble`.
+
+-   **2022:** [Dangal et al.,
+    2022](https://doi.org/10.1029/2021MS002622) improved soil carbon
+    estimates; `resemble` used within the workflow.
+
+-   **2022.01:** [Ng et al.,
+    2022](https://doi.org/10.1016/j.geoderma.2021.115501) showed that
+    “spiking” regional Vis–NIR libraries with local samples does not
+    outperform localized models. Using Australian soils, they found that
+    memory-based learning (MBL) yield better local SOC predictions. They
+    used `resemble`.
+
+-   **2021.12:** [Yu et al., 2022](https://doi.org/10.3390/rs14061303)
+    MBL with External Parameter Orthogonalization for field prediction
+    of soil properties.
+
+-   **2021.10:** [Ramirez-Lopez et al.,
+    2021](https://soil.copernicus.org/articles/7/693/2021/) MBL to
+    predict soil properties in Africa.
+
+-   **2020.08:** Charlotte Rivard’s MIR MBL tutorial:
+    <https://whrc.github.io/Soil-Predictions-MIR/>
+
+-   **2020.04:** [Tsakiridis et al.,
+    2020](https://doi.org/10.1016/j.geoderma.2020.114208) used optimal
+    principal-components dissimilarity with CNNs for simultaneous
+    vis–NIR prediction.
+
+-   **2019.04:** [Tziolas et al.,
+    2019](https://doi.org/10.1016/j.geoderma.2019.113888) improved MBL
+    for quantitative soil predictions using NIR + geographic
+    information.
+
+-   **2019.03 & 2019.08:** [Tsakiridis et al.,
+    2019a](https://doi.org/10.1016/j.neucom.2019.12.084),
+    [2019b](https://doi.org/10.1016/j.apm.2019.04.019) compared ML
+    methods for predictive soil spectroscopy; MBL (`resemble`) highly
+    competitive.
+
+-   **2020.01:** [Sanderman et al.,
+    2020](https://doi.org/10.1002/saj2.20009) MIR spectroscopy for
+    prediction of soil health indicators in the United States; MBL and
+    Cubist excelled.
+
+-   **2019.03:** [Ramirez-Lopez et al.,
+    2019](https://doi.org/10.1111/ejss.12752) used MBL in digital soil
+    mapping (farm-scale vis–NIR); here MBL removed local calibration
+    outliers.
+
+-   **2019.01:** [Dangal et al.,
+    2019](https://doi.org/10.3390/soilsystems3010011) `resemble` for MIR
+    modelling from a continental US soil spectral library.
+
+-   **2019.03:** [Jaconi et al.,
+    2019](https://doi.org/10.1016/j.geoderma.2018.11.042) MBL
+    (`resemble`) for national-scale NIR texture predictions in Germany.
+
+-   **2018.12:** [Hong/Chen et al.,
+    2019](https://doi.org/10.1016/j.catena.2018.09.025) fractional-order
+    derivatives + MBL (`resemble`) improved NIR prediction of SOM in
+    China.
+
+-   **2018.11:** Rivera et al., 2018 — *Frontiers in Plant Science*
+    (common beans). (If you keep this, link the article’s DOI from
+    Frontiers; avoid Google Scholar.)
+
+-   **2018.07:** [Gholizadeh et al.,
+    2018](https://doi.org/10.3390/rs10081172) soil-carbon modelling with
+    `resemble`.
+
+-   **2018.01:** [Dotto et al.,
+    2018](https://doi.org/10.1016/j.geoderma.2017.11.028) MBL
+    (`resemble`) for SOC prediction in Brazil.
+
+-   **2017.11:** Kopf et al., 2017 (KIT Scientific Publishing, OCM 2017
+    proceedings). (Conference chapter/book—use the publisher page if you
+    want a link; the Google Books preview can trigger CRAN URL notes.)
+
+-   **2016.05:** [Clairotte et al.,
+    2016](https://doi.org/10.1016/j.geoderma.2016.04.021) national-scale
+    SOC from diffuse IR spectroscopy.
+
+-   **2016.04:** [Viscarra Rossel et al.,
+    2016](https://doi.org/10.3390/rs8040341) memory-based learning
+    applied to predict soil properties.
+
+-   **2016.04:** Blog examples on `resemble`:
+    <http://nir-quimiometria.blogspot.com/> (keep as plain HTTP; it’s
+    fine for CRAN).
+
+-   **2016.02:** `resemble` on CRAN:
+    <https://CRAN.R-project.org/package=resemble>
+
+-   **2016.01:** `resemble` 1.2 submitted to CRAN; development on
+    GitHub.
+
+-   **2015.11:** 1.2.0 prerelease; core routines moved to C++ via Rcpp
+    for speed.
+
+-   **2015.11:** 1.1.3 never released to CRAN due to performance
+    refactor.
+
+-   **2014.10:** 1.1.3 prerelease (website); pending CRAN at the time.
+
+-   **2014.06:** Video on local calibrations:
+    <https://www.youtube.com/watch?v=7sCIEeNehgE>
+
+-   **2014.03:** First CRAN release of `resemble`.
+
+## Other R’elated stuff
+
+-   [Check our other project called
+    `prospectr`.](https://github.com/l-ramirez-lopez/prospectr)
+-   [Check this presentation in which we used the resemble package to
+    predict soil attributes from large scale soil spectral
+    libraries.](https://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
+    <https://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf>
 
 ## Bug report and development version
 
