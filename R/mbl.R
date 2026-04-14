@@ -23,6 +23,8 @@
 #'
 #' @usage \method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
 #'
+#' @usage get_predictions(x, ...)
+#' 
 #' @param Xr A matrix of predictor variables for the reference data
 #'   (observations in rows, variables in columns). Column names are required.
 #' @param Yr A numeric vector or single-column matrix of response values
@@ -149,7 +151,9 @@
 #' \code{p} parameter refers to the proportion of groups (not observations)
 #' retained per iteration.
 #'
-#' @return A list of class \code{mbl} containing:
+#' @return 
+#' ## mbl  
+#' For \code{mbl()}, a list of class \code{mbl} containing:
 #' \itemize{
 #'   \item \code{control}: control parameters from \code{control}
 #'   \item \code{fit_method}: fit constructor from \code{fit_method} 
@@ -185,7 +189,13 @@
 #'     statistics
 #'   \item \code{loc_ncomp}: (local dissimilarity only) components used locally
 #' }
+#' 
+#' ## Get predictions
 #'
+#' The \code{get_predictions()} function extracts predicted values from an
+#' object of class \code{mbl}. It returns a \code{data.frame} containing the
+#' predictions.
+#' 
 #' @author
 #' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and
 #' Antoine Stevens
@@ -1729,3 +1739,21 @@ plot.mbl <- function(x,
           col = rgb(0.3, 0.3, 0.3, 0.3), lty = 1, lwd = 0.5)
   }
 }
+
+
+
+#' @aliases mbl
+#' @export
+get_predictions <- function(x) {
+  if (is.na(match("mbl", class(x)))) {
+    stop("the object is not of class 'mbl'")
+  }
+  
+  ext_pred <- function(x, ...) {
+    prediction <- x$pred
+    return(prediction)
+  }
+  predictions <- data.frame(sapply(x$results, ext_pred))
+  return(predictions)
+}
+

@@ -17,6 +17,8 @@ mbl(Xr, Yr, Xu, Yu = NULL,
     center, scale, documentation, ...)
 
 \method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
+
+get_predictions(x, ...)
 }
 \arguments{
 \item{Xr}{A matrix of predictor variables for the reference data
@@ -131,7 +133,9 @@ to plot. Default is \code{c(1, 2)}. Only used when \code{"gh"} is in
 \code{what}.}
 }
 \value{
-A list of class \code{mbl} containing:
+\subsection{mbl}{
+
+For \code{mbl()}, a list of class \code{mbl} containing:
 \itemize{
 \item \code{control}: control parameters from \code{control}
 \item \code{fit_method}: fit constructor from \code{fit_method}
@@ -166,6 +170,14 @@ indices
 \item \code{loc_rmse_cv}, \code{loc_st_rmse_cv}: (local_cv validation) CV
 statistics
 \item \code{loc_ncomp}: (local dissimilarity only) components used locally
+}
+}
+
+\subsection{Get predictions}{
+
+The \code{get_predictions()} function extracts predicted values from an
+object of class \code{mbl}. It returns a \code{data.frame} containing the
+predictions.
 }
 }
 \description{
