@@ -17,7 +17,7 @@ format:
     code-overflow: wrap
     smooth-scroll: true
 vignette: >
-  %\VignetteIndexEntry{Dimensionality reduction of spectral data}
+  %\VignetteIndexEntry{2. Dimensionality reduction of spectral data}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

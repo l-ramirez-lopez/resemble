@@ -17,7 +17,7 @@ format:
     code-overflow: wrap
     smooth-scroll: true
 vignette: >
-  %\VignetteIndexEntry{Essential concepts and setup}
+  %\VignetteIndexEntry{1. Essential concepts and setup}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

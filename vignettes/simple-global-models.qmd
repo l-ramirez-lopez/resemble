@@ -20,7 +20,7 @@ knitr:
   opts_chunk:
     class-output: "ansi"
 vignette: >
-  %\VignetteIndexEntry{Simple global models}
+  %\VignetteIndexEntry{5. Simple global models}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

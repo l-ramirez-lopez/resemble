@@ -17,7 +17,7 @@ format:
     code-overflow: wrap
     smooth-scroll: true
 vignette: >
-  %\VignetteIndexEntry{Building a library of models with liblex}
+  %\VignetteIndexEntry{8. Building a library of models with liblex}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

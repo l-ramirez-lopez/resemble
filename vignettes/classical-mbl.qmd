@@ -20,7 +20,7 @@ knitr:
   opts_chunk:
     class-output: "ansi"
 vignette: >
-  %\VignetteIndexEntry{Classical memory-based learning (local modelling)}
+  %\VignetteIndexEntry{6. Classical memory-based learning (local modelling)}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

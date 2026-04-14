@@ -17,7 +17,7 @@ format:
     code-overflow: wrap
     smooth-scroll: true
 vignette: >
-  %\VignetteIndexEntry{Evolutionary subset search using gesearch}
+  %\VignetteIndexEntry{7. Evolutionary subset search using gesearch}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---
