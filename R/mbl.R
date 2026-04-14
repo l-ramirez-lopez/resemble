@@ -1,4 +1,6 @@
 #' @title Memory-based learning (mbl)
+#' @name mbl
+#' @aliases mbl plot.mbl get_predictions
 #' @description
 #' \loadmathjax
 #' Memory-based learning (a.k.a. instance-based learning or local regression)
@@ -23,7 +25,7 @@
 #'
 #' @usage \method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
 #'
-#' @usage get_predictions(x, ...)
+#' @usage get_predictions(x)
 #' 
 #' @param Xr A matrix of predictor variables for the reference data
 #'   (observations in rows, variables in columns). Column names are required.
@@ -1433,7 +1435,7 @@ mbl <- function(
   results_list
 }
 
-#' @aliases mbl
+#' @rdname mbl
 #' @export
 plot.mbl <- function(x,
                      what = c("validation", "gh"),

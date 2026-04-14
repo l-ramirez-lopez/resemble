@@ -1,6 +1,6 @@
 #' @title Build a precomputed library of localised experts using memory-based learning
 #' @name liblex
-#' @aliases liblex predict.liblex
+#' @aliases liblex predict.liblex plot.liblex
 #' 
 #' @description
 #' Constructs a library of local predictive models based on memory-based 

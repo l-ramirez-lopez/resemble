@@ -2,6 +2,8 @@
 % Please edit documentation in R/mbl.R
 \name{mbl}
 \alias{mbl}
+\alias{plot.mbl}
+\alias{get_predictions}
 \title{Memory-based learning (mbl)}
 \usage{
 mbl(Xr, Yr, Xu, Yu = NULL,
@@ -18,7 +20,9 @@ mbl(Xr, Yr, Xu, Yu = NULL,
 
 \method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
 
-get_predictions(x, ...)
+get_predictions(x)
+
+\method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
 }
 \arguments{
 \item{Xr}{A matrix of predictor variables for the reference data

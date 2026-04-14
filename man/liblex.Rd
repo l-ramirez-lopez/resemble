@@ -3,6 +3,7 @@
 \name{liblex}
 \alias{liblex}
 \alias{predict.liblex}
+\alias{plot.liblex}
 \title{Build a precomputed library of localised experts using memory-based learning}
 \usage{
 liblex(Xr, Yr, neighbors,

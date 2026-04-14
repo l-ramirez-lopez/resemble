@@ -11,7 +11,7 @@
 ## usethis namespace: end
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats model.frame model.matrix model.extract na.fail sd reshape
-#' @importFrom stats approx median na.omit predict
+#' @importFrom stats approx median na.omit predict setNames
 #' @importFrom utils flush.console tail
 #' @importFrom RhpcBLASctl blas_get_num_procs blas_set_num_threads
 #' @importFrom foreach foreach %dopar%

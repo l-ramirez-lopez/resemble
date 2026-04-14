@@ -1,6 +1,8 @@
-#' @title Orthogonal projections using PCA and PLS
-#'
+#' @title Orthogonal projections
+#' @name ortho_projection
+#' @aliases ortho_projection predict.ortho_projection plot.ortho_projection
 #' @description
+#' 
 #' \loadmathjax
 #' Performs orthogonal projections of high-dimensional data matrices using
 #' principal component analysis (PCA) or partial least squares (PLS).
@@ -349,7 +351,7 @@ pls_projection <- function(
 # predict method
 # =============================================================================
 
-#' @aliases ortho_projection
+#' @rdname ortho_projection
 #' @export
 predict.ortho_projection <- function(object, newdata, ...) {
   if (missing(newdata)) {
