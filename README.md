@@ -1,17 +1,17 @@
-# `resemble` Memory-Based Learning in Spectral Chemometrics
+# `resemble` Sample Retrieval and Local Learning in Spectral Chemometrics
 
 <!-- badges: start -->
 
 ![R-CMD-check](https://github.com/l-ramirez-lopez/resemble/actions/workflows/R-CMD-check.yaml/badge.svg)
-[![codecov](https://codecov.io/gh/l-ramirez-lopez/resemble/branch/main/graph/badge.svg)](https://codecov.io/gh/l-ramirez-lopez/resemble)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/resemble)](https://CRAN.R-project.org/package=resemble)
+[![codecov](https://codecov.io/gh/l-ramirez-lopez/resemble/badge.svg)](https://codecov.io/gh/l-ramirez-lopez/resemble)
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/resemble)](https://CRAN.R-project.org/package=resemble)
 [![Total\_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble)](https://CRAN.R-project.org/package=resemble)
 
 <img align="right" src="./man/figures/logo.png" width="15%">
 
 <!-- badges: end -->
 
-*Last update: 2026-04-03*
+*Last update: 2026-04-14*
 
 Version: 3.0.0 – vortex
 
@@ -24,122 +24,152 @@ Think Globally, Fit Locally (Saul and Roweis, 2003)
 
 ## About
 
-The `resemble` package provides high-performing functionality for
-data-driven modeling (including local modeling), nearest-neighbor search
-and orthogonal projections in spectral data.
+The `resemble` package provides computationally efficient methods for
+dissimilarity analysis and predictive modelling with complex spectral
+data. Its core functionality includes memory-based learning (MBL),
+evolutionary subset search and selection, and retrieval-based modelling
+using pre-computed model libraries. The package is designed to support
+local modelling, spectral library optimization, and model-based
+prediction in large and heterogeneous spectral data sets.
 
-## Vignette
+## Documentation
 
-A new vignette for `resemble` explaining its core functionality is
-available at:
-<https://cran.r-project.org/package=resemble/vignettes/resemble.html>
+The package includes comprehensive vignettes covering all major
+functionality:
+
+1.  **Essential concepts and setup**: Introduction, data preparation,
+    and notation
+2.  **Dimensionality reduction**: PCA and PLS projections with
+    `ortho_projection()`
+3.  **Estimating dissimilarity between spectra**: Dissimilarity methods
+    and evaluation
+4.  **Nearest neighbor search**: Finding similar spectra with
+    `search_neighbors()`
+5.  **Simple global models**: Global calibration with `model()`
+6.  **Classical memory-based learning**: Per-query local modelling with
+    `mbl()`
+7.  **Evolutionary subset search**: Domain-adaptive calibration with
+    `gesearch()`
+8.  **Building a library of models**: Pre-computed experts with
+    `liblex()`
+
+## What’s new in version 3.0
+
+Version 3.0 is a major release with a redesigned API, new modelling
+functions, and improved computational efficiency.
+
+**New modelling functions:**
+
+-   `liblex()`: Builds a library of reusable localized models (experts)
+    that can be stored and reused for prediction without refitting.
+    Based on Ramirez-Lopez et al. (2026b).
+
+-   `gesearch()`: Evolutionary algorithm for selecting optimal subsets
+    from large spectral libraries to build context-specific
+    calibrations. Based on Ramirez-Lopez et al. (2026a).
+
+-   `model()`: Fits global PLS or GPR calibration models with
+    cross-validation.
+
+**Redesigned dissimilarity interface:**
+
+The dissimilarity system now uses constructor functions:
+
+-   `diss_pca()`, `diss_pls()`: Mahalanobis distance in projection space
+-   `diss_correlation()`: Correlation-based dissimilarity (including
+    moving window)
+-   `diss_euclidean()`, `diss_mahalanobis()`, `diss_cosine()`: Distance
+    metrics
+
+Component selection via `ncomp_by_var()`, `ncomp_by_cumvar()`,
+`ncomp_by_opc()`, or `ncomp_fixed()`.
+
+**Redesigned neighbor and fitting interfaces:**
+
+-   `neighbors_k()`, `neighbors_diss()`: Neighbor selection constructors
+-   `fit_pls()`, `fit_wapls()`, `fit_gpr()`: Local fitting constructors
+    (replace `local_fit_*()` functions)
+
+**Breaking changes in `mbl()`:**
+
+-   `k`, `k_diss`, `k_range` replaced by `neighbors` argument
+-   `method` renamed to `fit_method`
+-   `center` and `scale` removed; now controlled within constructors
+
+See `NEWS.md` for full details on deprecated and removed functions.
 
 ## Core functionality
 
-The core functionality of the package can be summarized into the
-following functions:
+**Dimensionality reduction:**
 
-**`mbl`**: implements memory-based learning (MBL) for modeling and
-predicting continuous response variables. For example, it can be used to
-reproduce the famous LOCAL algorithm proposed by Shenk et al. (1997). In
-general, this function allows you to easily customize your own MBL
-regression-prediction method.
+-   `ortho_projection()`: PCA or PLS projection with multiple algorithms
+    (SVD, NIPALS, SIMPLS)
 
-**`dissimilarity`**: Computes dissimilarity matrices based on various
-methods (e.g. Euclidean, Mahalanobis, cosine, correlation, moving
-correlation, Spectral information divergence, principal components
-dissimilarity and partial least squares dissimilarity).
+**Computing dissimilarity matrices:**
 
-**`ortho_projection`**: A function for dimensionality reduction using
-either principal component analysis or partial least squares (a.k.a
-projection to latent structures).
+-   `dissimilarity()`: Main interface for dissimilarity computation
+-   `diss_pca()`, `diss_pls()`, `diss_correlation()`,
+    `diss_euclidean()`, `diss_mahalanobis()`, `diss_cosine()`: Method
+    constructors
+-   `diss_evaluate()`: Evaluate dissimilarity matrices using side
+    information
 
-**`search_neighbors`**: A function to efficiently retrieve from a
-reference set the k-nearest neighbors of another given dataset.
+**Neighbor search:**
 
-## New version
+-   `search_neighbors()`: Efficient k-nearest neighbor retrieval
 
-During the recent lockdown we invested some of our free time to come up
-with a new version of our package. This new `resemble` 2.0 comes with
-MAJOR improvements and new functions! For these improvements major
-changes were required. The most evident changes are in the function and
-argument names. These have been now adapted to properly follow the
-[tydiverse style guide](https://style.tidyverse.org/). A number of
-changes have been implemented for the sake of computational efficiency.
-These changes are documented in `inst\changes.md`.
+**Modelling spectral data:**
 
-New interesing functions and fucntionality are also available, for
-example, the `mbl()` function now allows sample spiking, where a set of
-reference observations can be forced to be included in the
-neighborhhoods of each sample to be predicted. The `serach_neighbors()`
-function efficiently retrieves from a refence set the k-nearest
-neighbors of another given dataset. The `dissimilarity()` function
-computes dissimilarity matrices based on various metrics.
+-   `model()`: Global PLS or GPR calibration
+-   `mbl()`: Memory-based learning for per-query local modelling
+-   `gesearch()`: Evolutionary subset selection for domain-adaptive
+    calibration
+-   `liblex()`: Pre-computed library of local experts for fast
+    prediction
 
 ## Installation
 
-If you want to install the package and try its functionality, it is very
-simple, just type the following line in your `R` console:
+Install from CRAN:
 
-    install.packages('resemble')
+    install.packages("resemble")
 
-If you do not have the following packages installed, it might be good to
-update/install them first
+Or install the development version from GitHub:
 
-    install.packages('Rcpp')
-    install.packages('RcppArmadillo')
-    install.packages('foreach')
-    install.packages('iterators')
-
-**Note**: Apart from these packages we stronly recommend to download and
-install Rtools <https://cran.r-project.org/bin/windows/Rtools/>). This
-is important for obtaining the proper C++ toolchain that might be needed
-for `resemble`.
-
-Then, install `resemble`
-
-You can also install the development version of `resemble` directly from
-github using [`devtools`](https://CRAN.R-project.org/package=devtools):
-
+    # install.packages("devtools")
     devtools::install_github("l-ramirez-lopez/resemble")
 
-NOTE: in some MAC Os it is still recommended to install `gfortran` and
-`clang` from [here](https://cran.r-project.org/bin/macosx/tools/). Even
-for R &gt;= 4.0. For more info, check this
-[issue](https://github.com/tidyverts/fable/issues/193).
+The package requires a C++ compiler. On Windows, install
+[Rtools](https://cran.r-project.org/bin/windows/Rtools/). On macOS, you
+may need to install `gfortran` and `clang` from [CRAN
+tools](https://cran.r-project.org/bin/macosx/tools/).
 
-## Example
-
-After installing `resemble` you should be also able to run the following
-lines:
+## Example: Memory-based learning with `mbl()`
 
     library(resemble)
-    library(tidyr)
     library(prospectr)
     data(NIRsoil)
 
-    # Proprocess the data
-    NIRsoil <- NIRsoil[NIRsoil$CEC %>% complete.cases(),]
-    wavs <- as.numeric(colnames(NIRsoil$spc))
+    # Preprocess spectra
+    NIRsoil$spc_pr <- savitzkyGolay(
+     detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
+     m = 1, p = 1, w = 7
+    )
 
-    NIRsoil$spc_p <- NIRsoil$spc %>% 
-      standardNormalVariate() %>% 
-      resample(wavs, seq(min(wavs), max(wavs), by = 11)) %>% 
-      savitzkyGolay(p = 1, w = 5, m = 1)
+    # Split into training and test sets
+    train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
+    train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
+    test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
+    test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
-    # split into calibration/training and test
-    train_x <- NIRsoil$spc_p[as.logical(NIRsoil$train), ]
-    train_y <- NIRsoil$CEC[as.logical(NIRsoil$train)]
-
-    test_x <- NIRsoil$spc_p[!as.logical(NIRsoil$train), ]
-    test_y <- NIRsoil$CEC[!as.logical(NIRsoil$train)]
-
-    # Use MBL as in Ramirez-Lopez et al. (2013)
+    # Memory-based learning with Gaussian process regression
     sbl <- mbl(
-      Xr = train_x, Yr = train_y, Xu = test_x,
-      k = seq(50, 130, by = 20),
-      method = local_fit_gpr(),
-      control = mbl_control(validation_type = "NNv")
+     Xr = train_x,
+     Yr = train_y,
+     Xu = test_x,
+     neighbors = neighbors_k(seq(50, 130, by = 20)),
+     diss_method = diss_pca(ncomp = ncomp_by_opc(40)),
+     fit_method = fit_gpr(),
+     control = mbl_control(validation_type = "NNv")
     )
     sbl
     plot(sbl)
@@ -149,174 +179,132 @@ lines:
 <img src="./man/figures/mbl.png" width="80%">
 </p>
 
-Figure 1. Standard plot of the results of the **`mbl`** function.
+## Example: Pre-computed model library with `liblex()`
 
-[`resemble`](http://l-ramirez-lopez.github.io/resemble/) implements
-functions dedicated to non-linear modelling of complex visible and
-infrared spectral data based on memory-based learning (MBL, *a.k.a*
-instance-based learning or local modelling in the chemometrics
-literature). The package also includes functions for: computing and
-evaluate spectral dissimilarity matrices, projecting the spectra onto
-low dimensional orthogonal variables, spectral neighbor search, etc.
+`liblex()` builds a library of local experts that can be reused for
+prediction without refitting:
 
-## Memory-based learning (MBL)
+    # Build model library
+    model_lib <- liblex(
+     Xr = train_x,
+     Yr = train_y,
+     neighbors = neighbors_k(c(40, 60, 80)),
+     diss_method = diss_correlation(ws = 27, scale = TRUE),
+     fit_method = fit_wapls(min_ncomp = 3, max_ncomp = 15, method = "mpls"),
+     control = liblex_control(tune = TRUE)
+    )
 
-To expand a bit more the explanation on the `mbl` function, let’s define
-first the basic input data:
+    # Predict new observations
+    predictions <- predict(model_lib, test_x)
 
--   **Reference (training) set**: Dataset with *n* reference samples
-    (e.g. spectral library) to be used in the calibration of spectral
-    models. Xr represents the matrix of samples (containing the spectral
-    predictor variables) and Yr represents a response variable
-    corresponding to Xr.
+## Example: Evolutionary subset selection with `gesearch()`
 
--   **Prediction set** : Dataset with *m* samples where the response
-    variable (Yu) is unknown. However it can be predicted by applying a
-    spectral model (calibrated by using Xr and Yr) on the spectra of
-    these samples (Xu).
+`gesearch()` selects optimal subsets from large spectral libraries:
 
-To predict each value in Yu, the `mbl` function takes each sample in Xu
-and searches in Xr for its *k*-nearest neighbours (most spectrally
-similar samples). Then a (local) model is calibrated with these
-(reference) neighbours and it immediately predicts the correspondent
-value in Yu from Xu. In the function, the *k*-nearest neighbour search
-is performed by computing spectral dissimilarity matrices between
-observations. The `mbl` function offers the following regression options
-for calibrating the (local) models:
+    # Search for optimal calibration subset
+    gs <- gesearch(
+     Xr = train_x, 
+     Yr = train_y,
+     Xu = test_x,
+     k = 50, 
+     b = 100, 
+     retain = 0.97,
+     target_size = 200,
+     fit_method = fit_pls(ncomp = 15, method = "mpls"),
+     optimization = c("reconstruction", "similarity"),
+     seed = 42
+    )
 
-**`'gpr'`**: Gaussian process with linear kernel.
+    # Predict using selected subset
+    preds <- predict(gs, test_x)
+    plot(gs)
 
-**`'pls'`**: Partial least squares.
+## Memory-based learning overview
 
-**`'wapls'`**: Weighted average partial least squares (Shenk et al.,
-1997).
+Memory-based learning (MBL, a.k.a. instance-based learning or local
+modelling) is a non-linear lazy learning approach. For each prediction,
+the algorithm:
 
-Figure 2 illustrates the basic steps in MBL for a set of five
-observations.
+1.  Finds the k-nearest neighbors in the reference set
+2.  Fits a local model using those neighbors
+3.  Predicts the response for the target observation
+
+The `mbl()` function offers three regression methods for local models:
+
+-   `fit_gpr()`: Gaussian process regression with linear kernel
+-   `fit_pls()`: Partial least squares
+-   `fit_wapls()`: Weighted average PLS (Shenk et al., 1997)
 
 <p align="center">
 <img src="./vignettes/MBL.gif" width="50%">
 </p>
 
-Figure 2. Example of the main steps in memory-based learning for
-predicting a response variable in five different observations based on
-set of p-dimesnional variables.
-
 ## Citing the package
-
-Simply type and you will get the info you need:
 
     citation(package = "resemble")
 
-## News: Memory based learning (MBL) and `resemble`
+## News: Memory-based learning and `resemble`
+
+-   **2026.05:** [van Leeuwen et al.,
+    2026](https://doi.org/10.1016/j.geoderma.2026.117804)  
+    used `resemble` for principal component Mahalanobis
+    nearest-neighbour search to extract spectrally similar samples from
+    the KSSL library for MIR model calibration in Dutch soils.
+
+-   **2026.04:** [Irving et al.,
+    2026](https://doi.org/10.1016/j.seh.2026.100205)  
+    used `resemble` in modelling workflows for infrared spectroscopy
+    prediction of soil microbial properties across Australian soils.
+
+-   **2026.03:** [Shrestha et al.,
+    2026](https://doi.org/10.1016/j.geodrs.2026.e01063)  
+    used `resemble` in a hybrid localisation workflow to predict
+    farm-scale soil cadmium from a regional spectral library; LOCAL
+    models with MIR data performed best.
 
 -   **2025.10:** [Summerauer et al.,
     2025](https://doi.org/10.5194/egusphere-2025-4625) used `resemble`
-    for MBL modelling of soil physico-chemical properties from infrared
-    spectra across tropical hillslopes in Eastern Africa. The study
-    revealed severe soil degradation and SOC losses (up to –69 %)
-    following deforestation, with limited recovery from Eucalyptus
-    reforestation.
+    for MBL modelling of soil properties from infrared spectra across
+    tropical hillslopes in Eastern Africa.
 
 -   **2025.05:** [Sun and Shi,
-    2025](https://doi.org/10.1016/j.geoderma.2025.117298) introduced a
-    local MBL-style strategy combining spectral and geographical
-    similarity for SOC prediction from RGB, DRS, and Sentinel-2 data;
-    local PLSR outperformed global models and maintained accuracy across
-    scales.
+    2025](https://doi.org/10.1016/j.geoderma.2025.117298) combined
+    spectral and geographical similarity for SOC prediction; local PLSR
+    outperformed global models.
 
 -   **2025.03:** [Breure et al.,
-    2025](https://doi.org/10.1038/s41467-025-57355-y) published in
-    *Nature Communications*: `resemble` used to model NIR–soil property
-    relations for particulate and mineral-associated organic carbon
-    across European agricultural soils, enabling an EU-wide SOC risk
-    index based on effective MAOC capacity and observed SOC change.
+    2025](https://doi.org/10.1038/s41467-025-57355-y)  
+    used `resemble` for local VNIR modelling of soil carbon fractions
+    (POC and MAOC) across European agricultural soils, published in
+    *Nature Communications*.
 
 -   **2025.03:** [Purushothaman et al.,
-    2025](https://doi.org/10.1109/TGRS.2025.3569059) applied MBL
-    (`resemble`) to BRDF-corrected AVIRIS-NG hyperspectral data for
-    predicting soil properties in India; BRDF correction improved
-    accuracy (R² up to 0.83) and reduced RMSE by up to 47 %, enabling 5
-    m mapping.
-
--   **2025.03:** [Kohlmann et al.,
-    2025](https://doi.org/10.1002/jpln.202400364) fused vis–NIR and MIR
-    with SVMR to predict total organic C, biochar C and native SOC in
-    loess soils; cited MBL as a localisation strategy alongside spiking
-    for site-specific transferability.
-
--   **2025.02:** Adam & Jackisch (LfULG report; no DOI). MIR-DRIFTS
-    soil-C monitoring workflow, regional spectral library; compared
-    PLSR, Cubist and MBL (`resemble`). (Leave unlinked or link to an
-    institutional page if available.)
+    2025](https://doi.org/10.1109/TGRS.2025.3569059) applied MBL to
+    AVIRIS-NG hyperspectral data for soil property prediction in India.
 
 -   **2025.01:** [Dai et al.,
-    2025](https://doi.org/10.1016/j.still.2024.106297) used MBL and
-    non-linear MBL (N-MBL) for POC and MAOC from VNIR in Guangdong;
-    local `resemble` models outperformed global ML (Cubist, PLSR, RF).
+    2025](https://doi.org/10.1016/j.still.2024.106297) used MBL for POC
+    and MAOC prediction from VNIR in Guangdong.
 
 -   **2024.12:** [Asrat et al.,
-    2024](https://doi.org/10.1016/j.geoderma.2024.117116) MBL
-    (`resemble`) for local calibration sample selection in the Moroccan
-    Soil Spectral Library; improved prediction of Olsen P, pH, CEC vs
-    global PLSR.
-
--   **2024.11:** [Dai et al.,
-    2024](https://doi.org/10.1016/j.seh.2024.100113) used VNIR lab and
-    in-situ spectra from wheat–rice fields in SE China (n=202) to
-    predict SOC, POC, MAOC; PLSR/MBL performed best (lab SOC R² up to
-    0.91), and EPO gave modest in-situ gains, indicating feasible
-    in-situ monitoring under low soil moisture.
-
--   **2024.10:** [Lippolis et al.,
-    2024](https://doi.org/10.1016/j.fochx.2024.101583) MBL (`resemble`)
-    for high-throughput NIR prediction of faba bean seed traits;
-    compared with PLS, Elastic Net and Bayes-B.
+    2024](https://doi.org/10.1016/j.geoderma.2024.117116) MBL for local
+    calibration sample selection in the Moroccan Soil Spectral Library.
 
 -   **2024.09:** [Barbetti et al.,
     2024](https://doi.org/10.1109/TAFE.2024.3449215) MBL to detect SOC
-    changes in long-term experiments using vis–NIR; R² up to 0.91;
-    compared with Cubist, SVM and RF.
-
--   **2024.09:** [Moloney et al.,
-    2024](https://doi.org/10.1016/j.soisec.2024.100161) MBL with the NZ
-    Soil Spectral Library for SOC, TN and pH in Tonga; supplementing
-    with small local sets markedly improved accuracy.
-
--   **2024.08:** [Sherman et al.,
-    2024](https://doi.org/10.1002/gea.22014) MBL with NIR for
-    non-destructive characterisation of silicate materials
-    (geoarchaeology).
+    changes in long-term experiments using vis–NIR.
 
 -   **2023.11:** [Wang et al.,
     2023](https://doi.org/10.1016/j.geoderma.2023.116752) N-MBL (MBL +
-    RF within local fitting) improved regional vis–NIR models for SOM,
-    TN, TP vs MBL/PLSR/Cubist/SVM/CNN.
-
--   **2023.04:** [Zhao et al.,
-    2023](https://doi.org/10.1016/j.still.2023.105718) used MBL
-    (`resemble`) + compositional data analysis to quantify soil
-    properties relevant to SOC biogeochemical cycles from IR spectra.
+    RF within local fitting) for regional vis–NIR models.
 
 -   **2022:** [Sanderman et al.,
     2022](https://doi.org/10.1002/saj2.20513) evaluated transferability
-    of large MIR spectral databases across instruments; MBL via
-    `resemble`.
-
--   **2022:** [Dangal et al.,
-    2022](https://doi.org/10.1029/2021MS002622) improved soil carbon
-    estimates; `resemble` used within the workflow.
+    of large MIR spectral databases across instruments.
 
 -   **2022.01:** [Ng et al.,
     2022](https://doi.org/10.1016/j.geoderma.2021.115501) showed that
-    “spiking” regional Vis–NIR libraries with local samples does not
-    outperform localized models. Using Australian soils, they found that
-    memory-based learning (MBL) yield better local SOC predictions. They
-    used `resemble`.
-
--   **2021.12:** [Yu et al., 2022](https://doi.org/10.3390/rs14061303)
-    MBL with External Parameter Orthogonalization for field prediction
-    of soil properties.
+    MBL yields better local SOC predictions than spiking approaches.
 
 -   **2021.10:** [Ramirez-Lopez et al.,
     2021](https://soil.copernicus.org/articles/7/693/2021/) MBL to
@@ -325,106 +313,38 @@ Simply type and you will get the info you need:
 -   **2020.08:** Charlotte Rivard’s MIR MBL tutorial:
     <https://whrc.github.io/Soil-Predictions-MIR/>
 
--   **2020.04:** [Tsakiridis et al.,
-    2020](https://doi.org/10.1016/j.geoderma.2020.114208) used optimal
-    principal-components dissimilarity with CNNs for simultaneous
-    vis–NIR prediction.
-
--   **2019.04:** [Tziolas et al.,
-    2019](https://doi.org/10.1016/j.geoderma.2019.113888) improved MBL
-    for quantitative soil predictions using NIR + geographic
-    information.
-
--   **2019.03 & 2019.08:** [Tsakiridis et al.,
-    2019a](https://doi.org/10.1016/j.neucom.2019.12.084),
-    [2019b](https://doi.org/10.1016/j.apm.2019.04.019) compared ML
-    methods for predictive soil spectroscopy; MBL (`resemble`) highly
-    competitive.
-
 -   **2020.01:** [Sanderman et al.,
     2020](https://doi.org/10.1002/saj2.20009) MIR spectroscopy for
-    prediction of soil health indicators in the United States; MBL and
-    Cubist excelled.
+    prediction of soil health indicators; MBL and Cubist excelled.
 
 -   **2019.03:** [Ramirez-Lopez et al.,
-    2019](https://doi.org/10.1111/ejss.12752) used MBL in digital soil
-    mapping (farm-scale vis–NIR); here MBL removed local calibration
-    outliers.
-
--   **2019.01:** [Dangal et al.,
-    2019](https://doi.org/10.3390/soilsystems3010011) `resemble` for MIR
-    modelling from a continental US soil spectral library.
+    2019](https://doi.org/10.1111/ejss.12752) MBL in digital soil
+    mapping at farm scale.
 
 -   **2019.03:** [Jaconi et al.,
-    2019](https://doi.org/10.1016/j.geoderma.2018.11.042) MBL
-    (`resemble`) for national-scale NIR texture predictions in Germany.
-
--   **2018.12:** [Hong/Chen et al.,
-    2019](https://doi.org/10.1016/j.catena.2018.09.025) fractional-order
-    derivatives + MBL (`resemble`) improved NIR prediction of SOM in
-    China.
-
--   **2018.11:** Rivera et al., 2018 — *Frontiers in Plant Science*
-    (common beans). (If you keep this, link the article’s DOI from
-    Frontiers; avoid Google Scholar.)
-
--   **2018.07:** [Gholizadeh et al.,
-    2018](https://doi.org/10.3390/rs10081172) soil-carbon modelling with
-    `resemble`.
+    2019](https://doi.org/10.1016/j.geoderma.2018.11.042) MBL for
+    national-scale NIR texture predictions in Germany.
 
 -   **2018.01:** [Dotto et al.,
-    2018](https://doi.org/10.1016/j.geoderma.2017.11.028) MBL
-    (`resemble`) for SOC prediction in Brazil.
-
--   **2017.11:** Kopf et al., 2017 (KIT Scientific Publishing, OCM 2017
-    proceedings). (Conference chapter/book—use the publisher page if you
-    want a link; the Google Books preview can trigger CRAN URL notes.)
-
--   **2016.05:** [Clairotte et al.,
-    2016](https://doi.org/10.1016/j.geoderma.2016.04.021) national-scale
-    SOC from diffuse IR spectroscopy.
+    2018](https://doi.org/10.1016/j.geoderma.2017.11.028) MBL for SOC
+    prediction in Brazil.
 
 -   **2016.04:** [Viscarra Rossel et al.,
-    2016](https://doi.org/10.3390/rs8040341) memory-based learning
-    applied to predict soil properties.
-
--   **2016.04:** Blog examples on `resemble`:
-    <http://nir-quimiometria.blogspot.com/> (keep as plain HTTP; it’s
-    fine for CRAN).
-
--   **2016.02:** `resemble` on CRAN:
-    <https://CRAN.R-project.org/package=resemble>
-
--   **2016.01:** `resemble` 1.2 submitted to CRAN; development on
-    GitHub.
-
--   **2015.11:** 1.2.0 prerelease; core routines moved to C++ via Rcpp
-    for speed.
-
--   **2015.11:** 1.1.3 never released to CRAN due to performance
-    refactor.
-
--   **2014.10:** 1.1.3 prerelease (website); pending CRAN at the time.
-
--   **2014.06:** Video on local calibrations:
-    <https://www.youtube.com/watch?v=7sCIEeNehgE>
+    2016](https://doi.org/10.3390/rs8040341) memory-based learning for
+    soil property prediction.
 
 -   **2014.03:** First CRAN release of `resemble`.
 
-## Other R’elated stuff
+## Related packages
 
--   [Check our other project called
-    `prospectr`.](https://github.com/l-ramirez-lopez/prospectr)
--   [Check this presentation in which we used the resemble package to
-    predict soil attributes from large scale soil spectral
-    libraries.](https://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf)
-    <https://www.fao.org/fileadmin/user_upload/GSP/docs/Spectroscopy_dec13/SSW2013_f.pdf>
+-   [`prospectr`](https://github.com/l-ramirez-lopez/prospectr): Signal
+    processing and chemometrics for spectroscopy
 
-## Bug report and development version
+## Bug reports
 
-You can send an e-mail to the package maintainer
-(<ramirez.lopez.leo@gmail.com>) or create an
-[issue](https://github.com/l-ramirez-lopez/resemble/issues) on github.
+Report issues at
+[GitHub](https://github.com/l-ramirez-lopez/resemble/issues) or contact
+the maintainer (<ramirez.lopez.leo@gmail.com>).
 
 ## References
 
@@ -436,6 +356,17 @@ Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte,
 J.A.M., Scholten, T. 2013. The spectrum-based learner: A new local
 approach for modeling soil vis-NIR spectra of complex data sets.
 Geoderma 195-196, 268-279.
+
+Ramirez-Lopez, L., Viscarra Rossel, R., Behrens, T., Orellano, C.,
+Perez-Fernandez, E., Kooijman, L., Wadoux, A. M. J.-C., Breure, T.,
+Summerauer, L., Safanelli, J. L., & Plans, M. (2026a). When spectral
+libraries are too complex to search: Evolutionary subset selection for
+domain-adaptive calibration. Analytica Chimica Acta, under review.
+
+Ramirez-Lopez, L., Metz, M., Lesnoff, M., Orellano, C., Perez-Fernandez,
+E., Plans, M., Breure, T., Behrens, T., Viscarra Rossel, R., & Peng, Y.
+(2026b). Rethinking local spectral modelling: From per-query refitting
+to model libraries. Analytica Chimica Acta, under review.
 
 Saul, L. K., & Roweis, S. T. 2003. Think globally, fit locally:
 unsupervised learning of low dimensional manifolds. Journal of machine
