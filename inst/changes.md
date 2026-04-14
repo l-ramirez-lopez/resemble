@@ -10,7 +10,7 @@
 
 ### orthoProjection, pcProjection, plsProjection (renamed to ortho_projection, 
 pc_projection, pls_projection respectively):
-- X2 argument renamed to Xu (for consistency throughout all the fucntions)
+- X2 argument renamed to Xu (for consistency throughout all the functions)
 - Argument scaled renamed to .scale
 - Argument max.iter renamed to max_iter
 - Bug fix: when the "pca.nipals method was used and the method to select the pcs wa "opc",
@@ -30,27 +30,27 @@ n_components.
 
 
 ### corDiss (renamed to cor_diss):
-- X2 argument renamed to Xu (for consistency throughout all the fucntions)
+- X2 argument renamed to Xu (for consistency throughout all the functions)
 - Argument scaled renamed to .scale
 - default for .scale has changed from TRUE to FALSE
 - the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
 
 ### fDiss (renamed to f_diss):
-- X2 argument renamed to Xu (for consistency throughout all the fucntions)
+- X2 argument renamed to Xu (for consistency throughout all the functions)
 - Argument scaled renamed to .scale
 - default for .scale has changed from TRUE to FALSE
 - the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
 - argument method changed to diss_method
 
 ### sid:
-- X2 argument renamed to Xu (for consistency throughout all the fucntions)
+- X2 argument renamed to Xu (for consistency throughout all the functions)
 - Argument scaled renamed to .scale
 - default for .scale has changed from TRUE to FALSE
 - the dimnames of the resulting matrix are now Xr_1... Xr_n (previusly Xr.1... Xr.n)
 
 
 ### orthoDiss (renamed to ortho_diss):
-- X2 argument renamed to Xu (for consistency throughout all the fucntions)
+- X2 argument renamed to Xu (for consistency throughout all the functions)
 - Argument scaled renamed to .scale
 - Argument local renamed to .local
 - Argument pcSelection renamed to pc_selection
@@ -89,9 +89,9 @@ Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 - input type for the argument method has changed. Previously it received a 
 character string  indicating the type of local regresion (i.e. "pls", 
 "wapls1" or "gpr"). Now it receives an object of class local_fit which is output 
-by the new local_fit fucntions. 
+by the new local_fit functions. 
 - dissimilarityM has been deprecated. It was used to pass a dissimilarity matrix 
-computed outiside the mbl fucntion. This can be done now with the new argument 
+computed outiside the mbl function. This can be done now with the new argument 
 diss_method of mbl which was previosly named "sm" and it was in mblControl()
 
 
@@ -109,8 +109,8 @@ Sys.setenv("OMP_NUM_THREADS" = <a integer>)).
 
 ### mblControl (renamed to mbl_control):
 - sm argument is deprecated. Now the dissmilarity metric is an argument of the 
-mbl fucntion
-- scale and center arguments have been moved to the mbl fucntion
+mbl function
+- scale and center arguments have been moved to the mbl function
 - Argument range.pred.lim renamed to range_prediction_limits
 - Argument cores is deprecated, it wwas used to set the number of cores in some 
 c++ internal functions via OpenMP in Rcpp. Multi-threading via OpenMP is still 
