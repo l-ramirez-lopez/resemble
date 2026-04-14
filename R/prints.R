@@ -74,16 +74,43 @@ print.liblex <- function(x, ...) {
   }
   cat(div, "\n")
   
+  
+  
+  
+  
+  
   # Validation statistics
   if (!is.null(x$best)) {
+    bresult <- NULL
+    if (inherits(x$neighbors, "neighbors_k")) {
+      for (k in unique(x$results$k)) {
+        kth_r <- x$results[x$results$k == k, , drop = FALSE]
+        kth_r <- kth_r[which.min(kth_r$rmse), , drop = FALSE]
+        bresult <- rbind(bresult, kth_r)
+        bresult <- cbind(k = bresult$k, bresult[, names(bresult) != "k", drop = FALSE])
+      }
+    } else {
+      for (thr in unique(x$results$diss_threshold)) {
+        kth_r <- x$results[x$results$diss_threshold == thr, , drop = FALSE]
+        kth_r <- kth_r[which.min(kth_r$rmse), , drop = FALSE]
+        bresult <- rbind(bresult, kth_r)
+        bresult <- cbind(diss_threshold = bresult$diss_threshold, bresult[, names(bresult) != "diss_threshold", drop = FALSE])
+      }
+    }
+    
     cat(.col_blue("Nearest-neighbor validation"), "\n\n")
-    val_df <- data.frame(
-      rmse = round(x$best$rmse, 3),
-      st_rmse = round(x$best$st_rmse, 3),
-      me = round(x$best$me, 3),
-      r2 = round(x$best$r2, 3)
-    )
-    print(val_df, row.names = FALSE)
+    cat("Best results per neighbor selection metric", "\n")
+    # bresult <- data.frame(
+    #   rmse = round(x$best$rmse, 3),
+    #   st_rmse = round(x$best$st_rmse, 3),
+    #   me = round(x$best$me, 3),
+    #   r2 = round(x$best$r2, 3)
+    # )
+    numeric_cols <- sapply(bresult, is.numeric)
+    bresult[numeric_cols] <- lapply(bresult[numeric_cols], function(x) {
+      signif(x, digits = 3)
+    })
+    print(bresult, row.names = FALSE)
     cat(div, "\n")
   }
   
