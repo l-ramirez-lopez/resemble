@@ -1,7 +1,9 @@
 ---
 title: "README"
-output: md_document
-date: "2026-03-17"
+format:
+  gfm:
+    output-file: README.md
+engine: knitr
 ---
 
 # `resemble` Sample Retrieval and Local Learning in Spectral Chemometrics

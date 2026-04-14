@@ -80,6 +80,7 @@ get_neighbor_info <- function(
 #' @title Cross validation for PLS regression
 #' @description for internal use only!
 #' @keywords internal
+#' @noRd
 pls_cv <- function(
     x, y, ncomp,
     method = c("pls", "wapls"),
@@ -790,6 +791,7 @@ fit_and_predict <- function(
 #' @title Cross validation for Gaussian process regression
 #' @description internal
 #' @keywords internal
+#' @noRd
 gaussian_pr_cv <- function(
     x,
     y,
@@ -913,6 +915,7 @@ gaussian_pr_cv <- function(
 #' @seealso [gesearch()], [fit_pls()], [fit_wapls()]
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
+#' @noRd
 get_plsr <- function(
     X, Y,
     indices = NULL,

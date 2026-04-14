@@ -1,6 +1,7 @@
 #' @title evaluation of multiple distances obtained with multiple PCs
 #' @description internal
 #' @keywords internal
+#' @noRd
 eval_multi_pc_diss <- function(scores,
                                side_info,
                                from = 1,

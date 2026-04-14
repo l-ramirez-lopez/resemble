@@ -45,6 +45,7 @@ ith_subsets_ortho_diss <- function(x,
 #' @param scale argument passed to ortho_projection
 #' @description internal
 #' @keywords internal
+#' @noRd
 local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
                              diss_method, pc_selection, center, scale,
                              allow_parallel, ...) {
@@ -173,6 +174,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
 #' @param xr_xu_names the names of Xr and Xu
 #' @description internal
 #' @keywords internal
+#' @noRd
 format_xr_xu_indices <- function(xr_xu_names) {
   xu_insufficient <- gsub("Xu_", "", xr_xu_names[grep("^Xu_", xr_xu_names)])
   xr_insufficient <- gsub("Xr_", "", xr_xu_names[grep("^Xr_", xr_xu_names)])

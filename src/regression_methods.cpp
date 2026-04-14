@@ -15,6 +15,7 @@ using namespace Rcpp;
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
+//' @noRd
 // [[Rcpp::export]]
 NumericVector get_col_largest_sd(arma::mat X){
   //arma::mat Xz(X.begin(), X.nrow(), X.ncol(), false); 
@@ -45,6 +46,7 @@ NumericVector get_col_largest_sd(arma::mat X){
 //' @return a vector of standard deviation values. 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 NumericVector get_column_sds(arma::mat X){
@@ -59,6 +61,7 @@ NumericVector get_column_sds(arma::mat X){
 //' @return a vector of standard deviation values. 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 NumericVector overall_var(arma::mat X){
@@ -75,6 +78,7 @@ NumericVector overall_var(arma::mat X){
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
+//' @noRd
 // [[Rcpp::export]]
 NumericVector get_column_means(arma::mat X){
   arma::mat mn = arma::mean(X, 0);
@@ -88,6 +92,7 @@ NumericVector get_column_means(arma::mat X){
 //' @return a vector of mean values. 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 NumericVector get_column_maxs(arma::mat X) {
@@ -103,6 +108,7 @@ NumericVector get_column_maxs(arma::mat X) {
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
+//' @noRd
 // [[Rcpp::export]]
 NumericVector get_column_sums(arma::mat X){
   arma::mat sm = arma::sum(X);
@@ -135,6 +141,7 @@ NumericVector get_column_sums(arma::mat X){
 //' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 //' @return a `matrix` of one column containing the weights.
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 arma::mat get_weights(const arma::mat& X, 
@@ -194,6 +201,7 @@ arma::mat get_weights(const arma::mat& X,
 //' @param Xscale if \code{scale = TRUE} a vector with the values that must be used for scaling \code{newdata}.
 //' @return a matrix of one row with the weights for each component between the max. and min. specified. 
 //' @author Leonardo Ramirez-Lopez
+//' @noRd
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
@@ -296,6 +304,7 @@ Rcpp::NumericMatrix get_local_pls_weights(
 //' \item{\code{weights}: the matrix of wheights.}
 //' }
 //' @author Leonardo Ramirez-Lopez
+//' @noRd
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
@@ -675,6 +684,7 @@ List opls_for_projection(arma::mat X,
 //' } 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List opls_get_all(
@@ -1019,6 +1029,7 @@ List opls_get_all(
 //' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 //' \item{\code{weights}: the matrix of wheights.}} 
 //' @author Leonardo Ramirez-Lopez
+//' @noRd
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
@@ -1288,6 +1299,7 @@ List opls(arma::mat X,
 //' Science, 31(6), 1548-1555.
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List opls_get_basics(
@@ -1731,6 +1743,7 @@ List opls_get_basics(
 //' @return a matrix of predicted values.
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix predict_opls(
@@ -1767,6 +1780,7 @@ Rcpp::NumericMatrix predict_opls(
 //' @return a matrix corresponding to the new spectra projected onto the PLS space 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix project_opls(
@@ -1811,6 +1825,7 @@ Rcpp::NumericMatrix project_opls(
 //' @return a matrix of 1 row and 1 column.
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix reconstruction_error(
@@ -1920,6 +1935,7 @@ Rcpp::NumericMatrix reconstruction_error(
 //' 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List opls_cv_cpp(
@@ -2310,6 +2326,7 @@ List opls_cv_cpp(
 //' 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List opls_gesearch(
@@ -2723,6 +2740,7 @@ List opls_gesearch(
 //' }
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List gaussian_process(arma::mat X, 
@@ -2801,6 +2819,7 @@ List gaussian_process(arma::mat X,
 //' @return a matrix of predicted values
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 NumericVector predict_gaussian_process(arma::mat Xz, 
@@ -2855,6 +2874,7 @@ NumericVector predict_gaussian_process(arma::mat Xz,
 //' } 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List gaussian_process_cv(arma::mat X, 
@@ -2969,6 +2989,7 @@ List gaussian_process_cv(arma::mat X,
 //' } 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 List pca_nipals(arma::mat X, 
@@ -3233,6 +3254,7 @@ Rcpp::NumericVector ith_local_fit(
 //' }
 //'
 //' @keywords internal
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List final_fits_cpp(
     const arma::mat& X,

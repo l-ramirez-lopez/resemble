@@ -63,6 +63,7 @@ arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){
 //' @details used internally in ortho_projection
 //' @author Antoine Stevens
 //' @keywords internal 
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]   
 NumericVector fast_diss_vector(NumericVector X) {  
@@ -108,6 +109,7 @@ NumericVector fast_diss_vector(NumericVector X) {
 //' loop can optionally be parallelized for additional speedup on multicore systems.
 //' Note that the function assumes that the input matrix `X` is not empty and
 //' @keywords internal
+//' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
@@ -500,15 +502,6 @@ arma::mat moving_cor_diss_xy(
   }
 }
 
-
-
-
-
-
-
-
-
-
 // Compute correlation for one tile in-place using a single large buffer.
 // Assumes no zero-variance rows/cols (no masking branches).
 static inline void corr_tile_from_stats_serial_fast(
@@ -553,6 +546,7 @@ static inline void corr_tile_from_stats_serial_fast(
 //' @return m x m symmetric distance matrix
 //' @noRd
 //' @keywords internal
+//' @noRd
 //' @useDynLib resemble, .registration=TRUE
 // [[Rcpp::export]]
 arma::mat moving_cor_diss_self_f64(const arma::mat &X, int w,
@@ -828,34 +822,6 @@ arma::mat moving_cor_diss_self(const arma::mat &X,
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //' @title A function to compute row-wise index of minimum values of a square distance matrix
 //' @description For internal use only
 //' @usage 
@@ -865,6 +831,7 @@ arma::mat moving_cor_diss_self(const arma::mat &X,
 //' @details Used internally to find the nearest neighbors
 //' @keywords internal
 //' @useDynLib resemble
+//' @noRd
 //' @author Antoine Stevens 
 // [[Rcpp::export]]  
 NumericVector which_min(NumericMatrix X){  
@@ -896,6 +863,7 @@ NumericVector which_min(NumericMatrix X){
 //' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
 //' since \code{sqrt} cannot be applied to integers.
 //' @keywords internal
+//' @noRd
 //' @useDynLib resemble
 //' @author Antoine Stevens 
 // [[Rcpp::export]]

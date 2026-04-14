@@ -75,6 +75,7 @@
 #'   the current group is used as augmented features.
 #' }
 #' @author Leonardo Ramirez-Lopez
+#' @noRd
 #' @keywords internal
 ith_subsets_by_group <- function(
     x, 
@@ -294,6 +295,7 @@ ith_subsets_by_group_list <- function(
 #' are excluded from both `x` and `y` in the returned subset.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
+#' @noRd
 ith_subsets <- function(
     x, 
     y, 

@@ -244,6 +244,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
 #' @description For internal use only
 #' @keywords internal
 #' @importFrom stats cov
+#' @noRd
 euclid_to_mahal <- function(X, sm_method = c("svd", "eigen")) {
   nms <- dimnames(X)
   if (ncol(X) > nrow(X)) {
@@ -271,6 +272,7 @@ euclid_to_mahal <- function(X, sm_method = c("svd", "eigen")) {
 #' @title Square root of (square) symmetric matrices
 #' @description For internal use only
 #' @keywords internal
+#' @noRd
 sqrt_sm <- function(X, method = c("svd", "eigen")) {
   if (!isSymmetric(X)) {
     stop("X must be a square symmetric matrix")

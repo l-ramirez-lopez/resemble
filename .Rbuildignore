@@ -9,7 +9,7 @@ code_ex.R
 ^NEWS\.html$
 logo.R
 ^Rscript*
-README\.Rmd$
+README\.qmd$
 logo_large.png
 .gitignore
 .github

@@ -19,6 +19,7 @@
 #' \code{hold_out}) giving the indices of the observations in each
 #' column. The number of columns represents the number of sampling repetitions.
 #' @keywords internal
+#' @noRd
 
 sample_stratified <- function(
     y, p, number, group = NULL, replacement = FALSE, seed = NULL
@@ -272,6 +273,7 @@ get_sample_strata <- function(y, n = NULL, probs = NULL) {
 #' the optimal strata, whereas \code{samples_to_get} contains information on how
 #' many samples per stratum are supposed to be drawn.
 #' @keywords internal
+#' @noRd
 optim_sample_strata <- function(y, n) {
   sample_strata <- get_sample_strata(y, n)
   n_strata <- length(unique(sample_strata$strata))

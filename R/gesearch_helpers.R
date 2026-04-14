@@ -1,6 +1,7 @@
 #' @title iterates over elements to print
 #' @description internal. used for printing
 #' @keywords internal
+#' @noRd
 cat_iter <- function(x) {
   iter_x <- iter(x, by = "cell", recycle = TRUE)
   
@@ -15,6 +16,7 @@ cat_iter <- function(x) {
 #' @title fits pls models at each \emph{gesearch} iteration
 #' @description internal
 #' @keywords internal
+#' @noRd
 biter <- function(
     itersubs,
     Xu,
@@ -246,6 +248,7 @@ biter <- function(
 #' entire matrices to each core. It just sends the subset of that is required.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
+#' @noRd
 ithrssubsets <- function(
     x,
     y,
@@ -288,6 +291,7 @@ ithrssubsets <- function(
 #' @title drop the samples that consistently appear in high error models
 #' @description internal
 #' @keywords internal
+#' @noRd
 drop_indices <- function(
     uu, 
     vv,
@@ -379,6 +383,7 @@ drop_indices <- function(
 #' @title combine two randomly selected individuals
 #' @description internal
 #' @keywords internal
+#' @noRd
 combine_individuals <- function(x, k, k_idx) {
   # Select two individuals out of x (i.e. columns), randomly (without replacements)
   sel_individuals <- sample(1:ncol(x), 2, replace = FALSE)

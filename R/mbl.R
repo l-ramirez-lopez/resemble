@@ -1477,6 +1477,7 @@ plot.mbl <- function(x,
 
 #' Process plot arguments with defaults
 #' @keywords internal
+#' @noRd
 .process_plot_args <- function(dots) {
   args <- dots
   
@@ -1507,6 +1508,7 @@ plot.mbl <- function(x,
 
 #' Plot validation results
 #' @keywords internal
+#' @noRd
 .plot_validation <- function(object, metric, plot_args) {
   # Collect validation results
   val_data <- list()
@@ -1613,6 +1615,7 @@ plot.mbl <- function(x,
 
 #' Plot GH distance scores
 #' @keywords internal
+#' @noRd
 .plot_gh_scores <- function(object, ncomp, plot_args) {
   xr_scores <- object$gh$projection$scores
   n_components <- object$gh$projection$ncomp
@@ -1646,6 +1649,7 @@ plot.mbl <- function(x,
 
 #' Plot 1D GH scores
 #' @keywords internal
+#' @noRd
 .plot_gh_1d <- function(xr_scores, xu_scores, xr_col, xu_col, plot_args) {
   scores_combined <- c(xr_scores[, 1], xu_scores[, 1])
   set_labels <- c(rep("Xr", nrow(xr_scores)), rep("Xu", nrow(xu_scores)))
@@ -1689,6 +1693,7 @@ plot.mbl <- function(x,
 
 #' Plot 2D GH scores
 #' @keywords internal
+#' @noRd
 .plot_gh_2d <- function(xr_scores, xu_scores, ncomp, xr_col, xu_col, plot_args) {
   rng <- 1.2 * range(xr_scores[, ncomp], xu_scores[, ncomp])
   
