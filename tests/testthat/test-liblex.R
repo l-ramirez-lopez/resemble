@@ -169,6 +169,54 @@ test_that("liblex requires neighbors argument", {
   )
 })
 
+test_that("liblex with neighbors_diss works", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_liblex_data()
+  
+  result <- liblex(
+    Xr = d$train_x,
+    Yr = d$train_y,
+    neighbors = neighbors_diss(
+      threshold = seq(0.05, 0.3, length.out = 3),
+      k_min = 20,
+      k_max = 40
+    ),
+    diss_method = diss_correlation(ws = 27, scale = TRUE),
+    fit_method = fit_wapls(min_ncomp = 3, max_ncomp = 8, method = "mpls"),
+    control = liblex_control(tune = TRUE),
+    verbose = FALSE
+  )
+  
+  expect_s3_class(result, "liblex")
+  expect_true("diss_threshold" %in% names(result$results))
+})
+
+
+test_that("liblex with neighbors_diss predictions work", {
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_liblex_data()
+  
+  lib <- liblex(
+    Xr = d$train_x,
+    Yr = d$train_y,
+    neighbors = neighbors_diss(
+      threshold = c(0.1, 0.2, 0.3),
+      k_min = 20,
+      k_max = 40
+    ),
+    diss_method = diss_correlation(ws = 27, scale = TRUE),
+    fit_method = fit_pls(ncomp = 6),
+    control = liblex_control(tune = FALSE),
+    verbose = FALSE
+  )
+  
+  preds <- predict(lib, d$test_x, verbose = FALSE)
+  
+  expect_true(is.data.frame(preds$predictions))
+  expect_equal(nrow(preds$predictions), nrow(d$test_x))
+})
 
 test_that("liblex requires neighbors_k object", {
   skip_if_not_installed("prospectr")
@@ -182,22 +230,6 @@ test_that("liblex requires neighbors_k object", {
       neighbors = 30
     ),
     "neighbors.*must be.*neighbors_k"
-  )
-})
-
-
-test_that("liblex rejects neighbors_diss (not yet implemented)", {
-  skip_if_not_installed("prospectr")
-  
-  d <- .setup_liblex_data()
-  
-  expect_error(
-    liblex(
-      Xr = d$train_x,
-      Yr = d$train_y,
-      neighbors = neighbors_diss(threshold = 0.5)
-    ),
-    "neighbors_diss.*not yet implemented"
   )
 })
 

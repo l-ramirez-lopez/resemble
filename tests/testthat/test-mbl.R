@@ -38,7 +38,7 @@ test_that("mbl_control constructor works", {
   
   expect_type(ctrl, "list")
   expect_false(ctrl$return_dissimilarity)
-  expect_equal(ctrl$validation_type, c("NNv", "local_cv"))
+  expect_equal(ctrl$validation_type, "NNv")
   expect_true(ctrl$tune_locally)
   expect_equal(ctrl$number, 10L)
   expect_equal(ctrl$p, 0.75)
@@ -55,17 +55,19 @@ test_that("mbl_control validates inputs", {
     "NNv.*local_cv.*none"
   )
   expect_error(mbl_control(tune_locally = "yes"), "TRUE or FALSE")
-  expect_error(mbl_control(number = 0), "positive integer")
-  expect_error(mbl_control(p = 1.5), "between 0 and 1")
-  expect_error(mbl_control(p = 0), "between 0 and 1")
+  expect_error(mbl_control(validation_type = "local_cv", number = 0), "positive integer")
+  expect_error(mbl_control(validation_type = "local_cv", p = 1.5), "between 0 and 1")
+  expect_error(mbl_control(validation_type = "local_cv", p = 0), "between 0 and 1")
   expect_error(mbl_control(allow_parallel = "yes"), "TRUE or FALSE")
   expect_error(mbl_control(blas_threads = 0), "positive integer")
 })
 
 
-test_that("mbl_control removes 'none' when other types specified", {
-  ctrl <- mbl_control(validation_type = c("NNv", "none"))
-  expect_equal(ctrl$validation_type, "NNv")
+test_that("mbl_control rejects 'none' combined with other types", {
+  expect_error(
+    mbl_control(validation_type = c("NNv", "none")),
+    "cannot combine 'none'"
+  )
 })
 
 
