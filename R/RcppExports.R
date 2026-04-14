@@ -420,7 +420,7 @@ get_column_sums <- function(X) {
 
 #' @title Computes the weights for pls regressions
 #' @description
-#' This is an internal function that computes the wights required for obtaining
+#' This is an internal function that computes the weights required for obtaining
 #' each vector of pls scores. Implementation is done in C++ for improved performance.
 #' @param X a numeric matrix of spectral data.
 #' @param Y a matrix of one column with the response variable.
