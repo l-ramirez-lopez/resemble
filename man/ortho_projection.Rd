@@ -6,18 +6,20 @@
 \title{Orthogonal projections using PCA and PLS}
 \usage{
 ortho_projection(
-  Xr,
-  Xu = NULL,
-  Yr = NULL,
+  Xr, Xu = NULL, Yr = NULL,
   ncomp = ncomp_by_var(0.01),
   method = c("pca", "pca_nipals", "pls", "mpls", "simpls"),
   center = TRUE,
   scale = FALSE,
-  tol = 1e-06,
+  tol = 1e-6,
   max_iter = 1000L,
   pc_selection = deprecated(),
   ...
 )
+
+\method{predict}{ortho_projection}(object, newdata, ...)
+
+\method{plot}{ortho_projection}(x, col = "#3B82F6", ...)
 
 \method{predict}{ortho_projection}(object, newdata, ...)
 }
@@ -69,6 +71,11 @@ variance. Default is \code{FALSE}.}
 \item{object}{Object of class \code{"ortho_projection"}.}
 
 \item{newdata}{Matrix of new observations to project.}
+
+\item{x}{An object of class \code{ortho_projection} (as returned by
+\code{\link{ortho_projection}}).}
+
+\item{col}{Color for the plot elements. Default is \code{"#3B82F6"}.}
 }
 \value{
 An object of class \code{"ortho_projection"} containing:
