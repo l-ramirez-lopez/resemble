@@ -9,6 +9,7 @@
 ### Modelling
 - `gesearch()` and `predict.gesearch()`: Evolutionary, gene-centric sample selection and retrieval from large, heterogeneous spectral libraries.
 - `liblex()` and `predict.liblex()`: Construct and organise libraries of local linear expert models for retrieval-driven, localised prediction.
+- `model()` and `predict.model()`: General modelling interface for simple global models.
 - `neighbors_k()` and `neighbors_diss()`: Constructors to specify neighbor selection for memory-based learning in `mbl()` and `liblex()`.
 - `fit_pls()`, `fit_wapls()`, `fit_gpr()`: Constructors to specify local model fitting. Replace `local_fit_pls()`, `local_fit_wapls()`, `local_fit_gpr()`.
 - `ncomp_by_var()`, `ncomp_by_cumvar()`, `ncomp_by_opc()`, `ncomp_fixed()`: Constructors to specify component selection in `ortho_projection()`, `diss_pca()`, and `diss_pls()`.
