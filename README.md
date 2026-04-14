@@ -14,9 +14,9 @@
 
 <!-- badges: end -->
 
-*Last update: 2026-04-14*
+*Last update: 2026-04-15*
 
-Version: 2.2.5 – dstatements
+Version: 3.0.0 – vortex
 
 <em>
 <p align="right">
