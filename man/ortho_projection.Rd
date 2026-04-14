@@ -2,7 +2,6 @@
 % Please edit documentation in R/ortho_projection.R
 \name{ortho_projection}
 \alias{ortho_projection}
-\alias{predict.ortho_projection}
 \title{Orthogonal projections using PCA and PLS}
 \usage{
 ortho_projection(
@@ -20,8 +19,6 @@ ortho_projection(
 \method{predict}{ortho_projection}(object, newdata, ...)
 
 \method{plot}{ortho_projection}(x, col = "#3B82F6", ...)
-
-\method{predict}{ortho_projection}(object, newdata, ...)
 }
 \arguments{
 \item{Xr}{A numeric matrix of reference observations (rows) and variables

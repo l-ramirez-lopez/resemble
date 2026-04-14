@@ -54,6 +54,8 @@
 #' @param max_iter Maximum number of iterations for NIPALS. Default is
 #'   \code{1000}. Ignored when \code{method = "simpls"}.
 #' @param pc_selection `r lifecycle::badge("deprecated")` Use \code{ncomp} instead.
+#' @param object Object of class \code{"ortho_projection"}.
+#' @param newdata Matrix of new observations to project.
 #' @param x An object of class \code{ortho_projection} (as returned by
 #'   \code{\link{ortho_projection}}).
 #' @param col Color for the plot elements. Default is \code{"#3B82F6"}.
@@ -344,9 +346,7 @@ pls_projection <- function(
 # predict method
 # =============================================================================
 
-#' @rdname ortho_projection
-#' @param object Object of class \code{"ortho_projection"}.
-#' @param newdata Matrix of new observations to project.
+#' @aliases ortho_projection
 #' @export
 predict.ortho_projection <- function(object, newdata, ...) {
   if (missing(newdata)) {
