@@ -156,12 +156,16 @@ test_x <- sg_det[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
 # PCA with fixed components
 proj <- ortho_projection(train_x, ncomp = 5)
 
+plot(proj)
+
 # PCA with variance-based selection
 proj <- ortho_projection(train_x, ncomp = ncomp_by_var(0.01))
 
 # PCA with OPC optimization
 proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
                          ncomp = ncomp_by_opc(40))
+
+#' plot(proj)
 
 # PLS projection (NIPALS)
 proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
@@ -175,7 +179,6 @@ proj <- ortho_projection(train_x, Yr = train_y,
 proj <- ortho_projection(train_x, Yr = train_y,
                          method = "simpls", ncomp = 10)
 }
-
 }
 \references{
 de Jong, S. 1993. SIMPLS: An alternative approach to partial least squares

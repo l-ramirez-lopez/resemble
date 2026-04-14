@@ -159,6 +159,8 @@
 #'
 #' # PCA with fixed components
 #' proj <- ortho_projection(train_x, ncomp = 5)
+#' 
+#' plot(proj)
 #'
 #' # PCA with variance-based selection
 #' proj <- ortho_projection(train_x, ncomp = ncomp_by_var(0.01))
@@ -167,6 +169,8 @@
 #' proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
 #'                          ncomp = ncomp_by_opc(40))
 #'
+#' #' plot(proj)
+#' 
 #' # PLS projection (NIPALS)
 #' proj <- ortho_projection(train_x, Xu = test_x, Yr = train_y,
 #'                          method = "pls", ncomp = ncomp_by_opc(40))
@@ -179,7 +183,6 @@
 #' proj <- ortho_projection(train_x, Yr = train_y,
 #'                          method = "simpls", ncomp = 10)
 #' }
-#'
 #' @rdname ortho_projection
 #' @export
 ortho_projection <- function(
