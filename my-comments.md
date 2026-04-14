@@ -1,5 +1,38 @@
 # resemble
 
+# version 3.0.0
+
+Dear CRAN maintainers,
+
+I am submitting version 3.0.0 of "resemble" to CRAN. This is a major release with a redesigned API and new functionality:
+
+- Refactored API using constructor functions (`neighbors_k()`, `neighbors_diss()`, `fit_pls()`, `fit_wapls()`, `fit_gpr()`, `mbl_control()`)
+- New `liblex()` function for building reusable libraries of local models
+- New `model()` function for global PLS/GPR models with cross-validation
+- Migrated vignettes from R Markdown/bookdown to Quarto
+- Deprecated legacy function arguments with informative migration messages
+- Comprehensive unit test coverage via testthat
+
+## Test environments
+
+- Local: Ubuntu 24.04.4 LTS, R 4.5.3
+- win-builder: R-devel, R-release (pending)
+
+## Package was built using: 
+
+```
+devtools::build(
+  pkg = ".",
+  path = NULL,
+  binary = FALSE,
+  vignettes = TRUE,
+  manual = TRUE,
+  args = NULL,
+  quiet = FALSE
+)
+```
+
+
 # version 2.2.5
 
 Dear CRAN maintainers,
@@ -368,7 +401,7 @@ Rcpp. These platforms were:
  
  - "linux-x86_64-rocker-gcc-san" 
  
-The remaining platforms were passing all the tests sucessfully. For the above 
+The remaining platforms were passing all the tests successfully. For the above 
 three platforms, the solution was to disable OPENMP.
 
 All platforms pass the checks successfully for the release. 
