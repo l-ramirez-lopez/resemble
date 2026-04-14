@@ -424,38 +424,36 @@ predict.resemble_model <- function(object, newdata, ncomp = NULL, ...) {
       sel_ncomp <- ncomp
     }
     
-    if (ncomp > object$fit_method$ncomp) {
+    if (max(ncomp) > object$fit_method$ncomp) {
       stop(
-        "'ncomp' (", ncomp, ") exceeds the number of components in the model (",
+        "'ncomp' (", max(ncomp), ") exceeds the number of components in the model (",
         object$fit_method$ncomp, ").",
         call. = FALSE
       )
     }
     
     yhat <- predict_opls(
-      bo      = object$model$bo,
-      b       = object$model$coefficients,
-      ncomp   = ncomp,
+      bo = object$model$bo,
+      b = object$model$coefficients,
+      ncomp = max(ncomp),
       newdata = newdata,
-      scale   = object$fit_method$scale,
-      Xscale  = object$model$transf$Xscale
+      scale = object$fit_method$scale,
+      Xscale = object$model$transf$Xscale
     )
     colnames(yhat) <- paste0("ncomp", seq_len(ncol(yhat)))
     yhat <- yhat[, sel_ncomp, drop = FALSE]
     
-
-    
   } else if (inherits(object$fit_method, "fit_gpr")) {
     
     yhat <- predict_gaussian_process(
-      Xz      = object$model$Xz,
-      alpha   = object$model$alpha,
+      Xz = object$model$Xz,
+      alpha = object$model$alpha,
       newdata = newdata,
-      scale   = object$model$is_scaled,
+      scale = object$model$is_scaled,
       Xcenter = object$model$Xcenter,
-      Xscale  = object$model$Xscale,
+      Xscale = object$model$Xscale,
       Ycenter = object$model$Ycenter,
-      Yscale  = object$model$Yscale
+      Yscale = object$model$Yscale
     )
     
     yhat <- as.matrix(yhat)
