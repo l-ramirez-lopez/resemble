@@ -7,8 +7,7 @@
 #' @usage
 #' cor_diss(
 #'   Xr, Xu = NULL, ws = NULL, 
-#'   center = TRUE, scale = FALSE, 
-#'   precision = c("double", "single")
+#'   center = TRUE, scale = FALSE
 #' )
 #' @param Xr a matrix.
 #' @param Xu an optional matrix containing data of a second set of observations.
@@ -22,11 +21,6 @@
 #' @param scale a logical indicating if \code{Xr} (and \code{Xu} if specified)
 #' must be scaled. If \code{Xu} is provided the data is scaled on the basis
 #' of \mjeqn{Xr \cup Xu}{Xr U Xu}.
-#' @param precision a character string indicating the numeric precision to use.
-#' Possible values are \code{"double"} (default, 64-bit floating point) or
-#' \code{"single"} (32-bit floating point). Using \code{"single"} reduces memory
-#' usage and may improve performance for large datasets, at the cost of reduced
-#' numerical precision.
 #' @details
 #' The correlation dissimilarity \mjeqn{d}{d} between two observations
 #' \mjeqn{x_i}{x_i} and \mjeqn{x_j}{x_j} is based on the Perason's
@@ -99,12 +93,8 @@ cor_diss <- function(
     Xu = NULL, 
     ws = NULL, 
     center = TRUE, 
-    scale = FALSE, 
-    precision = c("double", "single")
+    scale = FALSE
 ) {
-  
-  pr <- match.arg(precision, c("double", "single"))
-  
   if (!ncol(Xr) >= 2) {
     stop("For correlation dissimilarity the number of variables must be larger than 1")
   }
@@ -188,30 +178,20 @@ cor_diss <- function(
   }
   
   if (!is.null(Xu)) {
-    pr <- match.arg(precision, c("double", "single"))
     rslt <- moving_cor_diss_xy(
       Xu, Xr, ws, 
       compute_block_rows(dim(Xu)),
-      compute_block_rows(dim(Xr)), 
-      precision = pr
+      compute_block_rows(dim(Xr))
     )
     colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
     rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
   } else {
-    if (pr == "double") {
-      rslt <- moving_cor_diss_self_f64(
-        Xr, ws,
-        compute_block_rows(dim(Xr))
-      )
-    } else  {
-      rslt <- moving_cor_diss_self_f32(
-        Xr, ws,
-        compute_block_rows(dim(Xr))
-      )
-    }
+    rslt <- moving_cor_diss_self_f64(
+      Xr, ws,
+      compute_block_rows(dim(Xr))
+    )
     rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
   }
-  
   rslt
 }
 

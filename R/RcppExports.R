@@ -68,12 +68,11 @@ fast_self_euclid <- function(X) {
 #' @param w Window size (odd in [1..T] or exactly T)
 #' @param block_x Tile size for rows of X (default 1024)
 #' @param block_y Tile size for rows of Y (default 1024)
-#' @param precision "double" (default) or "float32"/"single"
 #' @return n×m distance matrix (R double matrix)
 #' @noRd
 #' @keywords internal
-moving_cor_diss_xy <- function(X, Y, w, block_x = 1024L, block_y = 1024L, precision = "double") {
-    .Call(`_resemble_moving_cor_diss_xy`, X, Y, w, block_x, block_y, precision)
+moving_cor_diss_xy <- function(X, Y, w, block_x = 1024L, block_y = 1024L) {
+    .Call(`_resemble_moving_cor_diss_xy`, X, Y, w, block_x, block_y)
 }
 
 #' @title Rolling correlation distance within X (upper-triangle, tiled, serial-optimized)
@@ -91,30 +90,16 @@ moving_cor_diss_self_f64 <- function(X, w, block_rows = 1024L) {
     .Call(`_resemble_moving_cor_diss_self_f64`, X, w, block_rows)
 }
 
-#' @title Rolling correlation distance within X (float32, tiled)
-#' @description Mean rolling-window correlation distance among rows of X (single precision).
-#' @param X Numeric matrix (m x T)
-#' @param w Odd window size
-#' @param block_rows Tile size in rows (default 1024)
-#' @return m x m symmetric distance matrix (returned as double for R)
-#' @keywords internal
-#' @noRd
-#' @useDynLib resemble, .registration=TRUE
-moving_cor_diss_self_f32 <- function(X, w, block_rows = 1024L) {
-    .Call(`_resemble_moving_cor_diss_self_f32`, X, w, block_rows)
-}
-
 #' @title Rolling correlation distance within X (templated, OpenMP; precision)
 #' @param X Numeric matrix (m×T)
 #' @param w Window size (odd in [1..T] or exactly T)
 #' @param block_rows Tile size (default 1024)
-#' @param precision "double" (default) or "single (i.e."float32")
 #' @return m×m distance matrix (double for R)
 #' @keywords internal
 #' @noRd
 #' @useDynLib resemble
-moving_cor_diss_self <- function(X, w, block_rows = 1024L, precision = "double") {
-    .Call(`_resemble_moving_cor_diss_self`, X, w, block_rows, precision)
+moving_cor_diss_self <- function(X, w, block_rows = 1024L) {
+    .Call(`_resemble_moving_cor_diss_self`, X, w, block_rows)
 }
 
 #' @title A function to compute row-wise index of minimum values of a square distance matrix

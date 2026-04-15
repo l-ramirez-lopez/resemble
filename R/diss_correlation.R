@@ -188,8 +188,7 @@ print.diss_correlation <- function(x, ...) {
     result <- moving_cor_diss_xy(
       Xu, Xr, ws,
       compute_block_rows(dim(Xu)),
-      compute_block_rows(dim(Xr)),
-      precision = "double"
+      compute_block_rows(dim(Xr))
     )
     rownames(result) <- paste("Xr", seq_len(nrow(Xr)), sep = "_")
     colnames(result) <- paste("Xu", seq_len(nrow(Xu)), sep = "_")

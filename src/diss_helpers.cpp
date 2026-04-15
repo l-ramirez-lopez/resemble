@@ -7,6 +7,7 @@
  #include <omp.h>
 #endif
 
+
 using namespace Rcpp;
 using namespace arma;
 
@@ -471,13 +472,43 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 }
 
 
+// //' @title Rolling correlation distance between X and Y
+// //' @param X Numeric matrix m×T
+// //' @param Y Numeric matrix n×T
+// //' @param w Window size (odd in [1..T] or exactly T)
+// //' @param block_x Tile size for rows of X (default 1024)
+// //' @param block_y Tile size for rows of Y (default 1024)
+// //' @param precision "double" (default) or "float32"/"single"
+// //' @return n×m distance matrix (R double matrix)
+// //' @noRd
+// //' @keywords internal
+// // [[Rcpp::export]]
+// arma::mat moving_cor_diss_xy(
+//     const arma::mat &X,
+//     const arma::mat &Y,
+//     int w,
+//     arma::uword block_x = 1024,
+//     arma::uword block_y = 1024
+//     std::string precision = "double"
+// ) {
+//   for (auto &ch : precision) ch = static_cast<char>(std::tolower(ch));
+//   
+//   if (precision == "float32" || precision == "float" || precision == "single") {
+//     arma::fmat Xf = arma::conv_to<arma::fmat>::from(X);
+//     arma::fmat Yf = arma::conv_to<arma::fmat>::from(Y);
+//     arma::fmat Df = moving_cor_diss_xy_impl<float>(Xf, Yf, w, block_x, block_y);
+//     return arma::conv_to<arma::mat>::from(Df);
+//   } else {
+//     return moving_cor_diss_xy_impl<double>(X, Y, w, block_x, block_y);
+//   }
+// }
+
 //' @title Rolling correlation distance between X and Y
 //' @param X Numeric matrix m×T
 //' @param Y Numeric matrix n×T
 //' @param w Window size (odd in [1..T] or exactly T)
 //' @param block_x Tile size for rows of X (default 1024)
 //' @param block_y Tile size for rows of Y (default 1024)
-//' @param precision "double" (default) or "float32"/"single"
 //' @return n×m distance matrix (R double matrix)
 //' @noRd
 //' @keywords internal
@@ -487,19 +518,9 @@ arma::mat moving_cor_diss_xy(
     const arma::mat &Y,
     int w,
     arma::uword block_x = 1024,
-    arma::uword block_y = 1024,
-    std::string precision = "double"
+    arma::uword block_y = 1024
 ) {
-  for (auto &ch : precision) ch = static_cast<char>(std::tolower(ch));
-  
-  if (precision == "float32" || precision == "float" || precision == "single") {
-    arma::fmat Xf = arma::conv_to<arma::fmat>::from(X);
-    arma::fmat Yf = arma::conv_to<arma::fmat>::from(Y);
-    arma::fmat Df = moving_cor_diss_xy_impl<float>(Xf, Yf, w, block_x, block_y);
-    return arma::conv_to<arma::mat>::from(Df);
-  } else {
-    return moving_cor_diss_xy_impl<double>(X, Y, w, block_x, block_y);
-  }
+  return moving_cor_diss_xy_impl<double>(X, Y, w, block_x, block_y);
 }
 
 // Compute correlation for one tile in-place using a single large buffer.
@@ -649,151 +670,151 @@ arma::mat moving_cor_diss_self_f64(const arma::mat &X, int w,
 
 
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Float32 tile
-// ─────────────────────────────────────────────────────────────────────────────
-static inline void corr_tile_from_stats_serial_fast_f32(
-    fmat       &C,        // mi × mj (output; reused as "cov" scratch)
-    const fmat &Sxy,      // mi × mj
-    const fvec &Sx_i,     // mi
-    const fvec &Sx_j,     // mj
-    const fvec &Sxx_i,    // mi
-    const fvec &Sxx_j,    // mj
-    const float iw,       // 1.0f / w
-    const float icv,      // 1.0f / (w-1)
-    fvec &var_i,          // mi scratch
-    fvec &var_j,          // mj scratch
-    fvec &inv_i,          // mi scratch
-    fvec &inv_j           // mj scratch
-) {
-  // cov -> C
-  C = Sxy;
-  C -= (Sx_i * Sx_j.t()) * iw;    // rank-1 correction
-  C *= icv;
-  
-  // sd (variance → inv sd)
-  var_i = (Sxx_i - (Sx_i % Sx_i) * iw) * icv;
-  var_j = (Sxx_j - (Sx_j % Sx_j) * iw) * icv;
-  
-  // clamp tiny negatives from roundoff
-  const float min_var = 1e-7f;
-  inv_i = 1.0f / sqrt(clamp(var_i, min_var, std::numeric_limits<float>::infinity()));
-  inv_j = 1.0f / sqrt(clamp(var_j, min_var, std::numeric_limits<float>::infinity()));
-  
-  // r = cov ./ (sd_i sd_j^T)
-  C.each_row() %= inv_j.t();
-  C.each_col() %= inv_i;
-}
+// // ─────────────────────────────────────────────────────────────────────────────
+// // Float32 tile
+// // ─────────────────────────────────────────────────────────────────────────────
+// static inline void corr_tile_from_stats_serial_fast_f32(
+//     fmat       &C,        // mi × mj (output; reused as "cov" scratch)
+//     const fmat &Sxy,      // mi × mj
+//     const fvec &Sx_i,     // mi
+//     const fvec &Sx_j,     // mj
+//     const fvec &Sxx_i,    // mi
+//     const fvec &Sxx_j,    // mj
+//     const float iw,       // 1.0f / w
+//     const float icv,      // 1.0f / (w-1)
+//     fvec &var_i,          // mi scratch
+//     fvec &var_j,          // mj scratch
+//     fvec &inv_i,          // mi scratch
+//     fvec &inv_j           // mj scratch
+// ) {
+//   // cov -> C
+//   C = Sxy;
+//   C -= (Sx_i * Sx_j.t()) * iw;    // rank-1 correction
+//   C *= icv;
+//   
+//   // sd (variance → inv sd)
+//   var_i = (Sxx_i - (Sx_i % Sx_i) * iw) * icv;
+//   var_j = (Sxx_j - (Sx_j % Sx_j) * iw) * icv;
+//   
+//   // clamp tiny negatives from roundoff
+//   const float min_var = 1e-7f;
+//   inv_i = 1.0f / sqrt(clamp(var_i, min_var, std::numeric_limits<float>::infinity()));
+//   inv_j = 1.0f / sqrt(clamp(var_j, min_var, std::numeric_limits<float>::infinity()));
+//   
+//   // r = cov ./ (sd_i sd_j^T)
+//   C.each_row() %= inv_j.t();
+//   C.each_col() %= inv_i;
+// }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//' @title Rolling correlation distance within X (float32, tiled)
-//' @description Mean rolling-window correlation distance among rows of X (single precision).
-//' @param X Numeric matrix (m x T)
-//' @param w Odd window size
-//' @param block_rows Tile size in rows (default 1024)
-//' @return m x m symmetric distance matrix (returned as double for R)
-//' @keywords internal
-//' @noRd
-//' @useDynLib resemble, .registration=TRUE
-// [[Rcpp::export]]
-arma::mat moving_cor_diss_self_f32(const arma::mat &X, int w,
-                                   arma::uword block_rows = 1024) {
-  const uword T   = X.n_cols;
-  validate_window_or_full(w, T);
-  const uword m_u = X.n_rows;
-  
-  // Convert once to float32 (R is double; conversion cost is negligible vs compute)
-  fmat Xf = conv_to<fmat>::from(X);
-  
-  // Full-window fallback if T < w  (use float path)
-  if (T < static_cast<uword>(w)) {
-    // r = cor(t(X)) in float, then D = (1 - r)/2; finally return double
-    fmat Xt = Xf.t();
-    fmat Rf = cor(Xt);                   // m×m, float
-    fmat Df = 0.5f * (1.0f - Rf);
-    Df.transform([](float d){
-      return (d < 0.0f) ? 0.0f : (d > 1.0f ? 1.0f : d);
-    });
-    Df.diag().zeros();
-    Df = 0.5f * (Df + Df.t());           // symmetry hygiene
-    return conv_to<mat>::from(Df);
-  }
-  
-  const int   m  = static_cast<int>(m_u);
-  const int   bs = static_cast<int>(block_rows);
-  const int   n_centers = static_cast<int>(T) - w + 1;
-  const float iw  = 1.0f / static_cast<float>(w);
-  const float icv = 1.0f / static_cast<float>(w - 1);
-  
-  // Float working buffers; final ‘out’ we keep in double (you can also keep float and cast once at end)
-  fmat out_f(m_u, m_u, fill::zeros);
-  
-  // Parallel upper-triangle tiles
-#ifdef _OPENMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-  for (int i0 = 0; i0 < m; i0 += bs) {
-    for (int j0 = i0; j0 < m; j0 += bs) {
-      const int i1 = std::min(m, i0 + bs);
-      const int j1 = std::min(m, j0 + bs);
-      const int mi = i1 - i0;
-      const int mj = j1 - j0;
-      
-      auto Xi = Xf.rows(static_cast<uword>(i0), static_cast<uword>(i1 - 1));
-      auto Xj = Xf.rows(static_cast<uword>(j0), static_cast<uword>(j1 - 1));
-      
-      fmat Xi_sq = square(Xi);
-      fmat Xj_sq = square(Xj);
-      
-      // First window [0, w-1]
-      fvec Sx_i  = sum(Xi.cols(0, w - 1), 1);
-      fvec Sx_j  = sum(Xj.cols(0, w - 1), 1);
-      fvec Sxx_i = sum(Xi_sq.cols(0, w - 1), 1);
-      fvec Sxx_j = sum(Xj_sq.cols(0, w - 1), 1);
-      fmat Sxy   = Xi.cols(0, w - 1) * Xj.cols(0, w - 1).t();   // SGEMM
-      
-      fmat sumCorr(mi, mj, fill::zeros);
-      fmat C(mi, mj, fill::none);
-      fvec var_i(mi, fill::none), var_j(mj, fill::none);
-      fvec inv_i(mi, fill::none), inv_j(mj, fill::none);
-      
-      for (int s = 0; s < n_centers; ++s) {
-        corr_tile_from_stats_serial_fast_f32(
-          C, Sxy, Sx_i, Sx_j, Sxx_i, Sxx_j, iw, icv, var_i, var_j, inv_i, inv_j
-        );
-        sumCorr += C;
-        
-        if (s + 1 < n_centers) {
-          const int out_idx = s, in_idx = s + w;
-          Sx_i  += Xi.col(in_idx)    - Xi.col(out_idx);
-          Sx_j  += Xj.col(in_idx)    - Xj.col(out_idx);
-          Sxx_i += Xi_sq.col(in_idx) - Xi_sq.col(out_idx);
-          Sxx_j += Xj_sq.col(in_idx) - Xj_sq.col(out_idx);
-          Sxy   += Xi.col(in_idx) * Xj.col(in_idx).t()
-            - Xi.col(out_idx) * Xj.col(out_idx).t();
-        }
-      }
-      
-      fmat Dblk = 0.5f * (1.0f - (sumCorr / static_cast<float>(n_centers)));
-      
-      Dblk.transform([](float d){
-        return (d < 0.0f) ? 0.0f : (d > 1.0f ? 1.0f : d);
-      });
-      
-      out_f.submat(static_cast<uword>(i0), static_cast<uword>(j0),
-                   static_cast<uword>(i1 - 1), static_cast<uword>(j1 - 1)) = Dblk;
-    }
-  }
-  
-  // Mirror once & zero diag (still in float)
-  for (int j = 0; j < m; ++j) {
-    out_f(j, j) = 0.0f;
-    for (int i = j + 1; i < m; ++i) out_f(i, j) = out_f(j, i);
-  }
-  
-  // Return as double (R owns doubles); or change signature to return float-packed file
-  return conv_to<mat>::from(out_f);
-}
+// // ─────────────────────────────────────────────────────────────────────────────
+// //' @title Rolling correlation distance within X (float32, tiled)
+// //' @description Mean rolling-window correlation distance among rows of X (single precision).
+// //' @param X Numeric matrix (m x T)
+// //' @param w Odd window size
+// //' @param block_rows Tile size in rows (default 1024)
+// //' @return m x m symmetric distance matrix (returned as double for R)
+// //' @keywords internal
+// //' @noRd
+// //' @useDynLib resemble, .registration=TRUE
+// // [[Rcpp::export]]
+// arma::mat moving_cor_diss_self_f32(const arma::mat &X, int w,
+//                                    arma::uword block_rows = 1024) {
+//   const uword T   = X.n_cols;
+//   validate_window_or_full(w, T);
+//   const uword m_u = X.n_rows;
+//   
+//   // Convert once to float32 (R is double; conversion cost is negligible vs compute)
+//   fmat Xf = conv_to<fmat>::from(X);
+//   
+//   // Full-window fallback if T < w  (use float path)
+//   if (T < static_cast<uword>(w)) {
+//     // r = cor(t(X)) in float, then D = (1 - r)/2; finally return double
+//     fmat Xt = Xf.t();
+//     fmat Rf = cor(Xt);                   // m×m, float
+//     fmat Df = 0.5f * (1.0f - Rf);
+//     Df.transform([](float d){
+//       return (d < 0.0f) ? 0.0f : (d > 1.0f ? 1.0f : d);
+//     });
+//     Df.diag().zeros();
+//     Df = 0.5f * (Df + Df.t());           // symmetry hygiene
+//     return conv_to<mat>::from(Df);
+//   }
+//   
+//   const int   m  = static_cast<int>(m_u);
+//   const int   bs = static_cast<int>(block_rows);
+//   const int   n_centers = static_cast<int>(T) - w + 1;
+//   const float iw  = 1.0f / static_cast<float>(w);
+//   const float icv = 1.0f / static_cast<float>(w - 1);
+//   
+//   // Float working buffers; final ‘out’ we keep in double (you can also keep float and cast once at end)
+//   fmat out_f(m_u, m_u, fill::zeros);
+//   
+//   // Parallel upper-triangle tiles
+// #ifdef _OPENMP
+// #pragma omp parallel for schedule(dynamic)
+// #endif
+//   for (int i0 = 0; i0 < m; i0 += bs) {
+//     for (int j0 = i0; j0 < m; j0 += bs) {
+//       const int i1 = std::min(m, i0 + bs);
+//       const int j1 = std::min(m, j0 + bs);
+//       const int mi = i1 - i0;
+//       const int mj = j1 - j0;
+//       
+//       auto Xi = Xf.rows(static_cast<uword>(i0), static_cast<uword>(i1 - 1));
+//       auto Xj = Xf.rows(static_cast<uword>(j0), static_cast<uword>(j1 - 1));
+//       
+//       fmat Xi_sq = square(Xi);
+//       fmat Xj_sq = square(Xj);
+//       
+//       // First window [0, w-1]
+//       fvec Sx_i  = sum(Xi.cols(0, w - 1), 1);
+//       fvec Sx_j  = sum(Xj.cols(0, w - 1), 1);
+//       fvec Sxx_i = sum(Xi_sq.cols(0, w - 1), 1);
+//       fvec Sxx_j = sum(Xj_sq.cols(0, w - 1), 1);
+//       fmat Sxy   = Xi.cols(0, w - 1) * Xj.cols(0, w - 1).t();   // SGEMM
+//       
+//       fmat sumCorr(mi, mj, fill::zeros);
+//       fmat C(mi, mj, fill::none);
+//       fvec var_i(mi, fill::none), var_j(mj, fill::none);
+//       fvec inv_i(mi, fill::none), inv_j(mj, fill::none);
+//       
+//       for (int s = 0; s < n_centers; ++s) {
+//         corr_tile_from_stats_serial_fast_f32(
+//           C, Sxy, Sx_i, Sx_j, Sxx_i, Sxx_j, iw, icv, var_i, var_j, inv_i, inv_j
+//         );
+//         sumCorr += C;
+//         
+//         if (s + 1 < n_centers) {
+//           const int out_idx = s, in_idx = s + w;
+//           Sx_i  += Xi.col(in_idx)    - Xi.col(out_idx);
+//           Sx_j  += Xj.col(in_idx)    - Xj.col(out_idx);
+//           Sxx_i += Xi_sq.col(in_idx) - Xi_sq.col(out_idx);
+//           Sxx_j += Xj_sq.col(in_idx) - Xj_sq.col(out_idx);
+//           Sxy   += Xi.col(in_idx) * Xj.col(in_idx).t()
+//             - Xi.col(out_idx) * Xj.col(out_idx).t();
+//         }
+//       }
+//       
+//       fmat Dblk = 0.5f * (1.0f - (sumCorr / static_cast<float>(n_centers)));
+//       
+//       Dblk.transform([](float d){
+//         return (d < 0.0f) ? 0.0f : (d > 1.0f ? 1.0f : d);
+//       });
+//       
+//       out_f.submat(static_cast<uword>(i0), static_cast<uword>(j0),
+//                    static_cast<uword>(i1 - 1), static_cast<uword>(j1 - 1)) = Dblk;
+//     }
+//   }
+//   
+//   // Mirror once & zero diag (still in float)
+//   for (int j = 0; j < m; ++j) {
+//     out_f(j, j) = 0.0f;
+//     for (int i = j + 1; i < m; ++i) out_f(i, j) = out_f(j, i);
+//   }
+//   
+//   // Return as double (R owns doubles); or change signature to return float-packed file
+//   return conv_to<mat>::from(out_f);
+// }
 
 // --- R wrapper: precision selectable ("double" | "float32") ------------------
 
@@ -801,24 +822,25 @@ arma::mat moving_cor_diss_self_f32(const arma::mat &X, int w,
 //' @param X Numeric matrix (m×T)
 //' @param w Window size (odd in [1..T] or exactly T)
 //' @param block_rows Tile size (default 1024)
-//' @param precision "double" (default) or "single (i.e."float32")
 //' @return m×m distance matrix (double for R)
 //' @keywords internal
 //' @noRd
 //' @useDynLib resemble
 // [[Rcpp::export]]
-arma::mat moving_cor_diss_self(const arma::mat &X,
-                               int w,
-                               arma::uword block_rows = 1024,
-                               std::string precision = "double") {
-  if (precision == "double") {
-    return moving_cor_diss_self_f64(X, w, block_rows);
-  } else if (precision == "single") {
-    return moving_cor_diss_self_f32(X, w, block_rows);
-  } else {
-    // Default to double if unspecified
-    return moving_cor_diss_self_f64(X, w, block_rows);
-  }
+arma::mat moving_cor_diss_self(
+    const arma::mat &X,
+    int w,
+    arma::uword block_rows = 1024
+) {
+  // if (precision == "double") {
+  //   return moving_cor_diss_self_f64(X, w, block_rows);
+  // } else if (precision == "single") {
+  //   return moving_cor_diss_self_f32(X, w, block_rows);
+  // } else {
+  //   // Default to double if unspecified
+  //   return moving_cor_diss_self_f64(X, w, block_rows);
+  // }
+  return moving_cor_diss_self_f64(X, w, block_rows);
 }
 
 
