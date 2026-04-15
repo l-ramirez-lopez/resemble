@@ -230,7 +230,7 @@ dissimilarity <- function(
     result$scale <- NULL
   }  
 
-  class(result) <- c("dissimilarity", "list")
+  class(result) <- c("resemble_dissimilarity", "dissimilarity", "list")
   result
 }
 
@@ -415,7 +415,7 @@ dissimilarity <- function(
 # =============================================================================
 
 #' @export
-print.dissimilarity <- function(x, ...) {
+print.resemble_dissimilarity <- function(x, ...) {
   dmat <- x$dissimilarity
   cat("Dissimilarity matrix\n")
   cat("  Dimensions:", nrow(dmat), "x", ncol(dmat), "\n\n")
