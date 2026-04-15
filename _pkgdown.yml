@@ -45,10 +45,12 @@ reference:
     - diss_mahalanobis
     - diss_cosine
     - diss_evaluate
+    - sid
   - title: Neighbour Search
     desc: Find nearest neighbours in reference sets
     contents:
     - search_neighbors
+    - search_control
     - neighbors_k
     - neighbors_diss
   - title: Memory-Based Learning
@@ -66,7 +68,6 @@ reference:
     contents:
     - gesearch
     - gesearch_control
-    - search_control
   - title: Global Modelling
     desc: Global calibration models with cross-validation
     contents:
