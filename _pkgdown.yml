@@ -31,7 +31,11 @@ articles:
     - evolutionary-subset-search
 
 reference:
-  - title: Dissimilarity Methods
+  - title: Package
+    contents:
+    - resemble-package
+  - title: Dissimilarity Computation
+    desc: Compute dissimilarity matrices using various methods
     contents:
     - dissimilarity
     - diss_pca
@@ -42,32 +46,46 @@ reference:
     - diss_cosine
     - diss_evaluate
   - title: Neighbour Search
+    desc: Find nearest neighbours in reference sets
     contents:
     - search_neighbors
     - neighbors_k
     - neighbors_diss
-  - title: Local Modelling
+  - title: Memory-Based Learning
+    desc: Local modelling with per-query model fitting
     contents:
     - mbl
     - mbl_control
+  - title: Library of Local Experts
+    desc: Pre-computed local models for retrieval-gated prediction
+    contents:
     - liblex
     - liblex_control
-  - title: Subset Selection
+  - title: Evolutionary Subset Selection
+    desc: Domain-adaptive sample selection from spectral libraries
     contents:
     - gesearch
     - gesearch_control
+    - search_control
   - title: Global Modelling
+    desc: Global calibration models with cross-validation
     contents:
     - model
     - model_control
   - title: Projection Methods
+    desc: Dimensionality reduction via PCA and PLS
     contents:
     - ortho_projection
   - title: Fitting Methods
+    desc: Constructors for local regression methods
     contents:
     - fit_pls
     - fit_wapls
     - fit_gpr
   - title: Component Selection
+    desc: Methods for selecting the number of components
     contents:
-    - starts_with("ncomp_")
+    - ncomp_by_var
+    - ncomp_by_cumvar
+    - ncomp_by_opc
+    - ncomp_fixed
