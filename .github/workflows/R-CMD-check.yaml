@@ -33,8 +33,14 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+      - name: Build vignettes
+        run: |
+          install.packages(".", repos = NULL, type = "source")
+          quarto::quarto_render("vignettes/")
+        shell: Rscript {0}
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+          args: 'c("--no-manual", "--as-cran", "--no-build-vignettes")'
           
           
