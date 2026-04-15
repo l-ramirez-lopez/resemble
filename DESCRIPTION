@@ -1,6 +1,6 @@
 Package: resemble
 Type: Package
-Title: Sample Retrieval and Local Learning in Spectral Chemometrics
+Title: Similarity Retrieval and Local Learning for Spectral Chemometrics
 Version: 3.0.0
 Date: 2026-04-15
 Authors@R: c(
