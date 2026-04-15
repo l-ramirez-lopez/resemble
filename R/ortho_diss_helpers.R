@@ -6,6 +6,7 @@
 #' @param na_rm logical indicating whether NAs must be removed.
 #' @description internal
 #' @keywords internal
+#' @noRd
 ith_subsets_ortho_diss <- function(x,
                                    xu = NULL,
                                    y,

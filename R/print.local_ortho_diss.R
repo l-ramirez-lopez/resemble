@@ -7,6 +7,7 @@
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 #' @keywords internal
 #' @export
+#' @noRd
 
 ######################################################################
 # resemble
@@ -56,6 +57,7 @@ print.local_ortho_diss <- function(x, ...) {
 #' @param ... not used
 #' @description prints the subsets of local_ortho_diss objects
 #' @keywords internal
+#' @noRd
 #' @export
 "[.local_ortho_diss" <- function(x, rows, columns, drop = FALSE, ...) {
   object <- x

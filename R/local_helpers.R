@@ -271,6 +271,7 @@ pls_cv <- function(
 #' number of PLS components for which the weights must be computed.
 #' @return \code{get_wapls_weights} returns a vector of weights for each PLS
 #' component specified
+#' @noRd
 #' @author Leonardo Ramirez-Lopez and Antoine Stevens
 get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, pls_c) {
   if (!is.null(pls_model$models)) {
@@ -368,6 +369,7 @@ get_wapls_weights <- function(pls_model, original_x, type = "w1", new_x = NULL, 
 #' re-organize the rows of x accordingly
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
+#' @noRd
 ith_mbl_neighbor <- function(
     Xr, Xu = NULL, Yr, Yu = NULL,
     diss_usage = "none",

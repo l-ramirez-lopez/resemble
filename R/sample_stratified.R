@@ -227,6 +227,7 @@ sample_stratified <- function(
 #' @param n the number of strata.
 #' @return a data table with the input \code{y} and the corresponding strata to
 #' every value.
+#' @noRd
 #' @keywords internal
 get_sample_strata <- function(y, n = NULL, probs = NULL) {
   if (!is.null(n) & !is.null(probs)) {
@@ -376,6 +377,7 @@ optim_sample_strata <- function(y, n) {
 #' done.
 #' @return a list with the indices of the calibration and validation samples.
 #' @keywords internal
+#' @noRd
 get_samples_from_strata <- function(
     y,
     original_order,
