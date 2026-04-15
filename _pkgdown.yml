@@ -1,0 +1,73 @@
+url: https://l-ramirez-lopez.github.io/resemble/
+
+template:
+  bootstrap: 5
+
+home:
+  title: resemble - Local Learning for Spectral Chemometrics
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+
+articles:
+  - title: Getting Started
+    navbar: ~
+    contents:
+    - intro
+  - title: Core Methods
+    contents:
+    - dimensionality-reduction
+    - estimating-dissimilarity-between-spectra
+    - nearest-neighbor-search
+    - simple-global-models
+  - title: Local Modelling
+    contents:
+    - classical-mbl
+    - building-a-library-of-models-with-liblex
+  - title: Subset Selection
+    contents:
+    - evolutionary-subset-search
+
+reference:
+  - title: Dissimilarity Methods
+    contents:
+    - dissimilarity
+    - diss_pca
+    - diss_pls
+    - diss_correlation
+    - diss_euclidean
+    - diss_mahalanobis
+    - diss_cosine
+    - diss_evaluate
+  - title: Neighbour Search
+    contents:
+    - search_neighbors
+    - neighbors_k
+    - neighbors_diss
+  - title: Local Modelling
+    contents:
+    - mbl
+    - mbl_control
+    - liblex
+    - liblex_control
+  - title: Subset Selection
+    contents:
+    - gesearch
+    - gesearch_control
+  - title: Global Modelling
+    contents:
+    - model
+    - model_control
+  - title: Projection Methods
+    contents:
+    - ortho_projection
+  - title: Fitting Methods
+    contents:
+    - fit_pls
+    - fit_wapls
+    - fit_gpr
+  - title: Component Selection
+    contents:
+    - starts_with("ncomp_")
