@@ -16,6 +16,7 @@ resemble/.travis.yml
 
 *.html
 *.pdf
+
 tests/testthat/*.pdf
 
 vignettes/*.html
