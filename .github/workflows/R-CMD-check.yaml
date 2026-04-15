@@ -1,8 +1,17 @@
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - '!.github/workflows/R-CMD-check.yaml'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - README.qmd
+      - '!.github/workflows/R-CMD-check.yaml'
 name: R-CMD-check
 jobs:
   R-CMD-check:
@@ -42,5 +51,3 @@ jobs:
         with:
           upload-snapshots: true
           args: 'c("--no-manual", "--as-cran", "--no-build-vignettes")'
-          
-          
