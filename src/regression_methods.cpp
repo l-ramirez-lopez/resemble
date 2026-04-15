@@ -52,6 +52,8 @@ NumericVector get_column_sds(arma::mat X){
  return Rcpp::wrap(sds);
 }
 
+
+
 //' @title Function for computing the overall variance of a matrix
 //' @description Computes the variance of a matrix. For internal use only!
 //' @usage overall_var(X)
@@ -67,6 +69,8 @@ NumericVector overall_var(arma::mat X){
   return Rcpp::wrap(ovar);
 }
 
+
+
 //' @title Function for computing the mean of each column in a matrix
 //' @description Computes the mean of each column in a matrix. For internal use only!
 //' @usage get_column_means(X)
@@ -79,20 +83,6 @@ NumericVector overall_var(arma::mat X){
 NumericVector get_column_means(arma::mat X){
   arma::mat mn = arma::mean(X, 0);
   return Rcpp::wrap(mn);
-}
-
-//' @title Function for computing the maximum of each column
-//' @description Computes the max of each column in a matrix. For internal use only!
-//' @usage get_column_maxs(X)
-//' @param X a a matrix.
-//' @return a vector of mean values. 
-//' @author Leonardo Ramirez-Lopez
-//' @keywords internal 
-//' @useDynLib resemble
-// [[Rcpp::export]]
-NumericVector get_column_maxs(arma::mat X) {
-  arma::rowvec mx = arma::max(X, 0);
-  return Rcpp::wrap(mx);
 }
 
 //' @title Function for computing sum of each column in a matrix
@@ -203,24 +193,23 @@ arma::mat get_weights(arma::mat X,
 //' @param min_component an integer indicating the minimum number of pls components.
 //' @param max_component an integer indicating the maximum number of pls components.
 //' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
-//' @param Xcenter a vector with the values that must be used for centering \code{newdata}.
-//' @param Xscale if \code{scale = TRUE} a vector with the values that must be used for scaling \code{newdata}.
+//' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
+//' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
 //' @return a matrix of one row with the weights for each component between the max. and min. specified. 
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
 //' @useDynLib resemble
-// [[Rcpp::export]]
-Rcpp::NumericMatrix get_local_pls_weights(
-    arma::mat projection_mat, 
-    arma::mat xloadings,
-    arma::mat coefficients,
-    arma::mat new_x,
-    int min_component, 
-    int max_component, 
-    bool scale,
-    arma::rowvec Xcenter,
-    arma::rowvec Xscale
-) {
+ // [[Rcpp::export]]
+ Rcpp::NumericMatrix get_local_pls_weights(arma::mat projection_mat, 
+                                           arma::mat xloadings,
+                                           arma::mat coefficients,
+                                           arma::mat new_x,
+                                           int min_component, 
+                                           int max_component, 
+                                           bool scale,
+                                           arma::mat Xcenter,
+                                           arma::mat Xscale
+ ){
    arma::mat Xz = new_x;
    arma::mat whgt;
    
@@ -245,6 +234,8 @@ Rcpp::NumericMatrix get_local_pls_weights(
    whgt  = whgtn / arma::repmat(sum(whgtn, 1), 1, whgtn.n_cols);
    return Rcpp::wrap(whgt);
  }
+
+
 
 //' @title orthogonal scores algorithn of partial leat squares (opls) projection
 //' @description Computes orthogonal socres partial least squares (opls) 
@@ -491,6 +482,7 @@ List opls_for_projection(arma::mat X,
     }
   }
   
+  
   arma::mat ymean = arma::mean(Y);
   arma::vec ymean_vec = arma::vectorise(ymean);
   arma::mat y_hat_mean;
@@ -529,6 +521,7 @@ List opls_for_projection(arma::mat X,
     _["weights"] = weights
   );
 }
+
 
 //' @title orthogonal scores algorithn of partial leat squares (opls_get_all)
 //' @description Computes orthogonal socres partial least squares (opls_get_all) 
@@ -580,17 +573,15 @@ List opls_for_projection(arma::mat X,
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-List opls_get_all(
-    arma::mat X, 
-    arma::mat Y, 
-    int ncomp,
-    bool scale,            
-    double maxiter,
-    double tol, 
-    String algorithm = "pls", 
-    const int xls_min_w = 3, 
-    const int xls_max_w = 15
-) {
+List opls_get_all(arma::mat X, 
+                  arma::mat Y, 
+                  int ncomp,
+                  bool scale,            
+                  double maxiter,
+                  double tol, 
+                  String algorithm = "pls", 
+                  const int xls_min_w = 3, 
+                  const int xls_max_w = 15) {
   
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -1010,16 +1001,15 @@ List opls(arma::mat X,
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-List opls_get_basics(
-    arma::mat X, 
-    arma::mat Y, 
-    int ncomp,
-    bool scale,            
-    double maxiter,
-    double tol, 
-    String algorithm = "pls", 
-    const int xls_min_w = 3, 
-    const int xls_max_w = 15
+List opls_get_basics(arma::mat X, 
+                     arma::mat Y, 
+                     int ncomp,
+                     bool scale,            
+                     double maxiter,
+                     double tol, 
+                     String algorithm = "pls", 
+                     const int xls_min_w = 3, 
+                     const int xls_max_w = 15
 ) {
   int ny = Y.n_cols;
   int nynf = ncomp * Y.n_cols;
@@ -1161,13 +1151,12 @@ List opls_get_basics(
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-Rcpp::NumericMatrix predict_opls(
-    arma::mat bo, 
-    arma::mat b, 
-    int ncomp, 
-    arma::mat newdata,
-    bool scale,
-    arma::mat Xscale
+Rcpp::NumericMatrix predict_opls(arma::mat bo, 
+                                 arma::mat b, 
+                                 int ncomp, 
+                                 arma::mat newdata,
+                                 bool scale,
+                                 arma::mat Xscale
 ) {
   
   if (scale) {
@@ -1181,6 +1170,8 @@ Rcpp::NumericMatrix predict_opls(
   arma::mat predicted = (newdata * b.cols(0, ncomp - 1)) + arma::repmat(bo.cols(0, ncomp - 1), newdata.n_rows, 1);
   return Rcpp::wrap(predicted);
 }
+
+
 
 //' @title Projection function for the \code{opls} function
 //' @description Projects new spectra onto a PLS space based on a model generated by either by \code{opls} or the \code{opls2} functions. 
@@ -1197,13 +1188,12 @@ Rcpp::NumericMatrix predict_opls(
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-Rcpp::NumericMatrix project_opls(
-    arma::mat projection_mat, 
-    int ncomp, 
-    arma::mat newdata,
-    bool scale,
-    arma::mat Xcenter,
-    arma::mat Xscale
+Rcpp::NumericMatrix project_opls(arma::mat projection_mat, 
+                                 int ncomp, 
+                                 arma::mat newdata,
+                                 bool scale,
+                                 arma::mat Xcenter,
+                                 arma::mat Xscale
 ){
   
   if(scale){
@@ -1241,15 +1231,13 @@ Rcpp::NumericMatrix project_opls(
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-Rcpp::NumericMatrix reconstruction_error(
-    arma::mat x, 
-    arma::mat projection_mat, 
-    arma::mat xloadings,
-    bool scale,
-    arma::mat Xcenter,
-    arma::mat Xscale, 
-    bool scale_back = false
-){
+Rcpp::NumericMatrix reconstruction_error(arma::mat x, 
+                                         arma::mat projection_mat, 
+                                         arma::mat xloadings,
+                                         bool scale,
+                                         arma::mat Xcenter,
+                                         arma::mat Xscale, 
+                                         bool scale_back = false){
   
   if (scale){
     // x = x / arma::repmat(Xscale, x.n_rows, 1);
@@ -1350,21 +1338,20 @@ Rcpp::NumericMatrix reconstruction_error(
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-List opls_cv_cpp(
-    arma::mat X, 
-    arma::mat Y, 
-    bool scale,
-    String method,
-    arma::mat mindices,
-    arma::mat pindices,
-    int min_component,
-    int ncomp,
-    arma::mat new_x,
-    double maxiter, 
-    double tol,
-    arma::mat wapls_grid, 
-    String algorithm,
-    bool statistics = true
+List opls_cv_cpp(arma::mat X, 
+                 arma::mat Y, 
+                 bool scale,
+                 String method,
+                 arma::mat mindices,
+                 arma::mat pindices,
+                 int min_component,
+                 int ncomp,
+                 arma::mat new_x,
+                 double maxiter, 
+                 double tol,
+                 arma::mat wapls_grid, 
+                 String algorithm,
+                 bool statistics = true
 ){
   arma::mat rmseseg;
   arma::mat strmseseg;
@@ -1422,14 +1409,12 @@ List opls_cv_cpp(
       
       transf = fit["transf"];   
       
-      ypred = Rcpp::as<arma::mat>(predict_opls(
-        fit["bo"], 
-           fit["coefficients"],
-              ncomp, 
-              pxmatslice,
-              scale,
-              transf["Xscale"]
-      ));
+      ypred = Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
+                                               fit["coefficients"], 
+                                                  ncomp, 
+                                                  pxmatslice,
+                                                  scale,
+                                                  transf["Xscale"]));
       
       if (!statistics){
         // predictions.row(i) = ypred;
@@ -1457,19 +1442,15 @@ List opls_cv_cpp(
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
-    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(
-      get_local_pls_weights(
-        cfit["projection_mat"], 
-            cfit["X_loadings"],
-                cfit["coefficients"],
-                    new_x,
-                    min_component, 
-                    ncomp, 
-                    scale,
-                    ctransf["Xcenter"],
-                           ctransf["Xscale"]
-      )
-    );
+    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_local_pls_weights(cfit["projection_mat"], 
+                                                                      cfit["X_loadings"],
+                                                                          cfit["coefficients"],
+                                                                              new_x,
+                                                                              min_component, 
+                                                                              ncomp, 
+                                                                              scale,
+                                                                              ctransf["Xcenter"],
+                                                                                     ctransf["Xscale"]));
     
     arma::mat rcompweights = arma::repmat(compweights, pindices.n_rows, 1);
     
@@ -1537,19 +1518,15 @@ List opls_cv_cpp(
     List ctransf = cfit["transf"];
     
     compweights = arma::zeros(1, ncomp);
-    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(
-      get_local_pls_weights(
-        cfit["projection_mat"], 
-            cfit["X_loadings"],
-                cfit["coefficients"],
-                    new_x,
-                    min_component, 
-                    ncomp, 
-                    scale,
-                    ctransf["Xcenter"],
-                           ctransf["Xscale"]
-      )
-    );
+    compweights.cols(min_component-1, ncomp-1) =  Rcpp::as<arma::mat>(get_local_pls_weights(cfit["projection_mat"], 
+                                                                      cfit["X_loadings"],
+                                                                          cfit["coefficients"],
+                                                                              new_x,
+                                                                              min_component, 
+                                                                              ncomp, 
+                                                                              scale,
+                                                                              ctransf["Xcenter"],
+                                                                                     ctransf["Xscale"]));
     
     crcompweights = arma::zeros(wapls_grid.n_rows, ncomp); 
     for(int i = 0; (unsigned)i < crcompweights.n_rows; i++){
@@ -1566,16 +1543,19 @@ List opls_cv_cpp(
     List transf;
     
     for(int i = 0; (unsigned)i < mindices.n_cols; i++){
+      
       // The subset for fitting the model
       arma::vec irows = mindices.col(i);
       arma::mat xmatslice = arma::zeros(mindices.n_rows, X.n_cols);
       arma::mat ymatslice = arma::zeros(mindices.n_rows, Y.n_cols);
       
+      
       for (int j = 0; (unsigned)j < irows.size(); j++) {
         xmatslice.row(j) = X.row(irows(j)-1);
         ymatslice.row(j) = Y.row(irows(j)-1);
       }
-
+      
+      
       // The subset for predicting with the model
       arma::vec pirows = pindices.col(i);
       arma::mat pxmatslice = arma::zeros(pindices.n_rows, X.n_cols);
@@ -1585,7 +1565,8 @@ List opls_cv_cpp(
         pxmatslice.row(j) = X.row(pirows(j)-1);
         pymatslice.row(j) = Y.row(pirows(j)-1);
       }
-
+      
+      
       List fit = Rcpp::as<Rcpp::List>(opls_get_basics(xmatslice, ymatslice, ncomp, scale, maxiter, tol, algorithm));
       
       transf = fit["transf"];   
@@ -1595,14 +1576,13 @@ List opls_cv_cpp(
       arma::mat rpymatslice;
       rpymatslice = arma::repmat(pymatslice, 1, wapls_grid.n_rows);
       
-      nypred = (Rcpp::as<arma::mat>(predict_opls(
-        fit["bo"], 
-           fit["coefficients"], 
-              ncomp, 
-              pxmatslice,
-              scale,
-              transf["Xscale"]
-      )));
+      
+      nypred = (Rcpp::as<arma::mat>(predict_opls(fit["bo"], 
+                                                 fit["coefficients"], 
+                                                    ncomp, 
+                                                    pxmatslice,
+                                                    scale,
+                                                    transf["Xscale"])));
       
       ypred = nypred * trans(crcompweights);
       
@@ -1640,6 +1620,7 @@ List opls_cv_cpp(
     );
   }
 }
+
 
 //' @title orthogonal scores algorithm of partial leat squares (opls)
 //' @description Computes orthogonal scores partial least squares (opls) 
@@ -1681,18 +1662,16 @@ List opls_cv_cpp(
 //' @keywords internal 
 //' @useDynLib resemble
 // [[Rcpp::export]]
-List opls_gs(
-    arma::mat Xr, 
-    arma::mat Yr,
-    arma::mat Xu, 
-    int ncomp,
-    bool scale,     
-    bool response = false, 
-    bool reconstruction = true,
-    bool similarity = true,
-    bool fresponse = true,
-    String algorithm = "pls"
-) {
+List opls_gs(arma::mat Xr, 
+             arma::mat Yr,
+             arma::mat Xu, 
+             int ncomp,
+             bool scale,     
+             bool response = false, 
+             bool reconstruction = true,
+             bool similarity = true,
+             bool fresponse = true,
+             String algorithm = "pls") {
   
   int ny = Yr.n_cols;
   int nynf = ncomp * Yr.n_cols;
@@ -1768,13 +1747,15 @@ List opls_gs(
     // yrmse = sqrt(arma::mean(pow(predicted - Yu, 2), 0));
   }
   
+  
   arma::mat residual_variance;
   if (fresponse) {
     // residual_variance = arma::mean(pow(Yr - (scores * Yrloadings), 2));
     residual_variance = pow(arma::cor(Yr, (scores * Yrloadings)), 2);
     residual_variance.col(0) = 1 - residual_variance.col(0);
   }
-
+  
+  
   arma::mat xrmse;
   if (reconstruction) {
     arma::mat xrec = Xuz * projection_matrix * Xrloadings; 
@@ -1793,7 +1774,8 @@ List opls_gs(
     arma::vec s;
     arma::mat V;
     arma::mat sqrt_sm;
-
+    
+    
     scores_xu = Xuz * projection_matrix.cols(0, ncomp - 1);
     if (ncomp > 1) {
       // project onto a Mahalanobis space (since by adding the scores of Xuz
@@ -1820,7 +1802,9 @@ List opls_gs(
     arma::mat diss = arma::ones(scores_xu.n_rows, 1) * arma::sum(arma::square(scores), 1).t() + arma::sum(arma::square(scores_xu), 1)  * arma::ones(1, scores.n_rows) - 2 * scores_xu * scores.t();
     diss.for_each( [ncomp](arma::mat::elem_type& val) { val /= ncomp; });
     diss_score = arma::mean(arma::mean(sqrt(diss), 0), 1);
+    
   }
+  
   
   return Rcpp::List::create(
     Rcpp::Named("ncomp") = ncomp,
@@ -2228,238 +2212,5 @@ List pca_nipals(arma::mat X,
       Rcpp::Named("center") = x_center_vec,
       Rcpp::Named("scale") = x_scale_vec
     )
-  );
-}
-
-
-//////////////////////////////////////////////////////
-// ------ FUNCTIONS FOR THE LIBRARY OF MODELS ----- //
-/////////////////////////////////////////////////////
-
-
-//' @title Internal: Fit a local weighted PLS model and predict for a query point
-//'
-//' @description
-//' Fits a local Partial Least Squares (PLS) model using a neighborhood subset
-//' and computes a weighted prediction for a target sample. The weighting is
-//' done over multiple components using a provided evaluation grid.
-//'
-//' @param ilocalsubset A list with elements:
-//' \itemize{
-//'   \item{\code{x}}: matrix of predictors from the local neighborhood.
-//'   \item{\code{y}}: vector or 1-col matrix of corresponding responses.
-//'   \item{\code{xval}}: query sample (usually one row) to predict.
-//' }
-//' @param min_component Minimum number of PLS components to use in prediction.
-//' @param max_component Maximum number of PLS components to fit.
-//' @param emgrid A numeric matrix used to weight component-wise predictions.
-//' @param scale Logical; whether to scale predictors before PLS fitting.
-//' @param maxiter Maximum number of iterations for the PLS algorithm.
-//' @param tol Convergence tolerance for the PLS algorithm.
-//' @param pc_selection A list defining the principal component selection
-//'        strategy. (Included for consistency, not used directly here.)
-//' @param ... Additional arguments (currently unused).
-//'
-//' @return
-//' A numeric matrix of weighted predictions (rows = grid rows, 1 column).
-//'
-//' @details
-//' The function performs the following steps:
-//' \enumerate{
-//'   \item Fits a PLS model on `ilocalsubset$x` and `ilocalsubset$y` with
-//'         up to `max_component` components.
-//'   \item Computes component weights for `ilocalsubset$xval` using
-//'         \code{get_local_pls_weights()}.
-//'   \item Predicts component-wise responses using \code{predict_opls()}.
-//'   \item Applies a weighted average of predictions using `emgrid` and the
-//'         component weights.
-//' }
-//' The output is a matrix of weighted predictions using the weighted model grid.
-//'
-//' @author Leonardo Ramirez-Lopez
-//' @keywords internal 
-//' @useDynLib resemble
-// [[Rcpp::export]]
-Rcpp::NumericVector ith_local_fit(
-    arma::mat X, arma::mat Y,
-    arma::mat xval, arma::mat emgrid,
-    int max_component, int min_component,
-    bool scale, double maxiter, double tol
-) {
-  // Step 1: Compute PLS model
-  List ipls = opls_get_basics(X, Y, max_component, scale, maxiter, tol, "mpls");
-  
-  // Step 2: Extract transformation info
-  Rcpp::List transf = ipls["transf"];
-  arma::rowvec Xcenter = as<arma::rowvec>(transf["Xcenter"]);
-  arma::rowvec Xscale  = as<arma::rowvec>(transf["Xscale"]);
-  
-  // Step 3: Compute local weights
-  arma::rowvec pcweights = as<arma::rowvec>(get_local_pls_weights(
-    ipls["projection_mat"],
-    ipls["X_loadings"],
-    ipls["coefficients"],
-    xval,
-    min_component,
-    max_component,
-    scale,
-    Xcenter,
-    Xscale
-  ));
-  
-  // Step 4: Predict using PLS model
-  arma::mat preds = as<arma::mat>(predict_opls(
-    ipls["bo"],
-    ipls["coefficients"],
-    max_component,
-    xval,
-    scale,
-    Xscale
-  ));
-  
-  // Step 5: Multiply emgrid with pcweights (column-wise)
-  arma::mat wmgrid = emgrid;
-  // uivalent to sweep(..., MARGIN = 2)
-  wmgrid.each_row() %= pcweights;  
-  
-  // Step 6: Normalize rows (equivalent to sweep(..., MARGIN = 1))
-  arma::vec rowsums = arma::sum(wmgrid, 1);
-  wmgrid.each_col() /= rowsums;
-  
-  // Step 7: Select and transpose relevant predictions
-  arma::mat preds_slice = preds.cols(min_component - 1, max_component - 1).t();
-  
-  // Step 8: Matrix multiply
-  arma::mat ipreds = wmgrid * preds_slice;
-  Rcpp::NumericVector result = Rcpp::wrap(ipreds.col(0));
-  return result;
-}
-
-
-
-//' @title Compute Final Local PLS Model Outputs
-//' @description
-//' This function calculates the final local model coefficients, intercept,
-//' scaled variable importance (VIP), and selectivity ratio for a single observation
-//' using a weighted combination of PLS components.
-//'
-//' @param X A matrix of predictor variables used for calibration.
-//' @param Y A matrix of response variables used for calibration.
-//' @param new_x A single observation (1 x p) of predictor variables to compute weights.
-//' @param min_component The minimum number of PLS components to include in the final model.
-//' @param max_component The maximum number of PLS components to include in the final model.
-//' @param scale Logical indicating whether to scale the data.
-//' @param maxiter Maximum number of iterations allowed during the NIPALS algorithm.
-//' @param tol Tolerance threshold for convergence in the iterative algorithm.
-//'
-//' @return A list with the following elements:
-//' \itemize{
-//'   \item \code{ib0}: Intercept term, computed as a weighted sum of component-specific intercepts.
-//'   \item \code{ibs}: Weighted regression coefficients.
-//'   \item \code{ivips}: Weighted variable importance (VIP) scores, scaled by component SDs.
-//'   \item \code{isratio}: Weighted selectivity ratios, scaled by component SDs.
-//'   \item \code{Xscale}: Scaling vector used to scale \code{X} (if \code{scale = TRUE}).
-//' }
-//'
-//' @keywords internal
-// [[Rcpp::export]]
-Rcpp::List final_fits_cpp(
-    const arma::mat& X,
-    const arma::mat& Y,
-    const arma::mat& new_x,
-    int min_component,
-    int max_component,
-    bool scale,
-    double maxiter,
-    double tol
-) {
-  // 1) Fit iPLS (unchanged contract)
-  Rcpp::List ipls = opls_get_all(
-    X, Y, max_component, scale, maxiter, tol
-  );
-  
-  // 2) Extract transform data safely
-  Rcpp::List transf = ipls["transf"];
-  
-  arma::mat Xcenter_m = Rcpp::as<arma::mat>(transf["Xcenter"]);
-  arma::rowvec Xcenter = arma::rowvec(Xcenter_m);     // expect 1 x p
-  
-  arma::mat Xscale_m = Rcpp::as<arma::mat>(transf["Xscale"]);
-  arma::rowvec Xscale;
-  if (Xscale_m.n_elem == 0) {
-    // When scale == false, some builds return empty. Use ones(1 x p).
-    Xscale = arma::rowvec(X.n_cols, arma::fill::ones);
-  } else {
-    Xscale = arma::rowvec(Xscale_m);                  // 1 x p
-  }
-  
-  // 3) Local PLS weights
-  //    get_local_pls_weights returns a 1 x k matrix -> make it (k x 1)
-  arma::mat pcw_m = Rcpp::as<arma::mat>(get_local_pls_weights(
-    ipls["projection_mat"],
-        ipls["X_loadings"],
-            ipls["coefficients"],
-                new_x,
-                min_component,
-                max_component,
-                scale,
-                Xcenter,
-                Xscale
-  ));
-  arma::vec pcweights = arma::conv_to<arma::vec>::from(pcw_m.t()); // (k x 1)
-  
-  // component indices in 0-based C++
-  arma::uvec idx_comp = arma::regspace<arma::uvec>(
-    static_cast<unsigned>(min_component - 1),
-    static_cast<unsigned>(max_component - 1)
-  );
-  
-  // 4) Final coefficients: (p x k) * (k x 1) -> (p x 1)
-  arma::mat coefs = Rcpp::as<arma::mat>(ipls["coefficients"]);
-  arma::mat ibs   = coefs.cols(idx_comp) * pcweights;
-  
-  // 5) Final intercept
-  arma::mat  bo_m   = Rcpp::as<arma::mat>(ipls["bo"]); // (ny x ncomp)
-  arma::rowvec b0_r = bo_m.row(0);                     // first response
-  arma::vec intercepts = arma::conv_to<arma::vec>::from(
-    b0_r.cols(idx_comp).t()
-  );                                                   // (k x 1)
-  double ib0 = arma::dot(intercepts, pcweights);
-  
-  // 6) Scaled VIPs
-  arma::mat vip       = Rcpp::as<arma::mat>(ipls["vip"]); // (p x m)
-  arma::mat vip_slice = vip.cols(idx_comp);               // (p x k)
-  
-  arma::vec vip_sds_c = Rcpp::as<arma::vec>(get_column_sds(vip_slice));
-  vip_sds_c.transform(
-    [](double v){ return (std::abs(v) < 1e-12) ? 1.0 : v; }
-  );
-  arma::rowvec vip_sds = vip_sds_c.t();                   // (1 x k)
-  
-  arma::mat svips = vip_slice;                            // (p x k)
-  svips.each_row() /= vip_sds;                            // broadcast
-  arma::mat ivips = svips * pcweights;                    // (p x 1)
-  
-  // 7) Scaled selectivity ratios
-  arma::mat sr       = Rcpp::as<arma::mat>(ipls["selectivity_ratio"]);
-  arma::mat sr_slice = sr.cols(idx_comp);                 // (p x k)
-  
-  arma::vec sr_sds_c = Rcpp::as<arma::vec>(get_column_sds(sr_slice));
-  sr_sds_c.transform(
-    [](double v){ return (std::abs(v) < 1e-12) ? 1.0 : v; }
-  );
-  arma::rowvec sr_sds = sr_sds_c.t();                     // (1 x k)
-  
-  arma::mat ssratio = sr_slice;                           // (p x k)
-  ssratio.each_row() /= sr_sds;                           // broadcast
-  arma::mat isratio = ssratio * pcweights;                // (p x 1)
-  
-  return Rcpp::List::create(
-    Rcpp::Named("ib0")     = ib0,
-    Rcpp::Named("ibs")     = ibs,
-    Rcpp::Named("ivips")   = ivips,
-    Rcpp::Named("isratio") = isratio,
-    Rcpp::Named("Xcenter") = Xcenter,
-    Rcpp::Named("Xscale")  = Xscale
   );
 }

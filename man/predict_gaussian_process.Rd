@@ -9,7 +9,7 @@ predict_gaussian_process(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Ys
 \arguments{
 \item{newdata}{a matrix containing the predictor variables}
 
-\item{scale}{a logical indicating whether the matrix of predictors used to create the regression model
+\item{scale}{a logical indicating whether the matrix of predictors used to create the regression model 
 (in the \code{gaussian_process} function) was scaled}
 
 \item{Xcenter}{if \code{center = TRUE} a matrix of one row with the values that must be used for centering \code{newdata}.}

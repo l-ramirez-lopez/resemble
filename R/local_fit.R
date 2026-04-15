@@ -112,11 +112,10 @@
 #'
 #' Rasmussen, C.E., Williams, C.K. Gaussian Processes for Machine Learning.
 #' Massachusetts Institute of Technology: MIT-Press, 2006.
-#' 
-#' Westerhaus, M. 2014. Eastern analytical symposium award for outstanding 
-#' achievements in near infrared spectroscopy: my contributions to near 
-#' infrared spectroscopy. NIR news, 25(8), 16-20.
-#' 
+#'
+#' Westerhaus, M. 2014. Eastern Analytical Symposium Award for outstanding
+#' Wachievements in near infrared spectroscopy: my contributions to
+#' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 #' @seealso \code{\link{mbl}}
 #' @examples
 #' local_fit_wapls(min_pls_c = 3, max_pls_c = 12)
@@ -155,17 +154,15 @@ local_fit_pls <- function(pls_c, modified = FALSE, max_iter = 100, tol = 1e-6) {
 
 #' @aliases local_fit
 #' @export local_fit_wapls
-local_fit_wapls <- function(
-    min_pls_c,
-    max_pls_c,
-    modified = FALSE,
-    max_iter = 100,
-    tol = 1e-6
-) {
+local_fit_wapls <- function(min_pls_c,
+                            max_pls_c,
+                            modified = FALSE,
+                            max_iter = 100,
+                            tol = 1e-6) {
   if (missing(min_pls_c) | missing(max_pls_c)) {
     stop("Both 'min_pls_c' and 'max_pls_c' must be specified")
   }
-  
+
   if (length(min_pls_c) != 1 | !is.numeric(min_pls_c)) {
     stop(paste0(
       "'min_pls_c' must be a single numerical ",
@@ -173,7 +170,7 @@ local_fit_wapls <- function(
       "be evaluated"
     ))
   }
-  
+
   if (length(max_pls_c) != 1 | !is.numeric(max_pls_c)) {
     stop(paste0(
       "'max_pls_c' must be a single numerical ",
@@ -181,11 +178,11 @@ local_fit_wapls <- function(
       "be evaluated"
     ))
   }
-  
+
   if (min_pls_c >= max_pls_c) {
     stop("min_pls_c must be smaller than max_pls_c")
   }
-  
+
   fit_type <- list(
     method = "wapls",
     pls_c = c(min_pls_c = min_pls_c, max_pls_c = max_pls_c),
@@ -193,7 +190,7 @@ local_fit_wapls <- function(
     max_iter = max_iter,
     tol = tol
   )
-  
+
   class(fit_type) <- c("local_fit", "list")
   fit_type
 }
