@@ -1,12 +1,14 @@
-#' @title Correlation and moving correlation dissimilarity measurements (cor_diss)
+#' @title Correlation and moving correlation dissimilarity measurements  
 #' @description
 #' \loadmathjax
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
 #'
 #' Computes correlation and moving correlation dissimilarity matrices.
 #' @usage
-#' cor_diss(Xr, Xu = NULL, ws = NULL,
-#'          center = TRUE, scale = FALSE)
+#' cor_diss(
+#'   Xr, Xu = NULL, ws = NULL, 
+#'   center = TRUE, scale = FALSE
+#' )
 #' @param Xr a matrix.
 #' @param Xu an optional matrix containing data of a second set of observations.
 #' @param ws for moving correlation dissimilarity, an odd integer value which
@@ -58,7 +60,9 @@
 #'
 #' cor_diss(Xr = Xr, Xu = Xu, ws = 41)
 #' }
-#' @export
+#' @keywords internal
+#' @noRd
+
 
 ######################################################################
 # resemble
@@ -84,8 +88,13 @@
 ## 03.07.2020 Leo     FIXME: diss between the same observation in some values
 ##                    around 1e-15 are returned
 
-cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
-
+cor_diss <- function(
+    Xr, 
+    Xu = NULL, 
+    ws = NULL, 
+    center = TRUE, 
+    scale = FALSE
+) {
   if (!ncol(Xr) >= 2) {
     stop("For correlation dissimilarity the number of variables must be larger than 1")
   }
@@ -97,30 +106,30 @@ cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
       stop("Input data contains missing values")
     }
   }
-
+  
   if (sum(is.na(Xr)) > 0) {
     stop("Matrices with missing values are not accepted")
   }
-
+  
   if (!is.logical(center)) {
     stop("'center' argument must be logical")
   }
-
+  
   if (!is.logical(scale)) {
     stop("'scale' argument must be logical")
   }
-
+  
   if (center | scale) {
     X <- rbind(Xr, Xu)
-
+    
     if (center) {
       X <- sweep(x = X, MARGIN = 2, FUN = "-", STATS = colMeans(X))
     }
-
+    
     if (scale) {
       X <- sweep(x = X, MARGIN = 2, FUN = "/", STATS = get_col_sds(X))
     }
-
+    
     if (!is.null(Xu)) {
       Xu <- X[(nrow(X) - nrow(Xu) + 1):nrow(X), , drop = FALSE]
       Xr <- X[1:(nrow(X) - nrow(Xu)), ]
@@ -132,43 +141,57 @@ cor_diss <- function(Xr, Xu = NULL, ws = NULL, center = TRUE, scale = FALSE) {
   
   xr_sds <- get_col_sds(t(Xr))
   if (any(xr_sds == 0)) {
-    stop(paste0("Correlation coefficients cannot be computed. Xr contains ", sum(xr_sds == 0), " observation(s) with a standard deviation of zero."))
+    stop(
+      paste0(
+        "Correlation coefficients cannot be computed. Xr contains ", 
+        sum(xr_sds == 0), 
+        " observation(s) with a standard deviation of zero."
+      )
+    )
   }
   if (!is.null(Xu)) {
     xu_sds <- get_col_sds(t(Xu))
     if (any(xr_sds == 0)) {
-      stop(paste0("Correlation coefficients cannot be computed. Xu contains ", sum(xu_sds == 0), "observation(s) with a standard deviation of zero."))
+      stop(
+        paste0(
+          "Correlation coefficients cannot be computed. Xu contains ", 
+          sum(xu_sds == 0), 
+          "observation(s) with a standard deviation of zero."
+        )
+      )
     }
   }
-
-  if (!is.null(ws)) {
+  
+  if (is.null(ws)) {
+    ws <- ncol(Xr)
+  } else {
+    
     if (ws < 3 | length(ws) != 1) {
-      stop(paste("'ws' must be an unique odd value larger than 2"))
+      stop(paste("'ws' must be an odd value greater than 2"))
     }
     if ((ws %% 2) == 0) {
       stop("'ws' must be an odd value")
     }
     if (ws >= ncol(Xr)) {
-      stop("'ws' must lower than the number of columns (variables) in Xr")
-    }
-    if (!is.null(Xu)) {
-      rslt <- moving_cor_diss(Xu, Xr, ws)
-      colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
-      rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
-    } else {
-      rslt <- moving_cor_diss(Xr, Xr, ws)
-      rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
-    }
-  } else {
-    if (!is.null(Xu)) {
-      rslt <- fast_diss(Xu, Xr, "cor")
-      colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
-      rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
-    } else {
-      rslt <- fast_diss(Xr, Xr, "cor")
-      rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
+      stop("'ws' must smaller than the number of columns (variables) in Xr")
     }
   }
-  rslt[rslt < 1e-15] <- 0
+  
+  if (!is.null(Xu)) {
+    rslt <- moving_cor_diss_xy(
+      Xu, Xr, ws, 
+      compute_block_rows(dim(Xu)),
+      compute_block_rows(dim(Xr))
+    )
+    colnames(rslt) <- paste("Xu", 1:nrow(Xu), sep = "_")
+    rownames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
+  } else {
+    rslt <- moving_cor_diss_self_f64(
+      Xr, ws,
+      compute_block_rows(dim(Xr))
+    )
+    rownames(rslt) <- colnames(rslt) <- paste("Xr", 1:nrow(Xr), sep = "_")
+  }
   rslt
 }
+

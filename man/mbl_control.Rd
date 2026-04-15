@@ -2,109 +2,129 @@
 % Please edit documentation in R/mbl_control.R
 \name{mbl_control}
 \alias{mbl_control}
-\title{A function that controls some few aspects of the memory-based learning
-process in the \code{mbl} function}
+\title{Control parameters for memory-based learning}
 \usage{
 mbl_control(
   return_dissimilarity = FALSE,
-  validation_type = c("NNv", "local_cv"),
+  validation_type = "NNv",
   tune_locally = TRUE,
   number = 10,
   p = 0.75,
   range_prediction_limits = TRUE,
-  progress = TRUE,
-  allow_parallel = TRUE
+  allow_parallel = TRUE,
+  blas_threads = 1L
 )
 }
 \arguments{
-\item{return_dissimilarity}{A logical indicating if the dissimilarity matrix
-between \code{Xr} and \code{Xu} must be returned.}
+\item{return_dissimilarity}{Logical indicating whether to return the
+dissimilarity matrix between \code{Xr} and \code{Xu}. Default is
+\code{FALSE}.}
 
-\item{validation_type}{A character vector indicating the internal validation
-method(s) used to assess the global performance of the local models.
-Possible options are \code{"NNv"} and \code{"local_cv"}. Alternatively,
-\code{"none"} can be used when cross-validation is not required.}
+\item{validation_type}{Character vector specifying validation method(s):
+\itemize{
+\item \code{"NNv"}: Leave-nearest-neighbor-out cross-validation (default, faster)
+\item \code{"local_cv"}: Local leave-group-out cross-validation
+\item \code{"none"}: No validation
+}
+Multiple methods can be specified (e.g., \code{c("NNv", "local_cv")}).
+Default is \code{"NNv"}.}
 
-\item{tune_locally}{A logical. It only applies when
-\code{validation_type = "local_cv"} and \code{"pls"} or \code{"wapls"}
-fitting algorithms are used. If \code{TRUE}, the parameters of the local
-PLS-based models are tuned.}
+\item{tune_locally}{Logical indicating whether to tune PLS components
+locally when \code{validation_type = "local_cv"} and using
+\code{\link{fit_pls}} or \code{\link{fit_wapls}}. Default is \code{TRUE}.}
 
-\item{number}{An integer indicating the number of sampling iterations at
-each local segment when \code{"local_cv"} is selected. Default is 10.}
+\item{number}{Integer specifying the number of sampling iterations for
+\code{"local_cv"} validation. Default is \code{10}.}
 
-\item{p}{A numeric value indicating the percentage of observations to be retained
-at each sampling iteration at each local segment when \code{"local_cv"}
-is selected. Default is 0.75 (75\%).}
+\item{p}{Numeric value between 0 and 1 indicating the proportion of
+observations retained at each \code{"local_cv"} iteration. Default is
+\code{0.75}.}
 
-\item{range_prediction_limits}{A logical. It indicates whether the prediction
-limits at each local regression are determined by the range of the response
-variable within each neighborhood. When the predicted value is outside
-this range, it is automatically replaced with the nearest range value.
-If \code{FALSE}, no prediction limits are imposed. Default is \code{TRUE}.}
+\item{range_prediction_limits}{Logical indicating whether predictions should
+be constrained to the range of response values in each neighborhood.
+Default is \code{TRUE}.}
 
-\item{progress}{A logical indicating whether to print a progress bar
-for each observation to be predicted. Default is \code{TRUE}. In case
-parallel processing is used, these progress bars are not printed.}
+\item{allow_parallel}{Logical indicating whether parallel execution is
+allowed via the \pkg{foreach} package. Default is \code{TRUE}.}
 
-\item{allow_parallel}{A logical indicating if parallel execution is allowed.
-If \code{TRUE}, parallelism is applied to the loop in \code{\link{mbl}}
-in which each iteration handles a single observation in \code{Xu}.}
+\item{blas_threads}{Integer specifying the number of BLAS threads to use
+during \code{mbl()} execution. Default is \code{1L}, which avoids thread
+overhead from repeated small matrix operations. Requires the
+\pkg{RhpcBLASctl} package to take effect. The original thread count is
+restored after \code{mbl()} completes. See Details.}
 }
 \value{
-A \code{list} mirroring the specified parameters.
+A list of class \code{mbl_control} with the specified control parameters.
 }
 \description{
-\strong{Maturing}
-
-This function is used to further control some aspects of the memory-based
-learning process in the \code{mbl} function.
+\loadmathjax
+This function controls various aspects of the memory-based learning process
+in the \code{\link{mbl}} function.
 }
 \details{
-The validation methods available for assessing predictive performance are:
+\subsection{Validation methods}{
 
-\itemize{
-  \item \code{"NNv"}: Leave-nearest-neighbor-out cross-validation. From
-  the group of neighbors of each observation to be predicted, the nearest
-  observation is excluded and then a local model is fitted using the
-  remaining neighbors. This model is then used to predict the response
-  value of the nearest observation. These predicted values are finally
-  cross-validated against the actual values. If the nearest sample belongs
-  to a group of samples labeled through the \code{group} argument in
-  \code{\link{mbl}}, then all samples in that group are excluded from the
-  temporary local fit used for validation. This validation method is faster
-  than \code{"local_cv"}.
+\strong{Leave-nearest-neighbor-out cross-validation (\code{"NNv"}):}
+For each target observation, the nearest neighbor is excluded from the
+local model, which then predicts that neighbor's value. This is faster
+than \code{"local_cv"}. If the nearest neighbor belongs to a group
+(specified via the \code{group} argument in \code{\link{mbl}}), all
+group members are excluded.
 
-  \item \code{"local_cv"}: Local leave-group-out cross-validation. The
-  group of neighbors of each observation to be predicted is partitioned into
-  equal-size subsets. Each partition is selected by stratified random
-  sampling based on response values. The selected subset is used as a local
-  validation subset and the remaining observations are used for fitting a
-  model. This process is repeated \eqn{m} times. In \code{\link{mbl}},
-  \eqn{m} is controlled by the \code{number} argument and subset size is
-  controlled by the \code{p} argument. The global error is computed as the
-  average of the local root mean square errors.
+\strong{Local leave-group-out cross-validation (\code{"local_cv"}):}
+The neighborhood is partitioned into subsets via stratified random
+sampling. Each subset serves as validation data while the remainder
+fits the model. This repeats \code{number} times, with \code{p}
+controlling the training proportion. The final error is the average
+local RMSE.
+}
 
-  \item \code{"none"}: No validation is carried out. If \code{"none"} is
-  selected along with \code{"NNv"} or \code{"local_cv"}, it is ignored.
+\subsection{BLAS threading}{
+
+On Linux systems with multi-threaded OpenBLAS, the default thread count
+can cause significant overhead for algorithms like \code{mbl()} that
+perform many small matrix operations. Setting \code{blas_threads = 1}
+(the default) eliminates this overhead.
+
+This setting requires the \pkg{RhpcBLASctl} package. If not installed,
+the parameter is ignored and a message is displayed. The original
+thread count is restored when \code{mbl()} completes.
+
+Windows systems typically use single-threaded BLAS by default, so this
+setting has no effect there.
 }
 }
 \examples{
+# Default control parameters (NNv validation)
 mbl_control()
+
+# Both validation methods
+mbl_control(validation_type = c("NNv", "local_cv"))
+
+# No validation
+mbl_control(validation_type = "none")
+
+# NNv validation only, no parallel
+mbl_control(validation_type = "NNv", allow_parallel = FALSE)
+
+# Allow more BLAS threads (if needed for other computations)
+mbl_control(blas_threads = 4)
+
 }
 \references{
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 Scholten, T. 2013a. The spectrum-based learner: A new local approach for
-modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
+modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196:268-279.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
-J. A. M., Scholten, T. 2013b. Distance and similarity-search metrics for
-use with soil vis-NIR spectra. Geoderma 199, 43-53.
+J.A.M., Scholten, T. 2013b. Distance and similarity-search metrics for use
+with soil vis-NIR spectra. Geoderma 199:43-53.
 }
 \seealso{
-\code{\link{f_diss}}, \code{\link{cor_diss}}, \code{\link{sid}},
-\code{\link{ortho_diss}}, \code{\link{mbl}}
+\code{\link{mbl}}, \code{\link{neighbors_k}},
+\code{\link{neighbors_diss}}
 }
 \author{
-Leonardo Ramirez-Lopez and Antoine Stevens
+\href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} and
+Antoine Stevens
 }

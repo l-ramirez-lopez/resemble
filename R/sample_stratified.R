@@ -19,9 +19,12 @@
 #' \code{hold_out}) giving the indices of the observations in each
 #' column. The number of columns represents the number of sampling repetitions.
 #' @keywords internal
+#' @noRd
 
-sample_stratified <- function(y, p, number, group = NULL, replacement = FALSE, seed = NULL) {
-
+sample_stratified <- function(
+    y, p, number, group = NULL, replacement = FALSE, seed = NULL
+) {
+  
   ## If the percentage of samples to build the hold_in subset is below 50% of
   ## the total number of samples, the selection is based on the number of samples
   ## to retain.
@@ -102,7 +105,7 @@ sample_stratified <- function(y, p, number, group = NULL, replacement = FALSE, s
     # stratified sampling based on the vector of means instead. In particular,
     # this ensures that all members of a groups will always be in the same
     # validation or calibration set.
-    y_groups <- data.table(
+    y_groups <- data.frame(
       y = y,
       group = factor(group),
       original_order = 1:length(y)
@@ -224,10 +227,13 @@ sample_stratified <- function(y, p, number, group = NULL, replacement = FALSE, s
 #' @param n the number of strata.
 #' @return a data table with the input \code{y} and the corresponding strata to
 #' every value.
+#' @noRd
 #' @keywords internal
 get_sample_strata <- function(y, n = NULL, probs = NULL) {
   if (!is.null(n) & !is.null(probs)) {
-    stop("both n and probs have been passed to the function, only one of them can be accepted")
+    stop(
+      "both n and probs have been passed to the function, only one of them can be accepted"
+    )
   }
 
   if (!is.null(n)) {
@@ -251,7 +257,7 @@ get_sample_strata <- function(y, n = NULL, probs = NULL) {
     right = FALSE # Use left closed intervals for compatibility with Julia code
   )
 
-  strata_category <- data.table(
+  strata_category <- data.frame(
     original_order = 1:length(y),
     strata = y_cuts
   )
@@ -264,10 +270,11 @@ get_sample_strata <- function(y, n = NULL, probs = NULL) {
 #' from the distribution of the given y
 #' @param y a matrix of one column with the response variable.
 #' @param n number of samples that must be sampled.
-#' @return a list with two \code{data.table} objects: \code{sample_strata} contains
+#' @return a list with two \code{data.frame} objects: \code{sample_strata} contains
 #' the optimal strata, whereas \code{samples_to_get} contains information on how
 #' many samples per stratum are supposed to be drawn.
 #' @keywords internal
+#' @noRd
 optim_sample_strata <- function(y, n) {
   sample_strata <- get_sample_strata(y, n)
   n_strata <- length(unique(sample_strata$strata))
@@ -324,7 +331,7 @@ optim_sample_strata <- function(y, n) {
     # the same number of samples in each stratum. For some strata, we then reduce
     # this number, as there will (in most cases) more total samples in all strata
     # than the total number of samples available.
-    samples_to_get <- data.table(
+    samples_to_get <- data.frame(
       strata = levels(sample_strata$strata),
       samples_to_get = rep(
         new_min_samples_per_strata / 2,
@@ -347,7 +354,7 @@ optim_sample_strata <- function(y, n) {
     # In case the strata already satisfies the above requirements of having exactly
     # n strata and at least 3 samples in each stratum, we do not have to correct
     # the strata further and can get exactly 1 sample in each stratum.
-    samples_to_get <- data.table(
+    samples_to_get <- data.frame(
       strata = levels(sample_strata$strata),
       samples_to_get = 1
     )
@@ -370,12 +377,15 @@ optim_sample_strata <- function(y, n) {
 #' done.
 #' @return a list with the indices of the calibration and validation samples.
 #' @keywords internal
-get_samples_from_strata <- function(y,
-                                    original_order,
-                                    strata,
-                                    samples_per_strata,
-                                    sampling_for = c("calibration", "validation"),
-                                    replacement = FALSE) {
+#' @noRd
+get_samples_from_strata <- function(
+    y,
+    original_order,
+    strata,
+    samples_per_strata,
+    sampling_for = c("calibration", "validation"),
+    replacement = FALSE
+) {
   # For validation, we double the samples to get per strata in case of replacement.
   # The reason is that we will sample two distinct sets of samples; one denotes
   # the validation indices, while the other describes the replacement indices

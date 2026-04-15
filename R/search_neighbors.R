@@ -1,229 +1,105 @@
-#' @title A function for searching in a given reference set the neighbors of
-#' another given set of observations (search_neighbors)
+#' @title Search neighbors in a reference set
+#'
 #' @description
 #' \loadmathjax
-#' This function searches in a reference set the neighbors of the observations
-#' provided  in another set.
+#' Searches for the nearest neighbors of observations in a reference set or
+#' between two sets of observations.
+#' 
 #' @usage
-#' search_neighbors(Xr, Xu, diss_method = c("pca", "pca.nipals", "pls", "mpls",
-#'                                          "cor", "euclid", "cosine", "sid"),
-#'                  Yr = NULL, k, k_diss, k_range, spike = NULL,
-#'                  pc_selection = list("var", 0.01),
-#'                  return_projection = FALSE, return_dissimilarity = FALSE,
-#'                  ws = NULL,
-#'                  center = TRUE, scale = FALSE,
-#'                  documentation = character(), ...)
+#' search_neighbors(Xr, Xu = NULL,
+#'                  diss_method = diss_pca(), Yr = NULL,
+#'                  neighbors, spike = NULL,
+#'                  return_dissimilarity = FALSE, 
+#'                  k, k_diss, k_range, pc_selection, 
+#'                  center, scale, documentation, ...
+#'                  )
+#'     
+#' @param Xr A numeric matrix of reference observations (rows) and variables
+#'   (columns) where the neighbor search is conducted.
+#' @param Xu Optional matrix of observations for which neighbors are to be
+#'   searched in \code{Xr}.
+#' @param diss_method A dissimilarity method object created by one of:
+#'   \itemize{
+#'     \item \code{\link{diss_pca}()}: Mahalanobis distance in PCA space
+#'     \item \code{\link{diss_pls}()}: Mahalanobis distance in PLS space
+#'     \item \code{\link{diss_correlation}()}: Correlation-based dissimilarity
+#'     \item \code{\link{diss_euclidean}()}: Euclidean distance
+#'     \item \code{\link{diss_mahalanobis}()}: Mahalanobis distance
+#'     \item \code{\link{diss_cosine}()}: Cosine dissimilarity
+#'   }
+#'   Default is \code{diss_pca()}.
+#' @param Yr Optional response matrix. Required for PLS methods and when using
+#'   \code{ncomp_by_opc()}.
+#' @param neighbors A neighbor selection object created by:
+#'   \itemize{
+#'     \item \code{\link{neighbors_k}()}: Select k nearest neighbors
+#'     \item \code{\link{neighbors_diss}()}: Select neighbors by dissimilarity threshold
+#'   }
+#' @param spike Optional integer vector indicating observations in \code{Xr}
+#'   to force into (positive indices) or exclude from (negative indices)
+#'   neighborhoods.
+#' @param return_dissimilarity Logical indicating whether to return the
+#'   dissimilarity matrix. Default is \code{FALSE}.
+#'   
+#' @param k Deprecated.
+#' @param k_diss Deprecated.
+#' @param k_range Deprecated.
+#' @param pc_selection Deprecated.
+#' @param center Deprecated.
+#' @param scale Deprecated.
+#' @param documentation Deprecated.
+#' @param ... Additional arguments (currently unused).
 #'
-#' @param Xr a matrix of reference (spectral) observations where the neighbor
-#' search is to be conducted. See details.
-#' @param Xu an optional matrix of (spectral) observations for which its
-#' neighbors are to be searched in \code{Xr}. Default is \code{NULL}. See details.
-#' @param diss_method a character string indicating the spectral dissimilarity metric
-#' to be used in the selection of the nearest neighbors of each observation.
-#' \itemize{
-#'        \item{\code{"pca"}:  Mahalanobis distance
-#'        computed on the matrix of scores of a Principal Component (PC)
-#'        projection of \code{Xr} (and \code{Xu} if supplied).
-#'        PC projection is done using the singular value decomposition (SVD)
-#'        algorithm. See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"pca.nipals"}: Mahalanobis distance
-#'        computed on the matrix of scores of a Principal Component (PC)
-#'        projection of \code{Xr} (and \code{Xu} if supplied).
-#'        PC projection is done using the
-#'        non-linear iterative partial least squares (niapls) algorithm.
-#'        See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"pls"}: Mahalanobis distance
-#'        computed on the matrix of scores of a partial least squares projection
-#'        of \code{Xr} (and \code{Xu} if supplied). In this case, \code{Yr}
-#'        is always required. See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"mpls"}: Mahalanobis distance
-#'        computed on the matrix of scores of a modified partial least squares
-#'        projection (Shenk and Westerhaus, 1991; Westerhaus, 2014)
-#'        of \code{Xr} (and \code{Xu} if provided). In this case, \code{Yr} is
-#'        always required. See \code{\link{ortho_diss}} function.}
-
-#'        \item{\code{"cor"}: correlation coefficient
-#'        between observations. See \code{\link{cor_diss}} function.}
-
-#'        \item{\code{"euclid"}: Euclidean distance
-#'        between observations. See \code{\link{f_diss}} function.}
-
-#'        \item{\code{"cosine"}: Cosine distance
-#'        between observations. See \code{\link{f_diss}} function.}
-
-#'        \item{\code{"sid"}: spectral information divergence between observations.
-#'        See \code{\link{sid}} function.}
-#'        }
-#' @param Yr a numeric matrix of `n` observations used as side information of
-#' \code{Xr} for the \code{\link{ortho_diss}} methods (i.e. \code{pca},
-#' \code{pca.nipals} or \code{pls}). It is required when:
-#' \itemize{
-#'        \item{\code{diss_method = "pls"}}
-#'        \item{\code{diss_method = "pca"} with \code{"opc"} used as the method
-#'        in the \code{pc_selection} argument. See [ortho_diss()].}
-#'        }
-#' @param k an integer value indicating the k-nearest neighbors of each
-#' observation in \code{Xu} that must be selected from \code{Xr}.
-#' @param k_diss an integer value indicating a dissimilarity treshold.
-#' For each observation in \code{Xu}, its nearest neighbors in \code{Xr}
-#' are selected as those for which their dissimilarity to \code{Xu} is below
-#' this \code{k_diss} threshold. This treshold depends on the corresponding
-#' dissimilarity metric specified in \code{diss_method}. Either \code{k} or
-#' \code{k_diss} must be specified.
-#' @param k_range an integer vector of length 2 which specifies the minimum
-#' (first value) and the maximum (second value) number of neighbors to be
-#' retained when the \code{k_diss} is given.
-#' @param spike a vector of integers (with positive and/or negative values) 
-#' indicating what observations in \code{Xr}
-#' (and \code{Yr}) must be forced into or avoided in the neighborhoods.
-#' @param pc_selection a list of length 2 to be passed onto the
-#' \code{\link{ortho_diss}} methods. It is required if the method selected in
-#' \code{diss_method} is any of \code{"pca"}, \code{"pca.nipals"} or
-#' \code{"pls"}. This argument is used for
-#' optimizing the number of components (principal components or pls factors)
-#' to be retained. This list must contain two elements in the following order:
-#' \code{method} (a character indicating the method for selecting the number of
-#' components) and \code{value} (a numerical value that complements the selected
-#' method). The methods available are:
-#' \itemize{
-#'        \item{\code{"opc"}: optimized principal component selection based on
-#'        Ramirez-Lopez et al. (2013a, 2013b). The optimal number of components
-#'        (of set of observations) is the one for which its distance matrix
-#'        minimizes the differences between the \code{Yr} value of each
-#'        observation and the \code{Yr} value of its closest observation. In this
-#'        case \code{value} must be a value (larger than 0 and below the
-#'        minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
-#'        indicating the maximum number of principal components to be tested.
-#'        See the \code{\link{ortho_projection}} function for more details.}
-
-#'        \item{\code{"cumvar"}: selection of the principal components based
-#'        on a given cumulative amount of explained variance. In this case,
-#'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of cumulative variance that the
-#'        combination of retained components should explain.}
-
-#'        \item{\code{"var"}: selection of the principal components based
-#'        on a given amount of explained variance. In this case,
-#'        \code{value} must be a value (larger than 0 and below or equal to 1)
-#'        indicating the minimum amount of variance that a single component
-#'        should explain in order to be retained.}
-
-#'        \item{\code{"manual"}: for manually specifying a fix number of
-#'        principal components. In this case, \code{value} must be a value
-#'        (larger than 0 and below the
-#'        minimum dimension of \code{Xr} or \code{Xr} and \code{Xu} combined)
-#'        indicating the minimum amount of variance that a component should
-#'        explain in order to be retained.}
-#'        }
-#' The default is \code{list(method = "var", value = 0.01)}.
-#'
-#' Optionally, the \code{pc_selection} argument admits \code{"opc"} or
-#' \code{"cumvar"} or \code{"var"} or \code{"manual"} as a single character
-#' string. In such a case the default \code{"value"} when either \code{"opc"} or
-#' \code{"manual"} are used is 40. When \code{"cumvar"} is used the default
-#' \code{"value"} is set to 0.99 and when \code{"var"} is used, the default
-#' \code{"value"} is set to 0.01.
-#' @param return_projection a logical indicating if the projection(s) must be
-#' returned. Projections are used if the \code{\link{ortho_diss}} methods are
-#' called (i.e. \code{method = "pca"}, \code{method = "pca.nipals"} or
-#' \code{method = "pls"}).
-#' @param return_dissimilarity a logical indicating if the dissimilarity matrix
-#' used for neighbor search must be returned.
-#' @param ws  an odd integer value which specifies the window size, when
-#' \code{diss_method = cor} (\code{\link{cor_diss}} method) for moving correlation
-#' dissimilarity. If \code{ws = NULL} (default), then the window size will be
-#' equal to the number of variables (columns), i.e. instead moving correlation,
-#' the normal correlation will be used. See \code{\link{cor_diss}} function.
-#' @param center a logical indicating if the \code{Xr} and \code{Xu} matrices
-#'  must be centered. If \code{Xu} is provided the data is centered around the
-#'  mean of the pooled \code{Xr} and \code{Xu} matrices (\mjeqn{Xr \cup Xu}{Xr U Xu}). For
-#' dissimilarity computations based on \code{diss_method = pls}, the data is always
-#' centered.
-#' @param scale a logical indicating if the \code{Xr} and \code{Xu} matrices
-#' must be scaled. If \code{Xu} is provided the data is scaled based
-#' on the standard deviation of the the pooled \code{Xr} and \code{Xu} matrices
-#' (\mjeqn{Xr \cup Xu}{Xr U Xu}). If \code{center = TRUE}, scaling is applied after
-#' centering.
-#' @param documentation an optional character string that can be used to
-#' describe anything related to the \code{mbl} call (e.g. description of the
-#' input data). Default: \code{character()}. NOTE: his is an experimental
-#' argument.
-#' @param ... further arguments to be passed to the \code{\link{dissimilarity}}
-#' function. See details.
 #' @details
-#' This function may be specially useful when the reference set (\code{Xr}) is
-#' very large. In some cases the number of observations in the reference set
-#' can be reduced by removing irrelevant observations (i.e. observations that are not
-#' neighbors of a particular target set). For example, this fucntion can be
-#' used to reduce the size of the reference set before before  running the
-#' \code{\link{mbl}} function.
+#' This function is useful for reducing large reference sets by identifying
+#' only relevant neighbors before running \code{\link{mbl}}.
 #'
-#' This function uses the \code{\link{dissimilarity}} fucntion to compute the
-#' dissimilarities between \code{Xr} and \code{Xu}. Arguments to
-#' \code{\link{dissimilarity}} as well as further arguments to the functions
-#' used inside \code{\link{dissimilarity}} (i.e. \code{\link{ortho_diss}}
-#' \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}) can be passed to
-#' those functions as additional arguments (i.e. \code{...}).
-#' @return a \code{list} containing the following elements:
-#' \itemize{
-#'  \item{\code{neighbors_diss}: a matrix of the \code{Xr} dissimilarity scores
-#'  corresponding to the neighbors of each \code{Xr} observation (or \code{Xu}
-#'  observation, in case \code{Xu} was supplied).
-#'  The neighbor dissimilarity scores are organized by columns and are sorted
-#'  in ascending order.}
-#'  \item{\code{neighbors}: a matrix of the \code{Xr} indices corresponding to
-#'  the neighbors of each observation in \code{Xu}. The neighbor indices are
-#'  organized by columns and are sorted in ascending order by their
-#'  dissimilarity score.}
-#'  \item{\code{unique_neighbors}: a vector of the indices in \code{Xr}
-#'  identified as neighbors of any observation in \code{Xr} (or in \code{Xu},
-#'  in case it was supplied). This is obtained by
-#'  converting the \code{neighbors} matrix into a vector and applying the
-#'  \code{\link[base]{unique}} function.}
-#'  \item{\code{k_diss_info}: a \code{data.table} that is returned only if the
-#'  \code{k_diss} argument was used. It comprises three columns, the first one
-#'  (\code{Xr_index} or \code{Xu_index}) indicates the index of the observations
-#'  in \code{Xr} (or in \code{Xu}, in case it was suppplied),
-#'  the second column (\code{n_k}) indicates the number of neighbors found in
-#'  \code{Xr} and the third column (\code{final_n_k}) indicates the final number
-#'  of neighbors selected bounded by \code{k_range}.
-#'  argument.}
-#'  \item{\code{dissimilarity}: If \code{return_dissimilarity = TRUE} the
-#'  dissimilarity object used (as computed by the \code{\link{dissimilarity}}
-#'  function.}
-#'  \item{\code{projection}: an \code{ortho_projection} object. Only output if
-#'        \code{return_projection = TRUE} and if \code{diss_method = "pca"},
-#'        \code{diss_method = "pca.nipals"} or \code{diss_method = "pls"}. \cr 
-#'        This object contains the projection used to compute
-#'        the dissimilarity matrix. In case of local dissimilarity matrices,
-#'        the projection corresponds to the global projection used to select the
-#'        neighborhoods.  (see \code{\link{ortho_diss}} function for further
-#'        details).}
-#'  }
-#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}.
-#' @details
-#' If no matrix is passed to \code{Xu}, the neighbor search is conducted for the
-#' observations in \code{Xr} that are found whiting that matrix. If a matrix is
-#' passed to \code{Xu},  the neighbors of \code{Xu} are searched in the \code{Xr}
-#' matrix.
+#' If \code{Xu} is not provided, the function searches for neighbors within
+#' \code{Xr} itself (excluding self-matches). If \code{Xu} is provided,
+#' neighbors of each observation in \code{Xu} are searched in \code{Xr}.
+#'
+#' The \code{spike} argument allows forcing specific observations into or out
+#' of all neighborhoods. Positive indices are always included; negative indices
+#' are always excluded.
+#'
+#' @return A list containing:
+#' \describe{
+#'   \item{neighbors}{Matrix of \code{Xr} indices for each query observation's
+#'     neighbors, sorted by dissimilarity (columns = query observations).}
+#'   \item{neighbors_diss}{Matrix of dissimilarity scores corresponding to
+#'     \code{neighbors}.}
+#'   \item{unique_neighbors}{Vector of unique \code{Xr} indices that appear
+#'     in any neighborhood.}
+#'   \item{k_diss_info}{If \code{neighbors_diss()} was used, a \code{data.frame} 
+#'     with columns for observation index, number of neighbors found, and final
+#'     number after applying bounds.}
+#'   \item{dissimilarity}{If \code{return_dissimilarity = TRUE}, the full
+#'     dissimilarity object.}
+#'   \item{projection}{If the dissimilarity method includes
+#'     \code{return_projection = TRUE}, the projection object.}
+#'   \item{gh}{If the dissimilarity method includes \code{gh = TRUE}, the
+#'     GH distances.}
+#' }
+#'
+#' @seealso \code{\link{dissimilarity}}, \code{\link{mbl}}, 
+#'   \code{\link{neighbors_k}}, \code{\link{neighbors_diss}}
+#'
 #' @references
 #' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte, J.A.M.,
 #' Scholten, T. 2013a. The spectrum-based learner: A new local approach for
-#' modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
+#' modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196,
+#' 268-279.
 #'
-#' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R.,
-#' Dematte, J. A. M.,  Scholten, T. 2013b. Distance and similarity-search
-#' metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
-#' @seealso \code{\link{dissimilarity}} \code{\link{ortho_diss}}
-#' \code{\link{cor_diss}} \code{\link{f_diss}} \code{\link{sid}}
-#'  \code{\link{mbl}}
+#' Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
+#' J.A.M., Scholten, T. 2013b. Distance and similarity-search metrics for use
+#' with soil vis-NIR spectra. Geoderma 199, 43-53.
+#'
+#' @author
+#' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+#'
 #' @examples
 #' \donttest{
 #' library(prospectr)
-#'
 #' data(NIRsoil)
 #'
 #' Xu <- NIRsoil$spc[!as.logical(NIRsoil$train), ]
@@ -233,283 +109,269 @@
 #'
 #' Xu <- Xu[!is.na(Yu), ]
 #' Yu <- Yu[!is.na(Yu)]
-#'
 #' Xr <- Xr[!is.na(Yr), ]
 #' Yr <- Yr[!is.na(Yr)]
 #'
-#' # Identify the neighbor observations using the correlation dissimilarity and
-#' # default parameters
-#' # (In this example all the observations in Xr belong at least to the
-#' # first 100 neighbors of one observation in Xu)
+#' # Correlation-based neighbor search with k neighbors
 #' ex1 <- search_neighbors(
 #'   Xr = Xr, Xu = Xu,
-#'   diss_method = "cor",
-#'   k = 40
+#'   diss_method = diss_correlation(),
+#'   neighbors = neighbors_k(40)
 #' )
 #'
-#' # Identify the neighbor observations using principal component (PC)
-#' # and partial least squares (PLS) dissimilarities, and using the "opc"
-#' # approach for selecting the number of components
+#' # PCA-based with OPC selection
 #' ex2 <- search_neighbors(
 #'   Xr = Xr, Xu = Xu,
-#'   diss_method = "pca",
-#'   Yr = Yr, k = 50,
-#'   pc_selection = list("opc", 40),
-#'   scale = TRUE
+#'   diss_method = diss_pca(
+#'     ncomp = ncomp_by_opc(40),
+#'     scale = TRUE,
+#'     return_projection = TRUE
+#'   ),
+#'   Yr = Yr,
+#'   neighbors = neighbors_k(50)
 #' )
 #'
-#' # Observations that do not belong to any neighborhood
-#' seq(1, nrow(Xr))[!seq(1, nrow(Xr)) %in% ex2$unique_neighbors]
+#' # Observations not in any neighborhood
+#' setdiff(seq_len(nrow(Xr)), ex2$unique_neighbors)
 #'
+#' # Dissimilarity threshold-based selection
 #' ex3 <- search_neighbors(
 #'   Xr = Xr, Xu = Xu,
-#'   diss_method = "pls",
-#'   Yr = Yr, k = 50,
-#'   pc_selection = list("opc", 40),
-#'   scale = TRUE
-#' )
-#' # Observations that do not belong to any neighborhood
-#' seq(1, nrow(Xr))[!seq(1, nrow(Xr)) %in% ex3$unique_neighbors]
-#'
-#' # Identify the neighbor observations using local PC dissimialrities
-#' # Here, 150 neighbors are used to compute a local dissimilarity matrix
-#' # and then this matrix is used to select 50 neighbors
-#' ex4 <- search_neighbors(
-#'   Xr = Xr, Xu = Xu,
-#'   diss_method = "pls",
-#'   Yr = Yr, k = 50,
-#'   pc_selection = list("opc", 40),
-#'   scale = TRUE,
-#'   .local = TRUE,
-#'   pre_k = 150
+#'   diss_method = diss_pls(
+#'     ncomp = ncomp_by_opc(40),
+#'     scale = TRUE
+#'   ),
+#'   Yr = Yr,
+#'   neighbors = neighbors_diss(threshold = 0.5, k_min = 10, k_max = 100)
 #' )
 #' }
+#'
 #' @export
-
-######################################################################
-# resemble
-# Copyright (C) 2014 Leonardo Ramirez-Lopez and Antoine Stevens
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-######################################################################
-
-## History:
-## 09.03.2014 Leo     In the doc was specified that multi-threading is
-##                    not working for mac
-## 25.05.2020 Leo     - function renamed from neigCleaning to search_neighbors
-##                    - scaled renamed to scale
-##                    - pcMethod and cores are deprecated
-
-search_neighbors <- function(Xr, Xu = NULL, diss_method = c(
-                               "pca",
-                               "pca.nipals",
-                               "pls",
-                               "mpls",
-                               "cor",
-                               "euclid",
-                               "cosine",
-                               "sid"
-                             ),
-                             Yr = NULL,
-                             k, k_diss, k_range,
-                             spike = NULL,
-                             pc_selection = list("var", 0.01),
-                             return_projection = FALSE,
-                             return_dissimilarity = FALSE,
-                             ws = NULL,
-                             center = TRUE, scale = FALSE,
-                             documentation = character(), ...) {
-
-
-  # Sanity checks
-  match.arg(diss_method, c(
-    "pca",
-    "pca.nipals",
-    "pls",
-    "mpls",
-    "cor",
-    "euclid",
-    "cosine",
-    "sid"
-  ))
-
-  if (missing(k)) {
-    k <- NULL
+search_neighbors <- function(
+    Xr,
+    Xu = NULL,
+    diss_method = diss_pca(),
+    Yr = NULL,
+    neighbors,
+    spike = NULL,
+    return_dissimilarity = FALSE,
+    # --- Deprecated arguments ---
+    k, k_diss, k_range, pc_selection, center, scale, documentation, ...
+) {
+  
+  
+  # ---------------------------------------------------------------------------
+  # Block removed arguments
+  # ---------------------------------------------------------------------------
+  if (!missing(k) || !missing(k_diss) || !missing(k_range)) {
+    stop(
+      "Arguments 'k', 'k_diss', 'k_range' have been removed.\n",
+      "Use neighbors_k() or neighbors_diss() instead.\n",
+      "Example: search_neighbors(..., neighbors = neighbors_k(40))",
+      call. = FALSE
+    )
   }
-
-  if (missing(k_diss)) {
+  
+  if (!missing(pc_selection)) {
+    stop(
+      "Argument 'pc_selection' has been removed.\n",
+      "Component selection is now specified in diss_*() constructors.\n",
+      "Example: diss_pca(ncomp = ncomp_by_opc(40))",
+      call. = FALSE
+    )
+  }
+  
+  if (!missing(center) || !missing(scale)) {
+    stop(
+      "Arguments 'center' and 'scale' have been removed.\n",
+      "These are now set in diss_*() constructors.\n",
+      "Example: diss_pca(center = TRUE, scale = FALSE)",
+      call. = FALSE
+    )
+  }
+  
+  if (!missing(documentation)) {
+    stop(
+      "Argument 'documentation' has been removed.",
+      call. = FALSE
+    )
+  }
+  
+  if (length(list(...)) > 0) {
+    stop(
+      "Unknown arguments passed via '...'.\n",
+      "Arguments like 'ws', 'return_projection', 'gh' are now set in ",
+      "diss_*() constructors.",
+      call. = FALSE
+    )
+  }
+  
+  # ---------------------------------------------------------------------------
+  # Handle legacy character-based diss_method
+  # ---------------------------------------------------------------------------
+  if (is.character(diss_method)) {
+    stop(
+      "Character-based 'diss_method' is no longer supported.\n\n",
+      "Use method constructors instead:\n\n",
+      "  Old API                          -> New API\n",
+      "  -------                             -------\n",
+      "  diss_method = \"pca\"               -> diss_pca()\n",
+      "  diss_method = \"pca.nipals\"        -> diss_pca(method = \"pca_nipals\")\n",
+      "  diss_method = \"pls\"               -> diss_pls()\n",
+      "  diss_method = \"mpls\"              -> diss_pls(method = \"mpls\")\n",
+      "  diss_method = \"euclid\"            -> diss_euclidean()\n",
+      "  diss_method = \"cosine\"            -> diss_cosine()\n",
+      "  diss_method = \"cor\"               -> diss_correlation()\n",
+      call. = FALSE
+    )
+  }
+  
+  # ---------------------------------------------------------------------------
+  # Validate diss_method
+  # ---------------------------------------------------------------------------
+  if (!inherits(diss_method, "diss_method")) {
+    stop(
+      "'diss_method' must be a dissimilarity method object.\n",
+      "Use one of: diss_pca(), diss_pls(), diss_euclidean(), ",
+      "diss_mahalanobis(), diss_cosine(), diss_correlation().",
+      call. = FALSE
+    )
+  }
+  
+  # ---------------------------------------------------------------------------
+  # Validate neighbors
+  # ---------------------------------------------------------------------------
+  if (missing(neighbors)) {
+    stop(
+      "'neighbors' is required. Use neighbors_k() or neighbors_diss().",
+      call. = FALSE
+    )
+  }
+  
+  if (!inherits(neighbors, "neighbors")) {
+    stop(
+      "'neighbors' must be created by neighbors_k() or neighbors_diss().",
+      call. = FALSE
+    )
+  }
+  
+  # ---------------------------------------------------------------------------
+  # Convert neighbors to internal format
+  # ---------------------------------------------------------------------------
+  n_xr <- nrow(Xr)
+  
+  if (inherits(neighbors, "neighbors_k")) {
+    k <- max(neighbors$k)
     k_diss <- NULL
-  }
-
-  if (missing(k_range)) {
     k_range <- NULL
-  }
+    
+    if (k > n_xr) {
+      stop("'k' (", k, ") cannot exceed nrow(Xr) (", n_xr, ").", call. = FALSE)
+    }
+  } else {
+    # neighbors_diss
+    k <- NULL
+    k_diss <- max(neighbors$threshold)
+    k_range <- c(neighbors$k_min, neighbors$k_max)
 
-  if (!is.logical(center)) {
-    stop("'center' argument must be logical")
-  }
-
-  if (!is.logical(scale)) {
-    stop("'scale' argument must be logical")
-  }
-
-  if (diss_method == "cor") {
-    if (!is.null(ws)) {
-      if (ws < 3 | ws > (ncol(Xr) - 1) | length(ws) != 1 | (ws %% 2) == 0) {
-        stop(paste(
-          "ws must be an odd value between 3 and", ncol(Xr) - 1,
-          "(ncol(Xr) - 1)"
-        ))
+    if (is.infinite(k_range[2])) {
+      
+      if (is.null(Xu)) {
+        max_neighbors  <- n_xr
+        mss <- "nrow(Xr) - 1 (excluding self-matches)"
+      } else {
+        max_neighbors <- n_xr - 1
+        mss <- "nrow(Xr)"
       }
+      message(
+        "setting 'k_max' (", k_range[2], ") to ", mss,  " (", n_xr, ")."
+      )
+      k_range[2] <- n_xr
+    }
+        
+    if (k_range[2] > n_xr) {
+      stop(
+        "'k_max' (", k_range[2], ") cannot exceed nrow(Xr) (", n_xr, ").",
+        call. = FALSE
+      )
     }
   }
-
-  if (!is.null(k) & !is.null(k_diss)) {
-    # if k and k_diss are not called here, errors are thrown during checks
-    k
-    k_diss
-    stop("Only one of k or k_diss can be specified")
-  }
-
-  if (is.null(k) & is.null(k_diss)) {
-    stop("Either k or k_diss must be specified")
-  }
-
-  if (!is.null(k)) {
-    k <- as.integer(k)
-    if (k < 1) {
-      stop("k must be an integer larger than 0")
-    }
-    if (k > nrow(Xr)) {
-      stop(paste0(
-        "The number of nearest neighbors cannot exceed the number ",
-        "of reference observations (nrow(Xr))"
-      ))
-    }
-    kk <- k
-  }
-
-  if (!is.null(k_diss)) {
-    # if k_diss is not called here, errors are thrown during checks
-    k_diss
-    if (is.null(k_range)) {
-      # if k_range is not called here, errors are thrown during checks
-      k_range
-      stop("if the k_diss argument is used, k_range must be specified")
-    }
-    if (length(k_range) != 2 | !is.numeric(k_range) | diff(k_range) < 0) {
-      stop(paste0(
-        "k_range must be a vector (of length 2) which specifies the ",
-        "minimum (first value) and the maximum (second value) number ",
-        "of neighbors"
-      ))
-    }
-    k_min <- as.integer(k_range[1])
-    k_max <- as.integer(k_range[2])
-    if (k_min < 1) {
-      stop("Minimum number of nearest neighbors must be larger than 0")
-    }
-    if (k_max > nrow(Xr)) {
-      stop(paste0(
-        "Maximum number of nearest neighbors cannot exceed the ",
-        "number of reference observations"
-      ))
-    }
-    kk <- k_max
-  }
-  input_dots <- list(...)
-  if (".local" %in% names(input_dots)) {
-    if (isTRUE(input_dots$.local)) {
-      if (!"pre_k" %in% names(input_dots)) {
-        stop(paste0(
-          "When .local = TRUE (passed to the ortho_diss method), the ",
-          "'pre_k' argument must be specified"
-        ))
-      }
-      if (input_dots$pre_k < kk) {
-        stop(paste0(
-          "pre_k must be larger than ",
-          ifelse(is.null(k), "max(k_range)", "k")
-        ))
-      }
-    }
-  }
-
+  
+  # ---------------------------------------------------------------------------
+  # Validate spike
+  # ---------------------------------------------------------------------------
   if (!is.null(spike)) {
-    if (!is.vector(spike)) {
-      stop("spike must be a vector of integers")
+    if (!is.vector(spike) || !all(spike == as.integer(spike))) {
+      stop("'spike' must be an integer vector.", call. = FALSE)
     }
-    if (any(!spike %% 1 == 0)) {
-      stop("spike must be a vector of integers")
+    if (length(spike) >= n_xr) {
+      stop("'spike' length must be less than nrow(Xr).", call. = FALSE)
     }
-    if (length(spike) >= nrow(Xr)) {
-      stop("The lebgth of spike cannot be larger or equal to the number of rows of Xr")
+    if (max(abs(spike)) > n_xr) {
+      stop("'spike' contains out-of-bounds indices.", call. = FALSE)
     }
-    if (max(spike) > nrow(Xr)) {
-      stop("Argument spike contains indices subscript out of bounds of Xr")
+    
+    spike_hold <- spike[spike > 0L]
+    spike_rm <- abs(spike[spike < 0L])
+    
+    if (length(intersect(spike_hold, spike_rm)) > 0L) {
+      stop("'spike' contains contradictory indices.", call. = FALSE)
     }
-    if (!is.null(k)) {
-      if (min(k) <= length(spike)) {
-        stop("values for k must be larger than length(spike)")
-      }
+    
+    min_k <- if (!is.null(k)) min(neighbors$k) else neighbors$k_min
+    if (min_k <= length(spike_hold)) {
+      stop(
+        "Minimum k must exceed length of positive spike indices.",
+        call. = FALSE
+      )
     }
-    if (!is.null(k_diss)) {
-      if (min(k_range) <= length(spike)) {
-        stop("values for k_range must be larger than length(spike)")
-      }
-    }
+    
     spike <- sort(unique(as.integer(spike)))
   }
+  
+  # ---------------------------------------------------------------------------
+  # Compute dissimilarity
+  # ---------------------------------------------------------------------------
   dsm <- dissimilarity(
     Xr = Xr,
     Xu = Xu,
     diss_method = diss_method,
-    Yr = Yr,
-    pc_selection = pc_selection,
-    return_projection = return_projection,
-    ws = ws,
-    center = center,
-    scale = scale,
-    ...
+    Yr = Yr
   )
-
-  skip_first <- ifelse(is.null(Xu), TRUE, FALSE)
   
-  if (!is.null(spike)) {
-    spike_hold <- spike[spike > 0]
-    spike_rm <- -spike[spike < 0]
-    
-    spike_problem <- length(intersect(spike_hold, spike_rm)) > 0
-    
-    if (spike_problem) {
-      stop("spike contains contradictory information, some indices to keep and to avoid are the same")
-    }
-  }
-
-  results <- diss_to_neighbors(dsm$dissimilarity,
-    k = k, k_diss = k_diss, k_range = k_range,
+  # ---------------------------------------------------------------------------
+  # Find neighbors
+  # ---------------------------------------------------------------------------
+  skip_first <- is.null(Xu)
+  
+  results <- diss_to_neighbors(
+    dsm$dissimilarity,
+    k = k,
+    k_diss = k_diss,
+    k_range = k_range,
     spike = spike,
     return_dissimilarity = return_dissimilarity,
     skip_first = skip_first
   )
-
-  mprefix <- ifelse(skip_first, "Xr", "Xu")
-  colnames(results$neighbors) <- paste0(mprefix, 1:ncol(results$neighbors))
-
-  if (return_projection & diss_method %in% c("pca", "pca.nipals", "pls")) {
+  
+  # Column names
+  mprefix <- if (skip_first) "Xr" else "Xu"
+  colnames(results$neighbors) <- paste0(mprefix, seq_len(ncol(results$neighbors)))
+  
+  # ---------------------------------------------------------------------------
+  # Add optional outputs from dissimilarity
+  # ---------------------------------------------------------------------------
+  if (return_dissimilarity) {
+    results$dissimilarity <- dsm
+  }
+  
+  if (!is.null(dsm$projection)) {
     results$projection <- dsm$projection
   }
-  if ("gh" %in% names(input_dots)) {
+  
+  if (!is.null(dsm$gh)) {
     results$gh <- dsm$gh
   }
-
+  
   results
 }

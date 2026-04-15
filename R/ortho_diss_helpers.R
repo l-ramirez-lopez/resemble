@@ -6,6 +6,7 @@
 #' @param na_rm logical indicating whether NAs must be removed.
 #' @description internal
 #' @keywords internal
+#' @noRd
 ith_subsets_ortho_diss <- function(x,
                                    xu = NULL,
                                    y,
@@ -45,6 +46,7 @@ ith_subsets_ortho_diss <- function(x,
 #' @param scale argument passed to ortho_projection
 #' @description internal
 #' @keywords internal
+#' @noRd
 local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
                              diss_method, pc_selection, center, scale,
                              allow_parallel, ...) {
@@ -107,7 +109,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
       "ortho_projection",
       "pc_projection",
       "pls_projection",
-      "sim_eval",
+      "diss_evaluate",
       "dist_vec"
     ),
     .packages = c("resemble")
@@ -142,7 +144,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
       scale = FALSE
     )
     ith_dist[1] <- i
-    ith_dist[2] <- ith_projection$n_components
+    ith_dist[2] <- ith_projection$ncomp
     ith_dist
   }
   ## end of foreach computations
@@ -163,7 +165,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
   distnc[vec_positions] <- as.vector(local_d)
   return(list(
     dissimilarity_m = distnc,
-    local_n_components = data.table(local_n_components)
+    local_ncomp = data.frame(local_n_components)
   ))
 }
 
@@ -173,6 +175,7 @@ local_ortho_diss <- function(k_index_matrix, Xr, Yr, Xu,
 #' @param xr_xu_names the names of Xr and Xu
 #' @description internal
 #' @keywords internal
+#' @noRd
 format_xr_xu_indices <- function(xr_xu_names) {
   xu_insufficient <- gsub("Xu_", "", xr_xu_names[grep("^Xu_", xr_xu_names)])
   xr_insufficient <- gsub("Xr_", "", xr_xu_names[grep("^Xr_", xr_xu_names)])

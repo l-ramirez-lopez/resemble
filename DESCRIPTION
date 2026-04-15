@@ -1,8 +1,8 @@
 Package: resemble
 Type: Package
-Title: Memory-Based Learning in Spectral Chemometrics
-Version: 2.2.5
-Date: 2025-10-16
+Title: Similarity Retrieval and Local Learning for Spectral Chemometrics
+Version: 3.0.0
+Date: 2026-04-15
 Authors@R: c(
   person(given = "Leonardo",
          family = "Ramirez-Lopez",
@@ -15,46 +15,44 @@ Authors@R: c(
          comment = c(ORCID = "0000-0002-1588-7519")),
   person(given = "Claudio",
          family = "Orellano",
-         role = c("ctb")),
-  person(given = "Raphael",
-         family = "Viscarra Rossel",
-         role = c("ctb"),
-         comment = c(ORCID = "0000-0003-1540-4748")),
-  person(given = "Alex",
-         family = "Wadoux",
-         role = c("ctb"),
-         comment = c(ORCID = "0000-0001-7325-9716"))
+         role = c("ctb"))
   )
-Maintainer: Leonardo Ramirez-Lopez <ramirez.lopez.leo@gmail.com>
 BugReports: https://github.com/l-ramirez-lopez/resemble/issues
 Description: 
-    Functions for dissimilarity analysis and memory-based learning 
-    (MBL, a.k.a local modeling) in complex spectral data sets. 
+    Functions for dissimilarity analysis and machine learning in complex
+    spectral data sets, including memory-based learning (MBL), optimal subset
+    search and selection, and retrieval-based modelling with model libraries.
+    Supports local learning, optimisation of spectral libraries, and
+    ensemble prediction from precomputed models.
     Most of these functions are based on the methods presented in 
     Ramirez-Lopez et al. (2013) <doi:10.1016/j.geoderma.2012.12.014>.
-License: MIT + file LICENSE
-URL: http://l-ramirez-lopez.github.io/resemble/
-Depends: R (>= 3.5.0)
-Imports: foreach, iterators, Rcpp (>= 1.0.3), mathjaxr (>= 1.0),
-        magrittr (>= 1.5.0), lifecycle (>= 0.2.0), data.table (>=
-        1.9.8)
-Suggests: prospectr, parallel, doParallel, testthat, formatR,
-        rmarkdown, bookdown, knitr
-LinkingTo: Rcpp, RcppArmadillo
+License: GPL (>= 3) + file LICENSE
+URL: https://l-ramirez-lopez.github.io/resemble/
+Depends:
+    R (>= 4.1.0)
+Imports: 
+    foreach, 
+    iterators, 
+    RhpcBLASctl,
+    Rcpp (>= 1.0.3), 
+    mathjaxr (>= 1.0), 
+    lifecycle (>= 0.2.0)
+Suggests: 
+    prospectr, 
+    parallel, 
+    doParallel, 
+    testthat,
+    quarto,
+    knitr
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
 RdMacros: mathjaxr
-VignetteBuilder: knitr
+VignetteBuilder: quarto
 NeedsCompilation: yes
+LazyData: true
 Repository: CRAN
 RoxygenNote: 7.3.2
 Encoding: UTF-8
-Config/VersionName: dstatements
-Packaged: 2026-04-02 13:37:17 UTC; hornik
-Author: Leonardo Ramirez-Lopez [aut, cre] (ORCID:
-    <https://orcid.org/0000-0002-5369-5120>),
-  Antoine Stevens [aut, ctb] (ORCID:
-    <https://orcid.org/0000-0002-1588-7519>),
-  Claudio Orellano [ctb],
-  Raphael Viscarra Rossel [ctb] (ORCID:
-    <https://orcid.org/0000-0003-1540-4748>),
-  Alex Wadoux [ctb] (ORCID: <https://orcid.org/0000-0001-7325-9716>)
-Date/Publication: 2026-04-02 15:48:54
+Roxygen: list(markdown = TRUE)
+Config/VersionName: vortex

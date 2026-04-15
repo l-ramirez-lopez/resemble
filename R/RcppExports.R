@@ -14,7 +14,7 @@
 #' @useDynLib resemble
 #' @author Antoine Stevens and Leonardo Ramirez-Lopez
 fast_diss <- function(X, Y, method) {
-    .Call('_resemble_fast_diss', PACKAGE = 'resemble', X, Y, method)
+    .Call(`_resemble_fast_diss`, X, Y, method)
 }
 
 #' @title A fast algorithm of (squared) Euclidean cross-distance for vectors written in C++ 
@@ -26,24 +26,80 @@ fast_diss <- function(X, Y, method) {
 #' @details used internally in ortho_projection
 #' @author Antoine Stevens
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 fast_diss_vector <- function(X) {
-    .Call('_resemble_fast_diss_vector', PACKAGE = 'resemble', X)
+    .Call(`_resemble_fast_diss_vector`, X)
 }
 
-#' @title Moving/rolling correlation distance of two matrices
-#' @description Computes a moving window correlation distance between two data matrices
-#' @usage 
-#' moving_cor_diss(X,Y,w)
-#' @param X a matrix
-#' @param Y a matrix
-#' @param w window size (must be odd)
-#' @return a matrix of correlation distance
+#' @title Symmetric Euclidean Distance Matrix from a Single Matrix
+#' @description Computes the symmetric pairwise Euclidean distance matrix
+#' from the rows of a single matrix. Only the upper triangle is computed,
+#' then mirrored to the lower triangle to reduce redundant operations.
+#'
+#' Squared distances are calculated first, then square-rooted. Tiny values
+#' below 1e-14 are clamped to zero to ensure numerical stability.
+#'
+#' @param X An `n x p` numeric matrix where each row is a p-dimensional
+#' observation.
+#'
+#' @return An `n x n` symmetric matrix of Euclidean distances.
+#'
+#' @details
+#' This function is designed for efficient in-memory computation of full
+#' distance matrices using only the upper triangle to avoid redundant work.
+#' It applies the square root only once per distance and avoids unnecessary
+#' writes to the diagonal (which is always 0). The implementation leverages
+#' memory locality and avoids data duplication.
+#'
+#' Suitable for moderate to large `n`. If OpenMP is enabled, the upper-triangle
+#' loop can optionally be parallelized for additional speedup on multicore systems.
+#' Note that the function assumes that the input matrix `X` is not empty and
 #' @keywords internal
+#' @noRd
 #' @useDynLib resemble
-#' @author Leonardo Ramirez-Lopez and Antoine Stevens
-moving_cor_diss <- function(X, Y, w) {
-    .Call('_resemble_moving_cor_diss', PACKAGE = 'resemble', X, Y, w)
+fast_self_euclid <- function(X) {
+    .Call(`_resemble_fast_self_euclid`, X)
+}
+
+#' @title Rolling correlation distance between X and Y
+#' @param X Numeric matrix m×T
+#' @param Y Numeric matrix n×T
+#' @param w Window size (odd in [1..T] or exactly T)
+#' @param block_x Tile size for rows of X (default 1024)
+#' @param block_y Tile size for rows of Y (default 1024)
+#' @return n×m distance matrix (R double matrix)
+#' @noRd
+#' @keywords internal
+moving_cor_diss_xy <- function(X, Y, w, block_x = 1024L, block_y = 1024L) {
+    .Call(`_resemble_moving_cor_diss_xy`, X, Y, w, block_x, block_y)
+}
+
+#' @title Rolling correlation distance within X (upper-triangle, tiled, serial-optimized)
+#' @description Mean rolling-window correlation distance among rows of X.
+#'              Serial only; computes upper-triangle tiles densely and mirrors.
+#' @param X Numeric matrix (m x T)
+#' @param w Odd window size
+#' @param block_rows Tile size in rows (default 1024)
+#' @return m x m symmetric distance matrix
+#' @noRd
+#' @keywords internal
+#' @noRd
+#' @useDynLib resemble, .registration=TRUE
+moving_cor_diss_self_f64 <- function(X, w, block_rows = 1024L) {
+    .Call(`_resemble_moving_cor_diss_self_f64`, X, w, block_rows)
+}
+
+#' @title Rolling correlation distance within X (templated, OpenMP; precision)
+#' @param X Numeric matrix (m×T)
+#' @param w Window size (odd in [1..T] or exactly T)
+#' @param block_rows Tile size (default 1024)
+#' @return m×m distance matrix (double for R)
+#' @keywords internal
+#' @noRd
+#' @useDynLib resemble
+moving_cor_diss_self <- function(X, w, block_rows = 1024L) {
+    .Call(`_resemble_moving_cor_diss_self`, X, w, block_rows)
 }
 
 #' @title A function to compute row-wise index of minimum values of a square distance matrix
@@ -55,9 +111,10 @@ moving_cor_diss <- function(X, Y, w) {
 #' @details Used internally to find the nearest neighbors
 #' @keywords internal
 #' @useDynLib resemble
+#' @noRd
 #' @author Antoine Stevens 
 which_min <- function(X) {
-    .Call('_resemble_which_min', PACKAGE = 'resemble', X)
+    .Call(`_resemble_which_min`, X)
 }
 
 #' @title A function to compute indices of minimum values of a distance vector
@@ -72,10 +129,200 @@ which_min <- function(X) {
 #' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
 #' since \code{sqrt} cannot be applied to integers.
 #' @keywords internal
+#' @noRd
 #' @useDynLib resemble
 #' @author Antoine Stevens 
 which_min_vector <- function(X) {
-    .Call('_resemble_which_min_vector', PACKAGE = 'resemble', X)
+    .Call(`_resemble_which_min_vector`, X)
+}
+
+#' @title Top-k Order Indices for Matrix Columns
+#' @description 
+#' Internal helper function. For each column in a numeric matrix, 
+#' returns the indices of the top-\code{k} smallest values (i.e., closest neighbors).
+#'
+#' @details 
+#' This function is implemented in C++ using \code{Rcpp}. It performs a partial sort 
+#' on each column to retrieve the \code{k} smallest elements efficiently. This is 
+#' particularly useful when working with large dissimilarity matrices, where 
+#' performance is critical.
+#'
+#' @param mat A numeric matrix (e.g., dissimilarity matrix).
+#' @param k Integer. Number of top smallest elements to return for each column.
+#'
+#' @return An integer matrix of dimensions \code{k × ncol(mat)}. Each column contains 
+#' the 1-based row indices of the top-\code{k} smallest values in the corresponding column of \code{mat}.
+#'
+#' @keywords internal
+#' @noRd
+top_k_order <- function(mat, k, skip = as.integer( c())) {
+    .Call(`_resemble_top_k_order`, mat, k, skip)
+}
+
+#' @title Extract Column Elements by Row Indices
+#' @description
+#' Efficiently extracts specific elements from each column of a numeric matrix 
+#' based on provided row indices, using Rcpp for performance.
+#'
+#' @param mat A numeric matrix from which values will be extracted.
+#' @param idx An integer matrix of the same number of columns as \code{mat}. 
+#' Each column of \code{idx} contains the row indices to extract from the 
+#' corresponding column of \code{mat}.
+#'
+#' @details
+#' For each column \code{j}, this function returns a vector of values 
+#' \code{mat[idx[, j], j]}. It is implemented in C++ using Rcpp for speed 
+#' and is suitable for large-scale operations (e.g., tens of thousands of rows).
+#'
+#' Indices in \code{idx} are assumed to be 1-based (R-style). Internally, 
+#' they are adjusted for 0-based indexing in C++.
+#'
+#' @return A numeric matrix of the same dimension as \code{idx}, where each 
+#' element is extracted from \code{mat} according to the corresponding 
+#' row and column in \code{idx}.
+#'
+#' @keywords internal
+#' @noRd
+extract_by_index <- function(mat, idx) {
+    .Call(`_resemble_extract_by_index`, mat, idx)
+}
+
+#' @title Group Disparity Mask for Nearest Neighbors (C++)
+#' @description
+#' Internal C++ function that creates a logical matrix indicating whether
+#' each neighbor in `kidxmat` belongs to a different group than the sample.
+#'
+#' @param kidxmat An integer matrix of neighbor indices. Each column
+#'        corresponds to a sample, and each row to a ranked neighbor.
+#'        Indices refer to rows in the `group` vector.
+#' @param group An integer vector representing the group assignment
+#'        for each sample. Its length must match the number of rows
+#'        in the reference data.
+#'
+#' @return
+#' A logical matrix of the same dimensions as `kidxmat`, where each
+#' element is `TRUE` if the corresponding neighbor belongs to a
+#' different group than the target sample, and `FALSE` otherwise.
+#'
+#' @details
+#' For each column in `kidxmat`, corresponding to a sample,
+#' the function:
+#' \itemize{
+#'   \item Extracts the group assignment of the sample.
+#'   \item Checks whether each neighbor (by index) belongs to the same group.
+#'   \item Stores `TRUE` if the neighbor is from a different group,
+#'         `FALSE` otherwise.
+#' }
+#' The result can be used as a mask to filter out same-group neighbors.
+#'
+#' @note
+#' Parallelized using OpenMP for performance.
+#' Assumes 1-based indexing from R (internally adjusted).
+#' @noRd
+#' @keywords internal
+#' @author Leonardo Ramirez-Lopez
+not_in_same_group <- function(kidxmat, group) {
+    .Call(`_resemble_not_in_same_group`, kidxmat, group)
+}
+
+#' @title Quantile Statistics from Nearest Neighbors (C++)
+#' @description
+#' Internal C++ function to compute quantiles of response values
+#' among filtered nearest neighbors for each sample.
+#'
+#' @param kidxmat An integer matrix of nearest neighbor indices.
+#'        Each column corresponds to one observation (e.g., in Xu),
+#'        and rows represent the ranks of the neighbors.
+#' @param kidxgrop A logical matrix of the same shape as `kidxmat`
+#'        indicating which neighbors should be retained (`TRUE`)
+#'        based on group membership.
+#' @param Yr A numeric vector of reference response values. The
+#'        values are indexed by `kidxmat` to compute quantiles.
+#' @param k An integer specifying the number of neighbors to use.
+#'        Either a single value (applied to all observations) or a
+#'        vector of length `ncol(kidxmat)` (per-observation neighborhood sizes).
+#' @param probs A numeric vector of probabilities for which to
+#'        compute quantiles (e.g., `c(0, 0.05, 0.5, 0.95, 1)`).
+#'
+#' @return
+#' A numeric matrix of size `(length(k) * ncol(kidxmat)) × length(probs)`
+#' where each row contains the quantiles for a particular observation
+#' and each column corresponds to a probability in `probs`.
+#'
+#' @details
+#' For each observation, the function:
+#' \itemize{
+#'   \item Selects its top-k nearest neighbors.
+#'   \item Filters neighbors based on the logical group mask.
+#'   \item Extracts corresponding values from `Yr`.
+#'   \item Computes requested quantiles.
+#' }
+#' Missing values in `Yr` are ignored. If no valid neighbors are
+#' found for a given sample, all quantiles will be set to `NA`.
+#'
+#' @note
+#' This is an internal function intended for performance-critical
+#' applications. It should not be exported to the user.
+#' @noRd
+#' @keywords internal
+#' @author Leonardo Ramirez-Lopez
+compute_nn_quantiles <- function(kidxmat, kidxgrop, Yr, k, probs) {
+    .Call(`_resemble_compute_nn_quantiles`, kidxmat, kidxgrop, Yr, k, probs)
+}
+
+#' @title Find Nearest Neighbors by Dissimilarity
+#' 
+#' @description
+#' Internal C++ function to identify nearest neighbors from a dissimilarity
+#' matrix, with optional thresholding. Uses partial sorting for efficiency
+#' when only the top-k neighbors are needed.
+#'
+#' @param D A numeric matrix of dissimilarities (n × m), where rows are
+#'   reference observations and columns are query observations.
+#' @param k_min Integer. Minimum number of neighbors to return per 
+#'   observation. When \code{threshold} is \code{NULL}, exactly \code{k_min}
+#'   neighbors are returned. When \code{threshold} is specified, at least
+#'   \code{k_min} neighbors are returned even if fewer fall below the
+#'   threshold.
+#' @param k_max Integer. Maximum number of neighbors to consider. Only the
+#'   \code{k_max} nearest neighbors are evaluated against the threshold.
+#'   Must satisfy \code{k_max >= k_min} and \code{k_max <= nrow(D)}.
+#' @param threshold Either \code{NULL} or a numeric scalar. When \code{NULL},
+#'   exactly \code{k_min} neighbors are returned. When specified, all
+#'   neighbors among the top \code{k_max} with dissimilarity ≤ \code{threshold}
+#'   are returned, subject to the \code{k_min} floor.
+#'
+#' @return A list of length \code{ncol(D)}. Each element is an integer vector
+#'   of 1-indexed row indices identifying the nearest neighbors for that
+#'   column, sorted by increasing dissimilarity.
+#'
+#' @details
+#' For each column (query observation), the function:
+#' \enumerate{
+#'   \item Performs a partial sort to identify the \code{k_max} smallest
+#'     dissimilarities in O(n + k log k) time.
+#'   \item If \code{threshold} is \code{NULL}, returns the first \code{k_min}
+#'     indices.
+#'   \item If \code{threshold} is specified, counts how many of the top
+#'     \code{k_max} neighbors have dissimilarity ≤ \code{threshold}, then
+#'     returns \code{max(k_min, n_below)} indices.
+#' }
+#'
+#' @section Parallel execution:
+#' The function uses OpenMP for parallel computation across columns.
+#' Thread count is controlled by the \code{OMP_NUM_THREADS} environment
+#' variable.
+#'
+#' @note
+#' Tie-breaking may differ slightly from R's \code{order()} function, which
+#' uses stable sorting. In practice, exact ties in dissimilarity matrices
+#' are rare.
+#'
+#' @keywords internal
+#' @noRd
+#' @author Leonardo Ramirez-Lopez
+top_k_neighbors <- function(D, k_min, k_max, threshold = NULL) {
+    .Call(`_resemble_top_k_neighbors`, D, k_min, k_max, threshold)
 }
 
 #' @title Function for identifiying the column in a matrix with the largest standard deviation
@@ -86,8 +333,9 @@ which_min_vector <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
+#' @noRd
 get_col_largest_sd <- function(X) {
-    .Call('_resemble_get_col_largest_sd', PACKAGE = 'resemble', X)
+    .Call(`_resemble_get_col_largest_sd`, X)
 }
 
 #' @title Function for computing the standard deviation of each column in a matrix
@@ -97,9 +345,10 @@ get_col_largest_sd <- function(X) {
 #' @return a vector of standard deviation values. 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 get_column_sds <- function(X) {
-    .Call('_resemble_get_column_sds', PACKAGE = 'resemble', X)
+    .Call(`_resemble_get_column_sds`, X)
 }
 
 #' @title Function for computing the overall variance of a matrix
@@ -109,9 +358,10 @@ get_column_sds <- function(X) {
 #' @return a vector of standard deviation values. 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 overall_var <- function(X) {
-    .Call('_resemble_overall_var', PACKAGE = 'resemble', X)
+    .Call(`_resemble_overall_var`, X)
 }
 
 #' @title Function for computing the mean of each column in a matrix
@@ -122,8 +372,22 @@ overall_var <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
+#' @noRd
 get_column_means <- function(X) {
-    .Call('_resemble_get_column_means', PACKAGE = 'resemble', X)
+    .Call(`_resemble_get_column_means`, X)
+}
+
+#' @title Function for computing the maximum of each column
+#' @description Computes the max of each column in a matrix. For internal use only!
+#' @usage get_column_maxs(X)
+#' @param X a a matrix.
+#' @return a vector of mean values. 
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal 
+#' @noRd
+#' @useDynLib resemble
+get_column_maxs <- function(X) {
+    .Call(`_resemble_get_column_maxs`, X)
 }
 
 #' @title Function for computing sum of each column in a matrix
@@ -134,13 +398,14 @@ get_column_means <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @useDynLib resemble
+#' @noRd
 get_column_sums <- function(X) {
-    .Call('_resemble_get_column_sums', PACKAGE = 'resemble', X)
+    .Call(`_resemble_get_column_sums`, X)
 }
 
 #' @title Computes the weights for pls regressions
 #' @description
-#' This is an internal function that computes the wights required for obtaining
+#' This is an internal function that computes the weights required for obtaining
 #' each vector of pls scores. Implementation is done in C++ for improved performance.
 #' @param X a numeric matrix of spectral data.
 #' @param Y a matrix of one column with the response variable.
@@ -164,9 +429,10 @@ get_column_sums <- function(X) {
 #' Wnear infrared spectroscopy. NIR news, 25(8), 16-20.
 #' @return a `matrix` of one column containing the weights.
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 get_weights <- function(X, Y, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
-    .Call('_resemble_get_weights', PACKAGE = 'resemble', X, Y, algorithm, xls_min_w, xls_max_w)
+    .Call(`_resemble_get_weights`, X, Y, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title Internal Cpp function for computing the weights of the PLS components 
@@ -189,14 +455,15 @@ get_weights <- function(X, Y, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L
 #' @param min_component an integer indicating the minimum number of pls components.
 #' @param max_component an integer indicating the maximum number of pls components.
 #' @param scale a logical indicating whether the matrix of predictors used to create the regression model was scaled.
-#' @param Xcenter a matrix of one row with the values that must be used for centering \code{newdata}.
-#' @param Xscale if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.
+#' @param Xcenter a vector with the values that must be used for centering \code{newdata}.
+#' @param Xscale if \code{scale = TRUE} a vector with the values that must be used for scaling \code{newdata}.
 #' @return a matrix of one row with the weights for each component between the max. and min. specified. 
 #' @author Leonardo Ramirez-Lopez
+#' @noRd
 #' @keywords internal 
 #' @useDynLib resemble
 get_local_pls_weights <- function(projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale) {
-    .Call('_resemble_get_local_pls_weights', PACKAGE = 'resemble', projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale)
+    .Call(`_resemble_get_local_pls_weights`, projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale)
 }
 
 #' @title orthogonal scores algorithn of partial leat squares (opls) projection
@@ -262,10 +529,11 @@ get_local_pls_weights <- function(projection_mat, xloadings, coefficients, new_x
 #' \item{\code{weights}: the matrix of wheights.}
 #' }
 #' @author Leonardo Ramirez-Lopez
+#' @noRd
 #' @keywords internal 
 #' @useDynLib resemble
 opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
-    .Call('_resemble_opls_for_projection', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue, algorithm, xls_min_w, xls_max_w)
+    .Call(`_resemble_opls_for_projection`, X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title orthogonal scores algorithn of partial leat squares (opls_get_all)
@@ -316,9 +584,10 @@ opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = 
 #' } 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
-    .Call('_resemble_opls_get_all', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
+    .Call(`_resemble_opls_get_all`, X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title orthogonal scores algorithn of partial leat squares (opls)
@@ -364,18 +633,19 @@ opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xl
 #' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
 #' \item{\code{weights}: the matrix of wheights.}} 
 #' @author Leonardo Ramirez-Lopez
+#' @noRd
 #' @keywords internal 
 #' @useDynLib resemble
 opls <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
-    .Call('_resemble_opls', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
+    .Call(`_resemble_opls`, X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
 
-#' @title fast orthogonal scores algorithn of partial leat squares (opls)
-#' @description Computes orthogonal socres partial least squares (opls) 
-#' regressions with the NIPALS algorithm. It allows multiple response variables. 
-#' In contrast to \code{opls} function, this one does not compute unnecessary 
-#' data for (local) regression.
-#' For internal use only!
+#' @title Fast orthogonal scores algorithm of partial least squares (PLS)
+#' @description Computes orthogonal scores partial least squares (PLS) 
+#' regression using either NIPALS or SIMPLS algorithm. Supports multiple 
+#' response variables. In contrast to \code{opls}, this function omits 
+#' auxiliary outputs (e.g. scores, explained variance) not required for 
+#' local regression. For internal use only.
 #' @usage 
 #' opls_get_basics(X, Y, ncomp, scale, 
 #'                 maxiter, tol, 
@@ -384,32 +654,60 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w 
 #'                 xls_max_w = 15)
 #' @param X a matrix of predictor variables.
 #' @param Y a matrix of either a single or multiple response variables.
-#' @param ncomp the number of pls components.
+#' @param ncomp the number of PLS components.
 #' @param scale logical indicating whether \code{X} must be scaled.
-#' @param maxiter maximum number of iterations.
-#' @param tol limit for convergence of the algorithm in the nipals algorithm.
-#' @param algorithm (for weights computation) a character string indicating 
-#' what method to use. Options are:
-#' \code{'pls'} for pls (using covariance between X and Y), 
-#' \code{'mpls'} for modified pls (using correlation between X and Y) or
-#' \code{'xls'} for extended pls (as implemented in BUCHI NIRWise PLUS software).
-#' @param xls_min_w (for weights computation) an integer indicating the minimum window size for the "xls"
-#' method. Only used if \code{algorithm = 'xls'}. Default is 3 (as in BUCHI NIRWise PLUS software).
-#' @param xls_max_w (for weights computation) an integer indicating the maximum window size for the "xls"
-#' method. Only used if \code{algorithm = 'xls'}. Default is 15 (as in BUCHI NIRWise PLUS software).
-#' @return a list containing the following elements:
+#' @param maxiter maximum number of iterations (only used for NIPALS-based 
+#' algorithms: \code{'pls'}, \code{'mpls'}, \code{'xls'}).
+#' @param tol convergence tolerance for the NIPALS algorithm (only used for 
+#' NIPALS-based algorithms).
+#' @param algorithm a character string indicating the PLS algorithm to use:
 #' \itemize{
-#' \item{\code{coefficients}: the matrix of regression coefficients.}
-#' \item{\code{bo}: a matrix of one row containing the intercepts for each component.}
-#' \item{\code{Y_loadings}: the matrix of Y loadings.}
-#' \item{\code{projection_mat}: the projection matrix.}
-#' \item{\code{transf}: a \code{list} conating two objects: \code{Xcenter} and \code{Xscale}}. 
-#' } 
+#'   \item{\code{'pls'}: standard PLS using covariance between X and Y for 
+#'     weight computation (NIPALS algorithm).}
+#'   \item{\code{'mpls'}: modified PLS using correlation between X and Y for 
+#'     weight computation (NIPALS algorithm). See Shenk and Westerhaus (1991).}
+#'   \item{\code{'xls'}: extended PLS as implemented in BUCHI NIRWise PLUS 
+#'     software (NIPALS algorithm).}
+#'   \item{\code{'simpls'}: SIMPLS algorithm (de Jong, 1993). Computationally 
+#'     faster as it avoids iterative X deflation. Parameters \code{maxiter}, 
+#'     \code{tol}, \code{xls_min_w}, and \code{xls_max_w} are ignored.}
+#' }
+#' @param xls_min_w an integer indicating the minimum window size for the 
+#' \code{'xls'} method. Only used if \code{algorithm = 'xls'}. Default is 3.
+#' @param xls_max_w an integer indicating the maximum window size for the 
+#' \code{'xls'} method. Only used if \code{algorithm = 'xls'}. Default is 15.
+#' @return a list containing:
+#' \itemize{
+#'   \item{\code{ncomp}: the number of PLS components.}
+#'   \item{\code{coefficients}: the matrix of regression coefficients.}
+#'   \item{\code{bo}: a matrix containing the intercepts for each component.}
+#'   \item{\code{X_loadings}: the matrix of X loadings.}
+#'   \item{\code{Y_loadings}: the matrix of Y loadings.}
+#'   \item{\code{projection_mat}: the projection matrix for computing scores 
+#'     from new data.}
+#'   \item{\code{transf}: a list containing:
+#'     \itemize{
+#'       \item{\code{Xcenter}: row vector of column means used for centering.}
+#'       \item{\code{Xscale}: row vector of column standard deviations used 
+#'         for scaling (ones if \code{scale = FALSE}).}
+#'     }
+#'   }
+#'   \item{\code{weights}: the matrix of PLS weights.}
+#' }
+#' @references
+#' de Jong, S. (1993). SIMPLS: An alternative approach to partial least 
+#' squares regression. Chemometrics and Intelligent Laboratory Systems, 
+#' 18(3), 251-263.
+#' 
+#' Shenk, J.S., & Westerhaus, M.O. (1991). Populations structuring of near 
+#' infrared spectra and modified partial least squares regression. Crop 
+#' Science, 31(6), 1548-1555.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 opls_get_basics <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
-    .Call('_resemble_opls_get_basics', PACKAGE = 'resemble', X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
+    .Call(`_resemble_opls_get_basics`, X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
 
 #' @title Prediction function for the \code{opls} and \code{fopls} functions
@@ -425,9 +723,10 @@ opls_get_basics <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls",
 #' @return a matrix of predicted values.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 predict_opls <- function(bo, b, ncomp, newdata, scale, Xscale) {
-    .Call('_resemble_predict_opls', PACKAGE = 'resemble', bo, b, ncomp, newdata, scale, Xscale)
+    .Call(`_resemble_predict_opls`, bo, b, ncomp, newdata, scale, Xscale)
 }
 
 #' @title Projection function for the \code{opls} function
@@ -443,9 +742,10 @@ predict_opls <- function(bo, b, ncomp, newdata, scale, Xscale) {
 #' @return a matrix corresponding to the new spectra projected onto the PLS space 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale) {
-    .Call('_resemble_project_opls', PACKAGE = 'resemble', projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
+    .Call(`_resemble_project_opls`, projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 }
 
 #' @title Projection to pls and then re-construction
@@ -468,9 +768,10 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @return a matrix of 1 row and 1 column.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back = FALSE) {
-    .Call('_resemble_reconstruction_error', PACKAGE = 'resemble', x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back)
+    .Call(`_resemble_reconstruction_error`, x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back)
 }
 
 #' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
@@ -538,52 +839,108 @@ reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, X
 #' 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics = TRUE) {
-    .Call('_resemble_opls_cv_cpp', PACKAGE = 'resemble', X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics)
+    .Call(`_resemble_opls_cv_cpp`, X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics)
 }
 
-#' @title orthogonal scores algorithm of partial leat squares (opls)
-#' @description Computes orthogonal scores partial least squares (opls) 
-#' regressions with the NIPALS algorithm. It allows multiple response variables. 
-#' It does not return the variance information of the components. NOTE: For 
-#' internal use only!
+#' @title Orthogonal scores algorithm of partial least squares for gesearch
+#' @description Computes orthogonal scores partial least squares (PLS) 
+#' regression using either NIPALS or SIMPLS algorithm. This function is 
+#' optimised for the \code{gesearch} evolutionary search and computes only 
+#' the outputs required for weakness score evaluation: predictions, 
+#' reconstruction error, and score-space dissimilarity.
+#' 
+#' NOTE: This function supports only a single response variable (PLS1). 
+#' For internal use only.
 #' @usage 
-#' opls_gs(Xr, 
-#'         Yr,
-#'         Xu, 
-#'         ncomp,
-#'         scale,     
-#'         response = FALSE, 
-#'         reconstruction = TRUE,
-#'         similarity = TRUE,
-#'         fresponse = TRUE,
-#'         algorithm = "pls")
+#' opls_gesearch(Xr, Yr, Xu, ncomp, scale,
+#'               response = FALSE, reconstruction = TRUE,
+#'               similarity = TRUE, fresponse = TRUE,
+#'               algorithm = "pls")
 #'         
-#' @param Xr a matrix of predictor variables for the training set.
-#' @param Yr a matrix of a single response variable for the training set.
-#' @param Xu a matrix of predictor variables for the test set.
-#' @param ncomp the number of pls components.
-#' @param scale logical indicating whether \code{X} must be scaled.
-#' @param response logical indicating whether to compute the prediction of \code{Yu}.
-#' @param reconstruction logical indicating whether to compute the reconstruction error of \code{Xu}.
-#' @param similarity logical indicating whether to compute the the distance score between \code{Xr} and \code{Xu} (in the pls space).
-#' @param fresponse logical indicating whether to compute the score of the variance not explained for \code{Yu}.
-#' @param algorithm (for weights computation) a character string indicating 
-#' what method to use. Options are:
-#' \code{'pls'} for pls (using covariance between X and Y) or
-#' \code{'mpls'} for modified pls (using correlation between X and Y).
-#' @return a list containing the following elements:
+#' @param Xr a matrix of predictor variables for the reference/training set.
+#' @param Yr a single-column matrix of the response variable for the 
+#' reference/training set. Only single-response (PLS1) is supported.
+#' @param Xu a matrix of predictor variables for the target/test set.
+#' @param ncomp the number of PLS components.
+#' @param scale logical indicating whether \code{Xr} and \code{Xu} must be 
+#' scaled. Centering is always applied using parameters derived from 
+#' \code{Xr}.
+#' @param response logical indicating whether to compute predictions for 
+#' \code{Xu}. Used for the response weakness score (\code{w_r}) in 
+#' \code{gesearch}. Default is \code{FALSE}.
+#' @param reconstruction logical indicating whether to compute the 
+#' reconstruction error of \code{Xu}. Used for the reconstruction weakness 
+#' score (\code{w_q}) in \code{gesearch}. Default is \code{TRUE}.
+#' @param similarity logical indicating whether to compute the distance 
+#' between \code{Xr} and \code{Xu} in the PLS score space. Used for the 
+#' similarity weakness score (\code{w_d}) in \code{gesearch}. Default is 
+#' \code{TRUE}.
+#' @param fresponse logical indicating whether to compute the proportion of 
+#' response variance not explained by the model. Default is \code{TRUE}.
+#' @param algorithm a character string indicating the PLS algorithm to use:
 #' \itemize{
-#' \item{\code{ncomp}: the number of components.}
-#' \item{\code{pred_response}: the response predictions for \code{Xu}.}
-#' \item{\code{rmse_reconstruction}: the rmse of the reconstruction for \code{Xu}.}
-#' \item{\code{score_dissimilarity}: the distance score between \code{Xr} and \code{Xu}.}} 
+#'   \item{\code{'pls'}: standard PLS using covariance between X and Y for 
+#'     weight computation (NIPALS algorithm).}
+#'   \item{\code{'mpls'}: modified PLS using correlation between X and Y for 
+#'     weight computation (NIPALS algorithm). See Shenk and Westerhaus (1991).}
+#'   \item{\code{'simpls'}: SIMPLS algorithm (de Jong, 1993). Computationally 
+#'     faster as it avoids iterative X deflation.}
+#' }
+#' @return a list containing:
+#' \itemize{
+#'   \item{\code{ncomp}: the number of components used.}
+#'   \item{\code{pred_response}: predictions for \code{Xu} (only if 
+#'     \code{response = TRUE}).}
+#'   \item{\code{rmse_reconstruction}: RMSE of the spectral reconstruction 
+#'     for \code{Xu} (only if \code{reconstruction = TRUE}).}
+#'   \item{\code{score_dissimilarity}: mean Euclidean distance between 
+#'     \code{Xr} and \code{Xu} scores in Mahalanobis-scaled PLS space 
+#'     (only if \code{similarity = TRUE}).}
+#'   \item{\code{residual_variance}: proportion of response variance not 
+#'     explained by the model (only if \code{fresponse = TRUE}).}
+#' }
+#' @details
+#' This function is designed for repeated evaluation within the 
+#' \code{gesearch} evolutionary search algorithm, where it may be called 
+#' ~10^5 times per run. It computes only the outputs necessary for 
+#' calculating weakness scores:
+#' \itemize{
+#'   \item{Response weakness (\code{w_r}): prediction RMSE on the target, 
+#'     requires \code{response = TRUE}.}
+#'   \item{Reconstruction weakness (\code{w_q}): spectral reconstruction 
+#'     error, requires \code{reconstruction = TRUE}.}
+#'   \item{Similarity weakness (\code{w_d}): Mahalanobis distance in score 
+#'     space, requires \code{similarity = TRUE}.}
+#' }
+#' 
+#' Preprocessing applies scaling (if requested) followed by centering, 
+#' using parameters derived from \code{Xr}. The same transformation is 
+#' applied to \code{Xu}.
+#' 
+#' The \code{'simpls'} algorithm is faster than NIPALS-based methods 
+#' (\code{'pls'}, \code{'mpls'}) as it avoids iterative X deflation. 
+#' However, reconstruction errors and score-space distances differ 
+#' numerically between algorithms (rankings are typically similar). 
+#' Do not mix algorithms within a single \code{gesearch} run.
+#' 
+#' @references
+#' de Jong, S. (1993). SIMPLS: An alternative approach to partial least 
+#' squares regression. Chemometrics and Intelligent Laboratory Systems, 
+#' 18(3), 251-263.
+#' 
+#' Shenk, J.S., & Westerhaus, M.O. (1991). Populations structuring of 
+#' near infrared spectra and modified partial least squares regression. 
+#' Crop Science, 31(6), 1548-1555.
+#' 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
-opls_gs <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruction = TRUE, similarity = TRUE, fresponse = TRUE, algorithm = "pls") {
-    .Call('_resemble_opls_gs', PACKAGE = 'resemble', Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm)
+opls_gesearch <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruction = TRUE, similarity = TRUE, fresponse = TRUE, algorithm = "pls") {
+    .Call(`_resemble_opls_gesearch`, Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm)
 }
 
 #' @title Gaussian process regression with linear kernel (gaussian_process)
@@ -607,9 +964,10 @@ opls_gs <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruction =
 #' }
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 gaussian_process <- function(X, Y, noisev = 0.001, scale = TRUE) {
-    .Call('_resemble_gaussian_process', PACKAGE = 'resemble', X, Y, noisev, scale)
+    .Call(`_resemble_gaussian_process`, X, Y, noisev, scale)
 }
 
 #' @title Prediction function for the \code{gaussian_process} function (Gaussian process regression with dot product covariance)
@@ -625,9 +983,10 @@ gaussian_process <- function(X, Y, noisev = 0.001, scale = TRUE) {
 #' @return a matrix of predicted values
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale) {
-    .Call('_resemble_predict_gaussian_process', PACKAGE = 'resemble', Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
+    .Call(`_resemble_predict_gaussian_process`, Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
 }
 
 #' @title Internal Cpp function for performing leave-group-out cross 
@@ -656,9 +1015,10 @@ predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale,
 #' } 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale = TRUE, statistics = TRUE) {
-    .Call('_resemble_gaussian_process_cv', PACKAGE = 'resemble', X, Y, mindices, pindices, noisev, scale, statistics)
+    .Call(`_resemble_gaussian_process_cv`, X, Y, mindices, pindices, noisev, scale, statistics)
 }
 
 #' @title Principal components based on  the non-linear iterative partial least squares (nipals) algorithm
@@ -693,8 +1053,129 @@ gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale 
 #' } 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
+#' @noRd
 #' @useDynLib resemble
 pca_nipals <- function(X, ncomp, center, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01) {
-    .Call('_resemble_pca_nipals', PACKAGE = 'resemble', X, ncomp, center, scale, maxiter, tol, pcSelmethod, pcSelvalue)
+    .Call(`_resemble_pca_nipals`, X, ncomp, center, scale, maxiter, tol, pcSelmethod, pcSelvalue)
+}
+
+#' @title Internal: Fit a local weighted PLS model and predict for a query point
+#'
+#' @description
+#' Fits a local Partial Least Squares (PLS) model using a neighborhood subset
+#' and computes a weighted prediction for a target sample. The weighting is
+#' done over multiple components using a provided evaluation grid.
+#'
+#' @param X Numeric matrix of predictors from the local neighborhood
+#'   (observations in rows, variables in columns).
+#' @param Y Numeric matrix (single column) of corresponding response values.
+#' @param xval Numeric matrix (single row) representing the query sample to
+#'   predict.
+#' @param emgrid Numeric matrix used to weight component-wise predictions.
+#' @param ncomp_max Integer. Maximum number of PLS components to fit.
+#' @param ncomp_min Integer. Minimum number of PLS components to use in
+#'   prediction.
+#' @param scale Logical. Whether to scale predictors before PLS fitting.
+#' @param max_iter Numeric. Maximum number of iterations for the PLS algorithm.
+#' @param tol Numeric. Convergence tolerance for the PLS algorithm.
+#' @param algorithm Character. PLS algorithm to use: \code{"mpls"} (default),
+#'   \code{"pls"} (nipals), or \code{"simpls"}.
+#'
+#' @return
+#' A numeric vector of weighted predictions (length equal to number of rows
+#' in \code{emgrid}).
+#'
+#' @details
+#' The function performs the following steps:
+#' \enumerate{
+#'   \item Fits a PLS model on \code{X} and \code{Y} with up to
+#'         \code{ncomp_max} components.
+#'   \item Extracts centering and scaling parameters from the fitted model.
+#'   \item Computes component weights for \code{xval} using
+#'         \code{get_local_pls_weights()}.
+#'   \item Predicts component-wise responses using \code{predict_opls()}.
+#'   \item Applies \code{emgrid} weights scaled by component weights.
+#'   \item Returns row-normalized weighted average of predictions.
+#' }
+#'
+#' @author Leonardo Ramirez-Lopez
+#' @keywords internal
+#' @noRd
+#' @useDynLib resemble
+ith_local_fit <- function(X, Y, xval, emgrid, ncomp_max, ncomp_min, scale, max_iter, tol, algorithm = "mpls") {
+    .Call(`_resemble_ith_local_fit`, X, Y, xval, emgrid, ncomp_max, ncomp_min, scale, max_iter, tol, algorithm)
+}
+
+#' @title Compute Final Local PLS Model Outputs
+#' @description
+#' This function calculates the final local model coefficients, intercept,
+#' scaled variable importance (VIP), and selectivity ratio for a single observation
+#' using a weighted combination of PLS components.
+#'
+#' @param X A matrix of predictor variables used for calibration.
+#' @param Y A matrix of response variables used for calibration.
+#' @param new_x A single observation (1 x p) of predictor variables to compute weights.
+#' @param ncomp_min The minimum number of PLS components to include in the final model.
+#' @param ncomp_max The maximum number of PLS components to include in the final model.
+#' @param scale Logical indicating whether to scale the data.
+#' @param maxiter Maximum number of iterations allowed during the NIPALS algorithm.
+#' @param tol Tolerance threshold for convergence in the iterative algorithm.
+#' @param algorithm \code{'mpls'} (defalt), \code{'pls'} (nipals), \code{'simpls'}.
+#'
+#' @return A list with the following elements:
+#' \itemize{
+#'   \item \code{ib0}: Intercept term, computed as a weighted sum of component-specific intercepts.
+#'   \item \code{ibs}: Weighted regression coefficients.
+#'   \item \code{ivips}: Weighted variable importance (VIP) scores, scaled by component SDs.
+#'   \item \code{isratio}: Weighted selectivity ratios, scaled by component SDs.
+#'   \item \code{Xscale}: Scaling vector used to scale \code{X} (if \code{scale = TRUE}).
+#' }
+#'
+#' @keywords internal
+#' @noRd
+final_fits_cpp <- function(X, Y, new_x, ncomp_min, ncomp_max, scale, maxiter, tol, algorithm = "mpls") {
+    .Call(`_resemble_final_fits_cpp`, X, Y, new_x, ncomp_min, ncomp_max, scale, maxiter, tol, algorithm)
+}
+
+#' @title Internal: Predict using local PLS coefficients and optional
+#' dissimilarities
+#'
+#' @description
+#' Computes predictions for a new observation using local PLS models
+#' represented by coefficients (\code{plslib}). The prediction is based on
+#' inverse-scaled feature values. If a dissimilarity vector is provided, it is
+#' prepended to the input features before inverse scaling.
+#'
+#' @param plslib A numeric matrix of PLS model coefficients (n_models × p+1).
+#'   First column is the intercept; remaining columns are coefficients for 
+#'   scaled features.
+#' @param xscale A numeric matrix of scaling values (n_models × p), same 
+#'   number of columns as \code{plslib[,-1]}.
+#' @param Xu A numeric vector of length p representing the query sample to 
+#'   be predicted.
+#' @param dxrxu Optional numeric vector of dissimilarities between \code{Xu} 
+#'   and reference samples. If provided, prepended to \code{Xu} as additional 
+#'   predictive features. Default is \code{R_NilValue} (NULL).
+#'
+#' @return A numeric vector of length \code{nrow(plslib)} containing the 
+#'   predicted response for \code{Xu} from each local model.
+#'
+#' @details
+#' For each local model (row of \code{plslib}), the function:
+#' \enumerate{
+#'   \item Optionally prepends \code{dxrxu} to \code{Xu}
+#'   \item Computes inverse-scaled features: \code{Xu / xscale[i,]}
+#'   \item Computes prediction: \code{intercept + sum(coefficients * scaled_features)}
+#' }
+#'
+#' @note
+#' This is an internal function optimised for performance in the prediction
+#' loop of \code{predict.liblex}.
+#'
+#' @keywords internal
+#' @noRd
+#' @author Leonardo Ramirez-Lopez
+ith_pred_cpp <- function(plslib, xscale, Xu, dxrxu = NULL) {
+    .Call(`_resemble_ith_pred_cpp`, plslib, xscale, Xu, dxrxu)
 }
 

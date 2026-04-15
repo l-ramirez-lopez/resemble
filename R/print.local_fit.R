@@ -8,11 +8,11 @@
 #' @export
 
 print.local_fit <- function(x, ...) {
-  if (!x$method %in% c("pls", "wapls", "gpr")) {
+  if (!x$fit_method %in% c("pls", "wapls", "gpr")) {
     message("Method not recognized!")
   }
 
-  if (x$method == "pls") {
+  if (x$fit_method == "pls") {
     if (x$modified) {
       mss <- "Modified partial least squares (mpls)"
     } else {
@@ -32,7 +32,7 @@ print.local_fit <- function(x, ...) {
     cat("\nMin. and max. number of factors: from", x$pls_c[["min_pls_c"]], "to", x$pls_c[["max_pls_c"]])
   }
 
-  if (x$method == "gpr") {
+  if (x$fit_method == "gpr") {
     cat("Gaussian process with linear kernel/dot product (gpr)")
     cat("\nNoise:", x$noise_variance)
   }

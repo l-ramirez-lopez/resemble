@@ -1,4 +1,56 @@
-# resemble
+# version 3.0.0
+
+Dear CRAN maintainers,
+
+I am submitting version 3.0.0 of {resemble} to CRAN.
+
+This is a major release that includes a redesigned API and several new features:
+
+- Refactored API based on constructor functions:
+  `neighbors_k()`, `neighbors_diss()`, `fit_pls()`, `fit_wapls()`, `fit_gpr()`, and `mbl_control()`
+- New `liblex()` function for building reusable libraries of local models
+- New `model()` function for fitting global PLS and GPR models with cross-validation
+- Migration of vignettes from R Markdown/bookdown to Quarto
+- Deprecation of legacy function arguments, with informative migration messages
+- Expanded unit test coverage using {testthat}
+
+Test environments:
+- Local: Ubuntu 24.04.4 LTS, R 4.5.3
+- GitHub Actions:
+  - macOS latest, R release
+  - Ubuntu latest, R devel
+  - Ubuntu latest, R oldrel-1
+  - Ubuntu latest, R release
+  - Windows latest, R release
+
+The package was built using:
+
+devtools::build(
+  pkg = ".",
+  path = NULL,
+  binary = FALSE,
+  vignettes = TRUE,
+  manual = TRUE,
+  args = NULL,
+  quiet = FALSE
+)
+
+All checks have passed.
+
+Results summary:
+- 6 successful CI checks
+- No conflicts with the base branch
+- Merge can be performed automatically
+
+GitHub Actions results:
+- R-CMD-check / macos-latest (release): Successful
+- R-CMD-check / ubuntu-latest (devel): Successful
+- R-CMD-check / ubuntu-latest (oldrel-1): Successful
+- R-CMD-check / ubuntu-latest (release): Successful
+- R-CMD-check / windows-latest (release): Successful
+- test-coverage: Successful
+
+Thank you for your time and consideration.
 
 # version 2.2.5
 
@@ -20,9 +72,9 @@ Leonardo
 # version 2.2.3
 
 # submission message:
+Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
 Dear CRAN maintainers,
 I am resubmitting my package "resemble" to CRAN. This version fixes problems with the documentation which were reported in the CRAN checks. I have addressed a small problem with one of the help pages that was detected in a previous submission. 
-Prior to this submission, this tarball has been checked with in the winbuilder service. Apart from that it has been also submitted to extensive tests in rhub.
 For this second submission the package passed all the tests in the above platforms. 
 Reverse dependencies have also been checked. 
 Best regards,
@@ -368,7 +420,7 @@ Rcpp. These platforms were:
  
  - "linux-x86_64-rocker-gcc-san" 
  
-The remaining platforms were passing all the tests sucessfully. For the above 
+The remaining platforms were passing all the tests successfully. For the above 
 three platforms, the solution was to disable OPENMP.
 
 All platforms pass the checks successfully for the release. 

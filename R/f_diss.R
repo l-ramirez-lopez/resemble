@@ -1,8 +1,6 @@
 #' @title Euclidean, Mahalanobis and cosine dissimilarity measurements
 #' @description
 #' \loadmathjax
-#' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#satble'><img src='figures/lifecycle-stable.svg' alt='Stable lifecycle'></a>}}{\strong{Stable}}
-#'
 #' This function is used to compute the dissimilarity between observations
 #' based on Euclidean or Mahalanobis distance measures or on cosine
 #' dissimilarity measures (a.k.a spectral angle mapper).
@@ -84,7 +82,7 @@
 #'
 #' ed <- f_diss(Xr = Xr, diss_method = "euclid")
 #'
-#' # Equivalence with the dist() fucntion of R base
+#' # Equivalence with the dist() function of R base
 #' ed_dist <- (as.matrix(dist(Xr))^2 / ncol(Xr))^0.5
 #' round(ed_dist - ed, 5)
 #'
@@ -114,7 +112,8 @@
 #' # Cosine dissimilarity matrix
 #' cdiss_xr_xu <- f_diss(Xr, Xu, "cosine")
 #' }
-#' @export
+#' @noRd
+#' @keywords internal
 
 ######################################################################
 # resemble
@@ -245,9 +244,9 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
 #' @description For internal use only
 #' @keywords internal
 #' @importFrom stats cov
+#' @noRd
 euclid_to_mahal <- function(X, sm_method = c("svd", "eigen")) {
   nms <- dimnames(X)
-
   if (ncol(X) > nrow(X)) {
     stop("In order to project the matrix to a Mahalanobis space, the number of observations of the input matrix must larger than its number of variables")
   }
@@ -273,6 +272,7 @@ euclid_to_mahal <- function(X, sm_method = c("svd", "eigen")) {
 #' @title Square root of (square) symmetric matrices
 #' @description For internal use only
 #' @keywords internal
+#' @noRd
 sqrt_sm <- function(X, method = c("svd", "eigen")) {
   if (!isSymmetric(X)) {
     stop("X must be a square symmetric matrix")
