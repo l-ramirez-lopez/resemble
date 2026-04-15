@@ -17,93 +17,79 @@ mbl_control(
 )
 }
 \arguments{
-\item{return_dissimilarity}{a logical indicating if the dissimilarity matrix
+\item{return_dissimilarity}{A logical indicating if the dissimilarity matrix
 between \code{Xr} and \code{Xu} must be returned.}
 
-\item{validation_type}{a character vector which indicates the (internal) validation
-method(s) to be used for assessing the global performance of the local models.
-Possible options are: \code{"NNv"} and \code{"local_cv"}. Alternatively
-\code{"none"} can be used when cross-validation is not required (see details
-below).}
+\item{validation_type}{A character vector indicating the internal validation
+method(s) used to assess the global performance of the local models.
+Possible options are \code{"NNv"} and \code{"local_cv"}. Alternatively,
+\code{"none"} can be used when cross-validation is not required.}
 
-\item{tune_locally}{a logical. It only applies when
-\code{validation_type = "local_cv"} and "pls" or "wapls" fitting algorithms are
-used.  If \code{TRUE}, the parameters of the local pls-based models
-(i.e. pls factors for the "pls" method and minimum and maximum pls factors
-for the "wapls" method). Default is \code{TRUE}.}
+\item{tune_locally}{A logical. It only applies when
+\code{validation_type = "local_cv"} and \code{"pls"} or \code{"wapls"}
+fitting algorithms are used. If \code{TRUE}, the parameters of the local
+PLS-based models are tuned.}
 
-\item{number}{an integer indicating the number of sampling iterations at
-each local segment when \code{"local_cv"} is selected in the
-\code{validation_type} argument. Default is 10.}
+\item{number}{An integer indicating the number of sampling iterations at
+each local segment when \code{"local_cv"} is selected. Default is 10.}
 
-\item{p}{a numeric value indicating the percentage of observations to be retained
+\item{p}{A numeric value indicating the percentage of observations to be retained
 at each sampling iteration at each local segment when \code{"local_cv"}
-is selected in the \code{validation_type} argument. Default is 0.75 (75 %).}
+is selected. Default is 0.75 (75\%).}
 
-\item{range_prediction_limits}{a logical. It indicates whether the prediction
+\item{range_prediction_limits}{A logical. It indicates whether the prediction
 limits at each local regression are determined by the range of the response
 variable within each neighborhood. When the predicted value is outside
-this range, it will be automatically replaced with the value of the nearest
-range value. If \code{FALSE}, no prediction limits are imposed.
-Default is \code{TRUE}.}
+this range, it is automatically replaced with the nearest range value.
+If \code{FALSE}, no prediction limits are imposed. Default is \code{TRUE}.}
 
-\item{progress}{a logical indicating whether or not to print a progress bar
-for each observation to be predicted. Default is \code{TRUE}. Note: In case
-parallel processing is used, these progress bars will not be printed.}
+\item{progress}{A logical indicating whether to print a progress bar
+for each observation to be predicted. Default is \code{TRUE}. In case
+parallel processing is used, these progress bars are not printed.}
 
-\item{allow_parallel}{a logical indicating if parallel execution is allowed.
-If \code{TRUE}, this parallelism is applied to the loop in \code{\link{mbl}}
-in which each iteration takes care of a single observation in \code{Xu}. The
-parallelization of this for loop is implemented using the
-\link[foreach:foreach]{foreach} function of the \pkg{foreach} package.
-Default is \code{TRUE}.}
+\item{allow_parallel}{A logical indicating if parallel execution is allowed.
+If \code{TRUE}, parallelism is applied to the loop in \code{\link{mbl}}
+in which each iteration handles a single observation in \code{Xu}.}
 }
 \value{
-a \code{list} mirroring the specified parameters
+A \code{list} mirroring the specified parameters.
 }
 \description{
-\ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#experimental'><img src='figures/lifecycle-maturing.svg' alt='Experimental lifecycle'></a>}}{\strong{Maturing}}
+\strong{Maturing}
 
-\loadmathjax
 This function is used to further control some aspects of the memory-based
 learning process in the \code{mbl} function.
 }
 \details{
-The validation methods available for assessing the predictive performance of
-the memory-based learning method used are described as follows:
- \itemize{
- \item{Leave-nearest-neighbor-out cross-validation (\code{"NNv"}): From
- the group of neighbors of each observation to be predicted, the nearest observation
- (i.e. the most similar observation) is excluded and then a local model is fitted
- using the remaining neighbors. This model is then used to predict the value
- of the target response variable of the nearest observation. These predicted
- values are finally cross validated with the actual values (See Ramirez-Lopez
- et al. (2013a) for additional details). This method is faster than
- \code{"local_cv"}.}
- \item{Local leave-group-out cross-validation (\code{"local_cv"}): The
- group of neighbors of each observation to be predicted is partitioned into
- different equal size subsets. Each partition is selected based on a
- stratified random sampling which takes into account the values of the
- response variable of the corresponding set of neighbors. The selected
- local subset is used as local validation subset and the remaining observations
- are used for fitting a model. This model is used to predict the target
- response variable values of the local validation subset and the local root
- mean square error is computed. This process is repeated \mjeqn{m}{m} times and
- the final local error is computed as the average of the local root mean
- square error of all the \mjeqn{m}{m} iterations. In the \code{mbl} function
- \mjeqn{m}{m} is controlled by the \code{number} argument and the size of the
- subsets is controlled by the \code{p} argument which indicates the
- percentage of observations to be selected from the subset of nearest neighbours.
- The global error of the predictions is computed as the average of the local
- root mean square errors.}
- \item{No validation (\code{"none"}): No validation is carried out.
- If \code{"none"} is selected along with \code{"NNv"} and/or
- \code{"local_cv"}, then it will be ignored and the respective
- validation(s) will be carried out.}
- }
+The validation methods available for assessing predictive performance are:
+
+\itemize{
+  \item \code{"NNv"}: Leave-nearest-neighbor-out cross-validation. From
+  the group of neighbors of each observation to be predicted, the nearest
+  observation is excluded and then a local model is fitted using the
+  remaining neighbors. This model is then used to predict the response
+  value of the nearest observation. These predicted values are finally
+  cross-validated against the actual values. If the nearest sample belongs
+  to a group of samples labeled through the \code{group} argument in
+  \code{\link{mbl}}, then all samples in that group are excluded from the
+  temporary local fit used for validation. This validation method is faster
+  than \code{"local_cv"}.
+
+  \item \code{"local_cv"}: Local leave-group-out cross-validation. The
+  group of neighbors of each observation to be predicted is partitioned into
+  equal-size subsets. Each partition is selected by stratified random
+  sampling based on response values. The selected subset is used as a local
+  validation subset and the remaining observations are used for fitting a
+  model. This process is repeated \eqn{m} times. In \code{\link{mbl}},
+  \eqn{m} is controlled by the \code{number} argument and subset size is
+  controlled by the \code{p} argument. The global error is computed as the
+  average of the local root mean square errors.
+
+  \item \code{"none"}: No validation is carried out. If \code{"none"} is
+  selected along with \code{"NNv"} or \code{"local_cv"}, it is ignored.
+}
 }
 \examples{
-# A control list with the default parameters
 mbl_control()
 }
 \references{
@@ -112,7 +98,7 @@ Scholten, T. 2013a. The spectrum-based learner: A new local approach for
 modeling soil vis-NIR spectra of complex data sets. Geoderma 195-196, 268-279.
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Viscarra Rossel, R., Dematte,
-J. A. M.,  Scholten, T. 2013b. Distance and similarity-search metrics for
+J. A. M., Scholten, T. 2013b. Distance and similarity-search metrics for
 use with soil vis-NIR spectra. Geoderma 199, 43-53.
 }
 \seealso{
