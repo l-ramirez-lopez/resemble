@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{get_local_pls_weights}
 \alias{get_local_pls_weights}
-\title{Internal Cpp function for computing the weights of the PLS components
+\title{Internal Cpp function for computing the weights of the PLS components 
 necessary for weighted average PLS}
 \usage{
 get_local_pls_weights(projection_mat, 
@@ -30,9 +30,9 @@ get_local_pls_weights(projection_mat,
 
 \item{scale}{a logical indicating whether the matrix of predictors used to create the regression model was scaled.}
 
-\item{Xcenter}{a vector with the values that must be used for centering \code{newdata}.}
+\item{Xcenter}{a matrix of one row with the values that must be used for centering \code{newdata}.}
 
-\item{Xscale}{if \code{scale = TRUE} a vector with the values that must be used for scaling \code{newdata}.}
+\item{Xscale}{if \code{scale = TRUE} a matrix of one row with the values that must be used for scaling \code{newdata}.}
 }
 \value{
 a matrix of one row with the weights for each component between the max. and min. specified.

@@ -34,7 +34,7 @@ opls_gs(Xr,
 
 \item{fresponse}{logical indicating whether to compute the score of the variance not explained for \code{Yu}.}
 
-\item{algorithm}{(for weights computation) a character string indicating
+\item{algorithm}{(for weights computation) a character string indicating 
 what method to use. Options are:
 \code{'pls'} for pls (using covariance between X and Y) or
 \code{'mpls'} for modified pls (using correlation between X and Y).}
@@ -48,9 +48,9 @@ a list containing the following elements:
 \item{\code{score_dissimilarity}: the distance score between \code{Xr} and \code{Xu}.}}
 }
 \description{
-Computes orthogonal scores partial least squares (opls)
-regressions with the NIPALS algorithm. It allows multiple response variables.
-It does not return the variance information of the components. NOTE: For
+Computes orthogonal scores partial least squares (opls) 
+regressions with the NIPALS algorithm. It allows multiple response variables. 
+It does not return the variance information of the components. NOTE: For 
 internal use only!
 }
 \author{

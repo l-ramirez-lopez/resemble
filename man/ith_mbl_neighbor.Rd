@@ -19,7 +19,7 @@ ith_mbl_neighbor(
 \arguments{
 \item{Xr}{the Xr matrix in mbl.}
 
-\item{Xu}{the Xu matrix in mbl. Default \code{NULL}. If not provided, the
+\item{Xu}{the Xu matrix in mbl. Default \code{NULL}. If not provided, the 
 function will iterate for each \code{\{Yr, Xr\}} to get the respective neighbors.}
 
 \item{Yr}{the Yr matrix in mbl.}
@@ -47,8 +47,8 @@ an object of \code{class} iterator giving the following list:
 \code{diss_usage = "predictors"}, this data is combined with the local
 dissmilarity scores of the neighbors of Xu (or Xr if Xu was not provided))}
 \item{ith_yr: the Yr data of the neighbors for the ith observation}
-\item{ith_xu: the ith Xu observation (or Xr if Xu was not provided).
-If \code{diss_usage = "predictors"}, this data is combined with the local
+\item{ith_xu: the ith Xu observation (or Xr if Xu was not provided). 
+If \code{diss_usage = "predictors"}, this data is combined with the local 
 dissmilarity scores to its Xr neighbors.}
 \item{ith_yu: the ith Yu observation (or Yr observation if Xu was not provided).}
 \item{ith_neigh_diss: the dissimilarity scores of the neighbors for the ith

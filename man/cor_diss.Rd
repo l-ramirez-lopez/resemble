@@ -2,13 +2,10 @@
 % Please edit documentation in R/cor_diss.R
 \name{cor_diss}
 \alias{cor_diss}
-\title{Correlation and moving correlation dissimilarity measurements}
+\title{Correlation and moving correlation dissimilarity measurements (cor_diss)}
 \usage{
-cor_diss(
-  Xr, Xu = NULL, ws = NULL, 
-  center = TRUE, scale = FALSE, 
-  precision = c("double", "single")
-)
+cor_diss(Xr, Xu = NULL, ws = NULL,
+         center = TRUE, scale = FALSE)
 }
 \arguments{
 \item{Xr}{a matrix.}
@@ -27,12 +24,6 @@ is scaled on the basis of \mjeqn{Xr \cup Xu}{Xr U Xu}.}
 \item{scale}{a logical indicating if \code{Xr} (and \code{Xu} if specified)
 must be scaled. If \code{Xu} is provided the data is scaled on the basis
 of \mjeqn{Xr \cup Xu}{Xr U Xu}.}
-
-\item{precision}{a character string indicating the numeric precision to use.
-Possible values are \code{"double"} (default, 64-bit floating point) or
-\code{"single"} (32-bit floating point). Using \code{"single"} reduces memory
-usage and may improve performance for large datasets, at the cost of reduced
-numerical precision.}
 }
 \value{
 a matrix of the computed dissimilarities.

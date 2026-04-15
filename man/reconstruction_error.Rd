@@ -25,7 +25,7 @@ reconstruction_error(x,
 
 \item{Xscale}{a matrix of one row with the scaling values}
 
-\item{scale_back}{compute the reconstruction error after de-centering the
+\item{scale_back}{compute the reconstruction error after de-centering the 
 data and de-scaling it.}
 }
 \value{
