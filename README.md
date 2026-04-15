@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 ![R-CMD-check](https://github.com/l-ramirez-lopez/resemble/actions/workflows/R-CMD-check.yaml/badge.svg)
-[![codecov](https://codecov.io/gh/l-ramirez-lopez/resemble/badge.svg)](https://codecov.io/gh/l-ramirez-lopez/resemble)
+[![codecov](https://codecov.io/gh/l-ramirez-lopez/resemble/badge.svg)](https://app.codecov.io/gh/l-ramirez-lopez/resemble)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/resemble.png)](https://CRAN.R-project.org/package=resemble)
 [![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble.png)](https://CRAN.R-project.org/package=resemble)
 
