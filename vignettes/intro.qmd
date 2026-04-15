@@ -8,8 +8,6 @@ bibliography: resemble.bib
 csl: elsevier-harvard.csl  
 format:
   html:
-    theme: cosmo
-    highlight-style: github
     toc: true
     toc-depth: 3
     number-sections: true
@@ -17,7 +15,7 @@ format:
     code-overflow: wrap
     smooth-scroll: true
 vignette: >
-  %\VignetteIndexEntry{1. Essential concepts and setup}
+  %\VignetteIndexEntry{1 Essential concepts and setup}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

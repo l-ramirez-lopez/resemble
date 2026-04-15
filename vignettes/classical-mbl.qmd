@@ -8,8 +8,6 @@ bibliography: resemble.bib
 csl: elsevier-harvard.csl  
 format:
   html:
-    theme: cosmo
-    highlight-style: github
     toc: true
     toc-depth: 3
     number-sections: true
@@ -20,7 +18,7 @@ knitr:
   opts_chunk:
     class-output: "ansi"
 vignette: >
-  %\VignetteIndexEntry{6. Classical memory-based learning (local modelling)}
+  %\VignetteIndexEntry{6 Classical memory-based learning (local modelling)}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

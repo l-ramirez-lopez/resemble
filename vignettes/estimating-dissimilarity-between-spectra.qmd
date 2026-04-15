@@ -8,8 +8,6 @@ bibliography: resemble.bib
 csl: elsevier-harvard.csl  
 format:
   html:
-    theme: cosmo
-    highlight-style: github
     toc: true
     toc-depth: 3
     toc-location: left
@@ -17,7 +15,7 @@ format:
     code-overflow: wrap
     smooth-scroll: true
 vignette: >
-  %\VignetteIndexEntry{3. Estimating dissimilarity between spectra}
+  %\VignetteIndexEntry{3 Estimating dissimilarity between spectra}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 ---

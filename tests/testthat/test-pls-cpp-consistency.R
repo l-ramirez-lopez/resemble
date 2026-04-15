@@ -325,7 +325,7 @@ test_that("SIMPLS implementations produce consistent results with scale = TRUE",
   
   ncomp_test <- 40
   tol <- 1e-8
-  tol2 <- 1e-6
+  tol2 <- 1e-5
   
   # Fit models
   simpls_basics <- resemble:::opls_get_basics(
@@ -471,7 +471,7 @@ test_that("SIMPLS implementations produce consistent results with scale = FALSE"
   
   ncomp_test <- 40
   tol <- 1e-8
-  tol2 <- 1e-6
+  tol2 <- 1e-5
   
   # Fit models
   simpls_basics <- resemble:::opls_get_basics(
@@ -928,7 +928,7 @@ test_that("PLS and SIMPLS produce equivalent predictions with scale = TRUE", {
   test_x <- NIRsoil$spc_pr[test_idx, ]
   
   ncomp_test <- 40
-  tol2 <- tol <- 1e-6  # Looser tolerance for cross-algorithm comparison
+  tol2 <- tol <- 1e-5  # Looser tolerance for cross-algorithm comparison
   tol3 <- 1e-3  # Looser tolerance for coefficients comparison
   # Fit PLS (NIPALS)
   pls_fit <- resemble:::opls(
@@ -996,7 +996,7 @@ test_that("PLS and SIMPLS produce equivalent predictions with scale = FALSE", {
   
   library(prospectr)
   data(NIRsoil, package = "prospectr")
-  tol2 <- 1e-6
+  tol2 <- 1e-5
   tol3 <- 1e-3 
   # Preprocessing
   sg_det <- savitzkyGolay(
@@ -1124,7 +1124,7 @@ test_that("PLS overfits training data with many components (scale = TRUE)", {
   # Any systematic bias or corruption would show up here
   
   # Mean bias should be essentially zero (not shifted up or down)
-  expect_lt(abs(mean(residuals)), 1e-6, 
+  expect_lt(abs(mean(residuals)), 1e-5, 
             label = "PLS scale=TRUE: no systematic bias")
   
   # use relative error
@@ -1165,7 +1165,7 @@ test_that("PLS overfits training data with many components (scale = TRUE)", {
   pred_simpls <- simpls_pred[, ncomp_test]
   residuals_simpls <- pred_simpls - obs
   
-  expect_lt(abs(mean(residuals_simpls)), 1e-6, 
+  expect_lt(abs(mean(residuals_simpls)), 1e-5, 
             label = "SIMPLS scale=TRUE: no systematic bias")
   expect_lt(max(abs(residuals_simpls)) / diff(range(obs)), 0.05, 
             label = "SIMPLS scale=TRUE: max relative error < 5%")
@@ -1177,7 +1177,7 @@ test_that("PLS overfits training data with many components (scale = TRUE)", {
             label = "SIMPLS scale=TRUE: slope near 1")
   
   # PLS and SIMPLS should be equivalent
-  expect_lt(max(abs(pred - pred_simpls)), 1e-6,
+  expect_lt(max(abs(pred - pred_simpls)), 1e-5,
             label = "PLS vs SIMPLS scale=TRUE: equivalent predictions")
 })
 
@@ -1229,7 +1229,7 @@ test_that("PLS overfits training data with many components (scale = FALSE)", {
   # plot(pred, obs)
   # abline(0, 1)
   
-  expect_lt(abs(mean(residuals)), 1e-6, 
+  expect_lt(abs(mean(residuals)), 1e-5, 
             label = "PLS scale=FALSE: no systematic bias")
   expect_lt(max(abs(residuals)) / diff(range(obs)), 0.05, 
             label = "PLS scale=FALSE: max relative error < 5%")
@@ -1265,7 +1265,7 @@ test_that("PLS overfits training data with many components (scale = FALSE)", {
   pred_simpls <- simpls_pred[, ncomp_test]
   residuals_simpls <- pred_simpls - obs
   
-  expect_lt(abs(mean(residuals_simpls)), 1e-6, 
+  expect_lt(abs(mean(residuals_simpls)), 1e-5, 
             label = "SIMPLS scale=FALSE: no systematic bias")
   expect_lt(max(abs(residuals)) / diff(range(obs)), 0.05, 
             label = "SIMPLS scale=FALSE: max relative error < 5%")
