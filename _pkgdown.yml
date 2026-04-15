@@ -1,0 +1,92 @@
+url: https://l-ramirez-lopez.github.io/resemble/
+
+template:
+  bootstrap: 5
+
+home:
+  title: resemble - Local Learning for Spectral Chemometrics
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+
+articles:
+  - title: Getting Started
+    navbar: ~
+    contents:
+    - intro
+  - title: Core Methods
+    contents:
+    - dimensionality-reduction
+    - estimating-dissimilarity-between-spectra
+    - nearest-neighbor-search
+    - simple-global-models
+  - title: Local Modelling
+    contents:
+    - classical-mbl
+    - building-a-library-of-models-with-liblex
+  - title: Subset Selection
+    contents:
+    - evolutionary-subset-search
+
+reference:
+  - title: Package
+    contents:
+    - resemble-package
+  - title: Dissimilarity Computation
+    desc: Compute dissimilarity matrices using various methods
+    contents:
+    - dissimilarity
+    - diss_pca
+    - diss_pls
+    - diss_correlation
+    - diss_euclidean
+    - diss_mahalanobis
+    - diss_cosine
+    - diss_evaluate
+    - sid
+  - title: Neighbour Search
+    desc: Find nearest neighbours in reference sets
+    contents:
+    - search_neighbors
+    - search_control
+    - neighbors_k
+    - neighbors_diss
+  - title: Memory-Based Learning
+    desc: Local modelling with per-query model fitting
+    contents:
+    - mbl
+    - mbl_control
+  - title: Library of Local Experts
+    desc: Pre-computed local models for retrieval-gated prediction
+    contents:
+    - liblex
+    - liblex_control
+  - title: Evolutionary Subset Selection
+    desc: Domain-adaptive sample selection from spectral libraries
+    contents:
+    - gesearch
+    - gesearch_control
+  - title: Global Modelling
+    desc: Global calibration models with cross-validation
+    contents:
+    - model
+    - model_control
+  - title: Projection Methods
+    desc: Dimensionality reduction via PCA and PLS
+    contents:
+    - ortho_projection
+  - title: Fitting Methods
+    desc: Constructors for local regression methods
+    contents:
+    - fit_pls
+    - fit_wapls
+    - fit_gpr
+  - title: Component Selection
+    desc: Methods for selecting the number of components
+    contents:
+    - ncomp_by_var
+    - ncomp_by_cumvar
+    - ncomp_by_opc
+    - ncomp_fixed
