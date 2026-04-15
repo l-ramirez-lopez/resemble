@@ -42,7 +42,8 @@ Suggests:
     parallel, 
     doParallel, 
     testthat,
-    quarto
+    quarto,
+    knitr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
