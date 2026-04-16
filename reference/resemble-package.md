@@ -4,7 +4,7 @@
 
 Functions for spectral dissimilarity assessment, nearest-neighbour
 search, memory-based learning, local expert libraries, and evolutionary
-subset selection in spectral chemometrics.
+training subset selection in spectral chemometrics.
 
 ## Details
 

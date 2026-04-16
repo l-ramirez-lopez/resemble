@@ -1,8 +1,6 @@
-# README
-
 # `resemble` Sample Retrieval and Local Learning in Spectral Chemometrics
 
-*Last update: 2026-04-15*
+*Last update: 2026-04-16*
 
 Version: 3.0.0 – vortex
 
