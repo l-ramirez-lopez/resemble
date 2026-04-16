@@ -10,37 +10,26 @@ home:
   title: resemble - Local Learning for Spectral Chemometrics
 
 navbar:
-  bg: primary
   structure:
-    left: [intro, articles, reference]
+    left: [intro, reference, articles]
     right: [search, github]
-  components:
-    intro:
-      text: Get Started
-      href: articles/intro.html
-    reference:
-      text: Reference
-      href: reference/index.html
 
 articles:
   - title: Getting Started
-    navbar: Getting Started
+    navbar: ~
     contents:
     - intro
   - title: Core Methods
-    navbar: Core Methods
     contents:
     - dimensionality-reduction
     - estimating-dissimilarity-between-spectra
     - nearest-neighbor-search
     - simple-global-models
   - title: Local Modelling
-    navbar: Local Modelling
     contents:
     - classical-mbl
     - building-a-library-of-models-with-liblex
   - title: Subset Selection
-    navbar: Subset Selection
     contents:
     - evolutionary-subset-search
 
@@ -104,5 +93,3 @@ reference:
     - ncomp_by_cumvar
     - ncomp_by_opc
     - ncomp_fixed
-    
-    
