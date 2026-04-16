@@ -1,4 +1,4 @@
-# `resemble` Sample Retrieval and Local Learning in Spectral Chemometrics
+# `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 
 *Last update: 2026-04-16*
 
