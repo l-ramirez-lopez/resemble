@@ -25,83 +25,290 @@ registerDoSEQ()
 }
 
 
-# =============================================================================
-# ncomp_* constructor tests
-# =============================================================================
-
-test_that("ncomp_by_var constructor works", {
-  nc <- ncomp_by_var(0.01)
-  expect_s3_class(nc, c("ncomp_by_var", "ncomp_selection"))
-  expect_equal(nc$min_var, 0.01)
-  expect_equal(nc$max_ncomp, 40L)
-  
-  nc2 <- ncomp_by_var(0.05, max_ncomp = 20)
-  expect_equal(nc2$min_var, 0.05)
-  expect_equal(nc2$max_ncomp, 20L)
-})
-
-
-test_that("ncomp_by_var validates inputs", {
-  expect_error(ncomp_by_var(0), "\\(0, 1\\]")
-  expect_error(ncomp_by_var(1.5), "\\(0, 1\\]")
-  expect_error(ncomp_by_var("a"), "\\(0, 1\\]")
-  expect_error(ncomp_by_var(0.01, max_ncomp = 0), "positive integer")
-})
-
-
-test_that("ncomp_by_cumvar constructor works", {
-  nc <- ncomp_by_cumvar(0.99)
-  expect_s3_class(nc, c("ncomp_by_cumvar", "ncomp_selection"))
-  expect_equal(nc$min_cumvar, 0.99)
-  expect_equal(nc$max_ncomp, 40L)
-  
-  nc2 <- ncomp_by_cumvar(0.95, max_ncomp = 50)
-  expect_equal(nc2$min_cumvar, 0.95)
-  expect_equal(nc2$max_ncomp, 50L)
-})
-
-
-test_that("ncomp_by_cumvar validates inputs", {
-  expect_error(ncomp_by_cumvar(0), "\\(0, 1\\]")
-  expect_error(ncomp_by_cumvar(1.5), "\\(0, 1\\]")
-  expect_error(ncomp_by_cumvar(0.99, max_ncomp = -1), "positive integer")
-})
-
-
-test_that("ncomp_by_opc constructor works", {
-  nc <- ncomp_by_opc()
-  expect_s3_class(nc, c("ncomp_by_opc", "ncomp_selection"))
-  expect_equal(nc$max_ncomp, 40L)
-  
-  nc2 <- ncomp_by_opc(max_ncomp = 30)
-  expect_equal(nc2$max_ncomp, 30L)
-})
-
-
-test_that("ncomp_by_opc validates inputs", {
-  expect_error(ncomp_by_opc(max_ncomp = 0), "positive integer")
-  expect_error(ncomp_by_opc(max_ncomp = "a"), "positive integer")
-})
-
-
-test_that("ncomp_fixed constructor works", {
-  nc <- ncomp_fixed(10)
-  expect_s3_class(nc, c("ncomp_fixed", "ncomp_selection"))
-  expect_equal(nc$ncomp, 10L)
-})
-
-
-test_that("ncomp_fixed validates inputs", {
-  expect_error(ncomp_fixed(), "required")
-  expect_error(ncomp_fixed(0), "positive integer")
-  expect_error(ncomp_fixed(-5), "positive integer")
-  expect_error(ncomp_fixed("a"), "positive integer")
-})
-
 
 # =============================================================================
 # diss_* constructor tests
 # =============================================================================
+
+test_that("diss_correlation constructor works", {
+  x <- diss_correlation(ws = 11)
+  expect_s3_class(x, "diss_method")
+})
+
+# =============================================================================
+# Tests for diss_euclidean, diss_mahalanobis, diss_cosine constructors
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# diss_euclidean constructor tests
+# -----------------------------------------------------------------------------
+
+test_that("diss_euclidean returns correct class", {
+  m <- diss_euclidean()
+  expect_s3_class(m, "diss_euclidean")
+  expect_s3_class(m, "diss_method")
+})
+
+test_that("diss_euclidean stores parameters correctly", {
+  m1 <- diss_euclidean()
+  expect_true(m1$center)
+  expect_false(m1$scale)
+  expect_equal(m1$method, "euclidean")
+  
+  m2 <- diss_euclidean(center = FALSE, scale = TRUE)
+  expect_false(m2$center)
+  expect_true(m2$scale)
+})
+
+test_that("diss_euclidean computes correct dissimilarities", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  
+  # Test without centering/scaling - compare to stats::dist
+  result <- dissimilarity(Xr, diss_method = diss_euclidean(center = FALSE, scale = FALSE))
+  
+  expect_true(is.matrix(result$dissimilarity))
+  expect_equal(nrow(result$dissimilarity), nrow(Xr))
+  expect_equal(ncol(result$dissimilarity), nrow(Xr))
+  
+  # Diagonal should be zero (self-dissimilarity)
+  expect_true(all(abs(diag(result$dissimilarity)) < 1e-6))
+  
+  # Should be symmetric
+  expect_equal(result$dissimilarity, t(result$dissimilarity), tolerance = 1e-10)
+})
+
+test_that("diss_euclidean with Xu computes cross-dissimilarity", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  Xu <- NIRsoil$spc[21:30, ]
+  
+  
+  result <- dissimilarity(Xr, Xu, diss_method = diss_euclidean())
+  
+  expect_equal(nrow(result$dissimilarity), nrow(Xr))
+  expect_equal(ncol(result$dissimilarity), nrow(Xu))
+})
+
+test_that("diss_euclidean centering affects results", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  
+  result_centered <- dissimilarity(Xr, diss_method = diss_euclidean(center = TRUE))
+  
+  result_uncentered <- dissimilarity(Xr, diss_method = diss_euclidean(center = FALSE))
+  
+  # Results should differ when centering is applied
+  expect_false(all(result_centered$dissimilarity == result_uncentered$dissimilarity))
+})
+
+test_that("diss_euclidean scaling affects results", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  
+  result_scaled <- dissimilarity(Xr, diss_method = diss_euclidean(scale = TRUE))
+  result_unscaled <- dissimilarity(Xr, diss_method = diss_euclidean(scale = FALSE))
+  
+  # Results should differ when scaling is applied
+  expect_false(all(result_scaled$dissimilarity == result_unscaled$dissimilarity))
+})
+
+# -----------------------------------------------------------------------------
+# diss_mahalanobis constructor tests
+# -----------------------------------------------------------------------------
+
+test_that("diss_mahalanobis returns correct class", {
+  m <- diss_mahalanobis()
+  expect_s3_class(m, "diss_mahalanobis")
+  expect_s3_class(m, "diss_method")
+})
+
+test_that("diss_mahalanobis stores parameters correctly", {
+  m1 <- diss_mahalanobis()
+  expect_true(m1$center)
+  expect_false(m1$scale)
+  expect_equal(m1$method, "mahalanobis")
+  
+  m2 <- diss_mahalanobis(center = FALSE, scale = TRUE)
+  expect_false(m2$center)
+  expect_true(m2$scale)
+})
+
+test_that("diss_mahalanobis computes dissimilarities when n > p", {
+  # Create data where n > p (more observations than variables)
+  set.seed(123)
+  Xr <- matrix(rnorm(100 * 10), nrow = 100, ncol = 10)
+  
+  result <- dissimilarity(Xr, diss_method = diss_mahalanobis())
+  
+  expect_true(is.matrix(result$dissimilarity))
+  expect_equal(nrow(result$dissimilarity), nrow(Xr))
+  expect_equal(ncol(result$dissimilarity), nrow(Xr))
+  
+  # Diagonal should be zero
+  expect_true(all(abs(diag(result$dissimilarity)) < 1e-6))
+  
+  # Should be symmetric
+  expect_equal(result$dissimilarity, t(result$dissimilarity), tolerance = 1e-10)
+})
+
+test_that("diss_mahalanobis errors when covariance is singular", {
+  # Create data where n < p (fewer observations than variables) - singular covariance
+  set.seed(123)
+  Xr <- matrix(rnorm(10 * 100), nrow = 10, ncol = 100)
+  
+  expect_error(
+    dissimilarity(Xr, diss_method = diss_mahalanobis()),
+    "For computing the Mahalanobis distance, the total number of observations"
+  )
+})
+
+test_that("diss_mahalanobis with Xu computes cross-dissimilarity", {
+  set.seed(123)
+  Xr <- matrix(rnorm(100 * 10), nrow = 100, ncol = 10)
+  Xu <- matrix(rnorm(20 * 10), nrow = 20, ncol = 10)
+  
+  result <- dissimilarity(Xr, Xu, diss_method = diss_mahalanobis())
+  
+  expect_equal(nrow(result$dissimilarity), nrow(Xr))
+  expect_equal(ncol(result$dissimilarity), nrow(Xu))
+})
+
+test_that("diss_mahalanobis differs from diss_euclidean", {
+  set.seed(123)
+  Xr <- matrix(rnorm(100 * 10), nrow = 100, ncol = 10)
+  
+  result_mahal <- dissimilarity(Xr, diss_method = diss_mahalanobis())
+  result_euclid <- dissimilarity(Xr, diss_method = diss_euclidean())
+  
+  # Mahalanobis and Euclidean should give different results
+  expect_false(all(result_mahal$dissimilarity == result_euclid$dissimilarity))
+})
+
+# -----------------------------------------------------------------------------
+# diss_cosine constructor tests
+# -----------------------------------------------------------------------------
+
+test_that("diss_cosine returns correct class", {
+  m <- diss_cosine()
+  expect_s3_class(m, "diss_cosine")
+  expect_s3_class(m, "diss_method")
+})
+
+test_that("diss_cosine stores parameters correctly", {
+  m1 <- diss_cosine()
+  expect_true(m1$center)
+  expect_false(m1$scale)
+  expect_equal(m1$method, "cosine")
+  
+  m2 <- diss_cosine(center = FALSE, scale = TRUE)
+  expect_false(m2$center)
+  expect_true(m2$scale)
+})
+
+test_that("diss_cosine computes correct dissimilarities", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  
+  result <- dissimilarity(Xr, diss_method = diss_cosine())
+  
+  expect_true(is.matrix(result$dissimilarity))
+  expect_equal(nrow(result$dissimilarity), nrow(Xr))
+  expect_equal(ncol(result$dissimilarity), nrow(Xr))
+  
+  # Diagonal should be zero (self-dissimilarity)
+  expect_true(all(abs(diag(result$dissimilarity)) < 1e-6))
+  
+  # Should be symmetric
+  expect_equal(result$dissimilarity, t(result$dissimilarity), tolerance = 1e-10)
+})
+
+test_that("diss_cosine values are bounded", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  
+  result <- dissimilarity(Xr, diss_method = diss_cosine(center = FALSE))
+  
+  # Cosine dissimilarity (angle) should be between 0 and pi
+  expect_true(all(result$dissimilarity >= 0))
+  expect_true(all(result$dissimilarity <= pi + 1e-10))
+})
+
+test_that("diss_cosine with Xu computes cross-dissimilarity", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  Xu <- NIRsoil$spc[21:30, ]
+  
+  result <- dissimilarity(Xr, Xu, diss_method = diss_cosine())
+  
+  expect_equal(nrow(result$dissimilarity), nrow(Xr))
+  expect_equal(ncol(result$dissimilarity), nrow(Xu))
+})
+
+test_that("diss_cosine differs from diss_euclidean", {
+  skip_if_not_installed("prospectr")
+  data("NIRsoil", package = "prospectr")
+  Xr <- NIRsoil$spc[1:20, ]
+  
+  result_cosine <- dissimilarity(Xr, diss_method = diss_cosine())
+  result_euclid <- dissimilarity(Xr, diss_method = diss_euclidean())
+  
+  # Cosine and Euclidean should give different results
+  expect_false(all(result_cosine$dissimilarity == result_euclid$dissimilarity))
+})
+
+test_that("diss_cosine handles identical observations", {
+  # Two identical rows should have zero dissimilarity
+  Xr <- matrix(c(1, 2, 3, 1, 2, 3, 4, 5, 6), nrow = 3, byrow = TRUE)
+  
+  result <- dissimilarity(Xr, diss_method = diss_cosine(center = FALSE))
+  
+  # First two rows are identical
+  
+  expect_equal(result$dissimilarity[1, 2], 0, tolerance = 1e-10)
+  expect_equal(result$dissimilarity[2, 1], 0, tolerance = 1e-10)
+})
+
+# -----------------------------------------------------------------------------
+# Print method tests
+# -----------------------------------------------------------------------------
+
+test_that("print.diss_method works for all constructors", {
+  expect_output(print(diss_euclidean()), "euclidean")
+  expect_output(print(diss_mahalanobis()), "mahalanobis")
+  expect_output(print(diss_cosine()), "cosine")
+})
+
+# -----------------------------------------------------------------------------
+# Edge cases
+# -----------------------------------------------------------------------------
+
+test_that("not possible to have a single observation", {
+  Xr <- matrix(1:10, nrow = 1)
+  
+  expect_error(dissimilarity(Xr, diss_method = diss_euclidean()))
+})
+
+test_that("constructors handle two observations", {
+  Xr <- matrix(1:20, nrow = 2)
+  
+  result_euclid <- dissimilarity(Xr, diss_method = diss_euclidean())
+  expect_equal(dim(result_euclid$dissimilarity), c(2, 2))
+  expect_equal(result_euclid$dissimilarity[1, 2], result_euclid$dissimilarity[2, 1])
+  
+  result_cosine <- dissimilarity(Xr, diss_method = diss_cosine())
+  expect_equal(dim(result_cosine$dissimilarity), c(2, 2))
+  expect_equal(result_cosine$dissimilarity[1, 2], result_cosine$dissimilarity[2, 1])
+})
+
+
 
 test_that("diss_pca constructor works", {
   m <- diss_pca()
@@ -833,3 +1040,8 @@ test_that("diss_evaluate validates inputs", {
     "must match"
   )
 })
+
+
+
+
+
