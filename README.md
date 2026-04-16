@@ -1,20 +1,20 @@
-# README
 
 
-# `resemble` Sample Retrieval and Local Learning in Spectral Chemometrics
+# `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 
 <!-- badges: start -->
 
 ![R-CMD-check](https://github.com/l-ramirez-lopez/resemble/actions/workflows/R-CMD-check.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/l-ramirez-lopez/resemble/badge.svg)](https://app.codecov.io/gh/l-ramirez-lopez/resemble)
-[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/resemble.png)](https://CRAN.R-project.org/package=resemble)
-[![Total_Downloads](http://cranlogs.r-pkg.org/badges/grand-total/resemble.png)](https://CRAN.R-project.org/package=resemble)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/resemble?v=2.png)](https://CRAN.R-project.org/package=resemble)
+[![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/resemble?v=2.png)](https://CRAN.R-project.org/package=resemble)
 
 <img align="right" src="./man/figures/logo.png" width="15%">
 
 <!-- badges: end -->
 
-*Last update: 2026-04-15*
+*Last update: 2026-04-16*
 
 Version: 3.0.0 – vortex
 

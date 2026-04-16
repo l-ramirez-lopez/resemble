@@ -1,5 +1,5 @@
 ---
-title: "Evolutionary subset search and modeling using _gesearch_"
+title: "Evolutionary subset search and modeling using gesearch"
 author: 
  - name: Leonardo Ramirez-Lopez
    email: ramirez.lopez.leo@gmail.com

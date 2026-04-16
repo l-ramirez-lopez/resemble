@@ -2,6 +2,9 @@ url: https://l-ramirez-lopez.github.io/resemble/
 
 template:
   bootstrap: 5
+  bootswatch: cosmo
+  bslib:
+    code-bg: "#f8f9fa"
 
 home:
   title: resemble - Local Learning for Spectral Chemometrics

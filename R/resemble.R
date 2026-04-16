@@ -16,11 +16,12 @@
 #' @importFrom RhpcBLASctl blas_get_num_procs blas_set_num_threads
 #' @importFrom foreach foreach %dopar%
 #' @description
+#' 
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
 #'
-#' Functions for spectral dissimilarity assessment, nearest-neighbour search, 
-#' memory-based learning, local expert libraries, and evolutionary subset 
-#' selection in spectral chemometrics.
+#' Functions for dissimilarity assessment, nearest-neighbour search, 
+#' memory-based learning, local expert libraries, and evolutionary training subset 
+#' search in spectral chemometrics.
 #'
 #' \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 #'
@@ -31,7 +32,8 @@
 #' modeling complex spectral spectra (e.g. NIR, IR).
 #' The package includes functions for dimensionality reduction,
 #' computing spectral dissimilarity matrices, nearest neighbor search,
-#' and modeling spectral data using memory-based learning. This package builds
+#' and modeling spectral data using memory-based learning and evolutionary 
+#' search of optimal training subsets in large and complex datasets. This package builds
 #' upon the methods presented in 
 #' Ramirez-Lopez et al. (2013a) \doi{10.1016/j.geoderma.2012.12.014}, 
 #' Ramirez-Lopez et al. (2026a) and Ramirez-Lopez et al. (2026b).
