@@ -1,4 +1,4 @@
-# Evolutionary subset search and modeling using *gesearch*
+# Evolutionary subset search and modeling using gesearch
 
 > *Particular individuals do not recur, but their building blocks do* –
 > ([Holland, 1995](#ref-holland1995hidden))

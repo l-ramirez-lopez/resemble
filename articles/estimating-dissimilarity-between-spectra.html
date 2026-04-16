@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Estimating dissimilarity between spectra • resemble</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -19,7 +19,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">resemble</a>
 
@@ -32,15 +32,28 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/intro.html">Get Started</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/intro.html">Essential concepts and setup</a></li>
+<li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/intro.html">Essential concepts and setup</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Core Methods</h6></li>
+    <li><a class="dropdown-item" href="../articles/dimensionality-reduction.html">Dimensionality reduction</a></li>
+    <li><a class="dropdown-item" href="../articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity</a></li>
+    <li><a class="dropdown-item" href="../articles/nearest-neighbor-search.html">Nearest-neighbour search</a></li>
+    <li><a class="dropdown-item" href="../articles/simple-global-models.html">Simple global models</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Local Modelling</h6></li>
+    <li><a class="dropdown-item" href="../articles/classical-mbl.html">Classical MBL</a></li>
+    <li><a class="dropdown-item" href="../articles/building-a-library-of-models-with-liblex.html">Library of local experts (liblex)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Subset Selection</h6></li>
+    <li><a class="dropdown-item" href="../articles/evolutionary-subset-search.html">Evolutionary subset search</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -323,7 +336,7 @@ cumulative_explained_var 0.9738 0.97870 0.98262</code></pre>
 <span><span class="co"># be very close to zero</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">corrrelation_resemble</span><span class="op">$</span><span class="va">dissimilarity</span> <span class="op">-</span> <span class="va">correlation_baser</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2.220446e-15</code></pre>
+<pre><code>[1] 1.498801e-15</code></pre>
 </div>
 </div>
 <p>However, the correlation dissimilarity implemented in <code>resemble</code> is computationally more efficient than the corresponding approach in base <code>R</code>. This gain in efficiency comes from optimized internal routines and more efficient handling of high-dimensional data, making it better suited for spectral datasets with many variables. The following code can be run locally to compare the computational performance of the two implementations:</p>
@@ -430,7 +443,7 @@ cumulative_explained_var 0.9738 0.97870 0.98262</code></pre>
 <span><span class="co"># differences between the two implementations</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">ed_baser_scaled</span> <span class="op">-</span> <span class="va">ed_resemble</span><span class="op">$</span><span class="va">dissimilarity</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.788712e-09</code></pre>
+<pre><code>[1] 2.399809e-09</code></pre>
 </div>
 </div>
 <p>Another important aspect to note is that the Euclidean dissimilarity computations in <code>resemble</code> tend to be more computationally efficient than the base <code>R</code> implementation, especially for larger datasets. This efficiency is achieved through optimized algorithms and data handling strategies that reduce computational overhead, making it more suitable for high-dimensional spectral data. Execute the following code in your local environment to compare the computational speed of the two implementations:</p>

@@ -26,4 +26,4 @@
 ### Subset Selection
 
 - [Evolutionary subset search and modeling using
-  \_gesearch\_](https://l-ramirez-lopez.github.io/resemble/articles/evolutionary-subset-search.md):
+  gesearch](https://l-ramirez-lopez.github.io/resemble/articles/evolutionary-subset-search.md):
