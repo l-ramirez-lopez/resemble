@@ -57,7 +57,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Classical memory-based learning (local modelling)</h1>
 
-      <p class="author">Leonardo Ramirez-Lopez</p>
+      <p class="author">Leonardo Ramirez-LopezAlexandre M.J.-C. Wadoux</p>
       <p class="date">2026-04-16</p>
 
       <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/classical-mbl.qmd" class="external-link"><code>vignettes/classical-mbl.qmd</code></a></small>
@@ -210,7 +210,7 @@ d_{k,1} &amp; d_{k,2} &amp; \cdots &amp; 0_{k,k} &amp; x_{k,1} &amp; x_{k,2} &am
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://l-ramirez-lopez.github.io/resemble/" class="external-link">resemble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/l-ramirez-lopez/prospectr" class="external-link">prospectr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># obtain a numeric vector of the wavelengths at which spectra is recorded </span></span>
+<span><span class="co"># obtain a numeric vector of the wavelengths at which spectra is recorded</span></span>
 <span><span class="va">wavs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># pre-process the spectra:</span></span>
@@ -228,8 +228,8 @@ d_{k,1} &amp; d_{k,2} &amp; \cdots &amp; 0_{k,k} &amp; x_{k,1} &amp; x_{k,2} &am
 <span><span class="va">train_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span></span>
 <span><span class="va">train_y</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">test_x</span>  <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span></span>
-<span><span class="va">test_y</span>  <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">test_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span></span>
+<span><span class="va">test_y</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
@@ -325,13 +325,14 @@ Figure 2: MBL results for Total Carbon predictions using the LOCAL algorithm. N
 <code class="sourceCode R"><span><span class="co"># Plot predicted vs reference</span></span>
 <span><span class="va">rng</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">ciso_hat</span>, <span class="va">test_y</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ciso_hat</span>, <span class="va">test_y</span>,</span>
-<span>     xlim <span class="op">=</span> <span class="va">rng</span>,</span>
-<span>     ylim <span class="op">=</span> <span class="va">rng</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"Predicted Total Carbon, %"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Total Carbon, %"</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"LOCAL using a fixed k"</span>, </span>
-<span>     cex <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>     pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span>
+<span>  xlim <span class="op">=</span> <span class="va">rng</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="va">rng</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Predicted Total Carbon, %"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Total Carbon, %"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"LOCAL using a fixed k"</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -442,13 +443,14 @@ _______________________________________________________ </code></pre>
 <div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot predicted vs reference</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ciso_diss_hat</span>, <span class="va">test_y</span>,</span>
-<span>     xlim <span class="op">=</span> <span class="va">rng</span>,</span>
-<span>     ylim <span class="op">=</span> <span class="va">rng</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"Predicted Total Carbon, %"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Total Carbon, %"</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"LOCAL using a distance threshold \nfor neighbor retrieval"</span>, </span>
-<span>     cex <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>     pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span>
+<span>  xlim <span class="op">=</span> <span class="va">rng</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="va">rng</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Predicted Total Carbon, %"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Total Carbon, %"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"LOCAL using a distance threshold \nfor neighbor retrieval"</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -533,8 +535,8 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <code class="sourceCode R"><span><span class="va">train_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span></span>
 <span><span class="va">train_cec</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">test_x</span>  <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span></span>
-<span><span class="va">test_cec</span>  <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">test_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span></span>
+<span><span class="va">test_cec</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
@@ -601,7 +603,7 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <span><span class="va">c_nn_val_name</span> <span class="op">&lt;-</span> <span class="st">"nearest_neighbor_validation"</span></span>
 <span></span>
 <span><span class="va">bi_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">mbl_cor</span><span class="op">[[</span><span class="va">c_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="va">c_nn_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span></span>
-<span><span class="va">bi_pc</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">mbl_pc</span><span class="op">[[</span><span class="va">c_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="va">c_nn_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span></span>
+<span><span class="va">bi_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">mbl_pc</span><span class="op">[[</span><span class="va">c_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="va">c_nn_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span></span>
 <span><span class="va">bi_pls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">mbl_pls</span><span class="op">[[</span><span class="va">c_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="va">c_nn_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span></span>
 <span><span class="va">bi_gpr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">mbl_gpr</span><span class="op">[[</span><span class="va">c_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="va">c_nn_val_name</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span></span>
 <span></span>
@@ -636,27 +638,31 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">test_cec</span>, <span class="va">preds</span><span class="op">[</span>, <span class="st">"mbl_cor"</span><span class="op">]</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>, </span>
-<span>     main <span class="op">=</span> <span class="st">"mbl_cor (LOCAL)"</span><span class="op">)</span></span>
+<span>  xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"mbl_cor (LOCAL)"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">test_cec</span>, <span class="va">preds</span><span class="op">[</span>, <span class="st">"mbl_pc"</span><span class="op">]</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>, </span>
-<span>     main <span class="op">=</span> <span class="st">"mbl_pc"</span><span class="op">)</span></span>
+<span>  xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"mbl_pc"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">test_cec</span>, <span class="va">preds</span><span class="op">[</span>, <span class="st">"mbl_pls"</span><span class="op">]</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>, </span>
-<span>     main <span class="op">=</span> <span class="st">"mbl_pls"</span><span class="op">)</span></span>
+<span>  xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"mbl_pls"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">test_cec</span>, <span class="va">preds</span><span class="op">[</span>, <span class="st">"mbl_gpr"</span><span class="op">]</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>, </span>
-<span>     main <span class="op">=</span> <span class="st">"mbl_gpr"</span><span class="op">)</span></span>
+<span>  xlab <span class="op">=</span> <span class="st">"CEC, meq/100g"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Predicted CEC, meq/100g"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"mbl_gpr"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">old_par</span><span class="op">)</span></span></code></pre></div>

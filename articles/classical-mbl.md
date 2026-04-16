@@ -294,7 +294,7 @@ following configuration reproduces the LOCAL algorithm ([Shenk et al.,
 library(resemble)
 library(prospectr)
 
-# obtain a numeric vector of the wavelengths at which spectra is recorded 
+# obtain a numeric vector of the wavelengths at which spectra is recorded
 wavs <- as.numeric(colnames(NIRsoil$spc))
 
 # pre-process the spectra:
@@ -312,8 +312,8 @@ NIRsoil$spc_pr <- savitzkyGolay(
 train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
 train_y <- NIRsoil$Ciso[NIRsoil$train == 1]
 
-test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
-test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_y <- NIRsoil$Ciso[NIRsoil$train == 0]
 ```
 
 ``` r
@@ -421,13 +421,14 @@ reference values in `test_y`.
 # Plot predicted vs reference
 rng <- range(ciso_hat, test_y, na.rm = TRUE)
 plot(ciso_hat, test_y,
-     xlim = rng,
-     ylim = rng,
-     xlab = "Predicted Total Carbon, %",
-     ylab = "Total Carbon, %",
-     main = "LOCAL using a fixed k", 
-     cex = 1.5,
-     pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6))
+  xlim = rng,
+  ylim = rng,
+  xlab = "Predicted Total Carbon, %",
+  ylab = "Total Carbon, %",
+  main = "LOCAL using a fixed k",
+  cex = 1.5,
+  pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6)
+)
 grid(lty = 1)
 abline(0, 1, col = "red")
 ```
@@ -548,13 +549,14 @@ ciso_diss_hat <- as.matrix(get_predictions(local_ciso_diss))[, bdi]
 ``` r
 # Plot predicted vs reference
 plot(ciso_diss_hat, test_y,
-     xlim = rng,
-     ylim = rng,
-     xlab = "Predicted Total Carbon, %",
-     ylab = "Total Carbon, %",
-     main = "LOCAL using a distance threshold \nfor neighbor retrieval", 
-     cex = 1.5,
-     pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6))
+  xlim = rng,
+  ylim = rng,
+  xlab = "Predicted Total Carbon, %",
+  ylab = "Total Carbon, %",
+  main = "LOCAL using a distance threshold \nfor neighbor retrieval",
+  cex = 1.5,
+  pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6)
+)
 grid()
 abline(0, 1, col = "red")
 ```
@@ -606,8 +608,8 @@ examples to predict Cation Exchange Capacity (CEC).
 train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
 train_cec <- NIRsoil$CEC[NIRsoil$train == 1]
 
-test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
-test_cec  <- NIRsoil$CEC[NIRsoil$train == 0]
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_cec <- NIRsoil$CEC[NIRsoil$train == 0]
 ```
 
 ``` r
@@ -675,7 +677,7 @@ c_val_name <- "validation_results"
 c_nn_val_name <- "nearest_neighbor_validation"
 
 bi_cor <- which.min(mbl_cor[[c_val_name]][[c_nn_val_name]]$rmse)
-bi_pc  <- which.min(mbl_pc[[c_val_name]][[c_nn_val_name]]$rmse)
+bi_pc <- which.min(mbl_pc[[c_val_name]][[c_nn_val_name]]$rmse)
 bi_pls <- which.min(mbl_pls[[c_val_name]][[c_nn_val_name]]$rmse)
 bi_gpr <- which.min(mbl_gpr[[c_val_name]][[c_nn_val_name]]$rmse)
 
@@ -716,27 +718,31 @@ old_par <- par("mfrow", "mar")
 par(mfrow = c(2, 2))
 
 plot(test_cec, preds[, "mbl_cor"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_cor (LOCAL)")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_cor (LOCAL)"
+)
 abline(0, 1, col = "red")
 
 plot(test_cec, preds[, "mbl_pc"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_pc")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_pc"
+)
 abline(0, 1, col = "red")
 
 plot(test_cec, preds[, "mbl_pls"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_pls")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_pls"
+)
 abline(0, 1, col = "red")
 
 plot(test_cec, preds[, "mbl_gpr"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_gpr")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_gpr"
+)
 abline(0, 1, col = "red")
 
 par(old_par)
