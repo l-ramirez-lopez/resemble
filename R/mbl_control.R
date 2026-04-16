@@ -93,7 +93,7 @@
 #' with soil vis-NIR spectra. Geoderma 199:43-53.
 #'
 #' @seealso \code{\link{mbl}}, \code{\link{neighbors_k}},
-#'   \code{\link{neighbors_diss}}
+#' \code{\link{neighbors_diss}}
 #'
 #' @examples
 #' # Default control parameters (NNv validation)
@@ -112,72 +112,73 @@
 #' mbl_control(blas_threads = 4)
 #'
 #' @export
+
 mbl_control <- function(
-    return_dissimilarity = FALSE,
-    validation_type = "NNv",
-    tune_locally = TRUE,
-    number = 10,
-    p = 0.75,
-    range_prediction_limits = TRUE,
-    allow_parallel = TRUE,
-    blas_threads = 1L
+  return_dissimilarity = FALSE,
+  validation_type = "NNv",
+  tune_locally = TRUE,
+  number = 10,
+  p = 0.75,
+  range_prediction_limits = TRUE,
+  allow_parallel = TRUE,
+  blas_threads = 1L
 ) {
-  
   # Validate return_dissimilarity
   if (!is.logical(return_dissimilarity) || length(return_dissimilarity) != 1L) {
     stop("'return_dissimilarity' must be TRUE or FALSE.", call. = FALSE)
   }
-  
+
   # Validate and match validation_type
   valid_types <- c("NNv", "local_cv", "none")
   validation_type <- match.arg(validation_type, valid_types, several.ok = TRUE)
-  
+
   if ("none" %in% validation_type && length(validation_type) > 1L) {
     stop(
       "'validation_type' cannot combine 'none' with other values.",
       call. = FALSE
     )
   }
-  
+
   # Remove "none" if other methods specified
   if ("none" %in% validation_type && length(validation_type) > 1L) {
     validation_type <- validation_type[validation_type != "none"]
   }
-  
+
   # Validate tune_locally
   if (!is.logical(tune_locally) || length(tune_locally) != 1L) {
     stop("'tune_locally' must be TRUE or FALSE.", call. = FALSE)
   }
-  
+
   # Validate local_cv parameters
   if ("local_cv" %in% validation_type) {
     if (!is.numeric(number) || length(number) != 1L || number < 1L) {
       stop("'number' must be a positive integer.", call. = FALSE)
     }
-    
+
     if (!is.numeric(p) || length(p) != 1L || p <= 0 || p >= 1) {
       stop("'p' must be a numeric value between 0 and 1 (exclusive).",
-           call. = FALSE)
+        call. = FALSE
+      )
     }
   }
-  
+
   # Validate range_prediction_limits
   if (!is.logical(range_prediction_limits) ||
-      length(range_prediction_limits) != 1L) {
+    length(range_prediction_limits) != 1L) {
     stop("'range_prediction_limits' must be TRUE or FALSE.", call. = FALSE)
   }
-  
+
   # Validate allow_parallel
   if (!is.logical(allow_parallel) || length(allow_parallel) != 1L) {
     stop("'allow_parallel' must be TRUE or FALSE.", call. = FALSE)
   }
-  
+
   # Validate blas_threads
   if (!is.numeric(blas_threads) || length(blas_threads) != 1L ||
-      blas_threads < 1L) {
+    blas_threads < 1L) {
     stop("'blas_threads' must be a positive integer.", call. = FALSE)
   }
-  
+
   ctl <- list(
     return_dissimilarity = return_dissimilarity,
     validation_type = validation_type,
