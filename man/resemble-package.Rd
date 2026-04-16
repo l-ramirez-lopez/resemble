@@ -9,7 +9,7 @@
 \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
 
 Functions for spectral dissimilarity assessment, nearest-neighbour search,
-memory-based learning, local expert libraries, and evolutionary subset
+memory-based learning, local expert libraries, and evolutionary training subset
 selection in spectral chemometrics.
 
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
