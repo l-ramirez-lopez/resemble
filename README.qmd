@@ -5,7 +5,7 @@ format:
 engine: knitr
 ---
 
-# `resemble` Sample Retrieval and Local Learning in Spectral Chemometrics
+# `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 <!-- badges: start -->
 
 ![R-CMD-check](https://github.com/l-ramirez-lopez/resemble/actions/workflows/R-CMD-check.yaml/badge.svg)
