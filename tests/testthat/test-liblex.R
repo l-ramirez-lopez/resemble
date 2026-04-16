@@ -120,6 +120,7 @@ test_that("liblex requires Yr to be numeric", {
 
 
 test_that("liblex requires Yr length to match Xr rows", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()
@@ -156,6 +157,7 @@ test_that("liblex rejects multi-column Yr", {
 # =============================================================================
 
 test_that("liblex requires neighbors argument", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()
@@ -235,6 +237,7 @@ test_that("liblex requires neighbors_k object", {
 
 
 test_that("liblex requires neighbors values >= 4", {
+  
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()
@@ -255,6 +258,7 @@ test_that("liblex requires neighbors values >= 4", {
 # =============================================================================
 
 test_that("liblex validates diss_method type", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()
@@ -291,6 +295,7 @@ test_that("liblex validates precomputed diss_method matrix is numeric", {
 
 
 test_that("liblex validates precomputed diss_method matrix is square", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()
@@ -354,6 +359,7 @@ test_that("liblex validates fit_method type", {
 # =============================================================================
 
 test_that("liblex validates anchor_indices are numeric without NA", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()
@@ -1217,6 +1223,7 @@ test_that("liblex with pls, diss_scale=FALSE, fit_scale=FALSE", {
 })
 
 test_that("liblex with pls, diss_scale=FALSE, fit_scale=TRUE", {
+  skip_on_cran()
   local_liblex_setup()
   
   model <- liblex(
