@@ -195,6 +195,7 @@ test_that("diss_correlation validates ws", {
 
 test_that("diss_pca with ncomp_by_var works", {
   skip_if_not_installed("prospectr")
+  skip_on_cran()
   
   d <- .setup_nirsoil_data()
   
@@ -220,6 +221,7 @@ test_that("diss_pca with ncomp_by_var works", {
 
 test_that("diss_pca with ncomp_by_opc works", {
   skip_if_not_installed("prospectr")
+  skip_on_cran()
   
   d <- .setup_nirsoil_data()
   
@@ -244,6 +246,7 @@ test_that("diss_pca with ncomp_by_opc works", {
 
 test_that("diss_pca with ncomp_by_opc requires Yr", {
   skip_if_not_installed("prospectr")
+  skip_on_cran()
   
   d <- .setup_nirsoil_data()
   
@@ -260,6 +263,7 @@ test_that("diss_pca with ncomp_by_opc requires Yr", {
 
 test_that("diss_pca with ncomp_by_cumvar works", {
   skip_if_not_installed("prospectr")
+  skip_on_cran()
   
   d <- .setup_nirsoil_data()
   
@@ -304,6 +308,7 @@ test_that("diss_pca with fixed ncomp works", {
 
 test_that("diss_pca with pca_nipals method works", {
   skip_if_not_installed("prospectr")
+  skip_on_cran()
   
   d <- .setup_nirsoil_data()
   
@@ -323,6 +328,7 @@ test_that("diss_pca with pca_nipals method works", {
 
 
 test_that("diss_pca self-dissimilarity is symmetric with zero diagonal", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 20, n_xu = 0)
@@ -342,6 +348,7 @@ test_that("diss_pca self-dissimilarity is symmetric with zero diagonal", {
 # =============================================================================
 
 test_that("diss_pls with ncomp_by_opc works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -366,6 +373,7 @@ test_that("diss_pls with ncomp_by_opc works", {
 
 
 test_that("diss_pls with ncomp_by_var works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -386,6 +394,7 @@ test_that("diss_pls with ncomp_by_var works", {
 
 
 test_that("diss_pls with fixed ncomp works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -403,6 +412,7 @@ test_that("diss_pls with fixed ncomp works", {
 
 
 test_that("diss_pls with mpls method works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -423,6 +433,7 @@ test_that("diss_pls with mpls method works", {
 
 
 test_that("diss_pls requires Yr", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -443,6 +454,7 @@ test_that("diss_pls requires Yr", {
 # =============================================================================
 
 test_that("diss_euclidean works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -461,6 +473,7 @@ test_that("diss_euclidean works", {
 
 
 test_that("diss_euclidean matches stats::dist", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 10, n_xu = 0)
@@ -483,6 +496,7 @@ test_that("diss_euclidean matches stats::dist", {
 
 
 test_that("diss_euclidean self-dissimilarity is symmetric", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 20, n_xu = 0)
@@ -502,6 +516,7 @@ test_that("diss_euclidean self-dissimilarity is symmetric", {
 # =============================================================================
 
 test_that("diss_correlation (full) works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -520,6 +535,7 @@ test_that("diss_correlation (full) works", {
 
 
 test_that("diss_correlation (moving window) works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -536,6 +552,7 @@ test_that("diss_correlation (moving window) works", {
 
 
 test_that("diss_correlation vs one computed with cor()", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -561,6 +578,7 @@ test_that("diss_correlation vs one computed with cor()", {
 # =============================================================================
 
 test_that("diss_cosine works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data()
@@ -579,6 +597,7 @@ test_that("diss_cosine works", {
 
 
 test_that("diss_cosine self-dissimilarity diagonal is zero", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 20, n_xu = 0)
@@ -597,6 +616,7 @@ test_that("diss_cosine self-dissimilarity diagonal is zero", {
 # =============================================================================
 
 test_that("diss_mahalanobis works when n > p", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 40, n_xu = 20)
@@ -738,6 +758,7 @@ test_that("dissimilarity with large datasets works", {
 # =============================================================================
 
 test_that("diss_evaluate works with continuous side_info", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 40, n_xu = 0)
@@ -760,6 +781,7 @@ test_that("diss_evaluate works with continuous side_info", {
 
 
 test_that("diss_evaluate works with multiple side_info columns", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   data("NIRsoil", package = "prospectr")

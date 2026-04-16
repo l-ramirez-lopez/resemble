@@ -76,6 +76,7 @@ test_that("mbl_control rejects 'none' combined with other types", {
 # =============================================================================
 
 test_that("mbl with fit_gpr and neighbors_k works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -103,6 +104,7 @@ test_that("mbl with fit_gpr and neighbors_k works", {
 
 
 test_that("mbl with fit_pls and neighbors_k works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -128,6 +130,7 @@ test_that("mbl with fit_pls and neighbors_k works", {
 
 
 test_that("mbl with fit_pls (mpls method) works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -150,6 +153,7 @@ test_that("mbl with fit_pls (mpls method) works", {
 
 
 test_that("mbl with fit_pls (simpls method) works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -172,6 +176,7 @@ test_that("mbl with fit_pls (simpls method) works", {
 
 
 test_that("mbl with fit_wapls and neighbors_k works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -196,6 +201,7 @@ test_that("mbl with fit_wapls and neighbors_k works", {
 
 
 test_that("mbl with fit_wapls (mpls method) works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -244,6 +250,7 @@ test_that("mbl with fit_wapls (simpls method) works", {
 # =============================================================================
 
 test_that("mbl with fit_gpr and neighbors_diss works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -268,6 +275,7 @@ test_that("mbl with fit_gpr and neighbors_diss works", {
 
 
 test_that("mbl with fit_pls and neighbors_diss works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -290,6 +298,7 @@ test_that("mbl with fit_pls and neighbors_diss works", {
 
 
 test_that("mbl with fit_wapls and neighbors_diss works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -316,6 +325,7 @@ test_that("mbl with fit_wapls and neighbors_diss works", {
 # =============================================================================
 
 test_that("mbl with group argument works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -347,6 +357,7 @@ test_that("mbl with group argument works", {
 # =============================================================================
 
 test_that("mbl with diss_pca works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -370,6 +381,7 @@ test_that("mbl with diss_pca works", {
 
 
 test_that("mbl with diss_pls works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -393,6 +405,7 @@ test_that("mbl with diss_pls works", {
 
 
 test_that("mbl with diss_correlation works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -416,6 +429,7 @@ test_that("mbl with diss_correlation works", {
 
 
 test_that("mbl with diss_euclidean works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -439,6 +453,7 @@ test_that("mbl with diss_euclidean works", {
 
 
 test_that("mbl with diss_cosine works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -466,6 +481,7 @@ test_that("mbl with diss_cosine works", {
 # =============================================================================
 
 test_that("mbl with external dissimilarity matrix works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -519,6 +535,7 @@ test_that("mbl with external dissimilarity matrix works", {
 # =============================================================================
 
 test_that("mbl with diss_usage = 'predictors' works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -543,6 +560,7 @@ test_that("mbl with diss_usage = 'predictors' works", {
 
 
 test_that("mbl with diss_usage = 'weights' works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -571,6 +589,7 @@ test_that("mbl with diss_usage = 'weights' works", {
 # =============================================================================
 
 test_that("mbl with spike argument works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()
@@ -599,6 +618,7 @@ test_that("mbl with spike argument works", {
 # =============================================================================
 
 test_that("mbl with gh = TRUE works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_mbl_data()

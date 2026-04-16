@@ -132,6 +132,7 @@ test_that("search_neighbors requires neighbors argument", {
 # =============================================================================
 
 test_that("search_neighbors with diss_pca and neighbors_k works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -169,6 +170,7 @@ test_that("search_neighbors with diss_pca and neighbors_diss works", {
 
 
 test_that("search_neighbors with spike works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -187,6 +189,7 @@ test_that("search_neighbors with spike works", {
 
 
 test_that("search_neighbors with spike and neighbors_diss works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -209,6 +212,7 @@ test_that("search_neighbors with spike and neighbors_diss works", {
 # =============================================================================
 
 test_that("search_neighbors works with diss_pca (SVD)", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -243,6 +247,7 @@ test_that("search_neighbors works with diss_pls", {
 
 
 test_that("search_neighbors works with diss_correlation", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -258,6 +263,7 @@ test_that("search_neighbors works with diss_correlation", {
 
 
 test_that("search_neighbors works with diss_euclidean", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -273,6 +279,7 @@ test_that("search_neighbors works with diss_euclidean", {
 
 
 test_that("search_neighbors works with diss_cosine", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -292,6 +299,7 @@ test_that("search_neighbors works with diss_cosine", {
 # =============================================================================
 
 test_that("search_neighbors with return_dissimilarity works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
