@@ -2,13 +2,15 @@ url: https://l-ramirez-lopez.github.io/resemble/
 
 template:
   bootstrap: 5
-  bootswatch: flatly
-  light-switch: true
+  bootswatch: cosmo
+  bslib:
+    code-bg: "#f8f9fa"
 
 home:
   title: resemble - Local Learning for Spectral Chemometrics
 
 navbar:
+  bg: primary
   structure:
     left: [intro, articles, reference]
     right: [search, github]
@@ -16,52 +18,29 @@ navbar:
     intro:
       text: Get Started
       href: articles/intro.html
-    articles:
-      text: Articles
-      menu:
-      - text: Getting Started
-      - text: Essential concepts and setup
-        href: articles/intro.html
-      - text: "---"
-      - text: Core Methods
-      - text: Dimensionality reduction
-        href: articles/dimensionality-reduction.html
-      - text: Estimating dissimilarity
-        href: articles/estimating-dissimilarity-between-spectra.html
-      - text: Nearest-neighbour search
-        href: articles/nearest-neighbor-search.html
-      - text: Simple global models
-        href: articles/simple-global-models.html
-      - text: "---"
-      - text: Local Modelling
-      - text: Classical MBL
-        href: articles/classical-mbl.html
-      - text: Library of local experts (liblex)
-        href: articles/building-a-library-of-models-with-liblex.html
-      - text: "---"
-      - text: Subset Selection
-      - text: Evolutionary subset search
-        href: articles/evolutionary-subset-search.html
     reference:
       text: Reference
       href: reference/index.html
 
 articles:
   - title: Getting Started
-    navbar: ~
+    navbar: Getting Started
     contents:
     - intro
   - title: Core Methods
+    navbar: Core Methods
     contents:
     - dimensionality-reduction
     - estimating-dissimilarity-between-spectra
     - nearest-neighbor-search
     - simple-global-models
   - title: Local Modelling
+    navbar: Local Modelling
     contents:
     - classical-mbl
     - building-a-library-of-models-with-liblex
   - title: Subset Selection
+    navbar: Subset Selection
     contents:
     - evolutionary-subset-search
 
