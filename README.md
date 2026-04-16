@@ -356,6 +356,13 @@ citation(package = "resemble")
 - [`prospectr`](https://github.com/l-ramirez-lopez/prospectr): Signal
   processing and chemometrics for spectroscopy
 
+## Contributing
+
+Contributions are welcome! Please read our [Contributing
+Guidelines](CONTRIBUTING.md) before submitting pull requests.
+
+This project follows a [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Bug reports
 
 Report issues at
