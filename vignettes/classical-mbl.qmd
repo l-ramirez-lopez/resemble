@@ -1,9 +1,9 @@
 ---
 title: "Classical memory-based learning (local modelling)"
 author: 
-  - name: Leonardo Ramirez-Lopez
+  - name: Leonardo Ramirez-Lopez  
     email: ramirez.lopez.leo@gmail.com
-  - name: Alexandre M.J.-C. Wadoux
+  - name: Alexandre M.J.-C. Wadoux  
 date: today
 bibliography: resemble.bib
 csl: elsevier-harvard.csl  
