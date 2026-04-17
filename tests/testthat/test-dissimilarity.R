@@ -1235,3 +1235,226 @@ test_that("cor_diss errors with zero standard deviation observation", {
   expect_error(cor_diss(Xr, center = FALSE), "Correlation coefficients cannot be computed")
 })
 
+# =============================================================================
+# Tests for .f_diss_compute (internal function)
+# =============================================================================
+
+test_that(".f_diss_compute works with euclidean method", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  method <- diss_euclidean(center = TRUE, scale = FALSE)
+  result <- .f_diss_compute(d$Xr, Xu = NULL, method = method)
+  
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xr))
+  expect_true(all(abs(diag(result)) < 1e-6))
+  expect_equal(result, t(result), tolerance = 1e-10)
+})
+
+test_that(".f_diss_compute works with euclidean and Xu", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  method <- diss_euclidean()
+  result <- .f_diss_compute(d$Xr, Xu = d$Xu, method = method)
+  
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xu))
+  expect_equal(rownames(result), paste0("Xr_", seq_len(nrow(d$Xr))))
+  expect_equal(colnames(result), paste0("Xu_", seq_len(nrow(d$Xu))))
+})
+
+test_that(".f_diss_compute works with euclidean center and scale", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  method_none <- diss_euclidean(center = FALSE, scale = FALSE)
+  method_center <- diss_euclidean(center = TRUE, scale = FALSE)
+  method_scale <- diss_euclidean(center = FALSE, scale = TRUE)
+  method_both <- diss_euclidean(center = TRUE, scale = TRUE)
+  
+  result_none <- .f_diss_compute(d$Xr, method = method_none)
+  result_center <- .f_diss_compute(d$Xr, method = method_center)
+  result_scale <- .f_diss_compute(d$Xr, method = method_scale)
+  result_both <- .f_diss_compute(d$Xr, method = method_both)
+  
+  # All should produce valid matrices
+  expect_true(is.matrix(result_none))
+  expect_true(is.matrix(result_center))
+  expect_true(is.matrix(result_scale))
+  expect_true(is.matrix(result_both))
+  
+  # Results should differ
+  expect_false(all(result_none == result_center))
+  expect_false(all(result_none == result_scale))
+})
+
+test_that(".f_diss_compute works with mahalanobis method", {
+  skip_on_cran()
+  
+  # Create data where n > p (required for Mahalanobis)
+  set.seed(123)
+  Xr <- matrix(rnorm(100 * 10), nrow = 100, ncol = 10)
+  
+  method <- diss_mahalanobis(center = TRUE, scale = FALSE)
+  result <- .f_diss_compute(Xr, Xu = NULL, method = method)
+  
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(Xr))
+  expect_equal(ncol(result), nrow(Xr))
+  expect_true(all(abs(diag(result)) < 1e-6))
+  expect_equal(result, t(result), tolerance = 1e-10)
+})
+
+test_that(".f_diss_compute works with mahalanobis and Xu", {
+  skip_on_cran()
+  
+  set.seed(123)
+  Xr <- matrix(rnorm(100 * 10), nrow = 100, ncol = 10)
+  Xu <- matrix(rnorm(20 * 10), nrow = 20, ncol = 10)
+  
+  method <- diss_mahalanobis()
+  result <- .f_diss_compute(Xr, Xu = Xu, method = method)
+  
+  expect_equal(nrow(result), nrow(Xr))
+  expect_equal(ncol(result), nrow(Xu))
+})
+
+test_that(".f_diss_compute errors with singular covariance for mahalanobis", {
+  skip_on_cran()
+  
+  # Create data where n < p (singular covariance)
+  set.seed(123)
+  Xr <- matrix(rnorm(10 * 100), nrow = 10, ncol = 100)
+  
+  method <- diss_mahalanobis()
+  
+  expect_error(
+    .f_diss_compute(Xr, method = method),
+    "singular"
+  )
+})
+
+test_that(".f_diss_compute works with cosine method", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  method <- diss_cosine(center = FALSE, scale = FALSE)
+  result <- .f_diss_compute(d$Xr, Xu = NULL, method = method)
+  
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xr))
+  expect_true(all(abs(diag(result)) < 1e-6))
+  expect_equal(result, t(result), tolerance = 1e-10)
+  
+  # Cosine dissimilarity should be bounded [0, pi]
+  expect_true(all(result >= -1e-10))
+  expect_true(all(result <= pi + 1e-10))
+})
+
+test_that(".f_diss_compute works with cosine and Xu", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  method <- diss_cosine()
+  result <- .f_diss_compute(d$Xr, Xu = d$Xu, method = method)
+  
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xu))
+})
+
+test_that(".f_diss_compute cosine handles identical observations", {
+  skip_on_cran()
+  
+  # Two identical rows should have zero dissimilarity
+  Xr <- matrix(c(1, 2, 3, 1, 2, 3, 4, 5, 6), nrow = 3, byrow = TRUE)
+  
+  method <- diss_cosine(center = FALSE, scale = FALSE)
+  result <- .f_diss_compute(Xr, method = method)
+  
+  # First two rows are identical - should be zero
+  expect_equal(result[1, 2], 0, tolerance = 1e-10)
+  expect_equal(result[2, 1], 0, tolerance = 1e-10)
+})
+
+test_that(".f_diss_compute cosine replaces NaN with zero", {
+  skip_on_cran()
+  
+  # Perfectly identical rows can cause NaN in acos due to floating point
+  Xr <- matrix(rep(1:10, 3), nrow = 3, byrow = TRUE)
+  
+  method <- diss_cosine(center = FALSE, scale = FALSE)
+  result <- .f_diss_compute(Xr, method = method)
+  
+  # Should have no NaN values
+  expect_false(any(is.nan(result)))
+  
+  # Diagonal and identical rows should be zero
+  expect_true(all(abs(diag(result)) < 1e-10))
+})
+
+test_that(".f_diss_compute cosine with center and scale", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  method_none <- diss_cosine(center = FALSE, scale = FALSE)
+  method_center <- diss_cosine(center = TRUE, scale = FALSE)
+  method_both <- diss_cosine(center = TRUE, scale = TRUE)
+  
+  result_none <- .f_diss_compute(d$Xr, method = method_none)
+  result_center <- .f_diss_compute(d$Xr, method = method_center)
+  result_both <- .f_diss_compute(d$Xr, method = method_both)
+  
+  expect_true(is.matrix(result_none))
+  expect_true(is.matrix(result_center))
+  expect_true(is.matrix(result_both))
+})
+
+test_that(".f_diss_compute row/column names are correct", {
+  skip_on_cran()
+  
+  Xr <- matrix(rnorm(25), nrow = 5)
+  Xu <- matrix(rnorm(15), nrow = 3)
+  
+  method <- diss_euclidean()
+  
+  result_xr <- .f_diss_compute(Xr, method = method)
+  expect_equal(rownames(result_xr), paste0("Xr_", 1:5))
+  expect_equal(colnames(result_xr), paste0("Xr_", 1:5))
+  
+  result_xu <- .f_diss_compute(Xr, Xu = Xu, method = method)
+  expect_equal(rownames(result_xu), paste0("Xr_", 1:5))
+  expect_equal(colnames(result_xu), paste0("Xu_", 1:3))
+})
+
+test_that(".f_diss_compute validates method class", {
+  skip_on_cran()
+  
+  Xr <- matrix(rnorm(20), nrow = 4)
+  
+  expect_error(.f_diss_compute(Xr, method = "euclidean"))
+  expect_error(.f_diss_compute(Xr, method = list(method = "euclidean")))
+})
+
+test_that(".f_diss_compute validates method name", {
+  skip_on_cran()
+  
+  Xr <- matrix(rnorm(20), nrow = 4)
+  
+  # Create a fake diss_method with invalid method name
+  fake_method <- structure(
+    list(method = "invalid", center = TRUE, scale = FALSE),
+    class = c("diss_invalid", "diss_method")
+  )
+  
+  expect_error(.f_diss_compute(Xr, method = fake_method))
+})
