@@ -443,149 +443,149 @@ ith_mbl_neighbor <- function(
 }
 
 
-#' @title Get local neighbors based on orthogonal dissimilarity
-#' @description Internal function for obtaining local neighbors based on 
-#' dissimilarity matrices from orthogonal projections. These neighbors are 
-#' obtained from an orthogonal projection on a set of precomputed neighbors.
-#' Used internally by \code{mbl()}.
-#' @param ith_xr The set of neighbors of a Xu observation found in Xr.
-#' @param ith_xu The Xu observation.
-#' @param ith_yr The response values of the neighbors.
-#' @param ith_yu The response value of the Xu observation.
-#' @param diss_usage Character indicating if dissimilarity data will be used 
-#'   as predictors ("predictors") or not ("none").
-#' @param ith_neig_indices Vector of original indices of the Xr neighbors.
-#' @param neighbors A neighbor selection object from \code{neighbors_k()} or 
-#'   \code{neighbors_diss()}.
-#' @param spike Vector of observation indices forced to be retained as neighbors.
-#' @param diss_method A local dissimilarity method object (\code{diss_local_pca()} 
-#'   or \code{diss_local_pls()}).
-#' @param ith_group Vector containing group labels for \code{ith_xr}.
-#' @param mbl_is_parallel Logical indicating if \code{mbl()} is running in 
-#'   parallel. If \code{TRUE}, nested parallelism is prevented by forcing 
-#'   \code{allow_parallel = FALSE} in the dissimilarity computation.
-#' @return A list containing:
-#' \itemize{
-#'   \item{ith_xr: Xr data of neighbors (combined with local dissimilarity 
-#'     scores if \code{diss_usage = "predictors"})}
-#'   \item{ith_yr: Yr data of neighbors}
-#'   \item{ith_xu: Xu observation (combined with local dissimilarity scores 
-#'     if \code{diss_usage = "predictors"})}
-#'   \item{ith_yu: Yu observation}
-#'   \item{ith_neig_indices: Original indices of selected neighbors}
-#'   \item{ith_neigh_diss: Dissimilarity scores of neighbors}
-#'   \item{local_index_nearest: Index of nearest neighbor}
-#'   \item{ith_group: Group labels for ith_xr}
-#'   \item{n_k: Number of neighbors}
-#'   \item{ith_ncomp: Number of components used}
-#' }
-#' @author
-#' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
-#' @keywords internal
-#' @noRd
-get_ith_local_neighbors <- function(
-    ith_xr, ith_xu, ith_yr, ith_yu = NULL,
-    diss_usage = "none",
-    ith_neig_indices,
-    neighbors,
-    spike = NULL, 
-    diss_method,
-    ith_group = NULL,
-    mbl_is_parallel = FALSE
-) {
-  is_predictors <- diss_usage == "predictors"
-  
-  # Prevent nested parallelism if mbl is running in parallel
-  if (mbl_is_parallel) {
-    diss_method$allow_parallel <- FALSE
-  }
-  
-  # Handle spike indices (only positive values are forced in)
-  if (!is.null(spike)) {
-    n_spike_hold <- sum(spike > 0)
-    if (n_spike_hold > 0) {
-      reorg_spike <- seq_len(n_spike_hold)
-    } else {
-      reorg_spike <- NULL
-    }
-  } else {
-    reorg_spike <- NULL
-  }
-  
-  # Convert neighbors to internal format
-  if (inherits(neighbors, "neighbors_k")) {
-    k <- max(neighbors$k)
-    k_diss <- NULL
-    k_range <- NULL
-  } else {
-    k <- NULL
-    k_diss <- max(neighbors$threshold)
-    k_range <- c(neighbors$k_min, neighbors$k_max)
-  }
-  
-  # Compute local dissimilarity
-  local_diss <- ortho_diss(
-    Xr = ith_xr, 
-    Xu = ith_xu,
-    Yr = ith_yr,
-    diss_method = diss_method,
-    compute_all = is_predictors,
-    return_projection = FALSE
-  )
-  
-  if (is_predictors) {
-    indx_xu <- ncol(local_diss$dissimilarity)
-    
-    loc_neigh <- diss_to_neighbors(
-      local_diss$dissimilarity[-indx_xu, indx_xu, drop = FALSE],
-      k = k, 
-      k_diss = k_diss, 
-      k_range = k_range,
-      spike = reorg_spike,
-      return_dissimilarity = FALSE
-    )
-    
-    neigh_indcs <- loc_neigh$neighbors
-    ith_local_xr_xr_diss <- local_diss$dissimilarity[neigh_indcs, neigh_indcs]
-    colnames(ith_local_xr_xr_diss) <- paste0("k_", seq_len(ncol(ith_local_xr_xr_diss)))
-    
-    ith_xr <- cbind(ith_local_xr_xr_diss, ith_xr[neigh_indcs, ])
-    ith_yr <- ith_yr[neigh_indcs, , drop = FALSE]
-    ith_xu <- cbind(t(loc_neigh$neighbors_diss), ith_xu)
-  } else {
-    loc_neigh <- diss_to_neighbors(
-      local_diss$dissimilarity,
-      k = k, 
-      k_diss = k_diss, 
-      k_range = k_range,
-      spike = reorg_spike,
-      return_dissimilarity = FALSE
-    )
-    
-    ith_xr <- ith_xr[loc_neigh$neighbors, ]
-    ith_yr <- ith_yr[loc_neigh$neighbors, , drop = FALSE]
-  }
-  
-  loc_neighbors <- ith_neig_indices[loc_neigh$neighbors]
-  ith_neigh_diss <- loc_neigh$neighbors_diss
-  
-  if (!is.null(ith_group)) {
-    ith_group <- ith_group[loc_neigh$neighbors]
-  }
-  
-  list(
-    ith_xr = ith_xr,
-    ith_yr = ith_yr,
-    ith_xu = ith_xu,
-    ith_yu = ith_yu,
-    ith_neig_indices = loc_neighbors,
-    ith_neigh_diss = ith_neigh_diss,
-    local_index_nearest = which.min(ith_neigh_diss)[1],
-    ith_group = ith_group,
-    n_k = length(loc_neighbors),
-    ith_ncomp = local_diss$ncomp
-  )
-}
+# #' @title Get local neighbors based on orthogonal dissimilarity
+# #' @description Internal function for obtaining local neighbors based on
+# #' dissimilarity matrices from orthogonal projections. These neighbors are
+# #' obtained from an orthogonal projection on a set of precomputed neighbors.
+# #' Used internally by \code{mbl()}.
+# #' @param ith_xr The set of neighbors of a Xu observation found in Xr.
+# #' @param ith_xu The Xu observation.
+# #' @param ith_yr The response values of the neighbors.
+# #' @param ith_yu The response value of the Xu observation.
+# #' @param diss_usage Character indicating if dissimilarity data will be used
+# #'   as predictors ("predictors") or not ("none").
+# #' @param ith_neig_indices Vector of original indices of the Xr neighbors.
+# #' @param neighbors A neighbor selection object from \code{neighbors_k()} or
+# #'   \code{neighbors_diss()}.
+# #' @param spike Vector of observation indices forced to be retained as neighbors.
+# #' @param diss_method A local dissimilarity method object (\code{diss_local_pca()}
+# #'   or \code{diss_local_pls()}).
+# #' @param ith_group Vector containing group labels for \code{ith_xr}.
+# #' @param mbl_is_parallel Logical indicating if \code{mbl()} is running in
+# #'   parallel. If \code{TRUE}, nested parallelism is prevented by forcing
+# #'   \code{allow_parallel = FALSE} in the dissimilarity computation.
+# #' @return A list containing:
+# #' \itemize{
+# #'   \item{ith_xr: Xr data of neighbors (combined with local dissimilarity
+# #'     scores if \code{diss_usage = "predictors"})}
+# #'   \item{ith_yr: Yr data of neighbors}
+# #'   \item{ith_xu: Xu observation (combined with local dissimilarity scores
+# #'     if \code{diss_usage = "predictors"})}
+# #'   \item{ith_yu: Yu observation}
+# #'   \item{ith_neig_indices: Original indices of selected neighbors}
+# #'   \item{ith_neigh_diss: Dissimilarity scores of neighbors}
+# #'   \item{local_index_nearest: Index of nearest neighbor}
+# #'   \item{ith_group: Group labels for ith_xr}
+# #'   \item{n_k: Number of neighbors}
+# #'   \item{ith_ncomp: Number of components used}
+# #' }
+# #' @author
+# #' \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+# #' @keywords internal
+# #' @noRd
+# get_ith_local_neighbors <- function(
+#     ith_xr, ith_xu, ith_yr, ith_yu = NULL,
+#     diss_usage = "none",
+#     ith_neig_indices,
+#     neighbors,
+#     spike = NULL, 
+#     diss_method,
+#     ith_group = NULL,
+#     mbl_is_parallel = FALSE
+# ) {
+#   is_predictors <- diss_usage == "predictors"
+#   
+#   # Prevent nested parallelism if mbl is running in parallel
+#   if (mbl_is_parallel) {
+#     diss_method$allow_parallel <- FALSE
+#   }
+#   
+#   # Handle spike indices (only positive values are forced in)
+#   if (!is.null(spike)) {
+#     n_spike_hold <- sum(spike > 0)
+#     if (n_spike_hold > 0) {
+#       reorg_spike <- seq_len(n_spike_hold)
+#     } else {
+#       reorg_spike <- NULL
+#     }
+#   } else {
+#     reorg_spike <- NULL
+#   }
+#   
+#   # Convert neighbors to internal format
+#   if (inherits(neighbors, "neighbors_k")) {
+#     k <- max(neighbors$k)
+#     k_diss <- NULL
+#     k_range <- NULL
+#   } else {
+#     k <- NULL
+#     k_diss <- max(neighbors$threshold)
+#     k_range <- c(neighbors$k_min, neighbors$k_max)
+#   }
+#   
+#   # Compute local dissimilarity
+#   local_diss <- ortho_diss(
+#     Xr = ith_xr, 
+#     Xu = ith_xu,
+#     Yr = ith_yr,
+#     diss_method = diss_method,
+#     compute_all = is_predictors,
+#     return_projection = FALSE
+#   )
+#   
+#   if (is_predictors) {
+#     indx_xu <- ncol(local_diss$dissimilarity)
+#     
+#     loc_neigh <- diss_to_neighbors(
+#       local_diss$dissimilarity[-indx_xu, indx_xu, drop = FALSE],
+#       k = k, 
+#       k_diss = k_diss, 
+#       k_range = k_range,
+#       spike = reorg_spike,
+#       return_dissimilarity = FALSE
+#     )
+#     
+#     neigh_indcs <- loc_neigh$neighbors
+#     ith_local_xr_xr_diss <- local_diss$dissimilarity[neigh_indcs, neigh_indcs]
+#     colnames(ith_local_xr_xr_diss) <- paste0("k_", seq_len(ncol(ith_local_xr_xr_diss)))
+#     
+#     ith_xr <- cbind(ith_local_xr_xr_diss, ith_xr[neigh_indcs, ])
+#     ith_yr <- ith_yr[neigh_indcs, , drop = FALSE]
+#     ith_xu <- cbind(t(loc_neigh$neighbors_diss), ith_xu)
+#   } else {
+#     loc_neigh <- diss_to_neighbors(
+#       local_diss$dissimilarity,
+#       k = k, 
+#       k_diss = k_diss, 
+#       k_range = k_range,
+#       spike = reorg_spike,
+#       return_dissimilarity = FALSE
+#     )
+#     
+#     ith_xr <- ith_xr[loc_neigh$neighbors, ]
+#     ith_yr <- ith_yr[loc_neigh$neighbors, , drop = FALSE]
+#   }
+#   
+#   loc_neighbors <- ith_neig_indices[loc_neigh$neighbors]
+#   ith_neigh_diss <- loc_neigh$neighbors_diss
+#   
+#   if (!is.null(ith_group)) {
+#     ith_group <- ith_group[loc_neigh$neighbors]
+#   }
+#   
+#   list(
+#     ith_xr = ith_xr,
+#     ith_yr = ith_yr,
+#     ith_xu = ith_xu,
+#     ith_yu = ith_yu,
+#     ith_neig_indices = loc_neighbors,
+#     ith_neigh_diss = ith_neigh_diss,
+#     local_index_nearest = which.min(ith_neigh_diss)[1],
+#     ith_group = ith_group,
+#     n_k = length(loc_neighbors),
+#     ith_ncomp = local_diss$ncomp
+#   )
+# }
 
 
 #' @title Standard deviation of columns
