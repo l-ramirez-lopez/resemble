@@ -447,12 +447,6 @@ Find nearest neighbours in reference sets
 
 - [`search_neighbors()`](https://l-ramirez-lopez.github.io/resemble/reference/search_neighbors.md)
   : Search neighbors in a reference set
-
-- [`search_control()`](https://l-ramirez-lopez.github.io/resemble/reference/search_control.md)
-  :
-
-  A function that controls some aspects of the the `gesearch` function
-
 - [`neighbors_k()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md)
   [`neighbors_diss()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md)
   : Neighbor selection methods

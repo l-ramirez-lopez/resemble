@@ -479,7 +479,7 @@ ed_baser_scaled <- sqrt((ed_baser^2) / ncol(train_x))
 max(abs(ed_baser_scaled - ed_resemble$dissimilarity))
 ```
 
-    [1] 2.399809e-09
+    [1] 3.703797e-15
 
 Another important aspect to note is that the Euclidean dissimilarity
 computations in `resemble` tend to be more computationally efficient
