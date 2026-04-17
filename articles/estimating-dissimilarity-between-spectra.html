@@ -323,7 +323,7 @@ cumulative_explained_var 0.9738 0.97870 0.98262</code></pre>
 <span><span class="co"># be very close to zero</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">corrrelation_resemble</span><span class="op">$</span><span class="va">dissimilarity</span> <span class="op">-</span> <span class="va">correlation_baser</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2.220446e-15</code></pre>
+<pre><code>[1] 1.498801e-15</code></pre>
 </div>
 </div>
 <p>However, the correlation dissimilarity implemented in <code>resemble</code> is computationally more efficient than the corresponding approach in base <code>R</code>. This gain in efficiency comes from optimized internal routines and more efficient handling of high-dimensional data, making it better suited for spectral datasets with many variables. The following code can be run locally to compare the computational performance of the two implementations:</p>
@@ -430,7 +430,7 @@ cumulative_explained_var 0.9738 0.97870 0.98262</code></pre>
 <span><span class="co"># differences between the two implementations</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">ed_baser_scaled</span> <span class="op">-</span> <span class="va">ed_resemble</span><span class="op">$</span><span class="va">dissimilarity</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.471452e-14</code></pre>
+<pre><code>[1] 3.703797e-15</code></pre>
 </div>
 </div>
 <p>Another important aspect to note is that the Euclidean dissimilarity computations in <code>resemble</code> tend to be more computationally efficient than the base <code>R</code> implementation, especially for larger datasets. This efficiency is achieved through optimized algorithms and data handling strategies that reduce computational overhead, making it more suitable for high-dimensional spectral data. Execute the following code in your local environment to compare the computational speed of the two implementations:</p>
