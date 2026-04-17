@@ -216,6 +216,12 @@ dissimilarity <- function(
     diss_correlation = .diss_correlation_compute(Xr, Xu, diss_method),
     stop("Unknown dissimilarity method: ", method_class)
   )
+  
+  # Fix diagonal for self-dissimilarity (avoid floating-point artifacts)
+  if (is.null(Xu)) {
+    diag(result$dissimilarity) <- 0
+  }
+  
   result$diss_method <- diss_method
   
   if (diss_method$center) {
