@@ -207,117 +207,117 @@ print.diss_pls <- function(x, ...) {
 }
 
 
-.validate_pre_k <- function(pre_k) {
-  if (!is.numeric(pre_k) || length(pre_k) != 1L || pre_k < 1L) {
-    stop("'pre_k' must be a positive integer.", call. = FALSE)
-  }
-  invisible(NULL)
-}
+# .validate_pre_k <- function(pre_k) {
+#   if (!is.numeric(pre_k) || length(pre_k) != 1L || pre_k < 1L) {
+#     stop("'pre_k' must be a positive integer.", call. = FALSE)
+#   }
+#   invisible(NULL)
+# }
 
 
 # =============================================================================
 # diss_local_pca — NOT EXPORTED
 # =============================================================================
 
-diss_local_pca <- function(
-    ncomp = ncomp_by_var(0.01),
-    method = c("pca", "pca_nipals"),
-    pre_k,
-    center = TRUE,
-    scale = FALSE,
-    return_projection = FALSE,
-    allow_parallel = TRUE
-) {
-  ncomp <- .coerce_ncomp(ncomp)
-  method <- match.arg(method)
-  
-  if (missing(pre_k)) {
-    stop("'pre_k' is required for diss_local_pca().", call. = FALSE)
-  }
-  .validate_pre_k(pre_k)
-  .validate_logical_args(center, scale, return_projection, allow_parallel)
-  
-  structure(
-    list(
-      ncomp = ncomp,
-      method = method,
-      center = center,
-      scale = scale,
-      local = TRUE,
-      pre_k = as.integer(pre_k),
-      return_projection = return_projection,
-      allow_parallel = allow_parallel
-    ),
-    class = c("diss_local_pca", "diss_pca", "diss_method")
-  )
-}
-
+# diss_local_pca <- function(
+#     ncomp = ncomp_by_var(0.01),
+#     method = c("pca", "pca_nipals"),
+#     pre_k,
+#     center = TRUE,
+#     scale = FALSE,
+#     return_projection = FALSE,
+#     allow_parallel = TRUE
+# ) {
+#   ncomp <- .coerce_ncomp(ncomp)
+#   method <- match.arg(method)
+#   
+#   if (missing(pre_k)) {
+#     stop("'pre_k' is required for diss_local_pca().", call. = FALSE)
+#   }
+#   .validate_pre_k(pre_k)
+#   .validate_logical_args(center, scale, return_projection, allow_parallel)
+#   
+#   structure(
+#     list(
+#       ncomp = ncomp,
+#       method = method,
+#       center = center,
+#       scale = scale,
+#       local = TRUE,
+#       pre_k = as.integer(pre_k),
+#       return_projection = return_projection,
+#       allow_parallel = allow_parallel
+#     ),
+#     class = c("diss_local_pca", "diss_pca", "diss_method")
+#   )
+# }
+# 
 
 # =============================================================================
 # diss_local_pls — NOT EXPORTED
 # =============================================================================
 
-diss_local_pls <- function(
-    ncomp = ncomp_by_opc(),
-    method = c("pls", "mpls"),
-    pre_k,
-    center = TRUE,
-    scale = FALSE,
-    return_projection = FALSE,
-    allow_parallel = TRUE
-) {
-  ncomp <- .coerce_ncomp(ncomp)
-  method <- match.arg(method)
-  
-  if (missing(pre_k)) {
-    stop("'pre_k' is required for diss_local_pls().", call. = FALSE)
-  }
-  .validate_pre_k(pre_k)
-  .validate_logical_args(center, scale, return_projection, allow_parallel)
-  
-  structure(
-    list(
-      ncomp = ncomp,
-      method = method,
-      center = TRUE,
-      scale = scale,
-      local = TRUE,
-      pre_k = as.integer(pre_k),
-      return_projection = return_projection,
-      allow_parallel = allow_parallel
-    ),
-    class = c("diss_local_pls", "diss_pls", "diss_method")
-  )
-}
+# diss_local_pls <- function(
+#     ncomp = ncomp_by_opc(),
+#     method = c("pls", "mpls"),
+#     pre_k,
+#     center = TRUE,
+#     scale = FALSE,
+#     return_projection = FALSE,
+#     allow_parallel = TRUE
+# ) {
+#   ncomp <- .coerce_ncomp(ncomp)
+#   method <- match.arg(method)
+#   
+#   if (missing(pre_k)) {
+#     stop("'pre_k' is required for diss_local_pls().", call. = FALSE)
+#   }
+#   .validate_pre_k(pre_k)
+#   .validate_logical_args(center, scale, return_projection, allow_parallel)
+#   
+#   structure(
+#     list(
+#       ncomp = ncomp,
+#       method = method,
+#       center = TRUE,
+#       scale = scale,
+#       local = TRUE,
+#       pre_k = as.integer(pre_k),
+#       return_projection = return_projection,
+#       allow_parallel = allow_parallel
+#     ),
+#     class = c("diss_local_pls", "diss_pls", "diss_method")
+#   )
+# }
 
 
 # =============================================================================
 # Print methods for local (not exported)
 # =============================================================================
 
-#' @export
-print.diss_local_pca <- function(x, ...) {
-  cat("Dissimilarity: local PCA\n")
-  cat("  method            :", x$method, "\n")
-  cat("  ncomp             :", .format_ncomp(x$ncomp), "\n")
-  cat("  pre_k             :", x$pre_k, "\n")
-  cat("  center            :", x$center, "\n")
-  cat("  scale             :", x$scale, "\n")
-  cat("  return_projection :", x$return_projection, "\n")
-  invisible(x)
-}
+# #' @export
+# print.diss_local_pca <- function(x, ...) {
+#   cat("Dissimilarity: local PCA\n")
+#   cat("  method            :", x$method, "\n")
+#   cat("  ncomp             :", .format_ncomp(x$ncomp), "\n")
+#   cat("  pre_k             :", x$pre_k, "\n")
+#   cat("  center            :", x$center, "\n")
+#   cat("  scale             :", x$scale, "\n")
+#   cat("  return_projection :", x$return_projection, "\n")
+#   invisible(x)
+# }
 
 
-#' @export
-print.diss_local_pls <- function(x, ...) {
-  cat("Dissimilarity: local PLS\n")
-  cat("  method            :", x$method, "\n")
-  cat("  ncomp             :", .format_ncomp(x$ncomp), "\n")
-  cat("  pre_k             :", x$pre_k, "\n")
-  cat("  scale             :", x$scale, "\n")
-  cat("  return_projection :", x$return_projection, "\n")
-  invisible(x)
-}
+# #' @export
+# print.diss_local_pls <- function(x, ...) {
+#   cat("Dissimilarity: local PLS\n")
+#   cat("  method            :", x$method, "\n")
+#   cat("  ncomp             :", .format_ncomp(x$ncomp), "\n")
+#   cat("  pre_k             :", x$pre_k, "\n")
+#   cat("  scale             :", x$scale, "\n")
+#   cat("  return_projection :", x$return_projection, "\n")
+#   invisible(x)
+# }
 
 
 
