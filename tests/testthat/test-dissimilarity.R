@@ -39,6 +39,7 @@ test_that("diss_correlation constructor works", {
 # Tests for diss_euclidean, diss_mahalanobis, diss_cosine constructors
 # =============================================================================
 
+
 # -----------------------------------------------------------------------------
 # diss_euclidean constructor tests
 # -----------------------------------------------------------------------------
@@ -1046,4 +1047,191 @@ test_that("diss_evaluate validates inputs", {
 
 
 
+
+# =============================================================================
+# Tests for cor_diss (internal correlation dissimilarity function)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Basic functionality tests
+# -----------------------------------------------------------------------------
+
+test_that("cor_diss returns correct dimensions for Xr only", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result <- cor_diss(d$Xr)
+  
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xr))
+})
+
+test_that("cor_diss returns correct dimensions with Xu", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result <- cor_diss(d$Xr, d$Xu)
+  
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xu))
+})
+
+test_that("cor_diss diagonal is zero for self-dissimilarity", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result <- cor_diss(d$Xr)
+  
+  expect_true(all(abs(diag(result)) < 1e-6))
+})
+
+test_that("cor_diss is symmetric", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result <- cor_diss(d$Xr)
+  
+  expect_equal(result, t(result), tolerance = 1e-10)
+})
+
+test_that("cor_diss values are bounded [0, 1]", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result <- cor_diss(d$Xr)
+  
+  expect_true(all(result >= -1e-10))
+  expect_true(all(result <= 1 + 1e-10))
+})
+
+test_that("cor_diss with moving window returns correct dimensions", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result <- cor_diss(d$Xr, ws = 41)
+  
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xr))
+})
+
+test_that("cor_diss with moving window and Xu works", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result <- cor_diss(d$Xr, d$Xu, ws = 41)
+  
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), nrow(d$Xr))
+  expect_equal(ncol(result), nrow(d$Xu))
+})
+
+test_that("cor_diss with different ws values gives different results", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result_no_ws <- cor_diss(d$Xr)
+  result_ws41 <- cor_diss(d$Xr, ws = 41)
+  result_ws21 <- cor_diss(d$Xr, ws = 21)
+  
+  expect_false(all(result_no_ws == result_ws41))
+  expect_false(all(result_ws41 == result_ws21))
+})
+
+test_that("cor_diss centering and scaling work", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  result_centered <- cor_diss(d$Xr, center = TRUE)
+  result_scaled <- cor_diss(d$Xr, scale = TRUE)
+  result_both <- cor_diss(d$Xr, center = TRUE, scale = TRUE)
+  
+  expect_true(is.matrix(result_centered))
+  expect_true(is.matrix(result_scaled))
+  expect_true(is.matrix(result_both))
+})
+
+test_that("cor_diss row/column names are correct", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data(n_xr = 5, n_xu = 3)
+  
+  result_xr <- cor_diss(d$Xr)
+  result_xu <- cor_diss(d$Xr, d$Xu)
+  
+  expect_equal(rownames(result_xr), paste0("Xr_", 1:5))
+  expect_equal(colnames(result_xr), paste0("Xr_", 1:5))
+  expect_equal(rownames(result_xu), paste0("Xr_", 1:5))
+  expect_equal(colnames(result_xu), paste0("Xu_", 1:3))
+})
+
+# -----------------------------------------------------------------------------
+# Error handling tests
+# -----------------------------------------------------------------------------
+
+test_that("cor_diss errors with single variable", {
+  skip_on_cran()
+  Xr <- matrix(1:10, ncol = 1)
+  
+  expect_error(cor_diss(Xr), "number of variables must be larger than 1")
+})
+
+test_that("cor_diss errors with mismatched columns", {
+  skip_on_cran()
+  Xr <- matrix(1:20, nrow = 2)
+  Xu <- matrix(1:10, nrow = 2)
+  
+  expect_error(cor_diss(Xr, Xu), "number of columns")
+})
+
+test_that("cor_diss errors with NA values", {
+  skip_on_cran()
+  Xr <- matrix(1:20, nrow = 2)
+  Xr[1, 1] <- NA
+  
+  expect_error(cor_diss(Xr), "missing values")
+  
+  Xr <- matrix(1:20, nrow = 2)
+  Xu <- matrix(1:20, nrow = 2)
+  Xu[1, 1] <- NA
+  
+  expect_error(cor_diss(Xr, Xu), "missing values")
+})
+
+test_that("cor_diss errors with invalid logical arguments", {
+  skip_on_cran()
+  Xr <- matrix(1:20, nrow = 2)
+  
+  expect_error(cor_diss(Xr, center = "yes"), "'center' argument must be logical")
+  expect_error(cor_diss(Xr, scale = 1), "'scale' argument must be logical")
+})
+
+test_that("cor_diss errors with invalid ws", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  d <- .setup_nirsoil_data()
+  
+  expect_error(cor_diss(d$Xr, ws = 40), "odd value")
+  expect_error(cor_diss(d$Xr, ws = 1), "greater than 2")
+  expect_error(cor_diss(d$Xr, ws = ncol(d$Xr) + 1), "smaller than the number of columns")
+})
+
+test_that("cor_diss errors with zero standard deviation observation", {
+  skip_on_cran()
+  Xr <- matrix(rnorm(100), nrow = 10)
+  Xr[1, ] <- rep(5, 10)
+  
+  expect_error(cor_diss(Xr, center = FALSE), "Correlation coefficients cannot be computed")
+})
 
