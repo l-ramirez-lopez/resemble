@@ -140,6 +140,7 @@ test_that("diss_mahalanobis stores parameters correctly", {
 
 test_that("diss_mahalanobis computes dissimilarities when n > p", {
   # Create data where n > p (more observations than variables)
+  skip_on_cran()
   set.seed(123)
   Xr <- matrix(rnorm(100 * 10), nrow = 100, ncol = 10)
   
@@ -168,6 +169,7 @@ test_that("diss_mahalanobis errors when covariance is singular", {
 })
 
 test_that("diss_mahalanobis with Xu computes cross-dissimilarity", {
+  skip_on_cran()
   set.seed(123)
   Xr <- matrix(rnorm(100 * 10), nrow = 100, ncol = 10)
   Xu <- matrix(rnorm(20 * 10), nrow = 20, ncol = 10)
