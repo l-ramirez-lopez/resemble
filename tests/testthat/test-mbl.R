@@ -911,3 +911,166 @@ test_that("mbl with group argument delivers expected results", {
   
   expect_true(all(pls_group$validation_results$nearest_neighbor_validation$r2 > 0.7))
 })
+
+
+.with_test_device <- function(code) {
+  tf <- tempfile(fileext = ".pdf")
+  grDevices::pdf(tf)
+  on.exit({
+    grDevices::dev.off()
+    unlink(tf)
+  }, add = TRUE)
+  force(code)
+}
+
+.build_mbl_for_plot <- function(gh = FALSE) {
+  d <- .setup_mbl_data()
+  
+  ctrl <- mbl_control(
+    validation_type = "NNv",
+    allow_parallel = FALSE
+  )
+  
+  mbl(
+    Xr = d$Xr,
+    Yr = d$Yr,
+    Xu = d$Xu,
+    Yu = d$Yu,
+    neighbors = neighbors_k(25),
+    fit_method = fit_pls(ncomp = 5),
+    gh = gh,
+    control = ctrl,
+    verbose = FALSE,
+    seed = 42
+  )
+}
+
+test_that("plot.mbl rejects non-mbl objects", {
+  expect_error(
+    plot(structure(list(), class = "not_mbl")),
+    "'x' is a list."
+  )
+})
+
+test_that("plot.mbl validation plot works and restores par", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  obj <- .build_mbl_for_plot(gh = FALSE)
+  
+  old_par <- par(c("mfrow", "mar"))
+  
+  .with_test_device({
+    expect_invisible(
+      plot(obj, what = "validation", metric = "rmse", main = "MBL validation")
+    )
+  })
+  
+  expect_equal(par("mfrow"), old_par$mfrow)
+  expect_equal(par("mar"), old_par$mar)
+})
+
+test_that("plot.mbl GH plot works when gh is available", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  obj <- .build_mbl_for_plot(gh = TRUE)
+  
+  .with_test_device({
+    expect_invisible(
+      plot(obj, what = "gh", ncomp = c(1, 2), main = "MBL GH")
+    )
+  })
+})
+
+test_that("plot.mbl combined validation and GH plots work", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  obj <- .build_mbl_for_plot(gh = TRUE)
+  
+  old_par <- par(c("mfrow", "mar"))
+  
+  .with_test_device({
+    expect_invisible(
+      plot(
+        obj,
+        what = c("validation", "gh"),
+        metric = "rmse",
+        ncomp = c(1, 2),
+        main = "MBL combined"
+      )
+    )
+  })
+  
+  expect_equal(par("mfrow"), old_par$mfrow)
+  expect_equal(par("mar"), old_par$mar)
+})
+
+test_that("plot.mbl reports missing GH distances", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  obj <- .build_mbl_for_plot(gh = FALSE)
+  
+  .with_test_device({
+    expect_message(
+      plot(obj),
+      "GH distance not available in this object."
+    )
+  })
+})
+
+test_that(".plot_gh_1d works on simple scores", {
+  xr_scores <- matrix(c(-2, -1, 0, 1), ncol = 1)
+  xu_scores <- matrix(c(-1.5, 0.5), ncol = 1)
+  
+  plot_args <- list(
+    pch = 16,
+    col.axis = grey(0.3),
+    main = "1D GH"
+  )
+  
+  .with_test_device({
+    expect_true(
+      is.list(
+        invisible(
+          resemble:::.plot_gh_1d(
+            xr_scores = xr_scores,
+            xu_scores = xu_scores,
+            xr_col = rgb(0, 0, 0.4, 0.5),
+            xu_col = rgb(1, 0, 0, 0.5),
+            plot_args = plot_args
+          )
+        )
+      )
+    )
+  })
+})
+
+test_that(".plot_gh_2d works on simple scores", {
+  xr_scores <- cbind(c(-2, -1, 1, 2), c(-1, 1, -1, 1))
+  xu_scores <- cbind(c(-0.5, 0.5), c(0.25, -0.25))
+  
+  plot_args <- list(
+    pch = 16,
+    col.axis = grey(0.3),
+    main = "2D GH"
+  )
+  
+  .with_test_device({
+    expect_null(
+      invisible(
+        resemble:::.plot_gh_2d(
+          xr_scores = xr_scores,
+          xu_scores = xu_scores,
+          ncomp = c(1, 2),
+          xr_col = rgb(0, 0, 0.4, 0.5),
+          xu_col = rgb(1, 0, 0, 0.5),
+          plot_args = plot_args
+        )
+      )
+    )
+  })
+})
+
