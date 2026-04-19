@@ -462,7 +462,7 @@ liblex <- function(
     if (!is.numeric(diss_method)) {
       stop("'diss_method' matrix must be numeric", call. = FALSE)
     }
-    if (nrow(diss_method) != ncol(diss_method)) {
+    if (nrow(diss_method) != ncol(diss_method) && is.null(anchor_indices)) {
       stop("'diss_method' matrix must be square", call. = FALSE)
     }
     if (nrow(diss_method) != nrow(Xr)) {
@@ -1993,12 +1993,18 @@ plot.liblex <- function(x, ...) {
   
   old_par <- par(no.readonly = TRUE)
   on.exit(par(old_par), add = TRUE)
-  par(mfrow = c(2, 1), mar = c(4, 4, 3, 1))
+  nfrows <- (!is.null(x$results)) + (!is.null(x$scaling$local_x_center))
+  if (nfrows == 0) {
+    stop("Nothing to plot: no results or neighborhood centroids available", call. = FALSE)
+  } else {
+    par(mfrow = c(nfrows, 1), mar = c(4, 4, 3, 1))
+  }
   
+    
   # --- Panel 1: Best RMSE per neighborhood parameter ---
   if (!is.null(x$results)) {
     bresult <- NULL
-    
+
     if (inherits(x$neighbors, "neighbors_k")) {
       for (k in unique(x$results$k)) {
         kth_r <- x$results[x$results$k == k, , drop = FALSE]
@@ -2038,10 +2044,7 @@ plot.liblex <- function(x, ...) {
       col = "red",
       cex = 1.5
     )
-  } else {
-    plot.new()
-    text(0.5, 0.5, "No validation results available\n(tune = FALSE)", cex = 1.2)
-  }
+  } 
   
   # --- Panel 2: Neighborhood centroids ---
   if (!is.null(x$scaling$local_x_center)) {
@@ -2066,10 +2069,7 @@ plot.liblex <- function(x, ...) {
       main = paste0("Neighborhood centroids (n = ", nrow(centroids), ")")
     )
     grid(lty = 1)
-  } else {
-    plot.new()
-    text(0.5, 0.5, "No centroids available\n(mode = 'validate')", cex = 1.2)
-  }
+  } 
   
   invisible(NULL)
 }
