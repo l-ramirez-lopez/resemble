@@ -239,7 +239,7 @@ retained per iteration.
 }
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

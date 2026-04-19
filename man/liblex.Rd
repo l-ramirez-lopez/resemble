@@ -291,7 +291,7 @@ when \code{adaptive_bandwidth = TRUE}). The available kernels are:
 }
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 

@@ -96,7 +96,7 @@ parameter controls regularisation.
 }
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 
