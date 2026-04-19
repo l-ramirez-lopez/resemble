@@ -20,7 +20,7 @@ gesearch(Xr, Yr, Xu, Yu = NULL, Yu_lims = NULL,
          verbose = TRUE, seed = NULL, pchunks = 1L, ...)
 
 # S3 method for class 'formula'
-gesearch(formula, train, test, k, b, target_size,
+gesearch(formula, train, test, k, b, target_size, fit_method,
          ..., na_action = na.pass)
 
 # S3 method for class 'gesearch'
@@ -325,7 +325,7 @@ Orellano, [Craig Lobsey](https://orcid.org/0000-0001-5416-4520),
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 library(prospectr)
 data(NIRsoil)
 
@@ -353,13 +353,18 @@ gs <- gesearch(
   control = gesearch_control(retain_by = "probability"),
   seed = 42
 )
+#> Generation 1: Initial genes (samples): 548 >>  | Individuals: 1096 >> Generation 2: Active genes (samples): 517 >>> | Individuals: 1034 >>> Generation 3: Active genes (samples): 485     | Individuals: 970     Generation 4: Active genes (samples): 457 >   | Individuals: 914 >  Generation 5: Active genes (samples): 429 >>  | Individuals: 858 >> Generation 6: Active genes (samples): 403 >>> | Individuals: 806 >>>Generation 7: Active genes (samples): 377     | Individuals: 754    Generation 8: Active genes (samples): 354 >   | Individuals: 708 >  Generation 9: Active genes (samples): 332 >>  | Individuals: 664 >> Generation 10: Active genes (samples): 312 >>> | Individuals: 624 >>>Generation 11: Active genes (samples): 292     | Individuals: 584    Generation 12: Active genes (samples): 274 >   | Individuals: 548 >  Generation 13: Active genes (samples): 256 >>  | Individuals: 512 >> Generation 14: Active genes (samples): 240 >>> | Individuals: 480 >>>Generation 15: Active genes (samples): 224     | Individuals: 448    Generation 16: Active genes (samples): 210 >   | Individuals: 420 >  
+#> Fitting final model on 210 selected genes...
+#> and 184 target genes with available response values...
 
 # Predict
 preds <- predict(gs, test_x)
 
 # Plot progress
 plot(gs)
+
 plot(gs, which = "removed")
+
 
 # With response optimization (requires Yu)
 gs_response <- gesearch(
@@ -371,9 +376,15 @@ gs_response <- gesearch(
   optimization = c("reconstruction", "response"),
   seed = 42
 )
+#> Generation 1: Initial genes (samples): 548 >>  | Individuals: 1096 >> Generation 2: Active genes (samples): 517 >>> | Individuals: 1034 >>> Generation 3: Active genes (samples): 487     | Individuals: 974     Generation 4: Active genes (samples): 458 >   | Individuals: 916 >  Generation 5: Active genes (samples): 431 >>  | Individuals: 862 >> Generation 6: Active genes (samples): 406 >>> | Individuals: 812 >>>Generation 7: Active genes (samples): 384     | Individuals: 768    Generation 8: Active genes (samples): 361 >   | Individuals: 722 >  Generation 9: Active genes (samples): 339 >>  | Individuals: 678 >> Generation 10: Active genes (samples): 319 >>> | Individuals: 638 >>>Generation 11: Active genes (samples): 300     | Individuals: 600    Generation 12: Active genes (samples): 282 >   | Individuals: 564 >  Generation 13: Active genes (samples): 265 >>  | Individuals: 530 >> Generation 14: Active genes (samples): 250 >>> | Individuals: 500 >>>Generation 15: Active genes (samples): 235     | Individuals: 470    Generation 16: Active genes (samples): 219 >   | Individuals: 438 >  Generation 17: Active genes (samples): 208 >>  | Individuals: 416 >> 
+#> Fitting final model on 208 selected genes...
+#> and 184 target genes with available response values...
 
 # Parallel processing
 library(doParallel)
+#> Loading required package: foreach
+#> Loading required package: iterators
+#> Loading required package: parallel
 cl <- makeCluster(2)
 registerDoParallel(cl)
 
@@ -386,8 +397,10 @@ gs_parallel <- gesearch(
   pchunks = 3,
   seed = 42
 )
+#> Generation 1: Initial genes (samples): 548 >>  | Individuals: 1096 >> Generation 2: Active genes (samples): 531 >>> | Individuals: 1062 >>> Generation 3: Active genes (samples): 515     | Individuals: 1030    Generation 4: Active genes (samples): 499 >   | Individuals: 998 >   Generation 5: Active genes (samples): 484 >>  | Individuals: 968 >> Generation 6: Active genes (samples): 469 >>> | Individuals: 938 >>>Generation 7: Active genes (samples): 454     | Individuals: 908    Generation 8: Active genes (samples): 440 >   | Individuals: 880 >  Generation 9: Active genes (samples): 426 >>  | Individuals: 852 >> Generation 10: Active genes (samples): 413 >>> | Individuals: 826 >>>Generation 11: Active genes (samples): 400     | Individuals: 800    Generation 12: Active genes (samples): 388 >   | Individuals: 776 >  Generation 13: Active genes (samples): 376 >>  | Individuals: 752 >> Generation 14: Active genes (samples): 364 >>> | Individuals: 728 >>>Generation 15: Active genes (samples): 353     | Individuals: 706    Generation 16: Active genes (samples): 342 >   | Individuals: 684 >  Generation 17: Active genes (samples): 331 >>  | Individuals: 662 >> Generation 18: Active genes (samples): 321 >>> | Individuals: 642 >>>Generation 19: Active genes (samples): 311     | Individuals: 622    Generation 20: Active genes (samples): 301 >   | Individuals: 602 >  Generation 21: Active genes (samples): 291 >>  | Individuals: 582 >> Generation 22: Active genes (samples): 282 >>> | Individuals: 564 >>>Generation 23: Active genes (samples): 273     | Individuals: 546    Generation 24: Active genes (samples): 264 >   | Individuals: 528 >  Generation 25: Active genes (samples): 256 >>  | Individuals: 512 >> Generation 26: Active genes (samples): 248 >>> | Individuals: 496 >>>Generation 27: Active genes (samples): 240     | Individuals: 480    Generation 28: Active genes (samples): 232 >   | Individuals: 464 >  Generation 29: Active genes (samples): 225 >>  | Individuals: 450 >> Generation 30: Active genes (samples): 218 >>> | Individuals: 436 >>>Generation 31: Active genes (samples): 211     | Individuals: 422    Generation 32: Active genes (samples): 204 >   | Individuals: 408 >  
+#> Fitting final model on 204 selected genes...
 
 stopCluster(cl)
 registerDoSEQ()
-} # }
+# }
 ```

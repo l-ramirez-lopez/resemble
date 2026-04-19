@@ -344,9 +344,10 @@ For PLS, the available algorithms are:
 - `"mpls"`: modified partial least squares, computed with the NIPALS
   algorithm. Weights are derived from correlations rather than
   covariances between `Xr` and `Yr`, giving equal influence to all
-  predictors regardless of variance ([**Shenk1991?**](#ref-Shenk1991)).
+  predictors regardless of variance ([Shenk and Westerhaus,
+  1991](#ref-shenk1991populations)).
 - `"simpls"`: partial least squares computed with the SIMPLS algorithm
-  ([**deJong1993?**](#ref-deJong1993)), which is often computationally
+  ([De Jong, 1993](#ref-de1993simpls)), which is often computationally
   more efficient than NIPALS for high-dimensional data.
 
 ### 4.2 Example: PCA projection

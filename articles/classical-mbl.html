@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Classical memory-based learning (local modelling)</h1>
 
       <p class="author">Leonardo Ramirez-Lopez;Alexandre M.J.-C. Wadoux</p>
-      <p class="date">2026-04-17</p>
+      <p class="date">2026-04-19</p>
 
       <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/classical-mbl.qmd" class="external-link"><code>vignettes/classical-mbl.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
@@ -98,7 +98,7 @@
 <img src="MBL.gif" style="width:65.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mbl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 1: Example of the main steps in memory-based learning for predicting a response variable for five observations in a (p)-dimensional space.
+Figure 1: Example of the main steps in memory-based learning for predicting a response variable for five observations in a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>-dimensional space.
 </figcaption></figure>
 </div>
 <p>There are four basic elements that must be specified in any MBL algorithm:</p>
@@ -234,7 +234,7 @@ d_{k,1} &amp; d_{k,2} &amp; \cdots &amp; 0_{k,k} &amp; x_{k,1} &amp; x_{k,2} &am
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define the neighborhood sizes to test</span></span>
-<span><span class="va">my_ks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">80</span>, <span class="fl">200</span>, by <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
+<span><span class="va">my_ks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">80</span>, <span class="fl">160</span>, by <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Define how to use the dissimilarity information (ignore it)</span></span>
 <span><span class="va">ignore_diss</span> <span class="op">&lt;-</span> <span class="st">"none"</span></span>
@@ -292,7 +292,6 @@ Nearest-neighbor validation
   80 0.740  0.0432 0.840
  120 0.756  0.0441 0.838
  160 0.782  0.0457 0.828
- 200 0.798  0.0466 0.823
 _______________________________________________________ </code></pre>
 </div>
 <div class="cell-output-display">
@@ -366,11 +365,11 @@ Figure 3: Predicted vs reference values for Total Carbon using the LOCAL algori
 <code class="sourceCode R"><span><span class="co"># Create a vector of dissimilarity thresholds to evaluate</span></span>
 <span><span class="co"># since the correlation dissimilarity will be used</span></span>
 <span><span class="co"># these thresholds need to be &gt; 0 and &lt;= 1</span></span>
-<span><span class="va">dths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.3</span>, by <span class="op">=</span> <span class="fl">0.025</span><span class="op">)</span></span>
+<span><span class="va">dths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.15</span>, by <span class="op">=</span> <span class="fl">0.025</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Indicate the minimum and maximum sizes allowed for the neighborhood</span></span>
 <span><span class="va">k_min</span> <span class="op">&lt;-</span> <span class="fl">30</span></span>
-<span><span class="va">k_max</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">k_max</span> <span class="op">&lt;-</span> <span class="fl">150</span></span>
 <span></span>
 <span><span class="va">local_ciso_diss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mbl.html">mbl</a></span><span class="op">(</span></span>
 <span>  Xr <span class="op">=</span> <span class="va">train_x</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_y</span><span class="op">)</span>, <span class="op">]</span>,</span>
@@ -413,18 +412,12 @@ _______________________________________________________
 Nearest-neighbor validation
 
  k_diss p_bounded  rmse st_rmse    r2
-  0.025   81.643% 0.643  0.0375 0.876
-  0.050   86.473% 0.595  0.0347 0.902
-  0.075   92.754% 0.623  0.0364 0.893
-  0.100   96.135% 0.695  0.0406 0.865
-  0.125   97.101% 0.733  0.0428 0.855
-  0.150   98.068% 0.799  0.0467 0.822
-  0.175   99.034% 0.798  0.0466 0.823
-  0.200   99.034% 0.798  0.0466 0.823
-  0.225   99.517% 0.798  0.0466 0.823
-  0.250      100% 0.798  0.0466 0.823
-  0.275      100% 0.798  0.0466 0.823
-  0.300      100% 0.798  0.0466 0.823
+  0.025   84.541% 0.631  0.0369 0.881
+  0.050   88.406% 0.581  0.0339 0.907
+  0.075    93.72% 0.613  0.0358 0.896
+  0.100   97.101% 0.686  0.0400 0.867
+  0.125   97.101% 0.732  0.0427 0.853
+  0.150   99.034% 0.789  0.0460 0.824
 _______________________________________________________ </code></pre>
 </div>
 </div>
@@ -467,13 +460,13 @@ Figure 4: Predicted vs reference values for Total Carbon using the LOCAL algori
 <code class="sourceCode R"><span><span class="co"># RMSE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">ciso_diss_hat</span> <span class="op">-</span> <span class="va">test_y</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre class="ansi"><code>[1] 0.470992</code></pre>
+<pre class="ansi"><code>[1] 0.4619132</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Squared R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">ciso_diss_hat</span>, <span class="va">test_y</span>, use <span class="op">=</span> <span class="st">"complete.obs"</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre class="ansi"><code>[1] 0.9110758</code></pre>
+<pre class="ansi"><code>[1] 0.9143266</code></pre>
 </div>
 </div>
 <section class="level2" data-number="4.1"><h3 data-number="4.1" id="additional-examples">
@@ -542,12 +535,12 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <span><span class="va">my_wapls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_methods.html">fit_wapls</a></span><span class="op">(</span>min_ncomp <span class="op">=</span> <span class="fl">2</span>, max_ncomp <span class="op">=</span> <span class="fl">25</span>, scale <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># mbl_cor: LOCAL algorithm with correlation dissimilarity</span></span>
-<span><span class="va">dth_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.3</span>, by <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span></span>
+<span><span class="va">dth_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.3</span>, by <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span></span>
 <span><span class="va">mbl_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mbl.html">mbl</a></span><span class="op">(</span></span>
 <span>  Xr <span class="op">=</span> <span class="va">train_x</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span>, <span class="op">]</span>,</span>
 <span>  Yr <span class="op">=</span> <span class="va">train_cec</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  Xu <span class="op">=</span> <span class="va">test_x</span>,</span>
-<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_cor</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_cor</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">150</span><span class="op">)</span>,</span>
 <span>  diss_method <span class="op">=</span> <span class="fu"><a href="../reference/diss_correlation.html">diss_correlation</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  diss_usage <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  fit_method <span class="op">=</span> <span class="va">my_wapls</span>,</span>
@@ -555,12 +548,12 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># mbl_pc: PCA dissimilarity with dissimilarity matrix as predictors</span></span>
-<span><span class="va">dth_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">1</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">dth_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">1</span>, by <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span>
 <span><span class="va">mbl_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mbl.html">mbl</a></span><span class="op">(</span></span>
 <span>  Xr <span class="op">=</span> <span class="va">train_x</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span>, <span class="op">]</span>,</span>
 <span>  Yr <span class="op">=</span> <span class="va">train_cec</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  Xu <span class="op">=</span> <span class="va">test_x</span>,</span>
-<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_pc</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_pc</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">150</span><span class="op">)</span>,</span>
 <span>  diss_method <span class="op">=</span> <span class="fu"><a href="../reference/diss_pca.html">diss_pca</a></span><span class="op">(</span>ncomp <span class="op">=</span> <span class="fu"><a href="../reference/ncomp_selection.html">ncomp_by_opc</a></span><span class="op">(</span><span class="op">)</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  diss_usage <span class="op">=</span> <span class="st">"predictors"</span>,</span>
 <span>  fit_method <span class="op">=</span> <span class="va">my_wapls</span>,</span>
@@ -573,7 +566,7 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <span>  Yr <span class="op">=</span> <span class="va">train_cec</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  Xu <span class="op">=</span> <span class="va">test_x</span>,</span>
 <span>  Yu <span class="op">=</span> <span class="va">test_cec</span>,</span>
-<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_pc</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_pc</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">150</span><span class="op">)</span>,</span>
 <span>  diss_method <span class="op">=</span> <span class="fu"><a href="../reference/diss_pls.html">diss_pls</a></span><span class="op">(</span>ncomp <span class="op">=</span> <span class="fu"><a href="../reference/ncomp_selection.html">ncomp_by_opc</a></span><span class="op">(</span><span class="op">)</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  diss_usage <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  fit_method <span class="op">=</span> <span class="va">my_wapls</span>,</span>
@@ -585,7 +578,7 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <span>  Xr <span class="op">=</span> <span class="va">train_x</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span>, <span class="op">]</span>,</span>
 <span>  Yr <span class="op">=</span> <span class="va">train_cec</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  Xu <span class="op">=</span> <span class="va">test_x</span>,</span>
-<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_pc</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span>threshold <span class="op">=</span> <span class="va">dth_pc</span>, k_min <span class="op">=</span> <span class="fl">80</span>, k_max <span class="op">=</span> <span class="fl">150</span><span class="op">)</span>,</span>
 <span>  diss_method <span class="op">=</span> <span class="fu"><a href="../reference/diss_pca.html">diss_pca</a></span><span class="op">(</span>ncomp <span class="op">=</span> <span class="fu"><a href="../reference/ncomp_selection.html">ncomp_by_opc</a></span><span class="op">(</span><span class="op">)</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  diss_usage <span class="op">=</span> <span class="st">"predictors"</span>,</span>
 <span>  fit_method <span class="op">=</span> <span class="fu"><a href="../reference/fit_methods.html">fit_gpr</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -619,14 +612,14 @@ Table 1: Basic description of the different MBL configurations in the examples 
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">test_cec</span>, <span class="va">preds</span>, use <span class="op">=</span> <span class="st">"complete.obs"</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre class="ansi"><code>       mbl_cor    mbl_pc   mbl_pls   mbl_gpr
-[1,] 0.7506207 0.7520673 0.7401701 0.5893702</code></pre>
+[1,] 0.7385189 0.7519877 0.7401701 0.5894437</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># RMSEs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="op">(</span><span class="va">preds</span> <span class="op">-</span> <span class="va">test_cec</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">^</span><span class="fl">0.5</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre class="ansi"><code> mbl_cor   mbl_pc  mbl_pls  mbl_gpr
-3.407758 3.425420 3.422748 4.178950 </code></pre>
+3.454423 3.425964 3.422748 4.178727 </code></pre>
 </div>
 </div>
 <p><a href="#fig-mblcomparisons" class="quarto-xref">Figure 5</a> illustrate the prediction results obtained for CEC with each of the MBL configurations tested.</p>
@@ -685,7 +678,7 @@ Figure 5: CEC prediction results for the different MBL configurations tested
 <span>  Yr <span class="op">=</span> <span class="va">train_cec</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">train_cec</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  Xu <span class="op">=</span> <span class="va">test_x</span>,</span>
 <span>  Yu <span class="op">=</span> <span class="va">test_cec</span>,</span>
-<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fl">80</span><span class="op">)</span>,</span>
 <span>  diss_method <span class="op">=</span> <span class="fu"><a href="../reference/diss_pca.html">diss_pca</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  diss_usage <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -717,25 +710,13 @@ _______________________________________________________
 
 Nearest-neighbor validation
 
-   k rmse st_rmse    r2
-  40 3.39  0.0777 0.647
-  50 3.37  0.0770 0.652
-  60 3.29  0.0752 0.665
-  70 3.33  0.0763 0.656
-  80 3.25  0.0743 0.673
-  90 3.28  0.0749 0.667
- 100 3.33  0.0762 0.655
+  k rmse st_rmse    r2
+ 80 3.25  0.0743 0.673
 _______________________________________________________
 Yu prediction statistics
 
-   k rmse st_rmse    r2
-  40 3.49  0.0946 0.722
-  50 3.35  0.0964 0.758
-  60 3.45  0.1004 0.749
-  70 3.50  0.0977 0.739
-  80 3.31  0.0937 0.770
-  90 3.32  0.0924 0.764
- 100 3.38  0.0947 0.757
+  k rmse st_rmse   r2
+ 80 3.31  0.0937 0.77
 _______________________________________________________ </code></pre>
 </div>
 </div>

@@ -2,8 +2,6 @@
 
 ## \# `resemble 3.0.0 (vertex)`
 
-## resemble 3.0.0
-
 ### New functions
 
 #### Modelling

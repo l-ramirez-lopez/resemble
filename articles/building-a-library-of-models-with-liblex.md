@@ -232,7 +232,7 @@ selection with moving-window correlation dissimilarity:
 ciso_lib_k <- liblex(
   Xr = train_x, 
   Yr = train_y, 
-  neighbors = neighbors_k(seq(40, 120, by = 20)),
+  neighbors = neighbors_k(seq(40, 80, by = 20)),
   diss_method = diss_correlation(ws = 37, scale = TRUE),
   fit_method = fit_wapls(
     min_ncomp = 3,
@@ -272,12 +272,10 @@ ciso_lib_k
     Nearest-neighbor validation
 
     Best results per neighbor selection metric
-       k min_ncomp max_ncomp    r2  rmse      me st_rmse
-      40         3        15 0.841 0.774 -0.1220   0.729
-      60        10        10 0.784 0.897 -0.0763   0.696
-      80         3        15 0.750 0.952 -0.1100   0.635
-     100         4        15 0.762 0.916 -0.0773   0.612
-     120         5        15 0.755 0.926 -0.0787   0.614
+      k min_ncomp max_ncomp    r2  rmse      me st_rmse
+     40         3        15 0.841 0.774 -0.1220   0.729
+     60        10        10 0.784 0.897 -0.0763   0.696
+     80         3        15 0.750 0.952 -0.1100   0.635
     _______________________________________________________ 
 
 The plot method for liblex objects visualizes the performance of the
@@ -330,23 +328,18 @@ neighborhood sizes:
        tol       : 1e-06
     _______________________________________________________
     Optimal parameters
-      diss threshold:     0.1
+      diss threshold:     0.05
       ncomp: 3 - 15
     _______________________________________________________
     Nearest-neighbor validation
 
     Best results per neighbor selection metric
      diss_threshold min_ncomp max_ncomp k_min k_max    r2  rmse      me st_rmse
-               0.05         3        15    40   150 0.841 0.774 -0.1220   0.729
-               0.10         3        15    40   150 0.841 0.774 -0.1220   0.727
-               0.15         3        15    40   150 0.840 0.775 -0.1260   0.715
-               0.20         3        15    40   150 0.835 0.787 -0.1380   0.672
-               0.25         3        15    40   150 0.801 0.848 -0.1250   0.640
-               0.30         3        15    40   150 0.767 0.916 -0.1280   0.638
-               0.35         9        15    40   150 0.768 0.916 -0.0599   0.603
-               0.40         6        15    40   150 0.742 0.951 -0.0724   0.606
-               0.45        11        15    40   150 0.750 0.936 -0.0407   0.604
-               0.50        11        15    40   150 0.756 0.924 -0.0389   0.593
+              0.050         3        15    40   150 0.841 0.774 -0.1220   0.729
+              0.162         3        15    40   150 0.841 0.775 -0.1280   0.696
+              0.275         4        15    40   150 0.779 0.895 -0.1210   0.638
+              0.388         5        15    40   150 0.751 0.933 -0.0812   0.610
+              0.500        11        15    40   150 0.756 0.924 -0.0389   0.593
     _______________________________________________________ 
 
 ``` r
@@ -354,7 +347,7 @@ ciso_lib_thr <- liblex(
   Xr = train_x, 
   Yr = train_y, 
   neighbors = neighbors_diss(
-    threshold = seq(0.05, 0.5, length.out = 10), 
+    threshold = seq(0.05, 0.5, length.out = 5), 
     k_min = 40, 
     k_max = 150
   ),
@@ -553,19 +546,17 @@ cat("Selected", length(anchor_km), "anchors via k-means\n")
     Nearest-neighbor validation
 
     Best results per neighbor selection metric
-       k min_ncomp max_ncomp    r2  rmse      me st_rmse
-      40         3        15 0.816 0.868 -0.1660   0.812
-      60        10        10 0.761 0.991 -0.1080   0.763
-      80         3        15 0.717 1.060 -0.1430   0.686
-     100         5        15 0.737 0.989 -0.0744   0.694
-     120         6        15 0.743 0.973 -0.0857   0.673
+      k min_ncomp max_ncomp    r2  rmse     me st_rmse
+     40         3        15 0.817 0.861 -0.194   0.799
+     60        10        10 0.776 0.937 -0.132   0.717
+     80         3        15 0.727 1.020 -0.178   0.644
     _______________________________________________________ 
 
 ``` r
 ciso_lib_anchored <- liblex(
   Xr = train_x, 
   Yr = train_y, 
-  neighbors = neighbors_k(seq(40, 120, by = 20)),
+  neighbors = neighbors_k(seq(40, 80, by = 20)),
   diss_method = diss_correlation(ws = 37, scale = TRUE),
   fit_method = fit_wapls(
     min_ncomp = 3,

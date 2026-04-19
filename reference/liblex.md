@@ -407,7 +407,7 @@ for fitting methods.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 library(prospectr)
 data(NIRsoil)
 
@@ -437,6 +437,10 @@ model_library <- liblex(
   ),
   control = liblex_control(tune = TRUE)
 )
+#> No 'anchor_indices' provided; building local models for all observations in 'Xr'.
+#> Computing dissimilarities... 
+#> Fitting models...
+#> --------------------------------------------------------------------------------
 
 # Visualise neighborhood centroids and samples to predict
 matplot(
@@ -465,8 +469,11 @@ legend(
   bty = "n"
 )
 
+
 # Predict new observations
 y_hat_liblex <- predict(model_library, test_x)
+#> Retrieving models using correlation dissimilarity with window size 27 ...
+#> Computing predictions...
 
 # Predicted versus observed values
 lims <- range(y_hat_liblex$predictions$pred, test_y, na.rm = TRUE)
@@ -483,6 +490,7 @@ plot(
 abline(a = 0, b = 1, col = "red")
 grid(lty = 1)
 
+
 ## run liblex in parallel (requires a parallel backend, e.g., doParallel)
 library(doParallel)
 n_cores <- min(2, parallel::detectCores())
@@ -495,9 +503,15 @@ model_library2 <- liblex(
   neighbors = neighbors_k(c(30, 40)),
   fit_method = fit_wapls(min_ncomp = 4, max_ncomp = 17, method = "simpls")
 )
+#> No 'anchor_indices' provided; building local models for all observations in 'Xr'.
+#> Computing dissimilarities... 
+#> Fitting models...
+#> --------------------------------------------------------------------------------
 
 y_hat_liblex2 <- predict(model_library2, test_x)
+#> Retrieving models using pca dissimilarity...
+#> Computing predictions...
 registerDoSEQ()
 try(stopCluster(clust))
-} # }
+# }
 ```

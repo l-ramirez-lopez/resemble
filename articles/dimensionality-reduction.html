@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Dimensionality reduction of spectral data</h1>
 
       <p class="author">Leonardo Ramirez-Lopez</p>
-      <p class="date">2026-04-17</p>
+      <p class="date">2026-04-19</p>
 
       <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/dimensionality-reduction.qmd" class="external-link"><code>vignettes/dimensionality-reduction.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
@@ -317,9 +317,9 @@ cumulative_explained_var 0.99166 0.99298 0.993868 0.99470 0.995377 0.996002</cod
 <li>
 <code>"pls"</code>: standard partial least squares decomposition computed with the NIPALS algorithm. The projection is guided by external variables provided in <code>Yr</code>, so that the latent variables maximize the covariance between the spectral predictors and the side information.</li>
 <li>
-<code>"mpls"</code>: modified partial least squares, computed with the NIPALS algorithm. Weights are derived from correlations rather than covariances between <code>Xr</code> and <code>Yr</code>, giving equal influence to all predictors regardless of variance <span class="citation" data-cites="Shenk1991">(<a href="#ref-Shenk1991" role="doc-biblioref"><strong>Shenk1991?</strong></a>)</span>.</li>
+<code>"mpls"</code>: modified partial least squares, computed with the NIPALS algorithm. Weights are derived from correlations rather than covariances between <code>Xr</code> and <code>Yr</code>, giving equal influence to all predictors regardless of variance <span class="citation" data-cites="shenk1991populations">(<a href="#ref-shenk1991populations" role="doc-biblioref">Shenk and Westerhaus, 1991</a>)</span>.</li>
 <li>
-<code>"simpls"</code>: partial least squares computed with the SIMPLS algorithm <span class="citation" data-cites="deJong1993">(<a href="#ref-deJong1993" role="doc-biblioref"><strong>deJong1993?</strong></a>)</span>, which is often computationally more efficient than NIPALS for high-dimensional data.</li>
+<code>"simpls"</code>: partial least squares computed with the SIMPLS algorithm <span class="citation" data-cites="de1993simpls">(<a href="#ref-de1993simpls" role="doc-biblioref">De Jong, 1993</a>)</span>, which is often computationally more efficient than NIPALS for high-dimensional data.</li>
 </ul></section><section class="level2" data-number="4.2"><h3 data-number="4.2" id="example-pca-projection">
 <span class="header-section-number">4.2</span> Example: PCA projection<a class="anchor" aria-label="anchor" href="#example-pca-projection"></a>
 </h3>
