@@ -16,7 +16,7 @@
          intermediate_models = FALSE,
          verbose = TRUE, seed = NULL, pchunks = 1L, ...)
 
-\method{gesearch}{formula}(formula, train, test, k, b, target_size,
+\method{gesearch}{formula}(formula, train, test, k, b, target_size, fit_method,
          ..., na_action = na.pass)
 
 \method{predict}{gesearch}(object, newdata, type = "response",
@@ -213,7 +213,7 @@ fitting.
 }
 }
 \examples{
-\dontrun{
+\donttest{
 library(prospectr)
 data(NIRsoil)
 
