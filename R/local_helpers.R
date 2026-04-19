@@ -1110,7 +1110,7 @@ get_validation_metrics <- function(predicted, observed) {
   
   ok <- complete.cases(Y)
   if (!any(ok))
-    return(data.frame(npls = integer(), rmse = numeric(), r2 = numeric()))
+    return(data.frame(ncomp = integer(), rmse = numeric(), r2 = numeric()))
   
   P_ok <- P[ok, , drop = FALSE]
   y_ok <- Y[ok, 1, drop = TRUE]
