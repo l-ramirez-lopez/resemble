@@ -5,6 +5,7 @@
 src/*.o
 src/*.so
 src/*.dll
+src/Makevars.omp
 src-i386/
 src-x64/
 
@@ -25,3 +26,6 @@ vignettes/*_files/
 !logo.png
 !MBL.gif
 docs
+/doc/
+/Meta/
+Makevars.omp

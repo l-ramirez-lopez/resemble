@@ -17,3 +17,16 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^doc$
+^Meta$
+
+^src/.*\.o$
+^src/.*\.so$
+^src/.*\.dll$
+
+^conftest\.gcno$
+^CONTRIBUTING\.md$
+^CODE_OF_CONDUCT\.md$
+^vignettes/.*_files$
+
+^build$
