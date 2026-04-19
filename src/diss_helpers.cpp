@@ -283,32 +283,12 @@ Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
 // }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Minimal helper
 static inline void validate_window_or_full(int w, arma::uword T) {
   if (w < 1 || static_cast<arma::uword>(w) > T || (((w % 2) == 0) && w != static_cast<int>(T))) {
     throw std::invalid_argument("w must be odd and ≤ number of columns; alternatively set w == number of columns for a full-window.");
   }
 }
-
-
-
 
 // --- Full-window correlation via sums/products (templated) -------------------
 template<typename eT>
@@ -1070,7 +1050,9 @@ Rcpp::LogicalMatrix not_in_same_group(
   int ncol = kidxmat.ncol();
   Rcpp::LogicalMatrix result(nrow, ncol);
   
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
   for (int j = 0; j < ncol; ++j) {
     int grp_j = group[j];
     for (int i = 0; i < nrow; ++i) {
@@ -1140,7 +1122,9 @@ NumericMatrix compute_nn_quantiles(
   
   NumericMatrix result(n_obs, n_quantiles);
   
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
   for (int j = 0; j < n_obs; j++) {
     int ik = single_k ? k[0] : k[j];
     
@@ -1246,7 +1230,9 @@ List top_k_neighbors(
   // Thread-safe storage: vector of vectors
   std::vector<std::vector<int>> results(m);
   
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
   for (int j = 0; j < m; j++) {
     std::vector<std::pair<double, int>> col(n);
     for (int i = 0; i < n; i++) {
