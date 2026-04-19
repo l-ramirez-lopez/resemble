@@ -412,21 +412,7 @@ mbl <- function(
     )
   }
   
-  # ---------------------------------------------------------------------------
-  # Set BLAS threads to reduce overhead (restored on exit)
-  # ---------------------------------------------------------------------------
-  if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
-    old_blas_threads <- blas_get_num_procs()
-    if (old_blas_threads != control$blas_threads) {
-      blas_set_num_threads(control$blas_threads)
-      on.exit(blas_set_num_threads(old_blas_threads), add = TRUE)
-    }
-  } else if (Sys.info()["sysname"] == "Linux" && control$blas_threads == 1L) {
-    message(
-      "Tip: Install 'RhpcBLASctl' for optimal performance on Linux:\n",
-      "  install.packages('RhpcBLASctl')"
-    )
-  }
+  
   # ---------------------------------------------------------------------------
   # Validate constructor arguments
   # ---------------------------------------------------------------------------
@@ -449,6 +435,23 @@ mbl <- function(
   if (!inherits(control, "mbl_control")) {
     stop("'control' must be created by mbl_control()", call. = FALSE)
   }
+  
+  # ---------------------------------------------------------------------------
+  # Set BLAS threads to reduce overhead (restored on exit)
+  # ---------------------------------------------------------------------------
+  if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
+    old_blas_threads <- blas_get_num_procs()
+    if (old_blas_threads != control$blas_threads) {
+      blas_set_num_threads(control$blas_threads)
+      on.exit(blas_set_num_threads(old_blas_threads), add = TRUE)
+    }
+  } else if (Sys.info()["sysname"] == "Linux" && control$blas_threads == 1L) {
+    message(
+      "Tip: Install 'RhpcBLASctl' for optimal performance on Linux:\n",
+      "  install.packages('RhpcBLASctl')"
+    )
+  }
+  
   
   if (!is.logical(verbose) || length(verbose) != 1L) {
     stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
