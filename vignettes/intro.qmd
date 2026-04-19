@@ -14,6 +14,7 @@ format:
     toc-location: left
     code-overflow: wrap
     smooth-scroll: true
+    html-math-method: mathjax
 vignette: >
   %\VignetteIndexEntry{1 Essential concepts and setup}
   %\VignetteEncoding{UTF-8}
