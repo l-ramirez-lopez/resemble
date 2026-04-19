@@ -215,42 +215,42 @@ print.diss_pls <- function(x, ...) {
 # }
 
 
-# =============================================================================
-# diss_local_pca — NOT EXPORTED
-# =============================================================================
-
-diss_local_pca <- function(
-    ncomp = ncomp_by_var(0.01),
-    method = c("pca", "pca_nipals"),
-    pre_k,
-    center = TRUE,
-    scale = FALSE,
-    return_projection = FALSE,
-    allow_parallel = TRUE
-) {
-  ncomp <- .coerce_ncomp(ncomp)
-  method <- match.arg(method)
-  
-  if (missing(pre_k)) {
-    stop("'pre_k' is required for diss_local_pca().", call. = FALSE)
-  }
-  .validate_pre_k(pre_k)
-  .validate_logical_args(center, scale, return_projection, allow_parallel)
-  
-  structure(
-    list(
-      ncomp = ncomp,
-      method = method,
-      center = center,
-      scale = scale,
-      local = TRUE,
-      pre_k = as.integer(pre_k),
-      return_projection = return_projection,
-      allow_parallel = allow_parallel
-    ),
-    class = c("diss_local_pca", "diss_pca", "diss_method")
-  )
-}
+# # =============================================================================
+# # diss_local_pca — NOT EXPORTED
+# # =============================================================================
+# 
+# diss_local_pca <- function(
+#     ncomp = ncomp_by_var(0.01),
+#     method = c("pca", "pca_nipals"),
+#     pre_k,
+#     center = TRUE,
+#     scale = FALSE,
+#     return_projection = FALSE,
+#     allow_parallel = TRUE
+# ) {
+#   ncomp <- .coerce_ncomp(ncomp)
+#   method <- match.arg(method)
+#   
+#   if (missing(pre_k)) {
+#     stop("'pre_k' is required for diss_local_pca().", call. = FALSE)
+#   }
+#   .validate_pre_k(pre_k)
+#   .validate_logical_args(center, scale, return_projection, allow_parallel)
+#   
+#   structure(
+#     list(
+#       ncomp = ncomp,
+#       method = method,
+#       center = center,
+#       scale = scale,
+#       local = TRUE,
+#       pre_k = as.integer(pre_k),
+#       return_projection = return_projection,
+#       allow_parallel = allow_parallel
+#     ),
+#     class = c("diss_local_pca", "diss_pca", "diss_method")
+#   )
+# }
 
 
 # =============================================================================
