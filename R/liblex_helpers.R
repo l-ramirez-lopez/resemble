@@ -358,7 +358,7 @@ ith_subsets <- function(
 #'   - `y`: response vector/matrix for that local subset
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(iterators)
 #' it <- ith_subsets_list(Xr, Yr, kindx, D, chunk_size = 100)
 #' 

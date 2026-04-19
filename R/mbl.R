@@ -237,7 +237,7 @@
 #' \code{\link{search_neighbors}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
@@ -977,24 +977,24 @@ mbl <- function(
     additional_results <- NULL
     ith_pred_results$o_index[] <- i
     
-    if (is_local_diss) {
-      ith_observation <- get_ith_local_neighbors(
-        ith_xr = ith_observation$ith_xr,
-        ith_xu = ith_observation$ith_xu,
-        ith_yr = ith_observation$ith_yr,
-        ith_yu = ith_observation$ith_yu,
-        diss_usage = diss_usage,
-        ith_neig_indices = ith_observation$ith_neig_indices,
-        neighbors = neighbors,
-        spike = spike,
-        diss_method = diss_method,
-        ith_group = ith_observation$ith_group,
-        mbl_is_parallel = control$allow_parallel
-      )
-      ith_pred_results$loc_ncomp[] <- ith_observation$ith_ncomp
-      additional_results$ith_neig_indices <- ith_observation$ith_neig_indices
-      additional_results$ith_neigh_diss <- ith_observation$ith_neigh_diss
-    }
+    # if (is_local_diss) {
+    #   ith_observation <- get_ith_local_neighbors(
+    #     ith_xr = ith_observation$ith_xr,
+    #     ith_xu = ith_observation$ith_xu,
+    #     ith_yr = ith_observation$ith_yr,
+    #     ith_yu = ith_observation$ith_yu,
+    #     diss_usage = diss_usage,
+    #     ith_neig_indices = ith_observation$ith_neig_indices,
+    #     neighbors = neighbors,
+    #     spike = spike,
+    #     diss_method = diss_method,
+    #     ith_group = ith_observation$ith_group,
+    #     mbl_is_parallel = control$allow_parallel
+    #   )
+    #   ith_pred_results$loc_ncomp[] <- ith_observation$ith_ncomp
+    #   additional_results$ith_neig_indices <- ith_observation$ith_neig_indices
+    #   additional_results$ith_neigh_diss <- ith_observation$ith_neigh_diss
+    # }
     
     if (verbose) {
       cat(paste0("\033[34m\033[3m", i, "/", n_iter, "\033[23m\033[39m"))

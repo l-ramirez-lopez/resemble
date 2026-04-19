@@ -98,7 +98,7 @@
 #' \code{\link{mbl}} for memory-based (local) learning.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
