@@ -60,9 +60,8 @@ Make sure `R CMD check` passes without errors or warnings.
 
 ## Code of Conduct
 
-This project has a [Code of
-Conduct](https://l-ramirez-lopez.github.io/resemble/CODE_OF_CONDUCT.md).
-Please be kind and respectful.
+This project has a Code of Conduct (see in the GitHub repo). Please be
+kind and respectful.
 
 ## Questions
 
