@@ -1,6 +1,6 @@
 # `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 
-*Last update: 2026-04-20*
+*Last update: 2026-04-16*
 
 Version: 3.0.0 – vortex
 
@@ -363,13 +363,6 @@ citation(package = "resemble")
 - [`prospectr`](https://github.com/l-ramirez-lopez/prospectr): Signal
   processing and chemometrics for spectroscopy
 
-## Contributing
-
-Contributions are welcome! Please read our Contributing Guidelines
-(available in the GitHub repo) before submitting pull requests.
-
-This project follows a Code of Conduct available in the GitHub repo.
-
 ## Bug reports
 
 Report issues at
@@ -445,6 +438,12 @@ Find nearest neighbours in reference sets
 
 - [`search_neighbors()`](https://l-ramirez-lopez.github.io/resemble/reference/search_neighbors.md)
   : Search neighbors in a reference set
+
+- [`search_control()`](https://l-ramirez-lopez.github.io/resemble/reference/search_control.md)
+  :
+
+  A function that controls some aspects of the the `gesearch` function
+
 - [`neighbors_k()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md)
   [`neighbors_diss()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md)
   : Neighbor selection methods
@@ -547,7 +546,7 @@ Methods for selecting the number of components
 - [Building a library of models with
   liblex](https://l-ramirez-lopez.github.io/resemble/articles/building-a-library-of-models-with-liblex.md):
 
-### Training subset search
+### Subset Selection
 
 - [Evolutionary subset search and modeling using
   gesearch](https://l-ramirez-lopez.github.io/resemble/articles/evolutionary-subset-search.md):

@@ -19,13 +19,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/intro.html">Essential concepts and setup</a></li>
-    <li><a class="dropdown-item" href="articles/dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
-    <li><a class="dropdown-item" href="articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
-    <li><a class="dropdown-item" href="articles/nearest-neighbor-search.html">Nearest-neighbor search</a></li>
-    <li><a class="dropdown-item" href="articles/simple-global-models.html">Simple global models</a></li>
-    <li><a class="dropdown-item" href="articles/classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
-    <li><a class="dropdown-item" href="articles/building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
-    <li><a class="dropdown-item" href="articles/evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/index.html">More articles...</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json"></form></li>
@@ -38,28 +33,29 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="logo.png" class="logo" alt=""><h1>version 3.0.0</h1>
-      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/my-comments.md" class="external-link"><code>my-comments.md</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/v.3.0.0/my-comments.md" class="external-link"><code>my-comments.md</code></a></small>
     </div>
 
 
 <div id="version-300" class="section level1">
 
 <p>Dear CRAN maintainers,</p>
-<p>This is a resubmission of resemble 3.0.0 addressing issues from the previous submission:</p>
-<ul><li>Added shebang to cleanup; added configure.win and cleanup.win for Windows builds</li>
-<li>Added skip_on_cran() to computationally intensive tests to reduce check time</li>
-</ul><div class="section level2">
-<h2 id="test-environments">Test environments<a class="anchor" aria-label="anchor" href="#test-environments"></a></h2>
-<ul><li>Ubuntu 24.04, R 4.5.3 (local)</li>
-<li>winbuilder R-release: 0 errors, 0 warnings, 0 notes</li>
-<li>winbuilder R-oldrelease: 0 errors, 0 warnings, 0 notes</li>
-<li>winbuilder R-devel: likely false positive ERROR — known incompatibility between Rcpp 1.1.1 and R 4.6.0 RC (R_NamespaceRegistry removed from R API), affecting all Rcpp-dependent packages. See: <a href="https://github.com/RcppCore/Rcpp/issues/1473" class="external-link uri">https://github.com/RcppCore/Rcpp/issues/1473</a> Debian R-devel passes with Status: OK.</li>
-</ul><p>The checktime NOTE (14 min) is due to rebuilding 8 pre-built Quarto vignettes.</p>
-<p>Best regards, Leo</p>
+<p>I am submitting version 3.0.0 of {resemble} to CRAN.</p>
+<p>This is a major release that includes a redesigned API and several new features:</p>
+<ul><li>Refactored API based on constructor functions: <code><a href="reference/neighbors.html">neighbors_k()</a></code>, <code><a href="reference/neighbors.html">neighbors_diss()</a></code>, <code><a href="reference/fit_methods.html">fit_pls()</a></code>, <code><a href="reference/fit_methods.html">fit_wapls()</a></code>, <code><a href="reference/fit_methods.html">fit_gpr()</a></code>, and <code><a href="reference/mbl_control.html">mbl_control()</a></code>
+</li>
+<li>New <code><a href="reference/liblex.html">liblex()</a></code> function for building reusable libraries of local models</li>
+<li>New <code><a href="reference/model.html">model()</a></code> function for fitting global PLS and GPR models with cross-validation</li>
+<li>Migration of vignettes from R Markdown/bookdown to Quarto</li>
+<li>Deprecation of legacy function arguments, with informative migration messages</li>
+<li>Expanded unit test coverage using {testthat}</li>
+</ul><p>Test environments: - Local: Ubuntu 24.04.4 LTS, R 4.5.3 - GitHub Actions: - macOS latest, R release - Ubuntu latest, R devel - Ubuntu latest, R oldrel-1 - Ubuntu latest, R release - Windows latest, R release</p>
 <p>The package was built using:</p>
-<p>devtools::install()</p>
-<p>devtools::build( vignettes = TRUE, manual = TRUE, clean_doc = FALSE )</p>
-</div>
+<p>devtools::build( pkg = “.”, path = NULL, binary = FALSE, vignettes = TRUE, manual = TRUE, args = NULL, quiet = FALSE )</p>
+<p>All checks have passed.</p>
+<p>Results summary: - 6 successful CI checks - No conflicts with the base branch - Merge can be performed automatically</p>
+<p>GitHub Actions results: - R-CMD-check / macos-latest (release): Successful - R-CMD-check / ubuntu-latest (devel): Successful - R-CMD-check / ubuntu-latest (oldrel-1): Successful - R-CMD-check / ubuntu-latest (release): Successful - R-CMD-check / windows-latest (release): Successful - test-coverage: Successful</p>
+<p>Thank you for your time and consideration.</p>
 </div>
 <div class="section level1">
 <h1 id="version-225">version 2.2.5<a class="anchor" aria-label="anchor" href="#version-225"></a></h1>

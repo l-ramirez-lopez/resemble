@@ -18,7 +18,9 @@ mbl(Xr, Yr, Xu, Yu = NULL,
     spike = NULL, group = NULL,
     gh = FALSE,
     control = mbl_control(),
-    verbose = TRUE, seed = NULL, ...)
+    verbose = TRUE, seed = NULL,
+    k, k_diss, k_range, method, pc_selection,
+    center, scale, documentation, ...)
 
 # S3 method for class 'mbl'
 plot(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
@@ -156,6 +158,38 @@ plot(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
   An integer for random number generation, enabling reproducible
   cross-validation results. Default is `NULL`.
 
+- k:
+
+  Deprecated.
+
+- k_diss:
+
+  Deprecated.
+
+- k_range:
+
+  Deprecated.
+
+- method:
+
+  Deprecated.
+
+- pc_selection:
+
+  Deprecated.
+
+- center:
+
+  Deprecated.
+
+- scale:
+
+  Deprecated.
+
+- documentation:
+
+  Deprecated.
+
 - ...:
 
   Additional arguments (currently unused).
@@ -287,13 +321,6 @@ The `group` argument enables leave-group-out cross-validation. When
 the `p` parameter refers to the proportion of groups (not observations)
 retained per iteration.
 
-### Deprecated arguments
-
-The following arguments from previous versions of `resemble` are no
-longer supported and will throw an error if used: `k`, `k_diss`,
-`k_range`, `method`, `pc_selection`, `center`, `scale`, and
-`documentation`. See the current argument list for their replacements.
-
 ## References
 
 Cleveland, W. S., and Devlin, S. J. 1988. Locally weighted regression:
@@ -419,7 +446,7 @@ plot(local_algo_2)
 
 # Example 5: Parallel execution
 library(doParallel)
-n_cores <- min(2, parallel::detectCores() - 1)
+n_cores <- min(2, parallel::detectCores())
 clust <- makeCluster(n_cores)
 registerDoParallel(clust)
 

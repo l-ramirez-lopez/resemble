@@ -161,7 +161,7 @@ memory-based (local) learning.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 library(prospectr)
 data(NIRsoil)
 
@@ -182,22 +182,9 @@ pls_mod <- model(
   fit_method = fit_pls(ncomp = 10, scale = FALSE),
   control = model_control(validation_type = "lgo", number = 10)
 )
-#> Running cross-validation...
-#> Fitting model...
 
 # View cross-validation results
 pls_mod$cv_results
-#>    ncomp     rmse   rmse_sd    st_rmse        r2 optimal
-#> 1      1 5.786570 0.3452458 0.13943479 0.1637672   FALSE
-#> 2      2 5.438229 0.3820173 0.13105742 0.2647154   FALSE
-#> 3      3 5.114332 0.3786145 0.12358994 0.3402983   FALSE
-#> 4      4 4.544816 0.5188108 0.10967680 0.4800067   FALSE
-#> 5      5 3.949762 0.6437502 0.09525730 0.6037477   FALSE
-#> 6      6 3.761371 0.6501521 0.09073554 0.6389399   FALSE
-#> 7      7 3.665195 0.6139728 0.08845457 0.6578550   FALSE
-#> 8      8 3.688344 0.5798815 0.08904978 0.6563359   FALSE
-#> 9      9 3.675148 0.5931034 0.08875868 0.6604483   FALSE
-#> 10    10 3.664208 0.5973111 0.08845849 0.6629134    TRUE
 
 # Fit a GPR model (centring/scaling controlled via fit_gpr())
 gpr_mod <- model(
@@ -206,7 +193,5 @@ gpr_mod <- model(
   fit_method = fit_gpr(noise_variance = 0.001, scale = TRUE),
   control = model_control(validation_type = "lgo")
 )
-#> Running cross-validation...
-#> Fitting model...
-# }
+} # }
 ```

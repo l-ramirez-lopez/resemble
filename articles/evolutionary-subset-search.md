@@ -186,38 +186,7 @@ $$p^{(\gamma)} \approx \frac{b \cdot n^{(\gamma)}}{k}$$
 
 where $n^{(\gamma)}$ is the number of active genes remaining.
 
-## 5 Practical considerations
-
-- **Keep `k` moderate**: Smaller subsets make the contribution of each
-  sample more distinguishable, improving the sensitivity of
-  weakness-score estimation. However, `k` must remain large enough to
-  fit stable PLS models. When `k`becomes too large, the effect of each
-  sample may get diluted.
-
-- **Keep `b` high**: A higher representation factor ensures each gene
-  appears in more individuals, yielding more robust weakness estimates.
-  Values above 40 are generally recommended.
-
-- **Keep `retain` high but not too high**: Values above 0.9 (e.g.,
-  0.95–0.98) ensure that only the weakest genes are silenced at each
-  generation, reducing the risk of prematurely discarding useful
-  samples. Lower values accelerate convergence but may degrade selection
-  quality.
-
-- **Multiple weakness criteria accelerate convergence**: When multiple
-  optimisation criteria are used (e.g., `"reconstruction"`,
-  `"similarity"`, `"response"`), more genes are silenced per generation,
-  speeding up evolution. However, this also increases the risk of
-  over-silencing if criteria are redundant or noisy.
-
-- **Set `target_size` according to practical constraints**: The target
-  should reflect the expected number of relevant samples in the library
-  and the requirements of downstream model fitting and validation. A
-  larger `target_size` preserves more candidates but may retain less
-  relevant samples; a smaller value yields a more focused subset but
-  risks excluding useful samples.
-
-## 6 Example workflow
+## 5 Example workflow
 
 The `NIRSoil` dataset is also used here to illustrate how to perform an
 evolutionary subset search with
@@ -237,7 +206,7 @@ performance of the search. This is mainly because the dataset originates
 from samples from a large geographical area, which may introduce complex
 interactions between soil properties and spectral features.
 
-### 6.1 The dataset, the target set, and its practical constraints
+### 5.1 The dataset, the target set, and its practical constraints
 
 To better illustrate the main workflow and key parameters of the method,
 the target set was extracted from the test set using a simple filtering
@@ -363,7 +332,7 @@ test_x_test <- test_x_test[-ref_ind, ]
 test_y_test <- test_y_test[-ref_ind]
 ```
 
-### 6.2 A simple linear model for predicting in the target set (baseline)
+### 5.2 A simple linear model for predicting in the target set (baseline)
 
 Here, the full training set is combined with the small subset of target
 samples to fit a simple PLS model. This serves as a baseline for
@@ -384,7 +353,7 @@ pls_model <- model(
     train_y[!is.na(train_y)],
     test_y_ref[!is.na(test_y_ref)]
   ),
-  fit_method = fit_pls(ncomp = 15, method = "simpls", scale = TRUE),
+  fit_method = fit_pls(ncomp = 15, method = "mpls", scale = TRUE),
   control = model_control(validation_type = "lgo", number = 10)
 )
 ```
@@ -420,9 +389,9 @@ reg_metrics(test_y_test, pred)
 ```
 
          RMSE        R2
-    0.4517339 0.7969259 
+    0.4570417 0.7675839 
 
-### 6.3 The model built with the samples found by *gesearch*
+### 5.3 The model built with the samples found by *gesearch*
 
 The
 [`gesearch()`](https://l-ramirez-lopez.github.io/resemble/reference/gesearch.md)
@@ -480,14 +449,15 @@ my_control <- gesearch_control(
 ```
 
 ``` r
+# Basic search with reconstruction optimization
 gs <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
   Xu = test_x_ref, # the available target domain spectra
   Yu = test_y_ref, # the available target domain response (accepts NAs)
-  k = 50, b = 100, retain = 0.95,
-  target_size = 120,
-  fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
+  k = 50, b = 100, retain = 0.98,
+  target_size = 80,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
   optimization = c("reconstruction", "similarity", "response"),
   control = my_control,
   seed = 1124
@@ -526,53 +496,53 @@ gs$validation_results[[1]]$results$train
 ```
 
        ncomp   rmse_cv st_rmse_cv rmse_sd_cv     r2_cv
-    1      1 0.6732803 0.15690406 0.13047702 0.5149457
-    2      2 0.5827834 0.13435450 0.15603594 0.6216447
-    3      3 0.5486906 0.12768145 0.12736091 0.6754240
-    4      4 0.5282365 0.12284612 0.14380307 0.7115680
-    5      5 0.5022262 0.11803719 0.10685769 0.7343631
-    6      6 0.4628683 0.10937944 0.08639555 0.7701428
-    7      7 0.4214049 0.09917873 0.07420047 0.8140365
-    8      8 0.4187483 0.09897791 0.06458640 0.8205662
-    9      9 0.3932721 0.09341847 0.07149189 0.8444321
-    10    10 0.3819388 0.09095276 0.04332822 0.8428385
-    11    11 0.3683605 0.08787330 0.04741999 0.8550745
-    12    12 0.3677930 0.08772105 0.05675496 0.8557638
-    13    13 0.3779922 0.09034698 0.06539232 0.8450057
-    14    14 0.3684700 0.08783899 0.06825086 0.8529858
-    15    15 0.3513551 0.08364698 0.06910281 0.8613599
-    16    16 0.3584789 0.08569288 0.07196304 0.8518921
-    17    17 0.3522175 0.08400874 0.07696683 0.8593407
-    18    18 0.3560846 0.08464847 0.07103732 0.8587512
-    19    19 0.3590689 0.08516864 0.06655626 0.8562541
-    20    20 0.3569286 0.08476165 0.05807023 0.8572429
+    1      1 0.7221250 0.12680817 0.40804619 0.6503387
+    2      2 0.7163662 0.12826806 0.38718606 0.7121203
+    3      3 0.6886790 0.12312154 0.37755168 0.7352152
+    4      4 0.6157296 0.10955431 0.34994044 0.7684410
+    5      5 0.5364958 0.09483074 0.30778869 0.8204205
+    6      6 0.4943293 0.08839862 0.26269455 0.8483245
+    7      7 0.4634445 0.08488671 0.21472527 0.8613798
+    8      8 0.4128501 0.07728087 0.16143597 0.8837915
+    9      9 0.3750232 0.07237421 0.11441093 0.8954057
+    10    10 0.3327559 0.06658169 0.07281027 0.9070918
+    11    11 0.3160122 0.06347594 0.07008877 0.9137224
+    12    12 0.2938045 0.05974065 0.06885816 0.9219629
+    13    13 0.3161099 0.06444232 0.06818090 0.9111418
+    14    14 0.3229156 0.06598235 0.06264075 0.9060152
+    15    15 0.3287992 0.06688175 0.06974288 0.9046427
+    16    16 0.3487916 0.06975661 0.09623761 0.9003171
+    17    17 0.3584635 0.07119997 0.10093481 0.9003744
+    18    18 0.3783390 0.07457618 0.11573189 0.8958179
+    19    19 0.3917115 0.07705482 0.11449587 0.8887094
+    20    20 0.3963061 0.07710436 0.12276786 0.8890305
 
 ``` r
 # the CV on the target samples that drove the search (note that this is not a proper test set, as these samples were used to guide the search, but it can provide some insight into the performance of the final model on the target domain)
 gs$validation_results[[1]]$results$test
 ```
 
-       ncomp        r2      rmse         me
-    1      1 0.7762964 0.2626766 0.11838439
-    2      2 0.9080380 0.2516459 0.13116787
-    3      3 0.9246821 0.1896653 0.10324300
-    4      4 0.9635809 0.1331877 0.01036545
-    5      5 0.8903286 0.2138640 0.07942608
-    6      6 0.9108649 0.2195164 0.11948620
-    7      7 0.8958217 0.2247399 0.12598011
-    8      8 0.8184090 0.2510702 0.11254102
-    9      9 0.8309182 0.2250798 0.10101381
-    10    10 0.8888874 0.1856089 0.08846965
-    11    11 0.8950610 0.1628391 0.04442351
-    12    12 0.9208639 0.1473139 0.02593322
-    13    13 0.9158796 0.1430584 0.03487016
-    14    14 0.8693776 0.1843534 0.07842564
-    15    15 0.8878225 0.1802155 0.08492967
-    16    16 0.8963966 0.1844698 0.09497262
-    17    17 0.9183759 0.1741326 0.11417688
-    18    18 0.9583538 0.1323688 0.09552378
-    19    19 0.9702629 0.1338393 0.10971415
-    20    20 0.9786520 0.1079570 0.08540499
+       ncomp        r2       rmse         me
+    1      1 0.7894760 0.28058875 0.13604327
+    2      2 0.8816770 0.24483076 0.15165217
+    3      3 0.7339895 0.28523730 0.08009277
+    4      4 0.8393261 0.23616530 0.03298316
+    5      5 0.8246959 0.23559046 0.08508896
+    6      6 0.8597384 0.23692129 0.11163843
+    7      7 0.9315969 0.16365480 0.08461275
+    8      8 0.8662769 0.20784713 0.09851803
+    9      9 0.8972302 0.18693274 0.06764719
+    10    10 0.8827052 0.18761602 0.05044255
+    11    11 0.9052043 0.17175485 0.02959933
+    12    12 0.9149548 0.17115238 0.04752007
+    13    13 0.8953919 0.17617524 0.04193763
+    14    14 0.9200482 0.15702861 0.04448261
+    15    15 0.9317147 0.13709674 0.03730481
+    16    16 0.9552837 0.11041106 0.01228111
+    17    17 0.9648178 0.10832365 0.02386677
+    18    18 0.9656547 0.10175148 0.03941513
+    19    19 0.9721626 0.10535369 0.03908109
+    20    20 0.9769381 0.09696647 0.03315576
 
 Assume that the final model is chosen as the one with the lowest CV RMSE
 obtained from the samples found:
@@ -591,7 +561,7 @@ reg_metrics(test_y_test, pred_gs[, best_ncomp])
 ```
 
          RMSE        R2
-    0.2692952 0.8120766 
+    0.2572124 0.8190477 
 
 [Figure 3](#fig-pred-comparison) compares the observed versus predicted
 values for the model fitted using all available training samples and the
@@ -640,22 +610,23 @@ Figure 3: Comparison of observed versus predicted total carbon values.
 Left: model fitted using all available training samples. Right: model
 fitted using the subset of samples selected by gesearch().
 
-### 6.4 Further examples of *gesearch*
+### 5.4 Further examples of *gesearch*
 
-#### 6.4.1 No response values available for the target set
+#### 5.4.1 No response values available for the target set
 
 The search process can be conducted when no information on the response
 variable is available for the target set:
 
 ``` r
+# Basic search with reconstruction optimization
 gs_nr <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
   Xu = test_x_ref, # the available target domain spectra
   Yu = NULL, # NO available target domain response (accepts NAs)
-  k = 50, b = 80, retain = 0.98,
-  target_size = 160,
-  fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
+  k = 50, b = 100, retain = 0.98,
+  target_size = 120,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
   optimization = c("reconstruction", "similarity"),
   control = my_control,
   seed = 1124
@@ -676,9 +647,9 @@ reg_metrics(test_y_test, pred_gs_nr[, best_ncomp_nr])
 ```
 
          RMSE        R2
-    0.3472020 0.7986295 
+    0.3926205 0.7136982 
 
-#### 6.4.2 No response values in the target set but with information about the response range
+#### 5.4.2 No response values in the target set but with information about the response range
 
 In some cases, the response values for the target set may not be
 available, but the range of possible response values may be known. This
@@ -690,15 +661,16 @@ tend to generate models that predict values for the target spectra that
 fall outside the specified limits.
 
 ``` r
+# Basic search with reconstruction optimization
 gs_nr2 <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
   Xu = test_x_ref, # the available target domain spectra
   Yu = NULL, # NO available target domain response (accepts NAs)
   Yu_lims = c(0, 5), # the response range in the target domain
-  k = 50, b = 80, retain = 0.98,
-  target_size = 160,
-  fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
+  k = 50, b = 100, retain = 0.98,
+  target_size = 120,
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
   optimization = c("reconstruction", "similarity", "range"),
   control = my_control,
   seed = 1124
@@ -710,7 +682,7 @@ best_ncomp_nr2 <- which.min(gs_nr2$validation_results[[1]]$results$train$rmse_cv
 best_ncomp_nr2
 ```
 
-    [1] 11
+    [1] 8
 
 ``` r
 pred_gs_nr2 <- predict(gs_nr2, test_x_test)[[1]]
@@ -719,9 +691,59 @@ reg_metrics(test_y_test, pred_gs_nr2[, best_ncomp_nr2])
 ```
 
          RMSE        R2
-    0.2892119 0.8071214 
+    0.2828443 0.7968024 
 
-## 7 Supported parallel processing
+#### 5.4.3 Using SIMPLS for speeding up the search
+
+The
+[`fit_pls()`](https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.md)
+function allows the use of the SIMPLS algorithm for fitting PLS models
+during the search. SIMPLS is a computationally efficient algorithm for
+fitting PLS models, which can speed up the search process, especially
+when dealing with very large datasets or when a large number of
+individuals need to be evaluated per generation. The simpls algorithm
+works by directly computing the PLS components without the need for
+iterative deflation, which can significantly reduce computation time
+while still providing accurate estimates of the PLS components. The
+results obtained with simpls will differ from those obatained with the
+default method (modified PLS, `"mpls"`) as the PLS weights are computed
+differently. To use SIMPLS, simply set the `method` argument to
+`"simpls"` in the
+[`fit_pls()`](https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.md)
+function:
+
+``` r
+gs_simpls <- gesearch(
+  Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
+  Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
+  Xu = test_x_ref, # the available target domain spectra
+  Yu = test_y_ref, # the available target domain response (accepts NAs)
+  k = 50, b = 100, retain = 0.98,
+  target_size = 80,
+  fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
+  optimization = c("reconstruction", "similarity", "response"),
+  control = my_control,
+  seed = 1124
+)
+```
+
+``` r
+best_ncomp_simpls <- which.min(gs_simpls$validation_results[[1]]$results$train$rmse_cv)
+best_ncomp_simpls
+```
+
+    [1] 15
+
+``` r
+pred_gs_simpls <- predict(gs_simpls, test_x_test)[[1]]
+
+reg_metrics(test_y_test, pred_gs_simpls[, best_ncomp_simpls])
+```
+
+         RMSE        R2
+    0.2660343 0.8172405 
+
+## 6 Supported parallel processing
 
 The
 [`gesearch()`](https://l-ramirez-lopez.github.io/resemble/reference/gesearch.md)
@@ -739,26 +761,13 @@ also increase memory usage because more data may need to be sent to each
 worker at once. The optimal value depends on the dataset and
 computational environment, and may require some experimentation.
 
-> **Note**
->
-> [`gesearch()`](https://l-ramirez-lopez.github.io/resemble/reference/gesearch.md)
-> supports parallel execution via the `foreach` and `doParallel`
-> packages. Parallel execution is most beneficial when the number of
-> individuals in the population is large, as each individual is
-> evaluated independently across iterations of the evolutionary search.
-> For small populations or short runs the overhead of spawning worker
-> processes and serialising data between them can outweigh the
-> computational savings, making sequential execution faster. When in
-> doubt, benchmark both before committing to a parallel workflow.
-
 In the example below, the [doParallel
 package](https://CRAN.R-project.org/package=doParallel) is used to
 register the cores for parallel execution. The [doSNOW
 package](https://CRAN.R-project.org/package=doSNOW) can also be used.
 The example illustrates how to run
 [`gesearch()`](https://l-ramirez-lopez.github.io/resemble/reference/gesearch.md)
-using multiple cores. The example may not be faster than sequential
-execution:
+using multiple cores.
 
 ``` r
 # Running gesearch() using multiple cores
@@ -798,7 +807,7 @@ gs_p <- gesearch(
   b = 100,
   retain = 0.98,
   target_size = 80,
-  fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
+  fit_method = fit_pls(ncomp = 20, scale = TRUE),
   optimization = c("reconstruction", "similarity", "response"),
   control = my_control,
   seed = 1124,

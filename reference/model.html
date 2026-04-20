@@ -27,13 +27,8 @@ model() fits a single global model to the reference data.'><meta property="og:im
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">Essential concepts and setup</a></li>
-    <li><a class="dropdown-item" href="../articles/dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
-    <li><a class="dropdown-item" href="../articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
-    <li><a class="dropdown-item" href="../articles/nearest-neighbor-search.html">Nearest-neighbor search</a></li>
-    <li><a class="dropdown-item" href="../articles/simple-global-models.html">Simple global models</a></li>
-    <li><a class="dropdown-item" href="../articles/classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
-    <li><a class="dropdown-item" href="../articles/building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
-    <li><a class="dropdown-item" href="../articles/evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -46,7 +41,7 @@ model() fits a single global model to the reference data.'><meta property="og:im
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Global spectral calibration model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/R/model.R" class="external-link"><code>R/model.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/v.3.0.0/R/model.R" class="external-link"><code>R/model.R</code></a></small>
       <div class="d-none name"><code>model.Rd</code></div>
     </div>
 
@@ -189,7 +184,7 @@ process;
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/l-ramirez-lopez/prospectr" class="external-link">prospectr</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -210,22 +205,9 @@ process;
 <span class="r-in"><span>  fit_method <span class="op">=</span> <span class="fu"><a href="fit_methods.html">fit_pls</a></span><span class="op">(</span>ncomp <span class="op">=</span> <span class="fl">10</span>, scale <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  control <span class="op">=</span> <span class="fu"><a href="model_control.html">model_control</a></span><span class="op">(</span>validation_type <span class="op">=</span> <span class="st">"lgo"</span>, number <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Running cross-validation...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting model...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># View cross-validation results</span></span></span>
 <span class="r-in"><span><span class="va">pls_mod</span><span class="op">$</span><span class="va">cv_results</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    ncomp     rmse   rmse_sd    st_rmse        r2 optimal</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1 5.786570 0.3452458 0.13943479 0.1637672   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2 5.438229 0.3820173 0.13105742 0.2647154   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      3 5.114332 0.3786145 0.12358994 0.3402983   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      4 4.544816 0.5188108 0.10967680 0.4800067   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      5 3.949762 0.6437502 0.09525730 0.6037477   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      6 3.761371 0.6501521 0.09073554 0.6389399   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      7 3.665195 0.6139728 0.08845457 0.6578550   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      8 3.688344 0.5798815 0.08904978 0.6563359   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      9 3.675148 0.5931034 0.08875868 0.6604483   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10    10 3.664208 0.5973111 0.08845849 0.6629134    TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit a GPR model (centring/scaling controlled via fit_gpr())</span></span></span>
 <span class="r-in"><span><span class="va">gpr_mod</span> <span class="op">&lt;-</span> <span class="fu">model</span><span class="op">(</span></span></span>
@@ -234,9 +216,7 @@ process;
 <span class="r-in"><span>  fit_method <span class="op">=</span> <span class="fu"><a href="fit_methods.html">fit_gpr</a></span><span class="op">(</span>noise_variance <span class="op">=</span> <span class="fl">0.001</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  control <span class="op">=</span> <span class="fu"><a href="model_control.html">model_control</a></span><span class="op">(</span>validation_type <span class="op">=</span> <span class="st">"lgo"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Running cross-validation...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting model...</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

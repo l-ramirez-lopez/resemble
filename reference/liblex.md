@@ -485,7 +485,7 @@ grid(lty = 1)
 
 ## run liblex in parallel (requires a parallel backend, e.g., doParallel)
 library(doParallel)
-n_cores <- min(2, parallel::detectCores() - 1)
+n_cores <- min(2, parallel::detectCores())
 clust <- makeCluster(n_cores)
 registerDoParallel(clust)
 

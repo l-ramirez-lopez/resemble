@@ -37,13 +37,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/intro.html">Essential concepts and setup</a></li>
-    <li><a class="dropdown-item" href="../articles/dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
-    <li><a class="dropdown-item" href="../articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
-    <li><a class="dropdown-item" href="../articles/nearest-neighbor-search.html">Nearest-neighbor search</a></li>
-    <li><a class="dropdown-item" href="../articles/simple-global-models.html">Simple global models</a></li>
-    <li><a class="dropdown-item" href="../articles/classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
-    <li><a class="dropdown-item" href="../articles/building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
-    <li><a class="dropdown-item" href="../articles/evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
       </ul>
@@ -65,7 +60,7 @@
       <p class="author">Leonardo Ramirez-Lopez</p>
       <p class="date">2026-04-20</p>
 
-      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/nearest-neighbor-search.qmd" class="external-link"><code>vignettes/nearest-neighbor-search.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/v.3.0.0/vignettes/nearest-neighbor-search.qmd" class="external-link"><code>vignettes/nearest-neighbor-search.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -127,7 +122,7 @@
 <p>Here is an example that demonstrates how <code><a href="../reference/search_neighbors.html">search_neighbors()</a></code> can be used to search in the <code>train_x</code> set the spectral neighbors of the <code>test_x</code> set:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://l-ramirez-lopez.github.io/resemble/">resemble</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://l-ramirez-lopez.github.io/resemble/" class="external-link">resemble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/l-ramirez-lopez/prospectr" class="external-link">prospectr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># obtain a numeric vector of the wavelengths at which spectra is recorded </span></span>

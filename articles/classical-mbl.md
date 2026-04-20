@@ -40,7 +40,7 @@ five observations ($m = 5$).
 
 Figure 1: Example of the main steps in memory-based learning for
 predicting a response variable for five observations in a
-$p$-dimensional space.
+(p)-dimensional space.
 
 There are four basic elements that must be specified in any MBL
 algorithm:
@@ -294,7 +294,7 @@ following configuration reproduces the LOCAL algorithm ([Shenk et al.,
 library(resemble)
 library(prospectr)
 
-# obtain a numeric vector of the wavelengths at which spectra is recorded 
+# obtain a numeric vector of the wavelengths at which spectra is recorded
 wavs <- as.numeric(colnames(NIRsoil$spc))
 
 # pre-process the spectra:
@@ -312,13 +312,13 @@ NIRsoil$spc_pr <- savitzkyGolay(
 train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
 train_y <- NIRsoil$Ciso[NIRsoil$train == 1]
 
-test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
-test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_y <- NIRsoil$Ciso[NIRsoil$train == 0]
 ```
 
 ``` r
 # Define the neighborhood sizes to test
-my_ks <- seq(80, 160, by = 40)
+my_ks <- seq(80, 200, by = 40)
 
 # Define how to use the dissimilarity information (ignore it)
 ignore_diss <- "none"
@@ -386,6 +386,7 @@ Nearest-neighbor validation
   80 0.740  0.0432 0.840
  120 0.756  0.0441 0.838
  160 0.782  0.0457 0.828
+ 200 0.798  0.0466 0.823
 _______________________________________________________ 
 ```
 
@@ -420,13 +421,14 @@ reference values in `test_y`.
 # Plot predicted vs reference
 rng <- range(ciso_hat, test_y, na.rm = TRUE)
 plot(ciso_hat, test_y,
-     xlim = rng,
-     ylim = rng,
-     xlab = "Predicted Total Carbon, %",
-     ylab = "Total Carbon, %",
-     main = "LOCAL using a fixed k", 
-     cex = 1.5,
-     pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6))
+  xlim = rng,
+  ylim = rng,
+  xlab = "Predicted Total Carbon, %",
+  ylab = "Total Carbon, %",
+  main = "LOCAL using a fixed k",
+  cex = 1.5,
+  pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6)
+)
 grid(lty = 1)
 abline(0, 1, col = "red")
 ```
@@ -464,11 +466,11 @@ is based on distance thresholds:
 # Create a vector of dissimilarity thresholds to evaluate
 # since the correlation dissimilarity will be used
 # these thresholds need to be > 0 and <= 1
-dths <- seq(0.025, 0.15, by = 0.025)
+dths <- seq(0.025, 0.3, by = 0.025)
 
 # Indicate the minimum and maximum sizes allowed for the neighborhood
 k_min <- 30
-k_max <- 150
+k_max <- 200
 
 local_ciso_diss <- mbl(
   Xr = train_x[!is.na(train_y), ],
@@ -513,12 +515,18 @@ _______________________________________________________
 Nearest-neighbor validation
 
  k_diss p_bounded  rmse st_rmse    r2
-  0.025   84.541% 0.631  0.0369 0.881
-  0.050   88.406% 0.581  0.0339 0.907
-  0.075    93.72% 0.613  0.0358 0.896
-  0.100   97.101% 0.686  0.0400 0.867
-  0.125   97.101% 0.732  0.0427 0.853
-  0.150   99.034% 0.789  0.0460 0.824
+  0.025   81.643% 0.643  0.0375 0.876
+  0.050   86.473% 0.595  0.0347 0.902
+  0.075   92.754% 0.623  0.0364 0.893
+  0.100   96.135% 0.695  0.0406 0.865
+  0.125   97.101% 0.733  0.0428 0.855
+  0.150   98.068% 0.799  0.0467 0.822
+  0.175   99.034% 0.798  0.0466 0.823
+  0.200   99.034% 0.798  0.0466 0.823
+  0.225   99.517% 0.798  0.0466 0.823
+  0.250      100% 0.798  0.0466 0.823
+  0.275      100% 0.798  0.0466 0.823
+  0.300      100% 0.798  0.0466 0.823
 _______________________________________________________ 
 ```
 
@@ -541,13 +549,14 @@ ciso_diss_hat <- as.matrix(get_predictions(local_ciso_diss))[, bdi]
 ``` r
 # Plot predicted vs reference
 plot(ciso_diss_hat, test_y,
-     xlim = rng,
-     ylim = rng,
-     xlab = "Predicted Total Carbon, %",
-     ylab = "Total Carbon, %",
-     main = "LOCAL using a distance threshold \nfor neighbor retrieval", 
-     cex = 1.5,
-     pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6))
+  xlim = rng,
+  ylim = rng,
+  xlab = "Predicted Total Carbon, %",
+  ylab = "Total Carbon, %",
+  main = "LOCAL using a distance threshold \nfor neighbor retrieval",
+  cex = 1.5,
+  pch = 16, col = rgb(0.5, 0.5, 0.5, 0.6)
+)
 grid()
 abline(0, 1, col = "red")
 ```
@@ -564,7 +573,7 @@ sqrt(mean((ciso_diss_hat - test_y)^2, na.rm = TRUE))
 ```
 
 ``` ansi
-[1] 0.4619132
+[1] 0.470992
 ```
 
 ``` r
@@ -573,7 +582,7 @@ cor(ciso_diss_hat, test_y, use = "complete.obs")^2
 ```
 
 ``` ansi
-[1] 0.9143266
+[1] 0.9110758
 ```
 
 ### 4.1 Additional examples
@@ -599,8 +608,8 @@ examples to predict Cation Exchange Capacity (CEC).
 train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
 train_cec <- NIRsoil$CEC[NIRsoil$train == 1]
 
-test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
-test_cec  <- NIRsoil$CEC[NIRsoil$train == 0]
+test_x <- NIRsoil$spc_pr[NIRsoil$train == 0, ]
+test_cec <- NIRsoil$CEC[NIRsoil$train == 0]
 ```
 
 ``` r
@@ -608,12 +617,12 @@ test_cec  <- NIRsoil$CEC[NIRsoil$train == 0]
 my_wapls <- fit_wapls(min_ncomp = 2, max_ncomp = 25, scale = FALSE)
 
 # mbl_cor: LOCAL algorithm with correlation dissimilarity
-dth_cor <- seq(0.01, 0.3, by = 0.08)
+dth_cor <- seq(0.01, 0.3, by = 0.03)
 mbl_cor <- mbl(
   Xr = train_x[!is.na(train_cec), ],
   Yr = train_cec[!is.na(train_cec)],
   Xu = test_x,
-  neighbors = neighbors_diss(threshold = dth_cor, k_min = 80, k_max = 150),
+  neighbors = neighbors_diss(threshold = dth_cor, k_min = 80, k_max = 200),
   diss_method = diss_correlation(),
   diss_usage = "none",
   fit_method = my_wapls,
@@ -621,12 +630,12 @@ mbl_cor <- mbl(
 )
 
 # mbl_pc: PCA dissimilarity with dissimilarity matrix as predictors
-dth_pc <- seq(0.05, 1, by = 0.4)
+dth_pc <- seq(0.05, 1, by = 0.1)
 mbl_pc <- mbl(
   Xr = train_x[!is.na(train_cec), ],
   Yr = train_cec[!is.na(train_cec)],
   Xu = test_x,
-  neighbors = neighbors_diss(threshold = dth_pc, k_min = 80, k_max = 150),
+  neighbors = neighbors_diss(threshold = dth_pc, k_min = 80, k_max = 200),
   diss_method = diss_pca(ncomp = ncomp_by_opc(), scale = TRUE),
   diss_usage = "predictors",
   fit_method = my_wapls,
@@ -639,7 +648,7 @@ mbl_pls <- mbl(
   Yr = train_cec[!is.na(train_cec)],
   Xu = test_x,
   Yu = test_cec,
-  neighbors = neighbors_diss(threshold = dth_pc, k_min = 80, k_max = 150),
+  neighbors = neighbors_diss(threshold = dth_pc, k_min = 80, k_max = 200),
   diss_method = diss_pls(ncomp = ncomp_by_opc(), scale = TRUE),
   diss_usage = "none",
   fit_method = my_wapls,
@@ -651,7 +660,7 @@ mbl_gpr <- mbl(
   Xr = train_x[!is.na(train_cec), ],
   Yr = train_cec[!is.na(train_cec)],
   Xu = test_x,
-  neighbors = neighbors_diss(threshold = dth_pc, k_min = 80, k_max = 150),
+  neighbors = neighbors_diss(threshold = dth_pc, k_min = 80, k_max = 200),
   diss_method = diss_pca(ncomp = ncomp_by_opc(), scale = TRUE),
   diss_usage = "predictors",
   fit_method = fit_gpr(),
@@ -668,7 +677,7 @@ c_val_name <- "validation_results"
 c_nn_val_name <- "nearest_neighbor_validation"
 
 bi_cor <- which.min(mbl_cor[[c_val_name]][[c_nn_val_name]]$rmse)
-bi_pc  <- which.min(mbl_pc[[c_val_name]][[c_nn_val_name]]$rmse)
+bi_pc <- which.min(mbl_pc[[c_val_name]][[c_nn_val_name]]$rmse)
 bi_pls <- which.min(mbl_pls[[c_val_name]][[c_nn_val_name]]$rmse)
 bi_gpr <- which.min(mbl_gpr[[c_val_name]][[c_nn_val_name]]$rmse)
 
@@ -688,7 +697,7 @@ cor(test_cec, preds, use = "complete.obs")^2
 
 ``` ansi
        mbl_cor    mbl_pc   mbl_pls   mbl_gpr
-[1,] 0.7385189 0.7519877 0.7401701 0.5894437
+[1,] 0.7506207 0.7520673 0.7401701 0.5893702
 ```
 
 ``` r
@@ -698,7 +707,7 @@ colMeans((preds - test_cec)^2, na.rm = TRUE)^0.5
 
 ``` ansi
  mbl_cor   mbl_pc  mbl_pls  mbl_gpr
-3.454423 3.425964 3.422748 4.178727 
+3.407758 3.425420 3.422748 4.178950 
 ```
 
 [Figure 5](#fig-mblcomparisons) illustrate the prediction results
@@ -709,27 +718,31 @@ old_par <- par("mfrow", "mar")
 par(mfrow = c(2, 2))
 
 plot(test_cec, preds[, "mbl_cor"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_cor (LOCAL)")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_cor (LOCAL)"
+)
 abline(0, 1, col = "red")
 
 plot(test_cec, preds[, "mbl_pc"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_pc")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_pc"
+)
 abline(0, 1, col = "red")
 
 plot(test_cec, preds[, "mbl_pls"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_pls")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_pls"
+)
 abline(0, 1, col = "red")
 
 plot(test_cec, preds[, "mbl_gpr"],
-     xlab = "CEC, meq/100g",
-     ylab = "Predicted CEC, meq/100g", 
-     main = "mbl_gpr")
+  xlab = "CEC, meq/100g",
+  ylab = "Predicted CEC, meq/100g",
+  main = "mbl_gpr"
+)
 abline(0, 1, col = "red")
 
 par(old_par)
@@ -755,7 +768,7 @@ pc_pred_cec_yu <- mbl(
   Yr = train_cec[!is.na(train_cec)],
   Xu = test_x,
   Yu = test_cec,
-  neighbors = neighbors_k(80),
+  neighbors = neighbors_k(seq(40, 100, by = 10)),
   diss_method = diss_pca(scale = TRUE),
   diss_usage = "none",
   verbose = FALSE,
@@ -789,13 +802,25 @@ _______________________________________________________
 
 Nearest-neighbor validation
 
-  k rmse st_rmse    r2
- 80 3.25  0.0743 0.673
+   k rmse st_rmse    r2
+  40 3.39  0.0777 0.647
+  50 3.37  0.0770 0.652
+  60 3.29  0.0752 0.665
+  70 3.33  0.0763 0.656
+  80 3.25  0.0743 0.673
+  90 3.28  0.0749 0.667
+ 100 3.33  0.0762 0.655
 _______________________________________________________
 Yu prediction statistics
 
-  k rmse st_rmse   r2
- 80 3.31  0.0937 0.77
+   k rmse st_rmse    r2
+  40 3.49  0.0946 0.722
+  50 3.35  0.0964 0.758
+  60 3.45  0.1004 0.749
+  70 3.50  0.0977 0.739
+  80 3.31  0.0937 0.770
+  90 3.32  0.0924 0.764
+ 100 3.38  0.0947 0.757
 _______________________________________________________ 
 ```
 
@@ -811,23 +836,6 @@ package](https://CRAN.R-project.org/package=doParallel) is used to
 register the cores for parallel execution. The [doSNOW
 package](https://CRAN.R-project.org/package=doSNOW) can also be used.
 This example uses parallel processing to predict CEC.
-
-> **Note**
->
-> These functions support parallel execution via the `foreach` and
-> `doParallel` packages. However, parallel execution is only beneficial
-> when the workload per iteration is large enough to outweigh the
-> overhead of spawning worker processes and serialising data between
-> them. In practice this means large prediction or reference sets
-> (typically hundreds of observations or more), large neighbourhoods,
-> and many PLS components. For small datasets, sequential execution is
-> invariably faster. When in doubt, benchmark both before committing to
-> a parallel workflow.
-
-The following example may not be faster than sequential execution due to
-the relatively small size of the dataset, but it illustrates how to set
-up parallel processing for
-[`mbl()`](https://l-ramirez-lopez.github.io/resemble/reference/mbl.md):
 
 ``` r
 # Running the mbl function using multiple cores

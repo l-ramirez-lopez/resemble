@@ -29,13 +29,8 @@ in Ramirez-Lopez et al. (2026a)."><meta property="og:image" content="https://l-r
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">Essential concepts and setup</a></li>
-    <li><a class="dropdown-item" href="../articles/dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
-    <li><a class="dropdown-item" href="../articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
-    <li><a class="dropdown-item" href="../articles/nearest-neighbor-search.html">Nearest-neighbor search</a></li>
-    <li><a class="dropdown-item" href="../articles/simple-global-models.html">Simple global models</a></li>
-    <li><a class="dropdown-item" href="../articles/classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
-    <li><a class="dropdown-item" href="../articles/building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
-    <li><a class="dropdown-item" href="../articles/evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -48,7 +43,7 @@ in Ramirez-Lopez et al. (2026a)."><meta property="og:image" content="https://l-r
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Evolutionary sample search for context-specific calibrations</h1>
-      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/R/gesearch.R" class="external-link"><code>R/gesearch.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/v.3.0.0/R/gesearch.R" class="external-link"><code>R/gesearch.R</code></a></small>
       <div class="d-none name"><code>gesearch.Rd</code></div>
     </div>
 
@@ -73,7 +68,7 @@ in Ramirez-Lopez et al. (2026a).</p>
 <span>         verbose <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, pchunks <span class="op">=</span> <span class="fl">1L</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'formula'</span></span>
-<span><span class="fu">gesearch</span><span class="op">(</span><span class="va">formula</span>, <span class="va">train</span>, <span class="va">test</span>, <span class="va">k</span>, <span class="va">b</span>, <span class="va">target_size</span>, <span class="va">fit_method</span>,</span>
+<span><span class="fu">gesearch</span><span class="op">(</span><span class="va">formula</span>, <span class="va">train</span>, <span class="va">test</span>, <span class="va">k</span>, <span class="va">b</span>, <span class="va">target_size</span>,</span>
 <span>         <span class="va">...</span>, na_action <span class="op">=</span> <span class="va">na.pass</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'gesearch'</span></span>
@@ -357,7 +352,7 @@ Claudio Orellano,
 <span class="r-in"><span><span class="va">test_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">)</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">test_y</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Basic search with reconstruction and similarity optimizations</span></span></span>
+<span class="r-in"><span><span class="co"># Basic search with reconstruction optimization</span></span></span>
 <span class="r-in"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">gesearch</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  Xr <span class="op">=</span> <span class="va">train_x</span>, Yr <span class="op">=</span> <span class="va">train_y</span>,</span></span>
 <span class="r-in"><span>  Xu <span class="op">=</span> <span class="va">test_x</span>, Yu <span class="op">=</span> <span class="va">test_y</span>,</span></span>
@@ -376,7 +371,7 @@ Claudio Orellano,
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gs</span>, which <span class="op">=</span> <span class="st">"removed"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With reconstruction and response optimization (requires Yu)</span></span></span>
+<span class="r-in"><span><span class="co"># With response optimization (requires Yu)</span></span></span>
 <span class="r-in"><span><span class="va">gs_response</span> <span class="op">&lt;-</span> <span class="fu">gesearch</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  Xr <span class="op">=</span> <span class="va">train_x</span>, Yr <span class="op">=</span> <span class="va">train_y</span>,</span></span>
 <span class="r-in"><span>  Xu <span class="op">=</span> <span class="va">test_x</span>, Yu <span class="op">=</span> <span class="va">test_y</span>,</span></span>
@@ -389,8 +384,7 @@ Claudio Orellano,
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Parallel processing</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RevolutionAnalytics/doparallel" class="external-link">doParallel</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">n_cores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">makeCluster</a></span><span class="op">(</span><span class="va">n_cores</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">makeCluster</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html" class="external-link">registerDoParallel</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gs_parallel</span> <span class="op">&lt;-</span> <span class="fu">gesearch</span><span class="op">(</span></span></span>
