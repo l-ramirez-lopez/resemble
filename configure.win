@@ -1,0 +1,2 @@
+#!/bin/sh
+# OpenMP is handled via Makevars.win on Windows
