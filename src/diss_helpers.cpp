@@ -454,7 +454,7 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 // //' @title Rolling correlation distance between X and Y
 // //' @param X Numeric matrix m×T
 // //' @param Y Numeric matrix n×T
-// //' @param w Window size (odd in [1..T] or exactly T)
+// //' @param w Window size (odd)
 // //' @param block_x Tile size for rows of X (default 1024)
 // //' @param block_y Tile size for rows of Y (default 1024)
 // //' @param precision "double" (default) or "float32"/"single"
@@ -485,7 +485,7 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 //' @title Rolling correlation distance between X and Y
 //' @param X Numeric matrix m×T
 //' @param Y Numeric matrix n×T
-//' @param w Window size (odd in [1..T] or exactly T)
+//' @param w Window size (odd)
 //' @param block_x Tile size for rows of X (default 1024)
 //' @param block_y Tile size for rows of Y (default 1024)
 //' @return n×m distance matrix (R double matrix)
@@ -796,8 +796,8 @@ arma::mat moving_cor_diss_self_f64(const arma::mat &X, int w,
 // --- R wrapper: precision selectable ("double" | "float32") ------------------
 
 //' @title Rolling correlation distance within X (templated, OpenMP; precision)
-//' @param X Numeric matrix (m×T)
-//' @param w Window size (odd in [1..T] or exactly T)
+//' @param X Numeric matrix (m x T)
+//' @param w Window size (odd in)
 //' @param block_rows Tile size (default 1024)
 //' @return m×m distance matrix (double for R)
 //' @keywords internal
