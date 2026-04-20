@@ -38,6 +38,7 @@ registerDoSEQ()
 # =============================================================================
 
 test_that("ortho_projection PLS with multi-response Y and ncomp_by_var works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   data("NIRsoil", package = "prospectr")
@@ -63,7 +64,7 @@ test_that("ortho_projection PLS with multi-response Y and ncomp_by_var works", {
 
 
 test_that("ortho_projection PLS with multi-response Y and ncomp_by_cumvar works", {
-  
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   data("NIRsoil", package = "prospectr")
@@ -92,6 +93,7 @@ test_that("ortho_projection PLS with multi-response Y and ncomp_by_cumvar works"
 # =============================================================================
 
 test_that("ortho_projection with method = 'pls' and ncomp_by_cumvar works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()
@@ -119,6 +121,7 @@ test_that("ortho_projection with method = 'pls' and ncomp_by_cumvar works", {
 
 
 test_that("ortho_projection PLS with two matrices works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()
@@ -147,6 +150,7 @@ test_that("ortho_projection PLS with two matrices works", {
 
 
 test_that("ortho_projection PLS with ncomp_by_var works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()
@@ -171,6 +175,7 @@ test_that("ortho_projection PLS with ncomp_by_var works", {
 # =============================================================================
 
 test_that("ortho_projection PLS with ncomp_by_opc works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()
@@ -194,6 +199,7 @@ test_that("ortho_projection PLS with ncomp_by_opc works", {
 
 
 test_that("ortho_projection PLS variance selection consistency", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()
@@ -245,6 +251,7 @@ test_that("ortho_projection PLS variance selection consistency", {
 # =============================================================================
 
 test_that("ortho_projection PLS2 with ncomp_by_opc works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()
@@ -300,6 +307,7 @@ test_that("ortho_projection PLS2 with ncomp_by_opc works", {
 # =============================================================================
 
 test_that("ortho_projection with method = 'simpls' works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   tol <- 1e-6
   d <- .setup_pls_data()
@@ -325,6 +333,7 @@ test_that("ortho_projection with method = 'simpls' works", {
 
 
 test_that("ortho_projection PLS and SIMPLS produce equivalent results", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()
@@ -366,6 +375,7 @@ test_that("ortho_projection PLS and SIMPLS produce equivalent results", {
 # =============================================================================
 
 test_that("ortho_projection with method = 'mpls' works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_pls_data()

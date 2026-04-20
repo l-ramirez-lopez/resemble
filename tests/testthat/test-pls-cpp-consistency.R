@@ -452,6 +452,7 @@ test_that("SIMPLS implementations produce consistent results with scale = TRUE",
 
 
 test_that("SIMPLS implementations produce consistent results with scale = FALSE", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   library(prospectr)
