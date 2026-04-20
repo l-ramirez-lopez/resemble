@@ -1,4 +1,3 @@
-#' @useDynLib resemble
 #' @import lifecycle
 #' @import Rcpp
 #' @import foreach
