@@ -559,7 +559,17 @@ reg_metrics(test_y_test, pred_gs_nr2[, best_ncomp_nr2])
 
 The `gesearch()` function supports parallel execution for evaluating individuals during the evolutionary search. To improve memory efficiency, the data are not sent in full to each worker. Instead, only the subsets of samples required for the individuals being evaluated are extracted and passed to the parallel workers. The `pchunks` argument controls how many individuals are processed together at each iterator step during parallel execution. Its effect on speed and memory usage depends on the size of the subsets and the available computing resources. By default, `pchunks = 1L`, meaning that individuals are processed one at a time. Increasing `pchunks` can reduce parallelisation overhead, but it may also increase memory usage because more data may need to be sent to each worker at once. The optimal value depends on the dataset and computational environment, and may require some experimentation.
 
-In the example below, the [doParallel package](https://CRAN.R-project.org/package=doParallel) is used to register the cores for parallel execution. The [doSNOW package](https://CRAN.R-project.org/package=doSNOW) can also be used. The example illustrates how to run `gesearch()` using multiple cores.
+::: {.callout-note}
+`gesearch()` supports parallel execution via the `foreach` and `doParallel`
+packages. Parallel execution is most beneficial when the number of individuals
+in the population is large, as each individual is evaluated independently
+across iterations of the evolutionary search. For small populations or short
+runs the overhead of spawning worker processes and serialising data between
+them can outweigh the computational savings, making sequential execution
+faster. When in doubt, benchmark both before committing to a parallel workflow.
+:::
+
+In the example below, the [doParallel package](https://CRAN.R-project.org/package=doParallel) is used to register the cores for parallel execution. The [doSNOW package](https://CRAN.R-project.org/package=doSNOW) can also be used. The example illustrates how to run `gesearch()` using multiple cores. The example may not be faster than sequential execution:
 
 ```{r}
 #| label: parallel-gesearch

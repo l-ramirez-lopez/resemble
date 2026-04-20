@@ -726,8 +726,19 @@ computational advantages once the library is built.
 
 # Parallel processing
 
-The `liblex()` function supports parallel execution via the `foreach` package. 
-Register a parallel backend before calling `liblex()`:
+::: {.callout-note}
+These functions support parallel execution via the `foreach` and `doParallel`
+packages. However, parallel execution is only beneficial when the workload per
+iteration is large enough to outweigh the overhead of spawning worker processes
+and serialising data between them. In practice this means large prediction or
+reference sets (typically hundreds of observations or more), large
+neighbourhoods, and many PLS components. For small datasets, sequential
+execution is invariably faster. When in doubt, benchmark both before committing
+to a parallel workflow.
+:::
+
+The following example may not be faster than sequential execution due to the relatively small size of the dataset, but it illustrates how to set up parallel processing for `liblex()`:
+
  
 ```{r}
 #| label: parallel-example
