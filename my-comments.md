@@ -34,7 +34,7 @@ release
 The package was built using:
 
 devtools::build( pkg = “.”, path = NULL, binary = FALSE, vignettes =
-TRUE, manual = TRUE, args = NULL, quiet = FALSE )
+TRUE, manual = TRUE, args = NULL, quiet = FALSE, clean_doc = TRUE )
 
 All checks have passed.
 

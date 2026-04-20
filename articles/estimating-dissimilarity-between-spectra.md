@@ -305,7 +305,7 @@ corrrelation_resemble <- dissimilarity(
 max(abs(corrrelation_resemble$dissimilarity - correlation_baser))
 ```
 
-    [1] 2.220446e-15
+    [1] 1.498801e-15
 
 However, the correlation dissimilarity implemented in `resemble` is
 computationally more efficient than the corresponding approach in base
@@ -479,7 +479,7 @@ ed_baser_scaled <- sqrt((ed_baser^2) / ncol(train_x))
 max(abs(ed_baser_scaled - ed_resemble$dissimilarity))
 ```
 
-    [1] 1.471452e-14
+    [1] 3.703797e-15
 
 Another important aspect to note is that the Euclidean dissimilarity
 computations in `resemble` tend to be more computationally efficient

@@ -547,9 +547,9 @@ cat("Selected", length(anchor_km), "anchors via k-means\n")
 
     Best results per neighbor selection metric
       k min_ncomp max_ncomp    r2  rmse     me st_rmse
-     40         3        15 0.817 0.861 -0.194   0.799
-     60        10        10 0.776 0.937 -0.132   0.717
-     80         3        15 0.727 1.020 -0.178   0.644
+     40         3        15 0.816 0.868 -0.166   0.812
+     60        10        10 0.761 0.991 -0.108   0.763
+     80         3        15 0.717 1.060 -0.143   0.686
     _______________________________________________________ 
 
 ``` r
