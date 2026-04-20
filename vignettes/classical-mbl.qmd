@@ -229,7 +229,7 @@ test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
 ```{r}
 #| label: mbl-local
 #| eval: true
-#| results: "hide"
+#| results: hide
 # Define the neighborhood sizes to test
 my_ks <- seq(80, 160, by = 40)
 
@@ -278,7 +278,7 @@ local_ciso
 #| label: bestk
 #| eval: true
 #| echo: false
-#| results: "hide"
+#| results: hide
 bestk <- which.min(local_ciso$validation_results$nearest_neighbor_validation$rmse)
 bestk <- local_ciso$validation_results$nearest_neighbor_validation$k[bestk]
 ```
@@ -288,8 +288,8 @@ According to the results of the previous example, the neighborhood size that min
 ```{r}
 #| label: get-predictions
 #| eval: true
-#| results: "hide"
-#| fig-show: "hide"
+#| results: hide
+#| fig-show: hide
 bki <- which.min(local_ciso$validation_results$nearest_neighbor_validation$rmse)
 bk <- local_ciso$validation_results$nearest_neighbor_validation$k[bki]
 
@@ -339,8 +339,8 @@ Similar results are obtained when the optimization of the neighborhoods is based
 ```{r}
 #| label: mbl-diss-threshold
 #| eval: true
-#| results: "hide"
-#| fig-show: "hide"
+#| results: hide
+#| fig-show: hide
 # Create a vector of dissimilarity thresholds to evaluate
 # since the correlation dissimilarity will be used
 # these thresholds need to be > 0 and <= 1
@@ -372,7 +372,7 @@ plot(local_ciso_diss)
 #| label: bestd
 #| eval: true
 #| echo: false
-#| results: "hide"
+#| results: hide
 bestd <- which.min(local_ciso_diss$validation_results$nearest_neighbor_validation$rmse)
 bestd <- local_ciso_diss$validation_results$nearest_neighbor_validation$k_diss[bestd]
 ```
@@ -388,8 +388,8 @@ The best correlation dissimilarity threshold is `r bestd`. The column "p_bounded
 ```{r}
 #| label: diss-predictions
 #| eval: true
-#| results: "hide"
-#| fig-show: "hide"
+#| results: hide
+#| fig-show: hide
 # Best distance threshold
 bdi <- which.min(local_ciso_diss$validation_results$nearest_neighbor_validation$rmse)
 bd <- local_ciso_diss$validation_results$nearest_neighbor_validation$k_diss[bdi]
