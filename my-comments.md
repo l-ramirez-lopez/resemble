@@ -2,52 +2,35 @@
 
 Dear CRAN maintainers,
 
-I am submitting version 3.0.0 of {resemble} to CRAN.
+This is a resubmission of resemble 3.0.0. While investigating the
+checktime NOTE from the previous submission, I identified and fixed
+several minor issues:
 
-This is a major release that includes a redesigned API and several new
-features:
+- Added shebang to cleanup; added configure.win and cleanup.win for
+  Windows builds
+- Removed invalid URIs (CONTRIBUTING.md, CODE_OF_CONDUCT.md) from
+  README.md
+- Updated Depends: R (\>= 4.2.0)
 
-- Refactored API based on constructor functions:
-  [`neighbors_k()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md),
-  [`neighbors_diss()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md),
-  [`fit_pls()`](https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.md),
-  [`fit_wapls()`](https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.md),
-  [`fit_gpr()`](https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.md),
-  and
-  [`mbl_control()`](https://l-ramirez-lopez.github.io/resemble/reference/mbl_control.md)
-- New
-  [`liblex()`](https://l-ramirez-lopez.github.io/resemble/reference/liblex.md)
-  function for building reusable libraries of local models
-- New
-  [`model()`](https://l-ramirez-lopez.github.io/resemble/reference/model.md)
-  function for fitting global PLS and GPR models with cross-validation
-- Migration of vignettes from R Markdown/bookdown to Quarto
-- Deprecation of legacy function arguments, with informative migration
-  messages
-- Expanded unit test coverage using {testthat}
+## Test environments
 
-Test environments: - Local: Ubuntu 24.04.4 LTS, R 4.5.3 - GitHub
-Actions: - macOS latest, R release - Ubuntu latest, R devel - Ubuntu
-latest, R oldrel-1 - Ubuntu latest, R release - Windows latest, R
-release
+- Ubuntu 24.04, R 4.5.3 (local)
+- winbuilder R-release: 0 errors, 0 warnings, 0 notes
+- winbuilder R-oldrelease: 0 errors, 0 warnings, 0 notes
+- winbuilder R-devel: 1 error — upstream Rcpp/R 4.6.0 RC incompatibility
+  (R_NamespaceRegistry removed from R API), affecting all Rcpp-dependent
+  packages, unrelated to resemble
+
+The checktime NOTE (14 min) is due to rebuilding 8 pre-built Quarto
+vignettes during incoming checks and is unavoidable for a package with
+this level of documentation.
+
+Best regards, Leonardo
 
 The package was built using:
 
 devtools::build( pkg = “.”, path = NULL, binary = FALSE, vignettes =
 TRUE, manual = TRUE, args = NULL, quiet = FALSE, clean_doc = FALSE )
-
-All checks have passed.
-
-Results summary: - 6 successful CI checks - No conflicts with the base
-branch - Merge can be performed automatically
-
-GitHub Actions results: - R-CMD-check / macos-latest (release):
-Successful - R-CMD-check / ubuntu-latest (devel): Successful -
-R-CMD-check / ubuntu-latest (oldrel-1): Successful - R-CMD-check /
-ubuntu-latest (release): Successful - R-CMD-check / windows-latest
-(release): Successful - test-coverage: Successful
-
-Thank you for your time and consideration.
 
 # version 2.2.5
 
