@@ -13,12 +13,12 @@
 ^logo_large\.png$
 ^\.gitignore$
 ^\.github$
-.*\.pdf$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
 ^doc$
 ^Meta$
+^tests/.*\.pdf$
 
 ^src/.*\.o$
 ^src/.*\.so$
