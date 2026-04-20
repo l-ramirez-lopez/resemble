@@ -45,20 +45,20 @@
 <div id="version-300" class="section level1">
 
 <p>Dear CRAN maintainers,</p>
-<p>This is a resubmission of resemble 3.0.0. While investigating the checktime NOTE from the previous submission, I identified and fixed several minor issues:</p>
+<p>This is a resubmission of resemble 3.0.0 addressing issues from the previous submission:</p>
 <ul><li>Added shebang to cleanup; added configure.win and cleanup.win for Windows builds</li>
-<li>Removed invalid URIs (CONTRIBUTING.md, CODE_OF_CONDUCT.md) from README.md</li>
-<li>Updated Depends: R (&gt;= 4.2.0)</li>
+<li>Added skip_on_cran() to computationally intensive tests to reduce check time</li>
 </ul><div class="section level2">
 <h2 id="test-environments">Test environments<a class="anchor" aria-label="anchor" href="#test-environments"></a></h2>
 <ul><li>Ubuntu 24.04, R 4.5.3 (local)</li>
 <li>winbuilder R-release: 0 errors, 0 warnings, 0 notes</li>
 <li>winbuilder R-oldrelease: 0 errors, 0 warnings, 0 notes</li>
-<li>winbuilder R-devel: 1 error — upstream Rcpp/R 4.6.0 RC incompatibility (R_NamespaceRegistry removed from R API), affecting all Rcpp-dependent packages, unrelated to resemble</li>
-</ul><p>The checktime NOTE (14 min) is due to rebuilding 8 pre-built Quarto vignettes during incoming checks and is unavoidable for a package with this level of documentation.</p>
-<p>Best regards, Leonardo</p>
+<li>winbuilder R-devel: likely false positive ERROR — known incompatibility between Rcpp 1.1.1 and R 4.6.0 RC (R_NamespaceRegistry removed from R API), affecting all Rcpp-dependent packages. See: <a href="https://github.com/RcppCore/Rcpp/issues/1473" class="external-link uri">https://github.com/RcppCore/Rcpp/issues/1473</a> Debian R-devel passes with Status: OK.</li>
+</ul><p>The checktime NOTE (14 min) is due to rebuilding 8 pre-built Quarto vignettes.</p>
+<p>Best regards, Leo</p>
 <p>The package was built using:</p>
-<p>devtools::build( pkg = “.”, path = NULL, binary = FALSE, vignettes = TRUE, manual = TRUE, args = NULL, quiet = FALSE, clean_doc = FALSE )</p>
+<p>devtools::install()</p>
+<p>devtools::build( vignettes = TRUE, manual = TRUE, clean_doc = FALSE )</p>
 </div>
 </div>
 <div class="section level1">

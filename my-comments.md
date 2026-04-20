@@ -2,35 +2,35 @@
 
 Dear CRAN maintainers,
 
-This is a resubmission of resemble 3.0.0. While investigating the
-checktime NOTE from the previous submission, I identified and fixed
-several minor issues:
+This is a resubmission of resemble 3.0.0 addressing issues from the
+previous submission:
 
 - Added shebang to cleanup; added configure.win and cleanup.win for
   Windows builds
-- Removed invalid URIs (CONTRIBUTING.md, CODE_OF_CONDUCT.md) from
-  README.md
-- Updated Depends: R (\>= 4.2.0)
+- Added skip_on_cran() to computationally intensive tests to reduce
+  check time
 
 ## Test environments
 
 - Ubuntu 24.04, R 4.5.3 (local)
 - winbuilder R-release: 0 errors, 0 warnings, 0 notes
 - winbuilder R-oldrelease: 0 errors, 0 warnings, 0 notes
-- winbuilder R-devel: 1 error — upstream Rcpp/R 4.6.0 RC incompatibility
-  (R_NamespaceRegistry removed from R API), affecting all Rcpp-dependent
-  packages, unrelated to resemble
+- winbuilder R-devel: likely false positive ERROR — known
+  incompatibility between Rcpp 1.1.1 and R 4.6.0 RC (R_NamespaceRegistry
+  removed from R API), affecting all Rcpp-dependent packages. See:
+  <https://github.com/RcppCore/Rcpp/issues/1473> Debian R-devel passes
+  with Status: OK.
 
 The checktime NOTE (14 min) is due to rebuilding 8 pre-built Quarto
-vignettes during incoming checks and is unavoidable for a package with
-this level of documentation.
+vignettes.
 
-Best regards, Leonardo
+Best regards, Leo
 
 The package was built using:
 
-devtools::build( pkg = “.”, path = NULL, binary = FALSE, vignettes =
-TRUE, manual = TRUE, args = NULL, quiet = FALSE, clean_doc = FALSE )
+devtools::install()
+
+devtools::build( vignettes = TRUE, manual = TRUE, clean_doc = FALSE )
 
 # version 2.2.5
 
