@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Evolutionary subset search and modeling using gesearch</h1>
 
       <p class="author">Leonardo Ramirez-Lopez</p>
-      <p class="date">2026-04-19</p>
+      <p class="date">2026-04-20</p>
 
       <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/evolutionary-subset-search.qmd" class="external-link"><code>vignettes/evolutionary-subset-search.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
@@ -689,7 +689,13 @@ Figure 3: Comparison of observed versus predicted total carbon values. Left: mo
 <span class="header-section-number">7</span> Supported parallel processing<a class="anchor" aria-label="anchor" href="#supported-parallel-processing"></a>
 </h2>
 <p>The <code><a href="../reference/gesearch.html">gesearch()</a></code> function supports parallel execution for evaluating individuals during the evolutionary search. To improve memory efficiency, the data are not sent in full to each worker. Instead, only the subsets of samples required for the individuals being evaluated are extracted and passed to the parallel workers. The <code>pchunks</code> argument controls how many individuals are processed together at each iterator step during parallel execution. Its effect on speed and memory usage depends on the size of the subsets and the available computing resources. By default, <code>pchunks = 1L</code>, meaning that individuals are processed one at a time. Increasing <code>pchunks</code> can reduce parallelisation overhead, but it may also increase memory usage because more data may need to be sent to each worker at once. The optimal value depends on the dataset and computational environment, and may require some experimentation.</p>
-<p>In the example below, the <a href="https://CRAN.R-project.org/package=doParallel" class="external-link">doParallel package</a> is used to register the cores for parallel execution. The <a href="https://CRAN.R-project.org/package=doSNOW" class="external-link">doSNOW package</a> can also be used. The example illustrates how to run <code><a href="../reference/gesearch.html">gesearch()</a></code> using multiple cores.</p>
+<div>
+<blockquote>
+<p><strong>Note</strong></p>
+<p><code><a href="../reference/gesearch.html">gesearch()</a></code> supports parallel execution via the <code>foreach</code> and <code>doParallel</code> packages. Parallel execution is most beneficial when the number of individuals in the population is large, as each individual is evaluated independently across iterations of the evolutionary search. For small populations or short runs the overhead of spawning worker processes and serialising data between them can outweigh the computational savings, making sequential execution faster. When in doubt, benchmark both before committing to a parallel workflow.</p>
+</blockquote>
+</div>
+<p>In the example below, the <a href="https://CRAN.R-project.org/package=doParallel" class="external-link">doParallel package</a> is used to register the cores for parallel execution. The <a href="https://CRAN.R-project.org/package=doSNOW" class="external-link">doSNOW package</a> can also be used. The example illustrates how to run <code><a href="../reference/gesearch.html">gesearch()</a></code> using multiple cores. The example may not be faster than sequential execution:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Running gesearch() using multiple cores</span></span>

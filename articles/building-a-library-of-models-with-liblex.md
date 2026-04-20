@@ -547,9 +547,9 @@ cat("Selected", length(anchor_km), "anchors via k-means\n")
 
     Best results per neighbor selection metric
       k min_ncomp max_ncomp    r2  rmse     me st_rmse
-     40         3        15 0.817 0.861 -0.194   0.799
-     60        10        10 0.776 0.937 -0.132   0.717
-     80         3        15 0.727 1.020 -0.178   0.644
+     40         3        15 0.816 0.868 -0.166   0.812
+     60        10        10 0.761 0.991 -0.108   0.763
+     80         3        15 0.717 1.060 -0.143   0.686
     _______________________________________________________ 
 
 ``` r
@@ -819,10 +819,21 @@ offers computational advantages once the library is built.
 
 ## 10 Parallel processing
 
-The
-[`liblex()`](https://l-ramirez-lopez.github.io/resemble/reference/liblex.md)
-function supports parallel execution via the `foreach` package. Register
-a parallel backend before calling
+> **Note**
+>
+> These functions support parallel execution via the `foreach` and
+> `doParallel` packages. However, parallel execution is only beneficial
+> when the workload per iteration is large enough to outweigh the
+> overhead of spawning worker processes and serialising data between
+> them. In practice this means large prediction or reference sets
+> (typically hundreds of observations or more), large neighbourhoods,
+> and many PLS components. For small datasets, sequential execution is
+> invariably faster. When in doubt, benchmark both before committing to
+> a parallel workflow.
+
+The following example may not be faster than sequential execution due to
+the relatively small size of the dataset, but it illustrates how to set
+up parallel processing for
 [`liblex()`](https://l-ramirez-lopez.github.io/resemble/reference/liblex.md):
 
 ``` r

@@ -739,13 +739,26 @@ also increase memory usage because more data may need to be sent to each
 worker at once. The optimal value depends on the dataset and
 computational environment, and may require some experimentation.
 
+> **Note**
+>
+> [`gesearch()`](https://l-ramirez-lopez.github.io/resemble/reference/gesearch.md)
+> supports parallel execution via the `foreach` and `doParallel`
+> packages. Parallel execution is most beneficial when the number of
+> individuals in the population is large, as each individual is
+> evaluated independently across iterations of the evolutionary search.
+> For small populations or short runs the overhead of spawning worker
+> processes and serialising data between them can outweigh the
+> computational savings, making sequential execution faster. When in
+> doubt, benchmark both before committing to a parallel workflow.
+
 In the example below, the [doParallel
 package](https://CRAN.R-project.org/package=doParallel) is used to
 register the cores for parallel execution. The [doSNOW
 package](https://CRAN.R-project.org/package=doSNOW) can also be used.
 The example illustrates how to run
 [`gesearch()`](https://l-ramirez-lopez.github.io/resemble/reference/gesearch.md)
-using multiple cores.
+using multiple cores. The example may not be faster than sequential
+execution:
 
 ``` r
 # Running gesearch() using multiple cores

@@ -342,7 +342,7 @@ train_y <- NIRsoil$Ciso[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso)]
 test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso), ]
 test_y <- NIRsoil$Ciso[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso)]
 
-# Basic search with reconstruction optimization
+# Basic search with reconstruction and similarity optimizations
 gs <- gesearch(
   Xr = train_x, Yr = train_y,
   Xu = test_x, Yu = test_y,
@@ -366,7 +366,7 @@ plot(gs)
 plot(gs, which = "removed")
 
 
-# With response optimization (requires Yu)
+# With reconstruction and response optimization (requires Yu)
 gs_response <- gesearch(
   Xr = train_x, Yr = train_y,
   Xu = test_x, Yu = test_y,
@@ -385,7 +385,8 @@ library(doParallel)
 #> Loading required package: foreach
 #> Loading required package: iterators
 #> Loading required package: parallel
-cl <- makeCluster(2)
+n_cores <- min(4, parallel::detectCores() - 1)
+cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
 gs_parallel <- gesearch(

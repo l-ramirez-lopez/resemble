@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Building a library of models with liblex</h1>
 
       <p class="author">Leonardo Ramirez-Lopez</p>
-      <p class="date">2026-04-19</p>
+      <p class="date">2026-04-20</p>
 
       <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/building-a-library-of-models-with-liblex.qmd" class="external-link"><code>vignettes/building-a-library-of-models-with-liblex.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
@@ -587,9 +587,9 @@ Nearest-neighbor validation
 
 Best results per neighbor selection metric
   k min_ncomp max_ncomp    r2  rmse     me st_rmse
- 40         3        15 0.817 0.861 -0.194   0.799
- 60        10        10 0.776 0.937 -0.132   0.717
- 80         3        15 0.727 1.020 -0.178   0.644
+ 40         3        15 0.816 0.868 -0.166   0.812
+ 60        10        10 0.761 0.991 -0.108   0.763
+ 80         3        15 0.717 1.060 -0.143   0.686
 _______________________________________________________ </code></pre>
 </div>
 </div>
@@ -904,7 +904,13 @@ Figure 5: Predicted versus observed values
 </section><section class="section level2" data-number="10"><h2 data-number="10" id="parallel-processing">
 <span class="header-section-number">10</span> Parallel processing<a class="anchor" aria-label="anchor" href="#parallel-processing"></a>
 </h2>
-<p>The <code><a href="../reference/liblex.html">liblex()</a></code> function supports parallel execution via the <code>foreach</code> package. Register a parallel backend before calling <code><a href="../reference/liblex.html">liblex()</a></code>:</p>
+<div>
+<blockquote>
+<p><strong>Note</strong></p>
+<p>These functions support parallel execution via the <code>foreach</code> and <code>doParallel</code> packages. However, parallel execution is only beneficial when the workload per iteration is large enough to outweigh the overhead of spawning worker processes and serialising data between them. In practice this means large prediction or reference sets (typically hundreds of observations or more), large neighbourhoods, and many PLS components. For small datasets, sequential execution is invariably faster. When in doubt, benchmark both before committing to a parallel workflow.</p>
+</blockquote>
+</div>
+<p>The following example may not be faster than sequential execution due to the relatively small size of the dataset, but it illustrates how to set up parallel processing for <code><a href="../reference/liblex.html">liblex()</a></code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RevolutionAnalytics/doparallel" class="external-link">doParallel</a></span><span class="op">)</span></span>

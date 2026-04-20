@@ -352,7 +352,7 @@ Claudio Orellano,
 <span class="r-in"><span><span class="va">test_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">)</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">test_y</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">Ciso</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Basic search with reconstruction optimization</span></span></span>
+<span class="r-in"><span><span class="co"># Basic search with reconstruction and similarity optimizations</span></span></span>
 <span class="r-in"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">gesearch</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  Xr <span class="op">=</span> <span class="va">train_x</span>, Yr <span class="op">=</span> <span class="va">train_y</span>,</span></span>
 <span class="r-in"><span>  Xu <span class="op">=</span> <span class="va">test_x</span>, Yu <span class="op">=</span> <span class="va">test_y</span>,</span></span>
@@ -376,7 +376,7 @@ Claudio Orellano,
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gs</span>, which <span class="op">=</span> <span class="st">"removed"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="gesearch-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With response optimization (requires Yu)</span></span></span>
+<span class="r-in"><span><span class="co"># With reconstruction and response optimization (requires Yu)</span></span></span>
 <span class="r-in"><span><span class="va">gs_response</span> <span class="op">&lt;-</span> <span class="fu">gesearch</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  Xr <span class="op">=</span> <span class="va">train_x</span>, Yr <span class="op">=</span> <span class="va">train_y</span>,</span></span>
 <span class="r-in"><span>  Xu <span class="op">=</span> <span class="va">test_x</span>, Yu <span class="op">=</span> <span class="va">test_y</span>,</span></span>
@@ -395,7 +395,8 @@ Claudio Orellano,
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: foreach</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: iterators</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: parallel</span>
-<span class="r-in"><span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">makeCluster</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n_cores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">makeCluster</a></span><span class="op">(</span><span class="va">n_cores</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html" class="external-link">registerDoParallel</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gs_parallel</span> <span class="op">&lt;-</span> <span class="fu">gesearch</span><span class="op">(</span></span></span>

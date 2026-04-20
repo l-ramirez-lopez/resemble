@@ -812,6 +812,23 @@ register the cores for parallel execution. The [doSNOW
 package](https://CRAN.R-project.org/package=doSNOW) can also be used.
 This example uses parallel processing to predict CEC.
 
+> **Note**
+>
+> These functions support parallel execution via the `foreach` and
+> `doParallel` packages. However, parallel execution is only beneficial
+> when the workload per iteration is large enough to outweigh the
+> overhead of spawning worker processes and serialising data between
+> them. In practice this means large prediction or reference sets
+> (typically hundreds of observations or more), large neighbourhoods,
+> and many PLS components. For small datasets, sequential execution is
+> invariably faster. When in doubt, benchmark both before committing to
+> a parallel workflow.
+
+The following example may not be faster than sequential execution due to
+the relatively small size of the dataset, but it illustrates how to set
+up parallel processing for
+[`mbl()`](https://l-ramirez-lopez.github.io/resemble/reference/mbl.md):
+
 ``` r
 # Running the mbl function using multiple cores
 
