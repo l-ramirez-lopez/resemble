@@ -19,9 +19,7 @@
 #'     spike = NULL, group = NULL,
 #'     gh = FALSE,
 #'     control = mbl_control(),
-#'     verbose = TRUE, seed = NULL,
-#'     k, k_diss, k_range, method, pc_selection,
-#'     center, scale, documentation, ...)
+#'     verbose = TRUE, seed = NULL, ...)
 #'
 #' @usage \method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
 #'
@@ -311,7 +309,7 @@
 #'
 #' # Example 5: Parallel execution
 #' library(doParallel)
-#' n_cores <- min(4, parallel::detectCores() - 1)
+#' n_cores <- min(2, parallel::detectCores() - 1)
 #' clust <- makeCluster(n_cores)
 #' registerDoParallel(clust)
 #'

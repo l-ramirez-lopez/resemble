@@ -255,7 +255,7 @@
 #'
 #' # Parallel processing
 #' library(doParallel)
-#' n_cores <- min(4, parallel::detectCores() - 1)
+#' n_cores <- min(2, parallel::detectCores() - 1)
 #' cl <- makeCluster(n_cores)
 #' registerDoParallel(cl)
 #'
