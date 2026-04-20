@@ -63,7 +63,7 @@ fast_self_euclid <- function(X) {
 #' @title Rolling correlation distance between X and Y
 #' @param X Numeric matrix m×T
 #' @param Y Numeric matrix n×T
-#' @param w Window size (odd in [1..T] or exactly T)
+#' @param w Window size (odd)
 #' @param block_x Tile size for rows of X (default 1024)
 #' @param block_y Tile size for rows of Y (default 1024)
 #' @return n×m distance matrix (R double matrix)
@@ -87,8 +87,8 @@ moving_cor_diss_self_f64 <- function(X, w, block_rows = 1024L) {
 }
 
 #' @title Rolling correlation distance within X (templated, OpenMP; precision)
-#' @param X Numeric matrix (m×T)
-#' @param w Window size (odd in [1..T] or exactly T)
+#' @param X Numeric matrix (m x T)
+#' @param w Window size (odd in)
 #' @param block_rows Tile size (default 1024)
 #' @return m×m distance matrix (double for R)
 #' @keywords internal

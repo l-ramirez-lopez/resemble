@@ -1021,7 +1021,7 @@ get_plsr <- function(
 #' Internal S3 method. Generates predictions for new data using a `"plsr"`
 #' object (coefficients and intercepts produced by `opls_get_basics()`).
 #'
-#' @param object A `"plsr"` object returned by [get_plsr()].
+#' @param object A `"plsr"` object returned by `get_plsr()`.
 #' @param newdata Numeric matrix or data frame of predictors.
 #' @param ncomp Integer specifying the number of components to use. Defaults
 #'   to the maximum number available in the model.
@@ -1034,7 +1034,7 @@ get_plsr <- function(
 #' Delegates to `predict_opls()`. Row names of `newdata` are preserved in
 #' the output if present.
 #'
-#' @seealso [get_plsr()], [fit_pls()], [fit_wapls()]
+#' @seealso `get_plsr()`, `fit_pls()`, `fit_wapls()`
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
 #' @noRd
@@ -1149,7 +1149,7 @@ get_validation_metrics <- function(predicted, observed) {
 #' cols = variables). Component indices are assigned as `1:ncomp`; scores
 #' are labelled with sample and component indices.
 #'
-#' @seealso [get_plsr()]
+#' @seealso `get_plsr()`
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
 #' @noRd

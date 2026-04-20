@@ -489,45 +489,45 @@ ith_pred_subsets <- function(
 
 
 
-#' #' @title Quantile Stats of Neighbor Responses
-#' #' @description
-#' #' Computes quantiles of the response values among the filtered
-#' #' nearest neighbors for a specific sample.
-#' #'
-#' #' @param ..i.. Index of the sample being analyzed.
-#' #' @param kidxmat Matrix of nearest neighbor indices (rows = neighbors).
-#' #' @param kidxgrop Matrix mask to filter out same-group neighbors (TRUE = keep).
-#' #' @param Yr Numeric response vector or 1-col matrix.
-#' #' @param k Vector of neighbor counts for each sample.
-#' #'
-#' #' @return
-#' #' A matrix of quantiles (0%, 5%, 25%, 50%, 75%, 95%, 100%) of the
-#' #' response values among the valid nearest neighbors.
-#' #'
-#' #' @details
-#' #' For the i-th sample, this function selects the top-k neighbors for
-#' #' each sample, filters using the group mask, and computes quantile
-#' #' statistics from their corresponding response values in `Yr`.
-#' #' @author Leonardo Ramirez-Lopez
-#' #' @keywords internal
-#' i_nn_stats <- function(..i.., kidxmat, kidxgrop, Yr, k) {
-#'   ik <- k[..i..]
-#'   
-#'   jstats <- sapply(
-#'     1:ncol(kidxmat),
-#'     FUN = function(..j.., kidxmat, kidxgrop, Yr, ik){
-#'       inn <- kidxmat[1:ik,..j..]
-#'       inn <- inn[kidxgrop[1:ik,..j..]]
-#'       quantile(Yr[inn,], c(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1.00))
-#'       #sd(Yr[inn,])
-#'     }, 
-#'     kidxgrop = kidxgrop,
-#'     kidxmat = kidxmat,
-#'     Yr = Yr,
-#'     ik = ik
-#'   )
-#'   t(jstats)
-#' }
+# #' @title Quantile Stats of Neighbor Responses
+# #' @description
+# #' Computes quantiles of the response values among the filtered
+# #' nearest neighbors for a specific sample.
+# #'
+# #' @param ..i.. Index of the sample being analyzed.
+# #' @param kidxmat Matrix of nearest neighbor indices (rows = neighbors).
+# #' @param kidxgrop Matrix mask to filter out same-group neighbors (TRUE = keep).
+# #' @param Yr Numeric response vector or 1-col matrix.
+# #' @param k Vector of neighbor counts for each sample.
+# #'
+# #' @return
+# #' A matrix of quantiles (0%, 5%, 25%, 50%, 75%, 95%, 100%) of the
+# #' response values among the valid nearest neighbors.
+# #'
+# #' @details
+# #' For the i-th sample, this function selects the top-k neighbors for
+# #' each sample, filters using the group mask, and computes quantile
+# #' statistics from their corresponding response values in `Yr`.
+# #' @author Leonardo Ramirez-Lopez
+# #' @keywords internal
+# i_nn_stats <- function(..i.., kidxmat, kidxgrop, Yr, k) {
+#   ik <- k[..i..]
+#   
+#   jstats <- sapply(
+#     1:ncol(kidxmat),
+#     FUN = function(..j.., kidxmat, kidxgrop, Yr, ik){
+#       inn <- kidxmat[1:ik,..j..]
+#       inn <- inn[kidxgrop[1:ik,..j..]]
+#       quantile(Yr[inn,], c(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1.00))
+#       #sd(Yr[inn,])
+#     }, 
+#     kidxgrop = kidxgrop,
+#     kidxmat = kidxmat,
+#     Yr = Yr,
+#     ik = ik
+#   )
+#   t(jstats)
+# }
 
 #' @title Internal: Fit weighted local PLS models for all reference samples
 #'
@@ -872,8 +872,9 @@ ith_pred_subsets <- function(
 #' @param x A numeric vector of observations.
 #' @param weights A numeric vector of non-negative weights, the same length as `x`.
 #'   Weights are internally normalized to sum to 1.
-#' @param probs A numeric vector of probabilities in [0, 1] specifying the
-#'   quantile levels to compute (e.g., `c(0.25, 0.5, 0.75)`).
+#' @param probs A numeric vector of probabilities in \eqn{[0, 1]} specifying
+#'   the quantile levels to compute for the response values within each
+#'   neighbourhood (e.g., \code{c(0.25, 0.5, 0.75)} for quartiles).
 #' @param exclude_last Logical; if `TRUE`, the last non-NA observation is excluded 
 #' from each observation to avoid edge effects.
 #'
