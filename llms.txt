@@ -1,6 +1,6 @@
 # `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 
-*Last update: 2026-04-16*
+*Last update: 2026-04-20*
 
 Version: 3.0.0 – vortex
 
@@ -365,12 +365,10 @@ citation(package = "resemble")
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing
-Guidelines](https://l-ramirez-lopez.github.io/resemble/CONTRIBUTING.md)
-before submitting pull requests.
+Contributions are welcome! Please read our Contributing Guidelines
+(available in the GitHub repo) before submitting pull requests.
 
-This project follows a [Code of
-Conduct](https://l-ramirez-lopez.github.io/resemble/CODE_OF_CONDUCT.md).
+This project follows a Code of Conduct available in the GitHub repo.
 
 ## Bug reports
 
@@ -549,7 +547,7 @@ Methods for selecting the number of components
 - [Building a library of models with
   liblex](https://l-ramirez-lopez.github.io/resemble/articles/building-a-library-of-models-with-liblex.md):
 
-### Subset Selection
+### Training subset search
 
 - [Evolutionary subset search and modeling using
   gesearch](https://l-ramirez-lopez.github.io/resemble/articles/evolutionary-subset-search.md):

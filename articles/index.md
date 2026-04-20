@@ -23,7 +23,7 @@
 - [Building a library of models with
   liblex](https://l-ramirez-lopez.github.io/resemble/articles/building-a-library-of-models-with-liblex.md):
 
-### Subset Selection
+### Training subset search
 
 - [Evolutionary subset search and modeling using
   gesearch](https://l-ramirez-lopez.github.io/resemble/articles/evolutionary-subset-search.md):
