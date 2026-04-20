@@ -20,7 +20,7 @@
 #'          intermediate_models = FALSE,
 #'          verbose = TRUE, seed = NULL, pchunks = 1L, ...)
 #'
-#' \method{gesearch}{formula}(formula, train, test, k, b, target_size,
+#' \method{gesearch}{formula}(formula, train, test, k, b, target_size, fit_method,
 #'          ..., na_action = na.pass)
 #'
 #' \method{predict}{gesearch}(object, newdata, type = "response",
@@ -223,7 +223,7 @@
 #' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso), ]
 #' test_y <- NIRsoil$Ciso[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso)]
 #'
-#' # Basic search with reconstruction optimization
+#' # Basic search with reconstruction and similarity optimizations
 #' gs <- gesearch(
 #'   Xr = train_x, Yr = train_y,
 #'   Xu = test_x, Yu = test_y,
@@ -242,7 +242,7 @@
 #' plot(gs)
 #' plot(gs, which = "removed")
 #'
-#' # With response optimization (requires Yu)
+#' # With reconstruction and response optimization (requires Yu)
 #' gs_response <- gesearch(
 #'   Xr = train_x, Yr = train_y,
 #'   Xu = test_x, Yu = test_y,
@@ -255,7 +255,8 @@
 #'
 #' # Parallel processing
 #' library(doParallel)
-#' cl <- makeCluster(2)
+#' n_cores <- min(2, parallel::detectCores() - 1)
+#' cl <- makeCluster(n_cores)
 #' registerDoParallel(cl)
 #'
 #' gs_parallel <- gesearch(
@@ -328,7 +329,30 @@ gesearch.default <- function(
     ...
 ) {
   crossover <- TRUE
+
+  dots <- list(...)
+  if ("formula" %in% names(dots)) {
+    if (!inherits(dots$formula, "formula")) {
+      stop("The 'formula' argument must be a formula object.", call. = FALSE)
+    }
+  }
+  
+  
+  # --- Input validation ---
+  if (!inherits(Xr, c("matrix", "data.frame", "formula"))) {
+    stop(
+      "You are attempting to pass a ", class(Xr)[1L], " as 'Xr' or 'formula'.\n",
+      "Expected a numeric matrix for gesearch.default() or a formula for gesearch.formula().",
+      call. = FALSE
+    )
+  }
+  
   Yr <- as.matrix(Yr)
+
+  # --- control validation ---
+  if (!inherits(control, "gesearch_control")) {
+    stop("'control' must be created by gesearch_control()", call. = FALSE)
+  }
   
   if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
     old_blas_threads <- blas_get_num_procs()
@@ -339,13 +363,6 @@ gesearch.default <- function(
   } else if (Sys.info()["sysname"] == "Linux" && control$blas_threads == 1L) {
     message("Tip: Install 'RhpcBLASctl' for optimal performance on Linux:\n",
             "  install.packages('RhpcBLASctl')")
-  }
-  
-  
-  # --- Input validation ---
-  # --- control validation ---
-  if (!inherits(control, "gesearch_control")) {
-    stop("'control' must be created by gesearch_control()", call. = FALSE)
   }
   
   if (ncol(Yr) == 1L) {
@@ -988,6 +1005,7 @@ gesearch.formula <- function(
     k,
     b,
     target_size,
+    fit_method,
     ...,
     na_action = na.pass
 ) {
@@ -996,18 +1014,16 @@ gesearch.formula <- function(
   }
   
   call_f <- match.call()
+  call_env <- parent.frame() 
   
   if (missing(fit_method)) {
     stop("'fit_method' is missing", call. = FALSE)
   }
   
-  definition <- sys.function(sys.parent())
   mf <- match.call(expand.dots = FALSE)
-  formals <- formals(definition)
   
   if (!"na_action" %in% names(mf)) {
-    mf[["na_action"]] <- formals[["na_action"]]
-    match.call(definition, mf, TRUE)
+    mf[["na_action"]] <- formals(gesearch.formula)[["na_action"]]
   }
   
   # Get the model frame
@@ -1028,7 +1044,7 @@ gesearch.formula <- function(
   input_list <- list(...)
   
   # Handle missing response in test data
-  if (!yname %in% colnames(eval(mfu$data))) {
+  if (!yname %in% colnames(eval(mfu$data, envir = call_env))) {
     if ("optimization" %in% names(input_list)) {
       if (input_list$optimization == "response") {
         stop("'optimization = \"response\"' requires response values in test", 
@@ -1046,7 +1062,7 @@ gesearch.formula <- function(
   }
   
   mfu <- model.frame(mfu, data = test, na.action = NULL)
-  mfr <- eval(mfr, parent.frame())
+  mfr <- eval(mfr, call_env)
   
   trms <- attr(mfr, "terms")
   formulaclasses <- list(attr(trms, "dataClasses"))

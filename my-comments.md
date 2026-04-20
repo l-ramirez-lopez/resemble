@@ -2,55 +2,37 @@
 
 Dear CRAN maintainers,
 
-I am submitting version 3.0.0 of {resemble} to CRAN.
+This is a resubmission of resemble 3.0.0 addressing issues from the 
+previous submission:
 
-This is a major release that includes a redesigned API and several new features:
+- Added shebang to cleanup; added configure.win and cleanup.win for Windows builds
+- Added skip_on_cran() to computationally intensive tests to reduce check time
 
-- Refactored API based on constructor functions:
-  `neighbors_k()`, `neighbors_diss()`, `fit_pls()`, `fit_wapls()`, `fit_gpr()`, and `mbl_control()`
-- New `liblex()` function for building reusable libraries of local models
-- New `model()` function for fitting global PLS and GPR models with cross-validation
-- Migration of vignettes from R Markdown/bookdown to Quarto
-- Deprecation of legacy function arguments, with informative migration messages
-- Expanded unit test coverage using {testthat}
+## Test environments
+- Ubuntu 24.04, R 4.5.3 (local)
+- winbuilder R-release: 0 errors, 0 warnings, 0 notes
+- winbuilder R-oldrelease: 0 errors, 0 warnings, 0 notes
+- winbuilder R-devel: likely false positive ERROR — known incompatibility
+  between Rcpp 1.1.1 and R 4.6.0 RC (R_NamespaceRegistry removed from R API),
+  affecting all Rcpp-dependent packages. See:
+  https://github.com/RcppCore/Rcpp/issues/1473
+  Debian R-devel passes with Status: OK.
 
-Test environments:
-- Local: Ubuntu 24.04.4 LTS, R 4.5.3
-- GitHub Actions:
-  - macOS latest, R release
-  - Ubuntu latest, R devel
-  - Ubuntu latest, R oldrel-1
-  - Ubuntu latest, R release
-  - Windows latest, R release
+The checktime NOTE (14 min) is due to rebuilding 8 pre-built Quarto vignettes.
+
+Best regards,
+Leo
 
 The package was built using:
 
+devtools::install()
+
 devtools::build(
-  pkg = ".",
-  path = NULL,
-  binary = FALSE,
   vignettes = TRUE,
   manual = TRUE,
-  args = NULL,
-  quiet = FALSE
+  clean_doc = FALSE
 )
 
-All checks have passed.
-
-Results summary:
-- 6 successful CI checks
-- No conflicts with the base branch
-- Merge can be performed automatically
-
-GitHub Actions results:
-- R-CMD-check / macos-latest (release): Successful
-- R-CMD-check / ubuntu-latest (devel): Successful
-- R-CMD-check / ubuntu-latest (oldrel-1): Successful
-- R-CMD-check / ubuntu-latest (release): Successful
-- R-CMD-check / windows-latest (release): Successful
-- test-coverage: Successful
-
-Thank you for your time and consideration.
 
 # version 2.2.5
 

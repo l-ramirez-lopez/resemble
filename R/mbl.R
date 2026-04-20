@@ -19,9 +19,7 @@
 #'     spike = NULL, group = NULL,
 #'     gh = FALSE,
 #'     control = mbl_control(),
-#'     verbose = TRUE, seed = NULL,
-#'     k, k_diss, k_range, method, pc_selection,
-#'     center, scale, documentation, ...)
+#'     verbose = TRUE, seed = NULL, ...)
 #'
 #' @usage \method{plot}{mbl}(x, what = c("validation", "gh"), metric = "rmse", ncomp = c(1, 2), ...)
 #'
@@ -106,14 +104,6 @@
 #' @param ... Additional arguments passed to \code{\link[graphics]{plot}}. 
 #' Currently unused for `mbl()`.
 #' 
-#' @param k Deprecated.
-#' @param k_diss Deprecated.
-#' @param k_range Deprecated.
-#' @param method Deprecated.
-#' @param pc_selection Deprecated.
-#' @param center Deprecated.
-#' @param scale Deprecated.
-#' @param documentation Deprecated.
 #' @param ... Additional arguments (currently unused).
 #' 
 #' @details
@@ -152,6 +142,13 @@
 #' \code{validation_type = "local_cv"} in \code{\link{mbl_control}()}, the
 #' \code{p} parameter refers to the proportion of groups (not observations)
 #' retained per iteration.
+#' 
+#' ## Deprecated arguments
+#' The following arguments from previous versions of \code{resemble} are no
+#' longer supported and will throw an error if used: \code{k}, \code{k_diss},
+#' \code{k_range}, \code{method}, \code{pc_selection}, \code{center},
+#' \code{scale}, and \code{documentation}. See the current argument list for
+#' their replacements.
 #'
 #' @return 
 #' ## mbl  
@@ -312,7 +309,7 @@
 #'
 #' # Example 5: Parallel execution
 #' library(doParallel)
-#' n_cores <- min(2, parallel::detectCores())
+#' n_cores <- min(2, parallel::detectCores() - 1)
 #' clust <- makeCluster(n_cores)
 #' registerDoParallel(clust)
 #'
@@ -360,16 +357,15 @@ mbl <- function(
   control = mbl_control(),
   verbose = TRUE,
   seed = NULL,
-  k, k_diss, k_range, method, pc_selection,
-  center, scale, documentation,
-    ...
+  ...
 ) {
   f_call <- match.call()
-  
+  dots <- list(...)
   # ---------------------------------------------------------------------------
   # Block removed arguments
   # ---------------------------------------------------------------------------
-  if (!missing(k) || !missing(k_diss) || !missing(k_range)) {
+  
+  if ("k" %in% names(dots) || "k_diss" %in% names(dots) || "k_range" %in% names(dots)) {
     stop(
       "Arguments 'k', 'k_diss', 'k_range' have been removed.\n",
       "Use neighbors_k() or neighbors_diss() instead.\n",
@@ -378,7 +374,7 @@ mbl <- function(
     )
   }
   
-  if (!missing(method)) {
+  if ("method" %in% names(dots)) {
     stop(
       "Argument 'method' has been renamed to 'fit_method'.\n",
       "Use fit_pls(), fit_wapls(), or fit_gpr() constructors.\n",
@@ -387,7 +383,7 @@ mbl <- function(
     )
   }
   
-  if (!missing(pc_selection)) {
+  if ("pc_selection" %in% names(dots))  {
     stop(
       "Argument 'pc_selection' has been removed.\n",
       "Component selection is now specified in diss_*() constructors.\n",
@@ -396,7 +392,7 @@ mbl <- function(
     )
   }
   
-  if (!missing(center) || !missing(scale)) {
+  if ("center" %in% names(dots) || "scale" %in% names(dots)) {
     stop(
       "Arguments 'center' and 'scale' have been removed.\n",
       "These are now set in diss_*() and fit_*() constructors.\n",
@@ -405,28 +401,14 @@ mbl <- function(
     )
   }
   
-  if (!missing(documentation)) {
+  if ("documentation" %in% names(dots)) {
     stop(
       "Argument 'documentation' has been removed.",
       call. = FALSE
     )
   }
   
-  # ---------------------------------------------------------------------------
-  # Set BLAS threads to reduce overhead (restored on exit)
-  # ---------------------------------------------------------------------------
-  if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
-    old_blas_threads <- blas_get_num_procs()
-    if (old_blas_threads != control$blas_threads) {
-      blas_set_num_threads(control$blas_threads)
-      on.exit(blas_set_num_threads(old_blas_threads), add = TRUE)
-    }
-  } else if (Sys.info()["sysname"] == "Linux" && control$blas_threads == 1L) {
-    message(
-      "Tip: Install 'RhpcBLASctl' for optimal performance on Linux:\n",
-      "  install.packages('RhpcBLASctl')"
-    )
-  }
+  
   # ---------------------------------------------------------------------------
   # Validate constructor arguments
   # ---------------------------------------------------------------------------
@@ -449,6 +431,23 @@ mbl <- function(
   if (!inherits(control, "mbl_control")) {
     stop("'control' must be created by mbl_control()", call. = FALSE)
   }
+  
+  # ---------------------------------------------------------------------------
+  # Set BLAS threads to reduce overhead (restored on exit)
+  # ---------------------------------------------------------------------------
+  if (requireNamespace("RhpcBLASctl", quietly = TRUE)) {
+    old_blas_threads <- blas_get_num_procs()
+    if (old_blas_threads != control$blas_threads) {
+      blas_set_num_threads(control$blas_threads)
+      on.exit(blas_set_num_threads(old_blas_threads), add = TRUE)
+    }
+  } else if (Sys.info()["sysname"] == "Linux" && control$blas_threads == 1L) {
+    message(
+      "Tip: Install 'RhpcBLASctl' for optimal performance on Linux:\n",
+      "  install.packages('RhpcBLASctl')"
+    )
+  }
+  
   
   if (!is.logical(verbose) || length(verbose) != 1L) {
     stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
@@ -964,8 +963,9 @@ mbl <- function(
     ith_observation = iter_neighborhoods,
     .inorder = FALSE,
     .export = c(
-      "ortho_diss", "fit_and_predict", "pls_cv",
-      "get_col_sds", "get_wapls_weights"
+      "dissimilarity", "fit_and_predict", "pls_cv",
+      "get_col_sds", "get_wapls_weights",
+      "sample_stratified", "gaussian_pr_cv"
     ),
     .noexport = c("Xr", "Xu")
   ) %mydo% {
@@ -974,24 +974,24 @@ mbl <- function(
     additional_results <- NULL
     ith_pred_results$o_index[] <- i
     
-    if (is_local_diss) {
-      ith_observation <- get_ith_local_neighbors(
-        ith_xr = ith_observation$ith_xr,
-        ith_xu = ith_observation$ith_xu,
-        ith_yr = ith_observation$ith_yr,
-        ith_yu = ith_observation$ith_yu,
-        diss_usage = diss_usage,
-        ith_neig_indices = ith_observation$ith_neig_indices,
-        neighbors = neighbors,
-        spike = spike,
-        diss_method = diss_method,
-        ith_group = ith_observation$ith_group,
-        mbl_is_parallel = control$allow_parallel
-      )
-      ith_pred_results$loc_ncomp[] <- ith_observation$ith_ncomp
-      additional_results$ith_neig_indices <- ith_observation$ith_neig_indices
-      additional_results$ith_neigh_diss <- ith_observation$ith_neigh_diss
-    }
+    # if (is_local_diss) {
+    #   ith_observation <- get_ith_local_neighbors(
+    #     ith_xr = ith_observation$ith_xr,
+    #     ith_xu = ith_observation$ith_xu,
+    #     ith_yr = ith_observation$ith_yr,
+    #     ith_yu = ith_observation$ith_yu,
+    #     diss_usage = diss_usage,
+    #     ith_neig_indices = ith_observation$ith_neig_indices,
+    #     neighbors = neighbors,
+    #     spike = spike,
+    #     diss_method = diss_method,
+    #     ith_group = ith_observation$ith_group,
+    #     mbl_is_parallel = control$allow_parallel
+    #   )
+    #   ith_pred_results$loc_ncomp[] <- ith_observation$ith_ncomp
+    #   additional_results$ith_neig_indices <- ith_observation$ith_neig_indices
+    #   additional_results$ith_neigh_diss <- ith_observation$ith_neigh_diss
+    # }
     
     if (verbose) {
       cat(paste0("\033[34m\033[3m", i, "/", n_iter, "\033[23m\033[39m"))

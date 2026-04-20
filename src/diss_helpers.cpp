@@ -3,15 +3,13 @@
 #include <limits>
 #include <vector>
 #include <algorithm>
+#include <unordered_set>
 #ifdef _OPENMP
  #include <omp.h>
 #endif
 
-
 using namespace Rcpp;
 using namespace arma;
-
-
 
 //' @title A fast distance algorithm for two matrices written in C++ 
 //' @description Computes distances between two data matrices using 
@@ -23,7 +21,7 @@ using namespace arma;
 //' @param method a \code{string} with possible values "euclid", "cor", "cosine"
 //' @return a distance matrix
 //' @keywords internal
-//' @useDynLib resemble
+//' @noRd
 //' @author Antoine Stevens and Leonardo Ramirez-Lopez
 // [[Rcpp::export]]   
 arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){  
@@ -65,7 +63,6 @@ arma::mat fast_diss(NumericMatrix X, NumericMatrix Y, String method){
 //' @author Antoine Stevens
 //' @keywords internal 
 //' @noRd
-//' @useDynLib resemble
 // [[Rcpp::export]]   
 NumericVector fast_diss_vector(NumericVector X) {  
   int nX = X.size();
@@ -111,7 +108,6 @@ NumericVector fast_diss_vector(NumericVector X) {
 //' Note that the function assumes that the input matrix `X` is not empty and
 //' @keywords internal
 //' @noRd
-//' @useDynLib resemble
 // [[Rcpp::export]]
 Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
   const arma::uword n = X.n_rows;
@@ -155,7 +151,7 @@ Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
 // //' @details used internally in ortho_projection
 // //' @author Leo Ramirez-Lopez
 // //' @keywords internal 
-// //' @useDynLib resemble
+// // //' @useDynLib resemble
 // // [[Rcpp::export]] 
 // NumericVector fastDistVVL(NumericVector X){
 //   int nX = X.size();
@@ -202,7 +198,7 @@ Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
 // //' input data. The piece of code int \code{len = (sqrt(X.size()*8+1)+1)/2} generated an error in CRAN
 // //' since \code{sqrt} cannot be applied to integers.
 // //' @keywords internal
-// //' @useDynLib resemble
+// // //' @useDynLib resemble
 // //' @author Antoine Stevens 
 // // [[Rcpp::plugins(openmp)]]
 // // [[Rcpp::export]]  
@@ -257,7 +253,7 @@ Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
 // //' @param w window size (must be odd)
 // //' @return a matrix of correlation distance
 // //' @keywords internal
-// //' @useDynLib resemble
+// // //' @useDynLib resemble
 // //' @author Leonardo Ramirez-Lopez and Antoine Stevens
 // // [[Rcpp::export]]
 // NumericMatrix moving_cor_diss(arma::mat X, arma::mat Y, int w){
@@ -283,32 +279,12 @@ Rcpp::NumericMatrix fast_self_euclid(const arma::mat& X) {
 // }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Minimal helper
 static inline void validate_window_or_full(int w, arma::uword T) {
   if (w < 1 || static_cast<arma::uword>(w) > T || (((w % 2) == 0) && w != static_cast<int>(T))) {
-    throw std::invalid_argument("w must be odd and ≤ number of columns; alternatively set w == number of columns for a full-window.");
+    throw std::invalid_argument("w must be odd and <= number of columns; alternatively set w == number of columns for a full-window.");
   }
 }
-
-
-
 
 // --- Full-window correlation via sums/products (templated) -------------------
 template<typename eT>
@@ -326,7 +302,7 @@ cor_dense_from_stats_xy_t(const arma::Mat<eT> &X, const arma::Mat<eT> &Y) {
   arma::Col<eT> Sxx = arma::sum(arma::square(X), 1);
   arma::Col<eT> Syy = arma::sum(arma::square(Y), 1);
   
-  arma::Mat<eT> Sxy = X * Y.t();                        // m×n
+  arma::Mat<eT> Sxy = X * Y.t();                        //m \times n
   arma::Mat<eT> C   = Sxy - (Sx * Sy.t()) * iw;         // cov*(T-1)
   C *= ic;                                              // cov
   
@@ -338,15 +314,15 @@ cor_dense_from_stats_xy_t(const arma::Mat<eT> &X, const arma::Mat<eT> &Y) {
   
   C.each_row() %= inv_sdy.t();
   C.each_col() %= inv_sdx;
-  return C;                                            // m×n
+  return C;                                            //m \times n
 }
 
 // --- Per-tile rolling corr from stats (templated) ----------------------------
 template<typename eT>
 static inline void
 corr_tile_xy_fast_t(
-  arma::Mat<eT> &C,                  // mi×nj (output; reused as cov)
-  const arma::Mat<eT> &Sxy,          // mi×nj
+  arma::Mat<eT> &C,                  // mi \times nj (output; reused as cov)
+  const arma::Mat<eT> &Sxy,          // mi \times nj
   const arma::Col<eT> &Sx_i,         // mi
   const arma::Col<eT> &Sy_j,         // nj
   const arma::Col<eT> &Sxx_i,        // mi
@@ -391,8 +367,8 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
   
   // Full-window path
   if (w == static_cast<int>(T)) {
-    arma::Mat<eT> C = cor_dense_from_stats_xy_t<eT>(X, Y);  // m×n
-    arma::Mat<eT> D = (eT(1) - C) / eT(2);                  // m×n
+    arma::Mat<eT> C = cor_dense_from_stats_xy_t<eT>(X, Y);  //m \times n
+    arma::Mat<eT> D = (eT(1) - C) / eT(2);                  //m \times n
     // Clamp distances to [0,1] to remove tiny round-off
     D.transform([](eT d){ return (d < eT(0)) ? eT(0) : (d > eT(1) ? eT(1) : d); });
     return D.t();                                           // n×m
@@ -475,7 +451,7 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 // //' @title Rolling correlation distance between X and Y
 // //' @param X Numeric matrix m×T
 // //' @param Y Numeric matrix n×T
-// //' @param w Window size (odd in [1..T] or exactly T)
+// //' @param w Window size (odd)
 // //' @param block_x Tile size for rows of X (default 1024)
 // //' @param block_y Tile size for rows of Y (default 1024)
 // //' @param precision "double" (default) or "float32"/"single"
@@ -506,7 +482,7 @@ moving_cor_diss_xy_impl(const arma::Mat<eT> &X,
 //' @title Rolling correlation distance between X and Y
 //' @param X Numeric matrix m×T
 //' @param Y Numeric matrix n×T
-//' @param w Window size (odd in [1..T] or exactly T)
+//' @param w Window size (odd)
 //' @param block_x Tile size for rows of X (default 1024)
 //' @param block_y Tile size for rows of Y (default 1024)
 //' @return n×m distance matrix (R double matrix)
@@ -565,10 +541,8 @@ static inline void corr_tile_from_stats_serial_fast(
 //' @param w Odd window size
 //' @param block_rows Tile size in rows (default 1024)
 //' @return m x m symmetric distance matrix
-//' @noRd
 //' @keywords internal
 //' @noRd
-//' @useDynLib resemble, .registration=TRUE
 // [[Rcpp::export]]
 arma::mat moving_cor_diss_self_f64(const arma::mat &X, int w,
                                    arma::uword block_rows = 1024) {
@@ -715,7 +689,7 @@ arma::mat moving_cor_diss_self_f64(const arma::mat &X, int w,
 // //' @return m x m symmetric distance matrix (returned as double for R)
 // //' @keywords internal
 // //' @noRd
-// //' @useDynLib resemble, .registration=TRUE
+// // //' @useDynLib resemble, .registration=TRUE
 // // [[Rcpp::export]]
 // arma::mat moving_cor_diss_self_f32(const arma::mat &X, int w,
 //                                    arma::uword block_rows = 1024) {
@@ -819,13 +793,12 @@ arma::mat moving_cor_diss_self_f64(const arma::mat &X, int w,
 // --- R wrapper: precision selectable ("double" | "float32") ------------------
 
 //' @title Rolling correlation distance within X (templated, OpenMP; precision)
-//' @param X Numeric matrix (m×T)
-//' @param w Window size (odd in [1..T] or exactly T)
+//' @param X Numeric matrix (m x T)
+//' @param w Window size (odd in)
 //' @param block_rows Tile size (default 1024)
 //' @return m×m distance matrix (double for R)
 //' @keywords internal
 //' @noRd
-//' @useDynLib resemble
 // [[Rcpp::export]]
 arma::mat moving_cor_diss_self(
     const arma::mat &X,
@@ -852,7 +825,6 @@ arma::mat moving_cor_diss_self(
 //' @return a vector of the indices of the minimum value in each row of the input matrix
 //' @details Used internally to find the nearest neighbors
 //' @keywords internal
-//' @useDynLib resemble
 //' @noRd
 //' @author Antoine Stevens 
 // [[Rcpp::export]]  
@@ -886,7 +858,6 @@ NumericVector which_min(NumericMatrix X){
 //' since \code{sqrt} cannot be applied to integers.
 //' @keywords internal
 //' @noRd
-//' @useDynLib resemble
 //' @author Antoine Stevens 
 // [[Rcpp::export]]
 NumericVector which_min_vector(NumericVector X){  
@@ -1017,7 +988,9 @@ NumericMatrix extract_by_index(NumericMatrix mat, IntegerMatrix idx) {
   int ncol = idx.ncol();
   NumericMatrix out(nrow, ncol);
   
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
   for (int j = 0; j < ncol; j++) {
     for (int i = 0; i < nrow; i++) {
       out(i, j) = mat(idx(i, j) - 1, j);
@@ -1070,7 +1043,9 @@ Rcpp::LogicalMatrix not_in_same_group(
   int ncol = kidxmat.ncol();
   Rcpp::LogicalMatrix result(nrow, ncol);
   
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
   for (int j = 0; j < ncol; ++j) {
     int grp_j = group[j];
     for (int i = 0; i < nrow; ++i) {
@@ -1140,7 +1115,9 @@ NumericMatrix compute_nn_quantiles(
   
   NumericMatrix result(n_obs, n_quantiles);
   
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
   for (int j = 0; j < n_obs; j++) {
     int ik = single_k ? k[0] : k[j];
     
@@ -1246,7 +1223,9 @@ List top_k_neighbors(
   // Thread-safe storage: vector of vectors
   std::vector<std::vector<int>> results(m);
   
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
   for (int j = 0; j < m; j++) {
     std::vector<std::pair<double, int>> col(n);
     for (int i = 0; i < n; i++) {

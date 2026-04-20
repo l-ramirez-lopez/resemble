@@ -14,6 +14,7 @@ format:
     number-sections: true
     code-overflow: wrap
     smooth-scroll: true
+    html-math-method: mathjax
 vignette: >
   %\VignetteIndexEntry{2 Dimensionality reduction of spectral data}
   %\VignetteEncoding{UTF-8}
@@ -228,8 +229,8 @@ The function provides the following algorithms for PCA:
 For PLS, the available algorithms are:
 
 * `"pls"`: standard partial least squares decomposition computed with the NIPALS algorithm. The projection is guided by external variables provided in `Yr`, so that the latent variables maximize the covariance between the spectral predictors and the side information.
-* `"mpls"`: modified partial least squares, computed with the NIPALS algorithm. Weights are derived from correlations rather than covariances between `Xr` and `Yr`, giving equal influence to all predictors regardless of variance [@Shenk1991].
-* `"simpls"`: partial least squares computed with the SIMPLS algorithm [@deJong1993], which is often computationally more efficient than NIPALS for high-dimensional data.
+* `"mpls"`: modified partial least squares, computed with the NIPALS algorithm. Weights are derived from correlations rather than covariances between `Xr` and `Yr`, giving equal influence to all predictors regardless of variance [@shenk1991populations].
+* `"simpls"`: partial least squares computed with the SIMPLS algorithm [@de1993simpls], which is often computationally more efficient than NIPALS for high-dimensional data.
 
 ## Example: PCA projection
 

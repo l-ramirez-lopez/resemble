@@ -14,6 +14,7 @@ format:
     toc-location: left
     code-overflow: wrap
     smooth-scroll: true
+    html-math-method: mathjax
 knitr:
   opts_chunk:
     class-output: "ansi"

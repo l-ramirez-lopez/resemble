@@ -11,7 +11,7 @@
 #' @param method a \code{string} with possible values "euclid", "cor", "cosine"
 #' @return a distance matrix
 #' @keywords internal
-#' @useDynLib resemble
+#' @noRd
 #' @author Antoine Stevens and Leonardo Ramirez-Lopez
 fast_diss <- function(X, Y, method) {
     .Call(`_resemble_fast_diss`, X, Y, method)
@@ -27,7 +27,6 @@ fast_diss <- function(X, Y, method) {
 #' @author Antoine Stevens
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 fast_diss_vector <- function(X) {
     .Call(`_resemble_fast_diss_vector`, X)
 }
@@ -57,7 +56,6 @@ fast_diss_vector <- function(X) {
 #' Note that the function assumes that the input matrix `X` is not empty and
 #' @keywords internal
 #' @noRd
-#' @useDynLib resemble
 fast_self_euclid <- function(X) {
     .Call(`_resemble_fast_self_euclid`, X)
 }
@@ -65,7 +63,7 @@ fast_self_euclid <- function(X) {
 #' @title Rolling correlation distance between X and Y
 #' @param X Numeric matrix m×T
 #' @param Y Numeric matrix n×T
-#' @param w Window size (odd in [1..T] or exactly T)
+#' @param w Window size (odd)
 #' @param block_x Tile size for rows of X (default 1024)
 #' @param block_y Tile size for rows of Y (default 1024)
 #' @return n×m distance matrix (R double matrix)
@@ -82,22 +80,19 @@ moving_cor_diss_xy <- function(X, Y, w, block_x = 1024L, block_y = 1024L) {
 #' @param w Odd window size
 #' @param block_rows Tile size in rows (default 1024)
 #' @return m x m symmetric distance matrix
-#' @noRd
 #' @keywords internal
 #' @noRd
-#' @useDynLib resemble, .registration=TRUE
 moving_cor_diss_self_f64 <- function(X, w, block_rows = 1024L) {
     .Call(`_resemble_moving_cor_diss_self_f64`, X, w, block_rows)
 }
 
 #' @title Rolling correlation distance within X (templated, OpenMP; precision)
-#' @param X Numeric matrix (m×T)
-#' @param w Window size (odd in [1..T] or exactly T)
+#' @param X Numeric matrix (m x T)
+#' @param w Window size (odd in)
 #' @param block_rows Tile size (default 1024)
 #' @return m×m distance matrix (double for R)
 #' @keywords internal
 #' @noRd
-#' @useDynLib resemble
 moving_cor_diss_self <- function(X, w, block_rows = 1024L) {
     .Call(`_resemble_moving_cor_diss_self`, X, w, block_rows)
 }
@@ -110,7 +105,6 @@ moving_cor_diss_self <- function(X, w, block_rows = 1024L) {
 #' @return a vector of the indices of the minimum value in each row of the input matrix
 #' @details Used internally to find the nearest neighbors
 #' @keywords internal
-#' @useDynLib resemble
 #' @noRd
 #' @author Antoine Stevens 
 which_min <- function(X) {
@@ -130,7 +124,6 @@ which_min <- function(X) {
 #' since \code{sqrt} cannot be applied to integers.
 #' @keywords internal
 #' @noRd
-#' @useDynLib resemble
 #' @author Antoine Stevens 
 which_min_vector <- function(X) {
     .Call(`_resemble_which_min_vector`, X)
@@ -332,7 +325,6 @@ top_k_neighbors <- function(D, k_min, k_max, threshold = NULL) {
 #' @return a value indicating the index of the column with the largest standard deviation. 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
-#' @useDynLib resemble
 #' @noRd
 get_col_largest_sd <- function(X) {
     .Call(`_resemble_get_col_largest_sd`, X)
@@ -346,7 +338,6 @@ get_col_largest_sd <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 get_column_sds <- function(X) {
     .Call(`_resemble_get_column_sds`, X)
 }
@@ -359,7 +350,6 @@ get_column_sds <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 overall_var <- function(X) {
     .Call(`_resemble_overall_var`, X)
 }
@@ -370,8 +360,7 @@ overall_var <- function(X) {
 #' @param X a a matrix.
 #' @return a vector of mean values. 
 #' @author Leonardo Ramirez-Lopez
-#' @keywords internal 
-#' @useDynLib resemble
+#' @keywords internal
 #' @noRd
 get_column_means <- function(X) {
     .Call(`_resemble_get_column_means`, X)
@@ -385,7 +374,6 @@ get_column_means <- function(X) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 get_column_maxs <- function(X) {
     .Call(`_resemble_get_column_maxs`, X)
 }
@@ -397,7 +385,6 @@ get_column_maxs <- function(X) {
 #' @return a vector of standard deviation values. 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
-#' @useDynLib resemble
 #' @noRd
 get_column_sums <- function(X) {
     .Call(`_resemble_get_column_sums`, X)
@@ -430,7 +417,6 @@ get_column_sums <- function(X) {
 #' @return a `matrix` of one column containing the weights.
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 get_weights <- function(X, Y, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
     .Call(`_resemble_get_weights`, X, Y, algorithm, xls_min_w, xls_max_w)
 }
@@ -460,8 +446,7 @@ get_weights <- function(X, Y, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L
 #' @return a matrix of one row with the weights for each component between the max. and min. specified. 
 #' @author Leonardo Ramirez-Lopez
 #' @noRd
-#' @keywords internal 
-#' @useDynLib resemble
+#' @keywords internal
 get_local_pls_weights <- function(projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale) {
     .Call(`_resemble_get_local_pls_weights`, projection_mat, xloadings, coefficients, new_x, min_component, max_component, scale, Xcenter, Xscale)
 }
@@ -530,8 +515,7 @@ get_local_pls_weights <- function(projection_mat, xloadings, coefficients, new_x
 #' }
 #' @author Leonardo Ramirez-Lopez
 #' @noRd
-#' @keywords internal 
-#' @useDynLib resemble
+#' @keywords internal
 opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
     .Call(`_resemble_opls_for_projection`, X, Y, ncomp, scale, maxiter, tol, pcSelmethod, pcSelvalue, algorithm, xls_min_w, xls_max_w)
 }
@@ -585,7 +569,6 @@ opls_for_projection <- function(X, Y, ncomp, scale, maxiter, tol, pcSelmethod = 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
     .Call(`_resemble_opls_get_all`, X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
@@ -634,8 +617,7 @@ opls_get_all <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xl
 #' \item{\code{weights}: the matrix of wheights.}} 
 #' @author Leonardo Ramirez-Lopez
 #' @noRd
-#' @keywords internal 
-#' @useDynLib resemble
+#' @keywords internal
 opls <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
     .Call(`_resemble_opls`, X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
@@ -705,7 +687,6 @@ opls <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 opls_get_basics <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls", xls_min_w = 3L, xls_max_w = 15L) {
     .Call(`_resemble_opls_get_basics`, X, Y, ncomp, scale, maxiter, tol, algorithm, xls_min_w, xls_max_w)
 }
@@ -724,7 +705,6 @@ opls_get_basics <- function(X, Y, ncomp, scale, maxiter, tol, algorithm = "pls",
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 predict_opls <- function(bo, b, ncomp, newdata, scale, Xscale) {
     .Call(`_resemble_predict_opls`, bo, b, ncomp, newdata, scale, Xscale)
 }
@@ -743,7 +723,6 @@ predict_opls <- function(bo, b, ncomp, newdata, scale, Xscale) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale) {
     .Call(`_resemble_project_opls`, projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 }
@@ -769,7 +748,6 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back = FALSE) {
     .Call(`_resemble_reconstruction_error`, x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back)
 }
@@ -840,7 +818,6 @@ reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, X
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics = TRUE) {
     .Call(`_resemble_opls_cv_cpp`, X, Y, scale, method, mindices, pindices, min_component, ncomp, new_x, maxiter, tol, wapls_grid, algorithm, statistics)
 }
@@ -938,7 +915,6 @@ opls_cv_cpp <- function(X, Y, scale, method, mindices, pindices, min_component, 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 opls_gesearch <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruction = TRUE, similarity = TRUE, fresponse = TRUE, algorithm = "pls") {
     .Call(`_resemble_opls_gesearch`, Xr, Yr, Xu, ncomp, scale, response, reconstruction, similarity, fresponse, algorithm)
 }
@@ -965,7 +941,6 @@ opls_gesearch <- function(Xr, Yr, Xu, ncomp, scale, response = FALSE, reconstruc
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 gaussian_process <- function(X, Y, noisev = 0.001, scale = TRUE) {
     .Call(`_resemble_gaussian_process`, X, Y, noisev, scale)
 }
@@ -984,7 +959,6 @@ gaussian_process <- function(X, Y, noisev = 0.001, scale = TRUE) {
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale) {
     .Call(`_resemble_predict_gaussian_process`, Xz, alpha, newdata, scale, Xcenter, Xscale, Ycenter, Yscale)
 }
@@ -1016,7 +990,6 @@ predict_gaussian_process <- function(Xz, alpha, newdata, scale, Xcenter, Xscale,
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale = TRUE, statistics = TRUE) {
     .Call(`_resemble_gaussian_process_cv`, X, Y, mindices, pindices, noisev, scale, statistics)
 }
@@ -1054,7 +1027,6 @@ gaussian_process_cv <- function(X, Y, mindices, pindices, noisev = 0.001, scale 
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-#' @useDynLib resemble
 pca_nipals <- function(X, ncomp, center, scale, maxiter, tol, pcSelmethod = "var", pcSelvalue = 0.01) {
     .Call(`_resemble_pca_nipals`, X, ncomp, center, scale, maxiter, tol, pcSelmethod, pcSelvalue)
 }
@@ -1101,7 +1073,6 @@ pca_nipals <- function(X, ncomp, center, scale, maxiter, tol, pcSelmethod = "var
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
 #' @noRd
-#' @useDynLib resemble
 ith_local_fit <- function(X, Y, xval, emgrid, ncomp_max, ncomp_min, scale, max_iter, tol, algorithm = "mpls") {
     .Call(`_resemble_ith_local_fit`, X, Y, xval, emgrid, ncomp_max, ncomp_min, scale, max_iter, tol, algorithm)
 }

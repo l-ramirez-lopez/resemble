@@ -14,6 +14,7 @@ format:
     number-sections: true
     code-overflow: wrap
     smooth-scroll: true
+    html-math-method: mathjax
 vignette: >
   %\VignetteIndexEntry{4 Nearest-neighbor search}
   %\VignetteEncoding{UTF-8}
@@ -280,7 +281,7 @@ In the package, we can use `search_neighbors()` to find in the `train_x` set the
 ```{r}
 #| eval: TRUE
 #| label: knn-threshold-example
-#| results: "hide"
+#| results: hide
 # a dissimilarity threshold
 d_th <- 1
 

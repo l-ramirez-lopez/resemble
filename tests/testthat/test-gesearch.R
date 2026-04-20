@@ -792,3 +792,823 @@ test_that("gesearch produces different results with pls and mpls for optimizatio
   
   expect_false(identical(gs_mpls$indices, gs_pls$indices))
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# =============================================================================
+# gesearch_control validation tests
+# =============================================================================
+
+test_that("gesearch validates control class", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      control = list(tune = FALSE)
+    ),
+    "'control' must be created by gesearch_control\\(\\)"
+  )
+})
+
+# =============================================================================
+# Multi-column Yr validation tests
+# =============================================================================
+
+test_that("gesearch validates multi-column Yr has column names", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  # Multi-column Yr without column names
+  Yr_multi <- cbind(d$train_y, d$train_y * 2)
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = Yr_multi,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "Yr must have column names when it has multiple columns"
+  )
+})
+
+test_that("gesearch validates multi-column Yr row count", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  # Multi-column Yr with wrong row count
+  Yr_multi <- cbind(y1 = d$train_y[1:10], y2 = d$train_y[1:10])
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = Yr_multi,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "nrow\\(Xr\\) must equal nrow\\(Yr\\)"
+  )
+})
+
+# =============================================================================
+# Multi-column Yu validation tests
+# =============================================================================
+
+test_that("gesearch validates Yu length matches Xu rows", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      Yu = d$test_y[1:5],
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "nrow\\(Xu\\) must equal length\\(Yu\\)"
+  )
+})
+
+test_that("gesearch rejects Yu_lims with multi-column Yu", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  Yu_multi <- cbind(y1 = d$test_y, y2 = d$test_y * 2)
+  Yr_multi <- cbind(y1 = d$train_y, y2 = d$train_y * 2)
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = Yr_multi,
+      Xu = d$test_x,
+      Yu = Yu_multi,
+      Yu_lims = c(0, 10),
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "'Yu_lims' only supported for single-column Yu"
+  )
+})
+
+test_that("gesearch validates multi-column Yu ncol matches Yr", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  Yr_multi <- cbind(y1 = d$train_y, y2 = d$train_y * 2)
+  Yu_wrong <- cbind(y1 = d$test_y, y2 = d$test_y * 2, y3 = d$test_y * 3)
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = Yr_multi,
+      Xu = d$test_x,
+      Yu = Yu_wrong,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "ncol\\(Yr\\) must equal ncol\\(Yu\\)"
+  )
+})
+
+test_that("gesearch validates multi-column Yu nrow matches Xu", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  Yr_multi <- cbind(y1 = d$train_y, y2 = d$train_y * 2)
+  Yu_wrong <- cbind(y1 = d$test_y[1:5], y2 = d$test_y[1:5] * 2)
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = Yr_multi,
+      Xu = d$test_x,
+      Yu = Yu_wrong,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "nrow\\(Xu\\) must equal nrow\\(Yu\\)"
+  )
+})
+
+test_that("gesearch validates multi-column Yu has column names", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  Yr_multi <- cbind(y1 = d$train_y, y2 = d$train_y * 2)
+  Yu_no_names <- cbind(d$test_y, d$test_y * 2)
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = Yr_multi,
+      Xu = d$test_x,
+      Yu = Yu_no_names,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "Yu must have column names when it has multiple columns"
+  )
+})
+
+test_that("gesearch validates Yu and Yr column names match", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  Yr_multi <- cbind(y1 = d$train_y, y2 = d$train_y * 2)
+  Yu_wrong_names <- cbind(a = d$test_y, b = d$test_y * 2)
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = Yr_multi,
+      Xu = d$test_x,
+      Yu = Yu_wrong_names,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "Column names of Yr and Yu must match"
+  )
+})
+
+# =============================================================================
+# fit_method validation tests
+# =============================================================================
+
+test_that("gesearch rejects non-fit_pls fit_method", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_gpr(),
+      verbose = FALSE
+    ),
+    "Only fit_pls\\(\\) is supported"
+  )
+})
+
+test_that("gesearch warns when tune is used with reconstruction", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_warning(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 30, b = 20, retain = 0.90,
+      target_size = 350,
+      fit_method = fit_pls(ncomp = 10),
+      optimization = "reconstruction",
+      control = gesearch_control(tune = TRUE),
+      verbose = FALSE,
+      seed = 42
+    ),
+    "PLS components are not tuned when optimization includes 'reconstruction'"
+  )
+})
+
+# =============================================================================
+# Local CV validation tests
+# =============================================================================
+
+test_that("gesearch errors when local CV leaves fewer than 3 observations", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      Yu = d$test_y,
+      k = 10,  # small k
+      b = 10,
+      target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      optimization = "response",
+      control = gesearch_control(tune = TRUE, p = 0.95),  # leaves ~5% for hold-out
+      verbose = FALSE
+    ),
+    "Local cross-validation requires at least 3 observations"
+  )
+})
+
+test_that("gesearch errors when ncomp exceeds available samples", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 10,  # small k
+      b = 10,
+      target_size = 350,
+      fit_method = fit_pls(ncomp = 15),  # more components than k
+      control = gesearch_control(tune = FALSE),
+      verbose = FALSE
+    ),
+    "More PLS components than available observations"
+  )
+})
+
+# =============================================================================
+# Range optimization validation tests
+# =============================================================================
+
+test_that("gesearch requires Yu_lims for range optimization", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      optimization = "range",
+      verbose = FALSE
+    ),
+    "'Yu_lims' is required for 'range' optimization"
+  )
+})
+
+test_that("gesearch validates Yu_lims length", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      optimization = "range",
+      Yu_lims = c(0, 5, 10),
+      verbose = FALSE
+    ),
+    "'Yu_lims' must be a numeric vector of length 2"
+  )
+})
+
+test_that("gesearch with range optimization works", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  gs <- gesearch(
+    Xr = d$train_x,
+    Yr = d$train_y,
+    Xu = d$test_x,
+    k = 30, b = 20, retain = 0.90,
+    target_size = 350,
+    fit_method = fit_pls(ncomp = 10),
+    optimization = c("reconstruction", "range"),
+    Yu_lims = range(d$train_y),
+    verbose = FALSE,
+    seed = 42
+  )
+  
+  expect_s3_class(gs, "gesearch")
+})
+
+# =============================================================================
+# gesearch.formula tests
+# =============================================================================
+
+test_that("gesearch.formula validates formula class", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(y = d$test_y, spc = I(d$test_x))
+  
+  expect_error(
+    gesearch(
+      formula = "y ~ spc",  # character, not formula
+      train = train_df,
+      test = test_df,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5)
+    ),
+    "'formula' argument must be a formula object"
+  )
+})
+
+test_that("gesearch.formula requires fit_method", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(y = d$test_y, spc = I(d$test_x))
+  
+  expect_error(
+    gesearch(
+      formula = y ~ spc,
+      train = train_df,
+      test = test_df,
+      k = 30, b = 10, target_size = 350
+    ),
+    "'fit_method' is missing"
+  )
+})
+
+test_that("gesearch.formula warns when response missing in test", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(spc = I(d$test_x))  # No y column
+  
+  expect_warning(
+    gs <- resemble::gesearch(
+      formula = y ~ spc,
+      train = train_df,
+      test = test_df,
+      k = 30, b = 20, retain = 0.90,
+      target_size = 350,
+      fit_method = fit_pls(ncomp = 10),
+      optimization = "reconstruction",
+      verbose = FALSE,
+      seed = 42
+    ),
+    "y not found in test; assigned NA."
+  )
+  
+  expect_s3_class(gs, "gesearch")
+})
+
+test_that("gesearch.formula errors when response optimization without response in test", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(spc = I(d$test_x))  # No y column
+  
+  expect_error(
+    gesearch(
+      formula = y ~ spc,
+      train = train_df,
+      test = test_df,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      optimization = "response"
+    ),
+    "'optimization = \"response\"' requires response values in test"
+  )
+})
+
+test_that("gesearch.formula works with data.frame input", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(y = d$test_y, spc = I(d$test_x))
+  
+  gs <- gesearch(
+    formula = y ~ spc,
+    train = train_df,
+    test = test_df,
+    k = 30, b = 20, retain = 0.90,
+    target_size = 350,
+    fit_method = fit_pls(ncomp = 10),
+    optimization = "reconstruction",
+    verbose = FALSE,
+    seed = 42
+  )
+  
+  expect_s3_class(gs, "gesearch")
+  expect_s3_class(gs, "gesearch.formula")
+  expect_true("formula" %in% names(gs))
+  expect_true("dataclasses" %in% names(gs))
+})
+
+# =============================================================================
+# predict.gesearch formula model tests
+# =============================================================================
+
+test_that("predict.gesearch validates newdata for formula models", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(y = d$test_y, spc = I(d$test_x))
+  
+  gs <- gesearch(
+    formula = y ~ spc,
+    train = train_df,
+    test = test_df,
+    k = 30, b = 20, retain = 0.90,
+    target_size = 350,
+    fit_method = fit_pls(ncomp = 10),
+    optimization = "reconstruction",
+    verbose = FALSE,
+    seed = 42
+  )
+  
+  # Wrong type for newdata
+  expect_error(
+    predict(gs, newdata = as.list(d$test_x)),
+    "'newdata' must be a data.frame or matrix"
+  )
+})
+
+test_that("predict.gesearch validates missing variables for formula models", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(y = d$test_y, spc = I(d$test_x))
+  
+  gs <- gesearch(
+    formula = y ~ spc,
+    train = train_df,
+    test = test_df,
+    k = 30, b = 20, retain = 0.90,
+    target_size = 350,
+    fit_method = fit_pls(ncomp = 10),
+    optimization = "reconstruction",
+    verbose = FALSE,
+    seed = 42
+  )
+  
+  # Missing predictor variables
+  wrong_df <- data.frame(wrong_name = I(d$test_x))
+  
+  expect_error(
+    predict(gs, newdata = wrong_df),
+    "Missing predictor variables"
+  )
+})
+
+test_that("predict.gesearch works with formula model and data.frame", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(y = d$test_y, spc = I(d$test_x))
+  
+  gs <- gesearch(
+    formula = y ~ spc,
+    train = train_df,
+    test = test_df,
+    k = 30, b = 20, retain = 0.90,
+    target_size = 350,
+    fit_method = fit_pls(ncomp = 10),
+    optimization = "reconstruction",
+    verbose = FALSE,
+    seed = 42
+  )
+  
+  preds <- predict(gs, newdata = test_df)
+  
+  expect_type(preds, "list")
+  expect_equal(nrow(preds[[1]]), nrow(d$test_x))
+})
+
+test_that("predict.gesearch works with formula model and matrix", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_df <- data.frame(y = d$train_y, spc = I(d$train_x))
+  test_df <- data.frame(y = d$test_y, spc = I(d$test_x))
+  
+  gs <- gesearch(
+    formula = y ~ spc,
+    train = train_df,
+    test = test_df,
+    k = 30, b = 20, retain = 0.90,
+    target_size = 350,
+    fit_method = fit_pls(ncomp = 10),
+    optimization = "reconstruction",
+    verbose = FALSE,
+    seed = 42
+  )
+  
+  # Predict with matrix
+  preds <- predict(gs, newdata = d$test_x)
+  
+  expect_type(preds, "list")
+  expect_equal(nrow(preds[[1]]), nrow(d$test_x))
+})
+
+test_that("predict.gesearch rejects non-matrix newdata for non-formula models", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  gs <- gesearch(
+    Xr = d$train_x,
+    Yr = d$train_y,
+    Xu = d$test_x,
+    k = 30, b = 20, retain = 0.90,
+    target_size = 350,
+    fit_method = fit_pls(ncomp = 10),
+    optimization = "reconstruction",
+    verbose = FALSE,
+    seed = 42
+  )
+  
+  expect_error(
+    predict(gs, newdata = as.data.frame(d$test_x)),
+    "'newdata' must be a matrix"
+  )
+})
+
+# =============================================================================
+# Verbose output tests
+# =============================================================================
+
+test_that("gesearch verbose output works", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  expect_output(
+    gs <- gesearch(
+      Xr = d$train_x,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 30, b = 20, retain = 0.90,
+      target_size = 350,
+      fit_method = fit_pls(ncomp = 10),
+      optimization = "reconstruction",
+      verbose = TRUE,
+      seed = 42
+    ),
+    "Generation"
+  )
+})
+
+# =============================================================================
+# Missing Xr/Yr validation tests
+# =============================================================================
+
+test_that("gesearch rejects missing values in Xr", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_x_na <- d$train_x
+  train_x_na[1, 1] <- NA
+  
+  expect_error(
+    gesearch(
+      Xr = train_x_na,
+      Yr = d$train_y,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "'Xr' contains missing values"
+  )
+})
+
+test_that("gesearch rejects missing values in Yr", {
+  skip_on_cran()
+  skip_if_not_installed("prospectr")
+  
+  d <- .setup_gesearch_data()
+  
+  train_y_na <- d$train_y
+  train_y_na[1] <- NA
+  
+  expect_error(
+    gesearch(
+      Xr = d$train_x,
+      Yr = train_y_na,
+      Xu = d$test_x,
+      k = 30, b = 10, target_size = 350,
+      fit_method = fit_pls(ncomp = 5),
+      verbose = FALSE
+    ),
+    "'Yr' contains missing values"
+  )
+})

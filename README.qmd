@@ -308,9 +308,9 @@ citation(package = "resemble")
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
+Contributions are welcome! Please read our Contributing Guidelines (available in the GitHub repo) before submitting pull requests.
 
-This project follows a [Code of Conduct](CODE_OF_CONDUCT.md).
+This project follows a Code of Conduct available in the GitHub repo.
 
 ## Bug reports
 

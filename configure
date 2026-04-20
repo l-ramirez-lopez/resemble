@@ -1,3 +1,4 @@
+#!/bin/sh
 set -eu
 
 echo "==> checking OpenMP support"
@@ -56,14 +57,15 @@ else
   OPENMP_CXXFLAGS=""
   OPENMP_LIBS=""
 fi
-rm -f conftest.cpp conftest.o conftest
+rm -f conftest.cpp conftest.o conftest conftest.gcno
 
-# Emit flags for Makevars to include
+# Emit flags into a private-named fragment so we do not overwrite
+# R's own SHLIB_OPENMP_CXXFLAGS macro (set by R CMD config).
 mkdir -p src
 {
-  echo "SHLIB_OPENMP_CXXFLAGS=${OPENMP_CXXFLAGS}"
-  echo "OPENMP_LIBS=${OPENMP_LIBS}"
+  echo "RESEMBLE_OPENMP_CXXFLAGS=${OPENMP_CXXFLAGS}"
+  echo "RESEMBLE_OPENMP_LIBS=${OPENMP_LIBS}"
 } > src/Makevars.omp
 
-echo "   SHLIB_OPENMP_CXXFLAGS='${OPENMP_CXXFLAGS}'"
-echo "   OPENMP_LIBS='${OPENMP_LIBS}'"
+echo "   RESEMBLE_OPENMP_CXXFLAGS='${OPENMP_CXXFLAGS}'"
+echo "   RESEMBLE_OPENMP_LIBS='${OPENMP_LIBS}'"

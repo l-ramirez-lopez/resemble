@@ -29,4 +29,5 @@ print.ortho_projection <- function(x, ...) {
     cat("\n", "Explained variance in Yr: \n")
     print(x$variance$y_var, digits = 3)
   }
+  invisible(x)
 }

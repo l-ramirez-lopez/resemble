@@ -1,4 +1,3 @@
-#' @useDynLib resemble
 #' @import lifecycle
 #' @import Rcpp
 #' @import foreach
@@ -15,6 +14,7 @@
 #' @importFrom utils flush.console tail
 #' @importFrom RhpcBLASctl blas_get_num_procs blas_set_num_threads
 #' @importFrom foreach foreach %dopar%
+#' @useDynLib resemble, .registration=TRUE
 #' @description
 #' 
 #' \ifelse{html}{\out{<a href='https://www.tidyverse.org/lifecycle/#maturing'><img src='figures/lifecycle-maturing.svg' alt='Maturing lifecycle'></a>}}{\strong{Maturing}}
