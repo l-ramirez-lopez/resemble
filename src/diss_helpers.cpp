@@ -8,11 +8,8 @@
  #include <omp.h>
 #endif
 
-
 using namespace Rcpp;
 using namespace arma;
-
-
 
 //' @title A fast distance algorithm for two matrices written in C++ 
 //' @description Computes distances between two data matrices using 
