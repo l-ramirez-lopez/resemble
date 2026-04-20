@@ -106,14 +106,6 @@
 #' @param ... Additional arguments passed to \code{\link[graphics]{plot}}. 
 #' Currently unused for `mbl()`.
 #' 
-#' @param k Deprecated.
-#' @param k_diss Deprecated.
-#' @param k_range Deprecated.
-#' @param method Deprecated.
-#' @param pc_selection Deprecated.
-#' @param center Deprecated.
-#' @param scale Deprecated.
-#' @param documentation Deprecated.
 #' @param ... Additional arguments (currently unused).
 #' 
 #' @details
@@ -152,6 +144,13 @@
 #' \code{validation_type = "local_cv"} in \code{\link{mbl_control}()}, the
 #' \code{p} parameter refers to the proportion of groups (not observations)
 #' retained per iteration.
+#' 
+#' ## Deprecated arguments
+#' The following arguments from previous versions of \code{resemble} are no
+#' longer supported and will throw an error if used: \code{k}, \code{k_diss},
+#' \code{k_range}, \code{method}, \code{pc_selection}, \code{center},
+#' \code{scale}, and \code{documentation}. See the current argument list for
+#' their replacements.
 #'
 #' @return 
 #' ## mbl  
@@ -237,7 +236,7 @@
 #' \code{\link{search_neighbors}}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
@@ -312,7 +311,7 @@
 #'
 #' # Example 5: Parallel execution
 #' library(doParallel)
-#' n_cores <- min(2, parallel::detectCores())
+#' n_cores <- min(4, parallel::detectCores() - 1)
 #' clust <- makeCluster(n_cores)
 #' registerDoParallel(clust)
 #'
@@ -360,16 +359,15 @@ mbl <- function(
   control = mbl_control(),
   verbose = TRUE,
   seed = NULL,
-  k, k_diss, k_range, method, pc_selection,
-  center, scale, documentation,
-    ...
+  ...
 ) {
   f_call <- match.call()
-  
+  dots <- list(...)
   # ---------------------------------------------------------------------------
   # Block removed arguments
   # ---------------------------------------------------------------------------
-  if (!missing(k) || !missing(k_diss) || !missing(k_range)) {
+  
+  if ("k" %in% names(dots) || "k_diss" %in% names(dots) || "k_range" %in% names(dots)) {
     stop(
       "Arguments 'k', 'k_diss', 'k_range' have been removed.\n",
       "Use neighbors_k() or neighbors_diss() instead.\n",
@@ -378,7 +376,7 @@ mbl <- function(
     )
   }
   
-  if (!missing(method)) {
+  if ("method" %in% names(dots)) {
     stop(
       "Argument 'method' has been renamed to 'fit_method'.\n",
       "Use fit_pls(), fit_wapls(), or fit_gpr() constructors.\n",
@@ -387,7 +385,7 @@ mbl <- function(
     )
   }
   
-  if (!missing(pc_selection)) {
+  if ("pc_selection" %in% names(dots))  {
     stop(
       "Argument 'pc_selection' has been removed.\n",
       "Component selection is now specified in diss_*() constructors.\n",
@@ -396,7 +394,7 @@ mbl <- function(
     )
   }
   
-  if (!missing(center) || !missing(scale)) {
+  if ("center" %in% names(dots) || "scale" %in% names(dots)) {
     stop(
       "Arguments 'center' and 'scale' have been removed.\n",
       "These are now set in diss_*() and fit_*() constructors.\n",
@@ -405,7 +403,7 @@ mbl <- function(
     )
   }
   
-  if (!missing(documentation)) {
+  if ("documentation" %in% names(dots)) {
     stop(
       "Argument 'documentation' has been removed.",
       call. = FALSE
@@ -967,8 +965,9 @@ mbl <- function(
     ith_observation = iter_neighborhoods,
     .inorder = FALSE,
     .export = c(
-      "ortho_diss", "fit_and_predict", "pls_cv",
-      "get_col_sds", "get_wapls_weights"
+      "dissimilarity", "fit_and_predict", "pls_cv",
+      "get_col_sds", "get_wapls_weights",
+      "sample_stratified", "gaussian_pr_cv"
     ),
     .noexport = c("Xr", "Xu")
   ) %mydo% {

@@ -206,7 +206,7 @@
 #' \code{\link{fit_pls}}, \code{\link{gesearch_control}}, \code{\link{mbl}}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(prospectr)
 #' data(NIRsoil)
 #'
@@ -223,7 +223,7 @@
 #' test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso), ]
 #' test_y <- NIRsoil$Ciso[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso)]
 #'
-#' # Basic search with reconstruction optimization
+#' # Basic search with reconstruction and similarity optimizations
 #' gs <- gesearch(
 #'   Xr = train_x, Yr = train_y,
 #'   Xu = test_x, Yu = test_y,
@@ -242,7 +242,7 @@
 #' plot(gs)
 #' plot(gs, which = "removed")
 #'
-#' # With response optimization (requires Yu)
+#' # With reconstruction and response optimization (requires Yu)
 #' gs_response <- gesearch(
 #'   Xr = train_x, Yr = train_y,
 #'   Xu = test_x, Yu = test_y,
@@ -255,7 +255,8 @@
 #'
 #' # Parallel processing
 #' library(doParallel)
-#' cl <- makeCluster(2)
+#' n_cores <- min(4, parallel::detectCores() - 1)
+#' cl <- makeCluster(n_cores)
 #' registerDoParallel(cl)
 #'
 #' gs_parallel <- gesearch(

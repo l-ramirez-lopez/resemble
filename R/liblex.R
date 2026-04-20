@@ -370,7 +370,7 @@
 #' 
 #' ## run liblex in parallel (requires a parallel backend, e.g., doParallel)
 #' library(doParallel)
-#' n_cores <- min(2, parallel::detectCores())
+#' n_cores <- min(4, parallel::detectCores() - 1)
 #' clust <- makeCluster(n_cores)
 #' registerDoParallel(clust)
 #' 

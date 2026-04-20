@@ -104,22 +104,6 @@ Default is \code{TRUE}. Not shown during parallel execution.}
 \item{seed}{An integer for random number generation, enabling reproducible
 cross-validation results. Default is \code{NULL}.}
 
-\item{k}{Deprecated.}
-
-\item{k_diss}{Deprecated.}
-
-\item{k_range}{Deprecated.}
-
-\item{method}{Deprecated.}
-
-\item{pc_selection}{Deprecated.}
-
-\item{center}{Deprecated.}
-
-\item{scale}{Deprecated.}
-
-\item{documentation}{Deprecated.}
-
 \item{...}{Additional arguments (currently unused).}
 
 \item{x}{An object of class \code{mbl} (as returned by \code{\link{mbl}}).}
@@ -237,9 +221,18 @@ The \code{group} argument enables leave-group-out cross-validation. When
 \code{p} parameter refers to the proportion of groups (not observations)
 retained per iteration.
 }
+
+\subsection{Deprecated arguments}{
+
+The following arguments from previous versions of \code{resemble} are no
+longer supported and will throw an error if used: \code{k}, \code{k_diss},
+\code{k_range}, \code{method}, \code{pc_selection}, \code{center},
+\code{scale}, and \code{documentation}. See the current argument list for
+their replacements.
+}
 }
 \examples{
-\donttest{
+\dontrun{
 library(prospectr)
 data(NIRsoil)
 
@@ -314,7 +307,7 @@ plot(local_algo_2)
 
 # Example 5: Parallel execution
 library(doParallel)
-n_cores <- min(2, parallel::detectCores())
+n_cores <- min(4, parallel::detectCores() - 1)
 clust <- makeCluster(n_cores)
 registerDoParallel(clust)
 
