@@ -62,6 +62,7 @@ test_that("diss_euclidean stores parameters correctly", {
 })
 
 test_that("diss_euclidean computes correct dissimilarities", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   data("NIRsoil", package = "prospectr")
   Xr <- NIRsoil$spc[1:20, ]
@@ -81,6 +82,7 @@ test_that("diss_euclidean computes correct dissimilarities", {
 })
 
 test_that("diss_euclidean with Xu computes cross-dissimilarity", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   data("NIRsoil", package = "prospectr")
   Xr <- NIRsoil$spc[1:20, ]
@@ -94,6 +96,7 @@ test_that("diss_euclidean with Xu computes cross-dissimilarity", {
 })
 
 test_that("diss_euclidean centering affects results", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   data("NIRsoil", package = "prospectr")
   Xr <- NIRsoil$spc[1:20, ]
@@ -493,7 +496,7 @@ test_that("diss_pca with ncomp_by_cumvar works", {
 
 test_that("diss_pca with fixed ncomp works", {
   skip_if_not_installed("prospectr")
-  
+  skip_on_cran()
   d <- .setup_nirsoil_data()
   
   # Integer form
@@ -844,6 +847,7 @@ test_that("diss_mahalanobis works when n > p", {
 
 
 test_that("diss_mahalanobis errors when covariance is singular", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 10, n_xu = 5)
@@ -1022,6 +1026,7 @@ test_that("diss_evaluate works with multiple side_info columns", {
 
 
 test_that("diss_evaluate validates inputs", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_nirsoil_data(n_xr = 20, n_xu = 0)

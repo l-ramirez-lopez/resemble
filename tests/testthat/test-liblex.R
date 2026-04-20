@@ -172,6 +172,7 @@ test_that("liblex requires neighbors argument", {
 })
 
 test_that("liblex with neighbors_diss works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()
@@ -196,6 +197,7 @@ test_that("liblex with neighbors_diss works", {
 
 
 test_that("liblex with neighbors_diss predictions work", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_liblex_data()

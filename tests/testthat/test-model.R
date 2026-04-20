@@ -82,6 +82,7 @@ test_that("print.model_control works", {
 # =============================================================================
 
 test_that("model validates Xr and Yr dimensions", {
+  skip_on_cran()
   Xr <- matrix(rnorm(100), nrow = 10)
   Yr <- matrix(rnorm(5), nrow = 5)
   
@@ -162,6 +163,7 @@ test_that("model rejects invalid control", {
 # =============================================================================
 
 test_that("model with fit_pls without CV works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -183,6 +185,7 @@ test_that("model with fit_pls without CV works", {
 
 
 test_that("model with fit_pls with CV works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -209,6 +212,7 @@ test_that("model with fit_pls with CV works", {
 
 
 test_that("model with fit_pls (mpls method) works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -226,6 +230,7 @@ test_that("model with fit_pls (mpls method) works", {
 
 
 test_that("model with fit_pls (simpls method) works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -247,6 +252,7 @@ test_that("model with fit_pls (simpls method) works", {
 # =============================================================================
 
 test_that("model with fit_gpr without CV works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data(n_xr = 60)
@@ -267,6 +273,7 @@ test_that("model with fit_gpr without CV works", {
 
 
 test_that("model with fit_gpr with CV works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data(n_xr = 60)
@@ -297,6 +304,7 @@ test_that("model with fit_gpr with CV works", {
 # =============================================================================
 
 test_that("predict works for PLS model", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -320,6 +328,7 @@ test_that("predict works for PLS model", {
 
 
 test_that("predict respects ncomp argument for PLS", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -344,6 +353,7 @@ test_that("predict respects ncomp argument for PLS", {
 
 
 test_that("predict rejects ncomp exceeding model", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -361,6 +371,7 @@ test_that("predict rejects ncomp exceeding model", {
 
 
 test_that("predict works for GPR model", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data(n_xr = 60)
@@ -383,6 +394,7 @@ test_that("predict works for GPR model", {
 
 
 test_that("predict rejects wrong number of columns", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -401,6 +413,7 @@ test_that("predict rejects wrong number of columns", {
 
 
 test_that("predict preserves rownames from newdata", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data(n_xu = 5)
@@ -538,6 +551,7 @@ test_that("model with different PLS methods delivers consistent results", {
 
 
 test_that("model predictions are numerically consistent across calls", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -558,6 +572,7 @@ test_that("model predictions are numerically consistent across calls", {
 
 
 test_that("model stores fit_method and control in output", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()
@@ -575,6 +590,7 @@ test_that("model stores fit_method and control in output", {
 
 
 test_that("model stores call attribute", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_model_data()

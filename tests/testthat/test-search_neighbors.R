@@ -153,6 +153,7 @@ test_that("search_neighbors with diss_pca and neighbors_k works", {
 
 
 test_that("search_neighbors with diss_pca and neighbors_diss works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -230,6 +231,7 @@ test_that("search_neighbors works with diss_pca (SVD)", {
 
 
 test_that("search_neighbors works with diss_pls", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -316,6 +318,7 @@ test_that("search_neighbors with return_dissimilarity works", {
 
 
 test_that("search_neighbors with return_projection works", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
@@ -442,6 +445,7 @@ test_that("search_neighbors validates spike indices", {
 
 
 test_that("search_neighbors without Xu searches within Xr", {
+  skip_on_cran()
   skip_if_not_installed("prospectr")
   
   d <- .setup_search_neighbors_data()
