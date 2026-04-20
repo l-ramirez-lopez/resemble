@@ -32,7 +32,8 @@ devtools::build(
   vignettes = TRUE,
   manual = TRUE,
   args = NULL,
-  quiet = FALSE
+  quiet = FALSE,
+  clean_doc = FALSE
 )
 
 All checks have passed.
