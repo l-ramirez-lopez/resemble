@@ -14,7 +14,7 @@ status](https://www.r-pkg.org/badges/version/resemble?v=2.png)](https://CRAN.R-p
 
 <!-- badges: end -->
 
-*Last update: 2026-04-16*
+*Last update: 2026-04-20*
 
 Version: 3.0.0 – vortex
 
@@ -358,10 +358,10 @@ citation(package = "resemble")
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing
-Guidelines](CONTRIBUTING.md) before submitting pull requests.
+Contributions are welcome! Please read our Contributing Guidelines
+(available in the GitHub repo) before submitting pull requests.
 
-This project follows a [Code of Conduct](CODE_OF_CONDUCT.md).
+This project follows a Code of Conduct available in the GitHub repo.
 
 ## Bug reports
 
