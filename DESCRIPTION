@@ -29,7 +29,7 @@ Description:
 License: MIT + file LICENSE
 URL: http://l-ramirez-lopez.github.io/resemble/
 Depends:
-    R (>= 4.1.0)
+    R (>= 4.2.0)
 Imports: 
     foreach, 
     iterators, 
@@ -52,7 +52,7 @@ VignetteBuilder: quarto
 NeedsCompilation: yes
 LazyData: true
 Repository: CRAN
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/VersionName: vortex
