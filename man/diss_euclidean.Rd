@@ -19,17 +19,18 @@ Default \code{FALSE}.}
 An object of class \code{c("diss_euclidean", "diss_method")}.
 }
 \description{
+\loadmathjax
 Creates a configuration object for computing Euclidean dissimilarity.
 Pass the result to \code{dissimilarity()} to compute the dissimilarity
 matrix.
 
-The scaled Euclidean dissimilarity between two observations \eqn{x_i} and
-\eqn{x_j} is:
+The scaled Euclidean dissimilarity between two observations \mjeqn{x_i}{x_i} and
+\mjeqn{x_j}{x_j} is:
 
-\deqn{d(x_i, x_j) = \sqrt{\frac{1}{p} \sum_{k=1}^{p}(x_{i,k} - x_{j,k})^2}}
+\mjdeqn{d(x_i, x_j) = \sqrt{\frac{1}{p} \sum_{k=1}^{p}(x_{i,k} - x_{j,k})^2}}{d(x_i, x_j) = sqrt(1/p * sum_k (x_i,k - x_j,k)^2)}
 
-where \eqn{p} is the number of variables. Results are equivalent to
-\code{stats::dist()} but scaled by \eqn{1/p}.
+where \mjeqn{p}{p} is the number of variables. Results are equivalent to
+\code{stats::dist()} but scaled by \mjeqn{1/p}{1/p}.
 }
 \examples{
 m <- diss_euclidean()

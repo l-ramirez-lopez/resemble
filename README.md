@@ -14,7 +14,7 @@ status](https://www.r-pkg.org/badges/version/resemble?v=2.png)](https://CRAN.R-p
 
 <!-- badges: end -->
 
-*Last update: 2026-04-20*
+*Last update: 2026-04-21*
 
 Version: 3.0.0 – vortex
 
@@ -158,29 +158,29 @@ data(NIRsoil)
 
 # Preprocess spectra
 NIRsoil$spc_pr <- savitzkyGolay(
- detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
- m = 1, p = 1, w = 7
+  detrend(NIRsoil$spc, wav = as.numeric(colnames(NIRsoil$spc))),
+  m = 1, p = 1, w = 7
 )
 
 # Split into training and test sets
 train_x <- NIRsoil$spc_pr[NIRsoil$train == 1 & !is.na(NIRsoil$CEC), ]
 train_y <- NIRsoil$CEC[NIRsoil$train == 1 & !is.na(NIRsoil$CEC)]
-test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
-test_y <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
+test_x  <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$CEC), ]
+test_y  <- NIRsoil$CEC[NIRsoil$train == 0 & !is.na(NIRsoil$CEC)]
 
-# Memory-based learning with Gaussian process regression
-sbl <- mbl(
- Xr = train_x,
- Yr = train_y,
- Xu = test_x,
- neighbors = neighbors_k(seq(50, 130, by = 20)),
- diss_method = diss_pca(ncomp = ncomp_by_opc(40)),
- fit_method = fit_gpr(),
- control = mbl_control(validation_type = "NNv")
+# Memory-based learning using the LOCAL lagorithm of Shenk et al. (1997)
+local_shenk <- mbl(
+  Xr = train_x,
+  Yr = train_y,
+  Xu = test_x,
+  neighbors = neighbors_k(seq(50, 130, by = 20)),
+  diss_method = diss_correlation(center = FALSE),
+  fit_method = fit_wapls(3, 15),
+  gh = TRUE
 )
-sbl
-plot(sbl)
-get_predictions(sbl)
+local_shenk
+plot(local_shenk)
+get_predictions(local_shenk)
 ```
 
 <p align="center">

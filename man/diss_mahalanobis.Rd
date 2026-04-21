@@ -19,16 +19,17 @@ Default \code{FALSE}.}
 An object of class \code{c("diss_mahalanobis", "diss_method")}.
 }
 \description{
+\loadmathjax
 Creates a configuration object for computing Mahalanobis dissimilarity.
 Pass the result to \code{dissimilarity()} to compute the dissimilarity
 matrix.
 
 The Mahalanobis distance is computed by first transforming the data into
 Mahalanobis space via a factorization of the inverse covariance matrix
-\eqn{M^{-1} = W^{T}W} (using SVD), then applying Euclidean distance in
+\mjeqn{M^{-1} = W^{T}W}{M^{-1} = W'W} (using SVD), then applying Euclidean distance in
 that transformed space:
 
-\deqn{d(x_i, x_j) = \sqrt{\frac{1}{p}(x_i - x_j)M^{-1}(x_i - x_j)^T}}
+\mjdeqn{d(x_i, x_j) = \sqrt{\frac{1}{p}(x_i - x_j)M^{-1}(x_i - x_j)^T}}{d(x_i, x_j) = sqrt(1/p * (x_i - x_j) M^{-1} (x_i - x_j)^T)}
 }
 \section{Important limitations}{
 

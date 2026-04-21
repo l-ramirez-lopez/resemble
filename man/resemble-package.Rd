@@ -16,7 +16,7 @@ search in spectral chemometrics.
 }
 \details{
 This is the version
-3.0.0 -- vortex
+3.0.1 -- tarragona
 of the package. It implements a number of functions useful for
 modeling complex spectral spectra (e.g. NIR, IR).
 The package includes functions for dimensionality reduction,
