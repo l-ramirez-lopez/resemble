@@ -27,6 +27,7 @@ vignette: >
 ```{r}
 #| echo: false
 options(cli.num_colors = 1)
+Sys.setenv(OMP_NUM_THREADS = 2)
 ```
 
 :::: {.columns}

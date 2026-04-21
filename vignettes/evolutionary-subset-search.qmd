@@ -35,7 +35,9 @@ vignette: >
 #| message: false
 #| echo: false
 library(resemble)
+Sys.setenv(OMP_NUM_THREADS = 2)
 ```
+
 
 
 # Introduction
