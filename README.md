@@ -14,9 +14,9 @@ status](https://www.r-pkg.org/badges/version/resemble?v=2.png)](https://CRAN.R-p
 
 <!-- badges: end -->
 
-*Last update: 2026-04-20*
+*Last update: 2026-04-21*
 
-Version: 3.0.0 – vortex
+Version: 3.0.1 – tarragona
 
 <em>
 <p align="right">
