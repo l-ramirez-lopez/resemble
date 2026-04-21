@@ -185,7 +185,7 @@ get_predictions(local_shenk)
 
 <p align="center">
 
-<img src="./man/figures/mbl.png" width="80%">
+<img src="./man/figures/mbl_example.png" width="80%">
 </p>
 
 ## Example: Pre-computed model library with `liblex()`

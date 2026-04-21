@@ -166,7 +166,7 @@ local_shenk <- mbl(
   verbose = FALSE
 )
 
-png("man/figures/mbl.png", width = 600, height = 350)
+png("man/figures/mbl_example.png", width = 600, height = 350)
 plot(local_shenk)
 dev.off()
 ```
@@ -204,7 +204,7 @@ get_predictions(local_shenk)
 ```
 
 <p align="center">
-<img src="./man/figures/mbl.png" width="80%">
+<img src="./man/figures/mbl_example.png" width="80%">
 </p>
 
 
