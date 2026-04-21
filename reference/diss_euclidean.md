@@ -8,8 +8,8 @@ to compute the dissimilarity matrix.
 The scaled Euclidean dissimilarity between two observations \\x_i\\ and
 \\x_j\\ is:
 
-\$\$d(x_i, x_j) = \sqrt{\frac{1}{p} \sum\_{k=1}^{p}(x\_{i,k} -
-x\_{j,k})^2}\$\$
+\\d(x_i, x_j) = \sqrt{\frac{1}{p} \sum\_{k=1}^{p}(x\_{i,k} -
+x\_{j,k})^2}\\
 
 where \\p\\ is the number of variables. Results are equivalent to
 [`stats::dist()`](https://rdrr.io/r/stats/dist.html) but scaled by

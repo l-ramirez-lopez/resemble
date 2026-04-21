@@ -8,9 +8,9 @@ to compute the dissimilarity matrix.
 The cosine dissimilarity between two observations \\x_i\\ and \\x_j\\
 is:
 
-\$\$c(x_i, x_j) = \cos^{-1} \frac{\sum\_{k=1}^{p} x\_{i,k}\\ x\_{j,k}}
+\\c(x_i, x_j) = \cos^{-1} \frac{\sum\_{k=1}^{p} x\_{i,k}\\ x\_{j,k}}
 {\sqrt{\sum\_{k=1}^{p} x\_{i,k}^{2}}\\ \sqrt{\sum\_{k=1}^{p}
-x\_{j,k}^{2}}}\$\$
+x\_{j,k}^{2}}}\\
 
 where \\p\\ is the number of variables.
 

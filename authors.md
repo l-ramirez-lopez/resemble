@@ -17,13 +17,13 @@ Source:
 
 Ramirez-Lopez, L., and Stevens, A., and Orellano, C., (2026). resemble:
 Regression and similarity evaluation for memory-based learning in
-spectral chemometrics. R package Vignette R package version 3.0.0.
+spectral chemometrics. R package Vignette R package version 3.0.1.
 
     @Manual{resemble-package,
       title = {resemble: Sample Retrieval and Local Learning in Spectral Chemometrics.},
       author = {Leonardo Ramirez-Lopez and Antoine Stevens and Claudio Orellano},
       publication = {R package Vignette},
       year = {2026},
-      note = {R package version 3.0.0},
+      note = {R package version 3.0.1},
       url = {https://CRAN.R-project.org/package=resemble},
     }

@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">resemble</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,14 +36,14 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/intro.html">Essential concepts and setup</a></li>
-    <li><a class="dropdown-item" href="articles/dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
-    <li><a class="dropdown-item" href="articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
-    <li><a class="dropdown-item" href="articles/nearest-neighbor-search.html">Nearest-neighbor search</a></li>
-    <li><a class="dropdown-item" href="articles/simple-global-models.html">Simple global models</a></li>
-    <li><a class="dropdown-item" href="articles/classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
-    <li><a class="dropdown-item" href="articles/building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
-    <li><a class="dropdown-item" href="articles/evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
+<li><a class="dropdown-item" href="articles/aa-intro.html">Essential concepts and setup</a></li>
+    <li><a class="dropdown-item" href="articles/ab-dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
+    <li><a class="dropdown-item" href="articles/ac-estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
+    <li><a class="dropdown-item" href="articles/ad-nearest-neighbor-search.html">Nearest-neighbor search</a></li>
+    <li><a class="dropdown-item" href="articles/ae-simple-global-models.html">Simple global models</a></li>
+    <li><a class="dropdown-item" href="articles/af-classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
+    <li><a class="dropdown-item" href="articles/ah-building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
+    <li><a class="dropdown-item" href="articles/ag-evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
   </ul>
 </li>
       </ul>
@@ -69,7 +69,7 @@
 
 
 <!-- badges: end -->
-<p><em>Last update: 2026-04-20</em></p>
+<p><em>Last update: 2026-04-21</em></p>
 <p>Version: 3.0.0 – vortex</p>
 <em>
 <p align="right">
@@ -207,31 +207,31 @@ Think Globally, Fit Locally (Saul and Roweis, 2003)
 <span></span>
 <span><span class="co"># Preprocess spectra</span></span>
 <span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/prospectr/man/savitzkyGolay.html" class="external-link">savitzkyGolay</a></span><span class="op">(</span></span>
-<span> <span class="fu"><a href="https://rdrr.io/pkg/prospectr/man/detrend.html" class="external-link">detrend</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span>, wav <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
-<span> m <span class="op">=</span> <span class="fl">1</span>, p <span class="op">=</span> <span class="fl">1</span>, w <span class="op">=</span> <span class="fl">7</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/prospectr/man/detrend.html" class="external-link">detrend</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span>, wav <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  m <span class="op">=</span> <span class="fl">1</span>, p <span class="op">=</span> <span class="fl">1</span>, w <span class="op">=</span> <span class="fl">7</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Split into training and test sets</span></span>
 <span><span class="va">train_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">train_y</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">test_x</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">test_y</span> <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">test_x</span>  <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">test_y</span>  <span class="op">&lt;-</span> <span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">[</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">train</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">CEC</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
-<span><span class="co"># Memory-based learning with Gaussian process regression</span></span>
-<span><span class="va">sbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mbl.html">mbl</a></span><span class="op">(</span></span>
-<span> Xr <span class="op">=</span> <span class="va">train_x</span>,</span>
-<span> Yr <span class="op">=</span> <span class="va">train_y</span>,</span>
-<span> Xu <span class="op">=</span> <span class="va">test_x</span>,</span>
-<span> neighbors <span class="op">=</span> <span class="fu"><a href="reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">130</span>, by <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span>,</span>
-<span> diss_method <span class="op">=</span> <span class="fu"><a href="reference/diss_pca.html">diss_pca</a></span><span class="op">(</span>ncomp <span class="op">=</span> <span class="fu"><a href="reference/ncomp_selection.html">ncomp_by_opc</a></span><span class="op">(</span><span class="fl">40</span><span class="op">)</span><span class="op">)</span>,</span>
-<span> fit_method <span class="op">=</span> <span class="fu"><a href="reference/fit_methods.html">fit_gpr</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span> control <span class="op">=</span> <span class="fu"><a href="reference/mbl_control.html">mbl_control</a></span><span class="op">(</span>validation_type <span class="op">=</span> <span class="st">"NNv"</span><span class="op">)</span></span>
+<span><span class="co"># Memory-based learning using the LOCAL lagorithm of Shenk et al. (1997)</span></span>
+<span><span class="va">local_shenk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mbl.html">mbl</a></span><span class="op">(</span></span>
+<span>  Xr <span class="op">=</span> <span class="va">train_x</span>,</span>
+<span>  Yr <span class="op">=</span> <span class="va">train_y</span>,</span>
+<span>  Xu <span class="op">=</span> <span class="va">test_x</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">130</span>, by <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  diss_method <span class="op">=</span> <span class="fu"><a href="reference/diss_correlation.html">diss_correlation</a></span><span class="op">(</span>center <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  fit_method <span class="op">=</span> <span class="fu"><a href="reference/fit_methods.html">fit_wapls</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">15</span><span class="op">)</span>,</span>
+<span>  gh <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">sbl</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sbl</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/mbl.html">get_predictions</a></span><span class="op">(</span><span class="va">sbl</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">local_shenk</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">local_shenk</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/mbl.html">get_predictions</a></span><span class="op">(</span><span class="va">local_shenk</span><span class="op">)</span></span></code></pre></div>
 <p align="center">
-<img src="./reference/figures/mbl.png" width="80%"></p>
+<img src="./reference/figures/mbl_example.png" width="80%"></p>
 </div>
 <div class="section level2">
 <h2 id="example-pre-computed-model-library-with-liblex">Example: Pre-computed model library with <code>liblex()</code>

@@ -10,7 +10,7 @@ Mahalanobis space via a factorization of the inverse covariance matrix
 \\M^{-1} = W^{T}W\\ (using SVD), then applying Euclidean distance in
 that transformed space:
 
-\$\$d(x_i, x_j) = \sqrt{\frac{1}{p}(x_i - x_j)M^{-1}(x_i - x_j)^T}\$\$
+\\d(x_i, x_j) = \sqrt{\frac{1}{p}(x_i - x_j)M^{-1}(x_i - x_j)^T}\\
 
 ## Usage
 

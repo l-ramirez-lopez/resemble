@@ -155,10 +155,10 @@ plot(x, ...)
 
   Logical indicating whether to weight expert predictions by their
   estimated reliability. When `TRUE` (default), the contribution of each
-  experrt is additionally weighted by the inverse of its
-  cross-validation residual variance, giving more influence to models
-  that performed well during fitting. When `FALSE`, only
-  dissimilarity-based kernel weights are used.
+  expert is additionally weighted by the inverse of its cross-validation
+  residual variance, giving more influence to models that performed well
+  during fitting. When `FALSE`, only dissimilarity-based kernel weights
+  are used.
 
 - probs:
 

@@ -44,15 +44,15 @@ not used directly.
 The correlation dissimilarity between two observations \\x_i\\ and
 \\x_j\\ is:
 
-\$\$d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))\$\$
+\\d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))\\
 
 where \\\rho\\ is the Pearson correlation coefficient. This is used when
 `ws = NULL`.
 
 When `ws` is specified, the moving correlation dissimilarity is:
 
-\$\$d(x_i, x_j; ws) = \frac{1}{2\\ws} \sum\_{k=1}^{p - ws} \bigl(1 -
-\rho(x\_{i,(k:k+ws)},\\ x\_{j,(k:k+ws)})\bigr)\$\$
+\\d(x_i, x_j; ws) = \frac{1}{2\\ws} \sum\_{k=1}^{p - ws} \bigl(1 -
+\rho(x\_{i,(k:k+ws)},\\ x\_{j,(k:k+ws)})\bigr)\\
 
 where \\ws\\ is the window size and \\p\\ is the number of variables.
 
