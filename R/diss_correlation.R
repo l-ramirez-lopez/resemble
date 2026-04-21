@@ -8,6 +8,7 @@
 #' @title Correlation dissimilarity method constructor
 #'
 #' @description
+#' \loadmathjax
 #' Creates a configuration object that fully specifies a correlation (or moving
 #' correlation) dissimilarity method. Pass the result to \code{dissimilarity()}
 #' to compute the dissimilarity matrix.
@@ -28,20 +29,20 @@
 #'   \code{dissimilarity()}, not used directly.
 #'
 #' @details
-#' The correlation dissimilarity between two observations \eqn{x_i} and
-#' \eqn{x_j} is:
+#' The correlation dissimilarity between two observations \mjeqn{x_i}{x_i} and
+#' \mjeqn{x_j}{x_j} is:
 #'
-#' \deqn{d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))}
+#' \mjdeqn{d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))}{d(x_i, x_j) = (1/2)(1 - rho(x_i, x_j))}
 #'
-#' where \eqn{\rho} is the Pearson correlation coefficient. This is used when
+#' where \mjeqn{\rho}{rho} is the Pearson correlation coefficient. This is used when
 #' \code{ws = NULL}.
 #'
 #' When \code{ws} is specified, the moving correlation dissimilarity is:
 #'
-#' \deqn{d(x_i, x_j; ws) = \frac{1}{2\,ws} \sum_{k=1}^{p - ws}
-#'   \bigl(1 - \rho(x_{i,(k:k+ws)},\, x_{j,(k:k+ws)})\bigr)}
+#' \mjdeqn{d(x_i, x_j; ws) = \frac{1}{2\,ws} \sum_{k=1}^{p - ws}
+#'   \bigl(1 - \rho(x_{i,(k:k+ws)},\, x_{j,(k:k+ws)})\bigr)}{d(x_i, x_j; ws) = 1/(2*ws) * sum_{k=1}^{p-ws} (1 - rho(x_i,(k:k+ws), x_j,(k:k+ws)))}
 #'
-#' where \eqn{ws} is the window size and \eqn{p} is the number of variables.
+#' where \mjeqn{ws}{ws} is the window size and \mjeqn{p}{p} is the number of variables.
 #'
 #' @section Parallel execution:
 #' The underlying C++ implementation uses OpenMP for parallel computation.
@@ -67,6 +68,7 @@
 #' # Without centering
 #' m <- diss_correlation(center = FALSE)
 #'
+#' @importFrom mathjaxr preview_rd
 #' @export
 diss_correlation <- function(
     ws     = NULL,

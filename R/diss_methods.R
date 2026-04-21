@@ -11,17 +11,18 @@
 #' @title Euclidean dissimilarity method constructor
 #'
 #' @description
+#' \loadmathjax
 #' Creates a configuration object for computing Euclidean dissimilarity.
 #' Pass the result to \code{dissimilarity()} to compute the dissimilarity
 #' matrix.
 #'
-#' The scaled Euclidean dissimilarity between two observations \eqn{x_i} and
-#' \eqn{x_j} is:
+#' The scaled Euclidean dissimilarity between two observations \mjeqn{x_i}{x_i} and
+#' \mjeqn{x_j}{x_j} is:
 #'
-#' \deqn{d(x_i, x_j) = \sqrt{\frac{1}{p} \sum_{k=1}^{p}(x_{i,k} - x_{j,k})^2}}
+#' \mjdeqn{d(x_i, x_j) = \sqrt{\frac{1}{p} \sum_{k=1}^{p}(x_{i,k} - x_{j,k})^2}}{d(x_i, x_j) = sqrt(1/p * sum_k (x_i,k - x_j,k)^2)}
 #'
-#' where \eqn{p} is the number of variables. Results are equivalent to
-#' \code{stats::dist()} but scaled by \eqn{1/p}.
+#' where \mjeqn{p}{p} is the number of variables. Results are equivalent to
+#' \code{stats::dist()} but scaled by \mjeqn{1/p}{1/p}.
 #'
 #' @param center Logical. Center the data before computing distances?
 #'   Applied jointly to \code{Xr} and \code{Xu} if both are provided.
@@ -31,11 +32,12 @@
 #'   Default \code{FALSE}.
 #'
 #' @return An object of class \code{c("diss_euclidean", "diss_method")}.
-#' 
-#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
-#' 
+#'
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+#'
 #' @seealso \code{\link{dissimilarity}}, \code{\link{diss_mahalanobis}},
 #'   \code{\link{diss_cosine}}
+#'
 #' @examples
 #' m <- diss_euclidean()
 #' m <- diss_euclidean(center = FALSE, scale = TRUE)
@@ -49,16 +51,17 @@ diss_euclidean <- function(center = TRUE, scale = FALSE) {
 #' @title Mahalanobis dissimilarity method constructor
 #'
 #' @description
+#' \loadmathjax
 #' Creates a configuration object for computing Mahalanobis dissimilarity.
 #' Pass the result to \code{dissimilarity()} to compute the dissimilarity
 #' matrix.
 #'
 #' The Mahalanobis distance is computed by first transforming the data into
 #' Mahalanobis space via a factorization of the inverse covariance matrix
-#' \eqn{M^{-1} = W^{T}W} (using SVD), then applying Euclidean distance in
+#' \mjeqn{M^{-1} = W^{T}W}{M^{-1} = W'W} (using SVD), then applying Euclidean distance in
 #' that transformed space:
 #'
-#' \deqn{d(x_i, x_j) = \sqrt{\frac{1}{p}(x_i - x_j)M^{-1}(x_i - x_j)^T}}
+#' \mjdeqn{d(x_i, x_j) = \sqrt{\frac{1}{p}(x_i - x_j)M^{-1}(x_i - x_j)^T}}{d(x_i, x_j) = sqrt(1/p * (x_i - x_j) M^{-1} (x_i - x_j)^T)}
 #'
 #' @section Important limitations:
 #' The covariance matrix will be singular — and the distance therefore
@@ -75,11 +78,12 @@ diss_euclidean <- function(center = TRUE, scale = FALSE) {
 #'   Default \code{FALSE}.
 #'
 #' @return An object of class \code{c("diss_mahalanobis", "diss_method")}.
-#' 
-#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
-#' 
+#'
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+#'
 #' @seealso \code{\link{dissimilarity}}, \code{\link{diss_euclidean}},
 #'   \code{\link{diss_cosine}}
+#'
 #' @examples
 #' m <- diss_mahalanobis()
 #' m <- diss_mahalanobis(center = TRUE, scale = TRUE)
@@ -88,24 +92,24 @@ diss_mahalanobis <- function(center = TRUE, scale = FALSE) {
   .new_diss_method("mahalanobis", center = center, scale = scale)
 }
 
-
 # -----------------------------------------------------------------------------
 #' @title Cosine dissimilarity method constructor
 #'
 #' @description
+#' \loadmathjax
 #' Creates a configuration object for computing cosine dissimilarity
 #' (also known as spectral angle mapper). Pass the result to
 #' \code{dissimilarity()} to compute the dissimilarity matrix.
 #'
-#' The cosine dissimilarity between two observations \eqn{x_i} and
-#' \eqn{x_j} is:
+#' The cosine dissimilarity between two observations \mjeqn{x_i}{x_i} and
+#' \mjeqn{x_j}{x_j} is:
 #'
-#' \deqn{c(x_i, x_j) = \cos^{-1}
+#' \mjdeqn{c(x_i, x_j) = \cos^{-1}
 #'   \frac{\sum_{k=1}^{p} x_{i,k}\, x_{j,k}}
 #'        {\sqrt{\sum_{k=1}^{p} x_{i,k}^{2}}\,
-#'         \sqrt{\sum_{k=1}^{p} x_{j,k}^{2}}}}
+#'         \sqrt{\sum_{k=1}^{p} x_{j,k}^{2}}}}{c(x_i, x_j) = acos(sum_k x_i,k * x_j,k / (sqrt(sum_k x_i,k^2) * sqrt(sum_k x_j,k^2)))}
 #'
-#' where \eqn{p} is the number of variables.
+#' where \mjeqn{p}{p} is the number of variables.
 #'
 #' @param center Logical. Center the data before computing dissimilarities?
 #'   Applied jointly to \code{Xr} and \code{Xu} if both are provided.
@@ -115,11 +119,12 @@ diss_mahalanobis <- function(center = TRUE, scale = FALSE) {
 #'   Default \code{FALSE}.
 #'
 #' @return An object of class \code{c("diss_cosine", "diss_method")}.
-#' 
-#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez} 
-#' 
+#'
+#' @author \href{https://orcid.org/0000-0002-5369-5120}{Leonardo Ramirez-Lopez}
+#'
 #' @seealso \code{\link{dissimilarity}}, \code{\link{diss_euclidean}},
 #'   \code{\link{diss_mahalanobis}}
+#'
 #' @examples
 #' m <- diss_cosine()
 #' m <- diss_cosine(center = FALSE)

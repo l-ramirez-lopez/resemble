@@ -19,19 +19,20 @@ Default \code{FALSE}.}
 An object of class \code{c("diss_cosine", "diss_method")}.
 }
 \description{
+\loadmathjax
 Creates a configuration object for computing cosine dissimilarity
 (also known as spectral angle mapper). Pass the result to
 \code{dissimilarity()} to compute the dissimilarity matrix.
 
-The cosine dissimilarity between two observations \eqn{x_i} and
-\eqn{x_j} is:
+The cosine dissimilarity between two observations \mjeqn{x_i}{x_i} and
+\mjeqn{x_j}{x_j} is:
 
-\deqn{c(x_i, x_j) = \cos^{-1}
+\mjdeqn{c(x_i, x_j) = \cos^{-1}
   \frac{\sum_{k=1}^{p} x_{i,k}\, x_{j,k}}
        {\sqrt{\sum_{k=1}^{p} x_{i,k}^{2}}\,
-        \sqrt{\sum_{k=1}^{p} x_{j,k}^{2}}}}
+        \sqrt{\sum_{k=1}^{p} x_{j,k}^{2}}}}{c(x_i, x_j) = acos(sum_k x_i,k * x_j,k / (sqrt(sum_k x_i,k^2) * sqrt(sum_k x_j,k^2)))}
 
-where \eqn{p} is the number of variables.
+where \mjeqn{p}{p} is the number of variables.
 }
 \examples{
 m <- diss_cosine()

@@ -104,12 +104,12 @@ weights in sparse regions or overly concentrated weights in dense regions.}
 
 \item{reliability_weighting}{Logical indicating whether to weight expert
 predictions by their estimated reliability. When \code{TRUE} (default),
-the contribution of each experrt is additionally weighted by the inverse of its
+the contribution of each expert is additionally weighted by the inverse of its
 cross-validation residual variance, giving more influence to models that
 performed well during fitting. When \code{FALSE}, only dissimilarity-based
 kernel weights are used.}
 
-\item{probs}{A numeric vector of probabilities in \eqn{[0, 1]} for computing
+\item{probs}{A numeric vector of probabilities in \mjeqn{[0, 1]}{[0, 1]} for computing
 weighted quantiles of expert predictions. Default is
 \code{c(0.05, 0.25, 0.5, 0.75, 0.95)}.}
 
@@ -202,6 +202,7 @@ scores.
 }
 }
 \description{
+\loadmathjax
 Constructs a library of local predictive models based on memory-based
 learning (MBL). For each anchor observation, a local regression model is
 fitted using its nearest neighbors from the reference set. This
@@ -275,18 +276,18 @@ neighbourhood centres) stored in \code{object}.
 
 \subsection{Kernel weighting functions}{
 
-The weighting functions follow Cleveland and Devlin (1988). Let \eqn{d} be
-the normalised dissimilarity (scaled to \eqn{[0, 1]} within the neighbourhood
+The weighting functions follow Cleveland and Devlin (1988). Let \mjeqn{d}{d} be
+the normalised dissimilarity (scaled to \mjeqn{[0, 1]}{[0, 1]} within the neighbourhood
 when \code{adaptive_bandwidth = TRUE}). The available kernels are:
 \itemize{
-\item \code{"gaussian"}: \eqn{w = \exp(-d^2)}
-\item \code{"tricube"}: \eqn{w = (1 - d^3)^3}
-\item \code{"triweight"}: \eqn{w = (1 - d^2)^3}
-\item \code{"triangular"}: \eqn{w = 1 - d}
-\item \code{"quartic"}: \eqn{w = (1 - d^2)^2}
-\item \code{"parabolic"}: \eqn{w = 1 - d^2}
-\item \code{"cauchy"}: \eqn{w = 1 / (1 + d^2)}
-\item \code{"none"}: \eqn{w = 1} (equal weights)
+\item \code{"gaussian"}: \mjeqn{w = \exp(-d^2)}{w = exp(-d^2)}
+\item \code{"tricube"}: \mjeqn{w = (1 - d^3)^3}{w = (1 - d^3)^3}
+\item \code{"triweight"}: \mjeqn{w = (1 - d^2)^3}{w = (1 - d^2)^3}
+\item \code{"triangular"}: \mjeqn{w = 1 - d}{w = 1 - d}
+\item \code{"quartic"}: \mjeqn{w = (1 - d^2)^2}{w = (1 - d^2)^2}
+\item \code{"parabolic"}: \mjeqn{w = 1 - d^2}{w = 1 - d^2}
+\item \code{"cauchy"}: \mjeqn{w = 1 / (1 + d^2)}{w = 1 / (1 + d^2)}
+\item \code{"none"}: \mjeqn{w = 1}{w = 1} (equal weights)
 }
 }
 }
