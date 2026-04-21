@@ -21,6 +21,12 @@ vignette: >
   %\VignetteEngine{quarto::html}
 ---
 
+```{r}
+#| echo: false
+Sys.setenv(OMP_NUM_THREADS = 2)
+```
+
+
 :::: {.columns}
 ::: {.column width="70%"}
 > *Probability mass concentrates near regions that have a much smaller dimensionality than the original space where the data lives* -- [@bengio2013representation]

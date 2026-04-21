@@ -21,6 +21,14 @@ vignette: >
   %\VignetteEngine{quarto::html}
 ---
 
+
+```{r}
+#| echo: false
+Sys.setenv(OMP_NUM_THREADS = 2)
+```
+
+
+
 :::: {.columns}
 ::: {.column width="70%"}
 > *We are caught in an inescapable network of mutuality, tied in a single garment of destiny* -- Martin Luther King Jr

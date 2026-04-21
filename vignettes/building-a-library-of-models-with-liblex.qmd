@@ -26,6 +26,7 @@ vignette: >
 #| echo: false
 library(resemble)
 library(prospectr)
+Sys.setenv(OMP_NUM_THREADS = 2)
 ```
 
 :::: {.columns}

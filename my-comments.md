@@ -5,6 +5,7 @@ Dear CRAN maintainers,
 This is a resubmission of resemble 3.0.0 addressing issues from the 
 previous submission:
 
+- Restrict thread count for tests and vignette builds
 - Added shebang to cleanup; added configure.win and cleanup.win for Windows builds
 - Added skip_on_cran() to computationally intensive tests to reduce check time
 

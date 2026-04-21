@@ -21,6 +21,11 @@ vignette: >
   %\VignetteEngine{quarto::html}
 ---
 
+```{r}
+#| echo: false
+Sys.setenv(OMP_NUM_THREADS = 2)
+```
+
 :::: {.columns}
 ::: {.column width="70%"}
 > *Think Globally, Fit Locally* -- [@saul2003think]
