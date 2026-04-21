@@ -1,6 +1,6 @@
 # `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 
-*Last update: 2026-04-16*
+*Last update: 2026-04-20*
 
 Version: 3.0.0 – vortex
 
@@ -362,6 +362,13 @@ citation(package = "resemble")
 
 - [`prospectr`](https://github.com/l-ramirez-lopez/prospectr): Signal
   processing and chemometrics for spectroscopy
+
+## Contributing
+
+Contributions are welcome! Please read our Contributing Guidelines
+(available in the GitHub repo) before submitting pull requests.
+
+This project follows a Code of Conduct available in the GitHub repo.
 
 ## Bug reports
 

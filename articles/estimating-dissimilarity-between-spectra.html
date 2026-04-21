@@ -37,8 +37,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/intro.html">Essential concepts and setup</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+    <li><a class="dropdown-item" href="../articles/dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
+    <li><a class="dropdown-item" href="../articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
+    <li><a class="dropdown-item" href="../articles/nearest-neighbor-search.html">Nearest-neighbor search</a></li>
+    <li><a class="dropdown-item" href="../articles/simple-global-models.html">Simple global models</a></li>
+    <li><a class="dropdown-item" href="../articles/classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
+    <li><a class="dropdown-item" href="../articles/building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
+    <li><a class="dropdown-item" href="../articles/evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
   </ul>
 </li>
       </ul>
@@ -58,9 +63,9 @@
       <img src="../logo.png" class="logo" alt=""><h1>Estimating dissimilarity between spectra</h1>
 
       <p class="author">Leonardo Ramirez-Lopez</p>
-      <p class="date">2026-04-20</p>
+      <p class="date">2026-04-21</p>
 
-      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/v.3.0.0/vignettes/estimating-dissimilarity-between-spectra.qmd" class="external-link"><code>vignettes/estimating-dissimilarity-between-spectra.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/estimating-dissimilarity-between-spectra.qmd" class="external-link"><code>vignettes/estimating-dissimilarity-between-spectra.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -165,7 +170,7 @@
 <p>One important aspect to note in this computation is that the Mahalanobis distance is scaled by the number of components (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>o</mi><annotation encoding="application/x-tex">o</annotation></semantics></math>) to ensure that the resulting dissimilarity values are on a comparable scale regardless of the number of components retained. This scaling prevents the distance from artificially increasing as more components are included, which could otherwise lead to misleading interpretations of similarity or dissimilarity between observations. This scaling is often overlooked in other <code>R</code> implementations.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://l-ramirez-lopez.github.io/resemble/" class="external-link">resemble</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://l-ramirez-lopez.github.io/resemble/">resemble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/l-ramirez-lopez/prospectr" class="external-link">prospectr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># obtain a numeric vector of the wavelengths at which spectra is recorded </span></span>
@@ -323,7 +328,7 @@ cumulative_explained_var 0.9738 0.97870 0.98262</code></pre>
 <span><span class="co"># be very close to zero</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">corrrelation_resemble</span><span class="op">$</span><span class="va">dissimilarity</span> <span class="op">-</span> <span class="va">correlation_baser</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2.220446e-15</code></pre>
+<pre><code>[1] 1.498801e-15</code></pre>
 </div>
 </div>
 <p>However, the correlation dissimilarity implemented in <code>resemble</code> is computationally more efficient than the corresponding approach in base <code>R</code>. This gain in efficiency comes from optimized internal routines and more efficient handling of high-dimensional data, making it better suited for spectral datasets with many variables. The following code can be run locally to compare the computational performance of the two implementations:</p>
@@ -430,7 +435,7 @@ cumulative_explained_var 0.9738 0.97870 0.98262</code></pre>
 <span><span class="co"># differences between the two implementations</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">ed_baser_scaled</span> <span class="op">-</span> <span class="va">ed_resemble</span><span class="op">$</span><span class="va">dissimilarity</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.788712e-09</code></pre>
+<pre><code>[1] 3.703797e-15</code></pre>
 </div>
 </div>
 <p>Another important aspect to note is that the Euclidean dissimilarity computations in <code>resemble</code> tend to be more computationally efficient than the base <code>R</code> implementation, especially for larger datasets. This efficiency is achieved through optimized algorithms and data handling strategies that reduce computational overhead, making it more suitable for high-dimensional spectral data. Execute the following code in your local environment to compare the computational speed of the two implementations:</p>

@@ -37,8 +37,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/intro.html">Essential concepts and setup</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+    <li><a class="dropdown-item" href="../articles/dimensionality-reduction.html">Dimensionality reduction of spectral data</a></li>
+    <li><a class="dropdown-item" href="../articles/estimating-dissimilarity-between-spectra.html">Estimating dissimilarity between spectra</a></li>
+    <li><a class="dropdown-item" href="../articles/nearest-neighbor-search.html">Nearest-neighbor search</a></li>
+    <li><a class="dropdown-item" href="../articles/simple-global-models.html">Simple global models</a></li>
+    <li><a class="dropdown-item" href="../articles/classical-mbl.html">Classical memory-based learning (local modelling)</a></li>
+    <li><a class="dropdown-item" href="../articles/building-a-library-of-models-with-liblex.html">Building a library of models with liblex</a></li>
+    <li><a class="dropdown-item" href="../articles/evolutionary-subset-search.html">Evolutionary subset search and modeling using gesearch</a></li>
   </ul>
 </li>
       </ul>
@@ -58,9 +63,9 @@
       <img src="../logo.png" class="logo" alt=""><h1>Building a library of models with liblex</h1>
 
       <p class="author">Leonardo Ramirez-Lopez</p>
-      <p class="date">2026-04-20</p>
+      <p class="date">2026-04-21</p>
 
-      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/v.3.0.0/vignettes/building-a-library-of-models-with-liblex.qmd" class="external-link"><code>vignettes/building-a-library-of-models-with-liblex.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/building-a-library-of-models-with-liblex.qmd" class="external-link"><code>vignettes/building-a-library-of-models-with-liblex.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -119,7 +124,7 @@
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://l-ramirez-lopez.github.io/resemble/" class="external-link">resemble</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://l-ramirez-lopez.github.io/resemble/">resemble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/l-ramirez-lopez/prospectr" class="external-link">prospectr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">)</span></span>
@@ -281,7 +286,7 @@
 <code class="sourceCode R"><span><span class="va">ciso_lib_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/liblex.html">liblex</a></span><span class="op">(</span></span>
 <span>  Xr <span class="op">=</span> <span class="va">train_x</span>, </span>
 <span>  Yr <span class="op">=</span> <span class="va">train_y</span>, </span>
-<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">120</span>, by <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">80</span>, by <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  diss_method <span class="op">=</span> <span class="fu"><a href="../reference/diss_correlation.html">diss_correlation</a></span><span class="op">(</span>ws <span class="op">=</span> <span class="fl">37</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  fit_method <span class="op">=</span> <span class="fu"><a href="../reference/fit_methods.html">fit_wapls</a></span><span class="op">(</span></span>
 <span>    min_ncomp <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -322,12 +327,10 @@ _______________________________________________________
 Nearest-neighbor validation
 
 Best results per neighbor selection metric
-   k min_ncomp max_ncomp    r2  rmse      me st_rmse
-  40         3        15 0.841 0.774 -0.1220   0.729
-  60        10        10 0.784 0.897 -0.0763   0.696
-  80         3        15 0.750 0.952 -0.1100   0.635
- 100         4        15 0.762 0.916 -0.0773   0.612
- 120         5        15 0.755 0.926 -0.0787   0.614
+  k min_ncomp max_ncomp    r2  rmse      me st_rmse
+ 40         3        15 0.841 0.774 -0.1220   0.729
+ 60        10        10 0.784 0.897 -0.0763   0.696
+ 80         3        15 0.750 0.952 -0.1100   0.635
 _______________________________________________________ </code></pre>
 </div>
 </div>
@@ -373,23 +376,18 @@ Fitting method: wapls
    tol       : 1e-06
 _______________________________________________________
 Optimal parameters
-  diss threshold:     0.1
+  diss threshold:     0.05
   ncomp: 3 - 15
 _______________________________________________________
 Nearest-neighbor validation
 
 Best results per neighbor selection metric
  diss_threshold min_ncomp max_ncomp k_min k_max    r2  rmse      me st_rmse
-           0.05         3        15    40   150 0.841 0.774 -0.1220   0.729
-           0.10         3        15    40   150 0.841 0.774 -0.1220   0.727
-           0.15         3        15    40   150 0.840 0.775 -0.1260   0.715
-           0.20         3        15    40   150 0.835 0.787 -0.1380   0.672
-           0.25         3        15    40   150 0.801 0.848 -0.1250   0.640
-           0.30         3        15    40   150 0.767 0.916 -0.1280   0.638
-           0.35         9        15    40   150 0.768 0.916 -0.0599   0.603
-           0.40         6        15    40   150 0.742 0.951 -0.0724   0.606
-           0.45        11        15    40   150 0.750 0.936 -0.0407   0.604
-           0.50        11        15    40   150 0.756 0.924 -0.0389   0.593
+          0.050         3        15    40   150 0.841 0.774 -0.1220   0.729
+          0.162         3        15    40   150 0.841 0.775 -0.1280   0.696
+          0.275         4        15    40   150 0.779 0.895 -0.1210   0.638
+          0.388         5        15    40   150 0.751 0.933 -0.0812   0.610
+          0.500        11        15    40   150 0.756 0.924 -0.0389   0.593
 _______________________________________________________ </code></pre>
 </div>
 </div>
@@ -399,7 +397,7 @@ _______________________________________________________ </code></pre>
 <span>  Xr <span class="op">=</span> <span class="va">train_x</span>, </span>
 <span>  Yr <span class="op">=</span> <span class="va">train_y</span>, </span>
 <span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_diss</a></span><span class="op">(</span></span>
-<span>    threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.5</span>, length.out <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>, </span>
+<span>    threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.5</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, </span>
 <span>    k_min <span class="op">=</span> <span class="fl">40</span>, </span>
 <span>    k_max <span class="op">=</span> <span class="fl">150</span></span>
 <span>  <span class="op">)</span>,</span>
@@ -593,12 +591,10 @@ _______________________________________________________
 Nearest-neighbor validation
 
 Best results per neighbor selection metric
-   k min_ncomp max_ncomp    r2  rmse     me st_rmse
-  40         3        15 0.817 0.861 -0.194   0.799
-  60        10        10 0.776 0.937 -0.132   0.717
-  80         3        15 0.727 1.020 -0.178   0.644
- 100         5        15 0.748 0.941 -0.111   0.666
- 120         6        15 0.759 0.918 -0.127   0.643
+  k min_ncomp max_ncomp    r2  rmse     me st_rmse
+ 40         3        15 0.816 0.868 -0.166   0.812
+ 60        10        10 0.761 0.991 -0.108   0.763
+ 80         3        15 0.717 1.060 -0.143   0.686
 _______________________________________________________ </code></pre>
 </div>
 </div>
@@ -607,7 +603,7 @@ _______________________________________________________ </code></pre>
 <code class="sourceCode R"><span><span class="va">ciso_lib_anchored</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/liblex.html">liblex</a></span><span class="op">(</span></span>
 <span>  Xr <span class="op">=</span> <span class="va">train_x</span>, </span>
 <span>  Yr <span class="op">=</span> <span class="va">train_y</span>, </span>
-<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">120</span>, by <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  neighbors <span class="op">=</span> <span class="fu"><a href="../reference/neighbors.html">neighbors_k</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">80</span>, by <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  diss_method <span class="op">=</span> <span class="fu"><a href="../reference/diss_correlation.html">diss_correlation</a></span><span class="op">(</span>ws <span class="op">=</span> <span class="fl">37</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  fit_method <span class="op">=</span> <span class="fu"><a href="../reference/fit_methods.html">fit_wapls</a></span><span class="op">(</span></span>
 <span>    min_ncomp <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -913,7 +909,13 @@ Figure 5: Predicted versus observed values
 </section><section class="section level2" data-number="10"><h2 data-number="10" id="parallel-processing">
 <span class="header-section-number">10</span> Parallel processing<a class="anchor" aria-label="anchor" href="#parallel-processing"></a>
 </h2>
-<p>The <code><a href="../reference/liblex.html">liblex()</a></code> function supports parallel execution via the <code>foreach</code> package. Register a parallel backend before calling <code><a href="../reference/liblex.html">liblex()</a></code>:</p>
+<div>
+<blockquote>
+<p><strong>Note</strong></p>
+<p>These functions support parallel execution via the <code>foreach</code> and <code>doParallel</code> packages. However, parallel execution is only beneficial when the workload per iteration is large enough to outweigh the overhead of spawning worker processes and serialising data between them. In practice this means large prediction or reference sets (typically hundreds of observations or more), large neighbourhoods, and many PLS components. For small datasets, sequential execution is invariably faster. When in doubt, benchmark both before committing to a parallel workflow.</p>
+</blockquote>
+</div>
+<p>The following example may not be faster than sequential execution due to the relatively small size of the dataset, but it illustrates how to set up parallel processing for <code><a href="../reference/liblex.html">liblex()</a></code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RevolutionAnalytics/doparallel" class="external-link">doParallel</a></span><span class="op">)</span></span>

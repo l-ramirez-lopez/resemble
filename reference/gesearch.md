@@ -20,7 +20,7 @@ gesearch(Xr, Yr, Xu, Yu = NULL, Yu_lims = NULL,
          verbose = TRUE, seed = NULL, pchunks = 1L, ...)
 
 # S3 method for class 'formula'
-gesearch(formula, train, test, k, b, target_size,
+gesearch(formula, train, test, k, b, target_size, fit_method,
          ..., na_action = na.pass)
 
 # S3 method for class 'gesearch'
@@ -342,7 +342,7 @@ train_y <- NIRsoil$Ciso[NIRsoil$train == 1 & !is.na(NIRsoil$Ciso)]
 test_x <- NIRsoil$spc_pr[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso), ]
 test_y <- NIRsoil$Ciso[NIRsoil$train == 0 & !is.na(NIRsoil$Ciso)]
 
-# Basic search with reconstruction optimization
+# Basic search with reconstruction and similarity optimizations
 gs <- gesearch(
   Xr = train_x, Yr = train_y,
   Xu = test_x, Yu = test_y,
@@ -361,7 +361,7 @@ preds <- predict(gs, test_x)
 plot(gs)
 plot(gs, which = "removed")
 
-# With response optimization (requires Yu)
+# With reconstruction and response optimization (requires Yu)
 gs_response <- gesearch(
   Xr = train_x, Yr = train_y,
   Xu = test_x, Yu = test_y,
@@ -374,7 +374,8 @@ gs_response <- gesearch(
 
 # Parallel processing
 library(doParallel)
-cl <- makeCluster(2)
+n_cores <- min(2, parallel::detectCores() - 1)
+cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
 gs_parallel <- gesearch(

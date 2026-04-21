@@ -1,5 +1,7 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/404.html</loc></url>
+<url><loc>https://l-ramirez-lopez.github.io/resemble/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://l-ramirez-lopez.github.io/resemble/CONTRIBUTING.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/LICENSE-text.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/articles/building-a-library-of-models-with-liblex.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/articles/classical-mbl.html</loc></url>
@@ -22,7 +24,6 @@
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/diss_pca.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/diss_pls.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/dissimilarity.html</loc></url>
-<url><loc>https://l-ramirez-lopez.github.io/resemble/reference/fast_diss.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/gesearch.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/gesearch_control.html</loc></url>
@@ -37,11 +38,8 @@
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/neighbors.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/ortho_projection.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/pkg_info.html</loc></url>
-<url><loc>https://l-ramirez-lopez.github.io/resemble/reference/print.gesearch.html</loc></url>
-<url><loc>https://l-ramirez-lopez.github.io/resemble/reference/print.local_fit.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/print.ortho_projection.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/resemble-package.html</loc></url>
-<url><loc>https://l-ramirez-lopez.github.io/resemble/reference/search_control.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/search_neighbors.html</loc></url>
 <url><loc>https://l-ramirez-lopez.github.io/resemble/reference/sid.html</loc></url>
 </urlset>
