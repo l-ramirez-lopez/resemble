@@ -162,13 +162,7 @@ f_diss <- function(Xr, Xu = NULL, diss_method = "euclid",
 
   n_method <- diss_method
   if (!n_method %in% c("euclid", "mahalanobis", "cosine")) {
-    stop("'diss_method' must be one of: 'euclid', 'mahalanobis' or'cosine'")
-
-    if (length(n_method) > 1) {
-    } else {
-      n_method <- diss_method[[1]]
-      message(paste("More than one diss_method was specified, only", n_method, "was used."))
-    }
+    stop("'diss_method' must be one of: 'euclid', 'mahalanobis' or 'cosine'")
   }
 
   if (!is.logical(center)) {

@@ -275,18 +275,18 @@ search_neighbors <- function(
     k_range <- c(neighbors$k_min, neighbors$k_max)
 
     if (is.infinite(k_range[2])) {
-      
       if (is.null(Xu)) {
-        max_neighbors  <- n_xr
-        mss <- "nrow(Xr) - 1 (excluding self-matches)"
+        k_range[2] <- n_xr - 1L
+        message(
+          "setting 'k_max' (Inf) to nrow(Xr) - 1 (", k_range[2],
+          "), excluding self-matches."
+        )
       } else {
-        max_neighbors <- n_xr - 1
-        mss <- "nrow(Xr)"
+        k_range[2] <- n_xr
+        message(
+          "setting 'k_max' (Inf) to nrow(Xr) (", k_range[2], ")."
+        )
       }
-      message(
-        "setting 'k_max' (", k_range[2], ") to ", mss,  " (", n_xr, ")."
-      )
-      k_range[2] <- n_xr
     }
         
     if (k_range[2] > n_xr) {

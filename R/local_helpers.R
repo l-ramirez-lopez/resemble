@@ -56,19 +56,25 @@ get_neighbor_info <- function(
         scale = FALSE
       )
     } else {
-      # Non-orthogonal methods: compute directly on scaled data
+      # Non-orthogonal methods: compute directly on scaled data.
+      # Pre-scale jointly on Xr+Xu so parameters match Xr-Xu computation, then
+      # disable center/scale in dissimilarity() to avoid double-preprocessing.
       center <- diss_method$center %||% TRUE
-      scale <- diss_method$scale %||% FALSE
-      
+      scale  <- diss_method$scale %||% FALSE
+
       Xr_scaled <- scale(
         rbind(Xr, Xu),
         center = center,
         scale = scale
       )[1:n_xr, , drop = FALSE]
-      
+
+      diss_method_raw        <- diss_method
+      diss_method_raw$center <- FALSE
+      diss_method_raw$scale  <- FALSE
+
       info_neighbors$diss_xr_xr <- dissimilarity(
         Xr = Xr_scaled,
-        diss_method = diss_method
+        diss_method = diss_method_raw
       )$dissimilarity
     }
   }

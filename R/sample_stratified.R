@@ -470,7 +470,7 @@ get_samples_from_strata <- function(
     if (replacement) {
       # Ensure that the validation and replacement sets are distinct.
       unique_sample_strata <- which(strata_samples[, 1] == strata_samples[, 2])
-      if (length(unique_sample_strata > 0)) {
+      if (length(unique_sample_strata) > 0) {
         solve_replacement <- sample(original_order[-strata_samples[, 2]], length(unique_sample_strata))
         strata_samples[unique_sample_strata, 2] <- solve_replacement
       }

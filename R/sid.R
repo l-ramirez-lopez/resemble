@@ -204,7 +204,6 @@ sid <- function(Xr, Xu = NULL,
     stop("'reg' must be a single numeric value")
   }
 
-  n <- n
   X <- Xr
   rm(Xr)
   if (is.null(Xu)) {
