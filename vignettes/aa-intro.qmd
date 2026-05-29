@@ -47,7 +47,7 @@ The functions presented here are implemented based on the methods described in @
 
 The main functionalities of `resemble` include:
 
-- orthogonal projection of spectral data using principal component analyssis (PCA) and partial least squares (PLS) methods
+- orthogonal projection of spectral data using principal component analysis (PCA) and partial least squares (PLS) methods
 
 - computation and evaluation of spectral dissimilarity measures
 
