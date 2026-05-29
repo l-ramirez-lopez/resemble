@@ -1,4 +1,4 @@
-# `resemble 3.0.1 (cac)`
+# `resemble 3.0.1 (tarragona)`
 ===============
 
 ## Fixes
