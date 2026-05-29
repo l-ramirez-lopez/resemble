@@ -23,9 +23,11 @@ Description:
     spectral data sets, including memory-based learning (MBL), optimal subset
     search and selection, and retrieval-based modelling with model libraries.
     Supports local learning, optimisation of spectral libraries, and
-    ensemble prediction from precomputed models.
-    Most of these functions are based on the methods presented in 
-    Ramirez-Lopez et al. (2013) <doi:10.1016/j.geoderma.2012.12.014>.
+    ensemble prediction from precomputed models. Most of these functions are
+    based on the methods presented in Ramirez-Lopez et al. (2013)
+    <doi:10.1016/j.geoderma.2012.12.014>, Ramirez-Lopez et al. (2026a)
+    <doi:10.1016/j.aca.2026.345682>, and Ramirez-Lopez et al. (2026b)
+    <doi:10.1016/j.aca.2026.345651>.
 License: MIT + file LICENSE
 URL: https://l-ramirez-lopez.github.io/resemble/, https://github.com/l-ramirez-lopez/resemble
 Depends:
@@ -52,7 +54,7 @@ VignetteBuilder: quarto
 NeedsCompilation: yes
 LazyData: true
 Repository: CRAN
-RoxygenNote: 7.3.3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/VersionName: tarragona
+Config/roxygen2/version: 8.0.0
