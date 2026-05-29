@@ -196,11 +196,13 @@
 #' of selectivity ratio plot. Chemometrics and Intelligent Laboratory Systems
 #' 95:35-48.
 #' 
-#' Ramirez-Lopez, L., Viscarra Rossel, R., Behrens, T., Orellano, C.,
-#' Perez-Fernandez, E., Kooijman, L., Wadoux, A. M. J.-C., Breure, T.,
-#' Summerauer, L., Safanelli, J. L., & Plans, M. (2026a). When spectral
-#' libraries are too complex to search: Evolutionary subset selection for
-#' domain-adaptive calibration. \emph{Analytica Chimica Acta}, under review.
+#' Ramirez-Lopez, L., Viscarra Rossel, R., Orellano, C.,
+#' Kooijman, L., Perez-Fernandez, E., Wadoux, A. M. J.-C.,
+#' Plans, M., Breure, T., Summerauer, L., Safanelli, J. L.,
+#' Behrens, T., & Boqué, R. (2026a). When spectral libraries
+#' are too complex to search: Evolutionary subset selection for
+#' domain-adaptive calibration. \emph{Analytica Chimica Acta},
+#' 1412, 345651. \doi{10.1016/j.aca.2026.345651}
 #'
 #' @seealso
 #' \code{\link{fit_pls}}, \code{\link{gesearch_control}}, \code{\link{mbl}}
@@ -995,8 +997,7 @@ gesearch.default <- function(
 
 
 #' @aliases gesearch
-#' @importFrom stats quantile complete.cases diffinv na.pass model.extract 
-#' model.frame model.matrix
+#' @importFrom stats quantile complete.cases diffinv na.pass model.extract model.frame model.matrix
 #' @export
 gesearch.formula <- function(
     formula,
