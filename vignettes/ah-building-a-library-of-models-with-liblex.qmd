@@ -232,7 +232,6 @@ ciso_lib_k
 
 ```{r}
 #| label: liblex-fixed-k
-#| cache: true
 #| echo: false
 #| message: false
 #| warning: false
@@ -275,7 +274,6 @@ The `k_min` and `k_max` arguments ensure reasonable neighborhood sizes:
 
 ```{r}
 #| label: liblex-threshold
-#| cache: true
 #| echo: false
 ciso_lib_thr <- liblex(
   Xr = train_x, 
@@ -300,7 +298,6 @@ ciso_lib_thr
 ```
 
 ```{r}
-#| cache: true
 #| eval: false
 ciso_lib_thr <- liblex(
   Xr = train_x, 
@@ -481,7 +478,6 @@ cat("Selected", length(anchor_km), "anchors via k-means\n")
 
 ```{r}
 #| label: liblex-anchored
-#| cache: true
 #| echo: false
 ciso_lib_anchored <- liblex(
   Xr = train_x, 
@@ -505,7 +501,6 @@ ciso_lib_anchored
 
 
 ```{r}
-#| cache: true
 #| eval: false
 ciso_lib_anchored <- liblex(
   Xr = train_x, 
