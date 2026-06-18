@@ -5,7 +5,7 @@
 
 - Fixed: An error was thrown when passing a categorical variable as side info in `diss_evaluate()`.
 
-- Vignnetes appear now in the right order in CRAN.
+- Vignettes appear now in the right order in CRAN.
 
 # `resemble 3.0.0 (vertex)`
 ===============
