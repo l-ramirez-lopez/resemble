@@ -14,7 +14,7 @@ status](https://www.r-pkg.org/badges/version/resemble?v=2.png)](https://CRAN.R-p
 
 <!-- badges: end -->
 
-*Last update: 2026-05-29*
+*Last update: 2026-06-18*
 
 Version: 3.0.1 – tarragona
 
