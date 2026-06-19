@@ -1,3 +1,53 @@
+# version 3.0.1
+
+Dear CRAN maintainers,
+
+This is a resubmission of resemble 3.0.1. The previous submission was held up
+by two NOTEs about CPU/elapsed time ratio in tests and vignettes. Both have
+been resolved by capping OpenMP threads via `OMP_THREAD_LIMIT` and
+`OMP_NUM_THREADS` in `tests/testthat/setup.R` and in the affected vignette
+setup chunks.
+
+## Test environments
+- Ubuntu 24.04, R 4.5.3 (local)
+- winbuilder R-release: 0 errors, 0 warnings, 0 notes
+- winbuilder R-oldrelease: 0 errors, 0 warnings, 0 notes
+- winbuilder R-devel: likely false positive ERROR — known incompatibility
+  between Rcpp 1.1.1 and R 4.6.0 RC (R_NamespaceRegistry removed from R API),
+  affecting all Rcpp-dependent packages. See:
+  https://github.com/RcppCore/Rcpp/issues/1473
+  Debian R-devel passes with Status: OK.
+
+Best regards,
+Leo
+
+The package was tested locally:
+
+devtools::check(
+    args = "--as-cran",
+    env_vars = c(
+        `_R_CHECK_CRAN_INCOMING_` = "true",
+        `_R_CHECK_CRAN_INCOMING_REMOTE_` = "true"
+    )
+)
+
+❯ checking compilation flags used ... NOTE
+  Compilation used the following non-portable flag(s):
+    ‘-mno-omit-leaf-frame-pointer’
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
+
+The package was built using:
+
+devtools::install()
+
+devtools::build(
+  vignettes = TRUE,
+  manual = TRUE,
+  clean_doc = FALSE
+)
+
+
 # version 3.0.0
 
 Dear CRAN maintainers,
