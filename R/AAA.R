@@ -1,3 +1,10 @@
+.onLoad <- function(lib, pkg) {
+  n <- suppressWarnings(as.integer(Sys.getenv("OMP_NUM_THREADS", unset = NA_character_)))
+  if (!is.na(n) && n >= 1L) {
+    resemble_set_omp_threads(n)
+  }
+}
+
 .onAttach <- function(lib, pkg) {
   pkg_v <- pkg_info()
   

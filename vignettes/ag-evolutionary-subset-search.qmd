@@ -34,10 +34,10 @@ vignette: >
 ```{r}
 #| message: false
 #| echo: false
-library(resemble)
 Sys.setenv(OMP_NUM_THREADS = 2)
 Sys.setenv(OMP_THREAD_LIMIT = 2)
 options(mc.cores = 2)
+library(resemble)
 ```
 
 
@@ -332,18 +332,18 @@ my_control <- gesearch_control(
 
 ```{r}
 #| eval: true
-#| echo: false 
+#| echo: false
 gs <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
   Xu = test_x_ref, # the available target domain spectra
   Yu = test_y_ref, # the available target domain response (accepts NAs)
-  k = 50, b = 100, retain = 0.95,
+  k = 50, b = 20, retain = 0.95,
   target_size = 120,
   fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
   optimization = c("reconstruction", "similarity", "response"),
   control = my_control,
-  seed = 1124, 
+  seed = 1124,
   verbose = FALSE
 )
 ```
@@ -466,18 +466,18 @@ The search process can be conducted when no information on the response variable
 
 ```{r}
 #| eval: true
-#| echo: false 
+#| echo: false
 gs_nr <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
   Xu = test_x_ref, # the available target domain spectra
   Yu = NULL, # NO available target domain response (accepts NAs)
-  k = 50, b = 80, retain = 0.98,
+  k = 50, b = 15, retain = 0.98,
   target_size = 160,
   fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
   optimization = c("reconstruction", "similarity"),
   control = my_control,
-  seed = 1124, 
+  seed = 1124,
   verbose = FALSE
 )
 ```
@@ -515,19 +515,19 @@ In some cases, the response values for the target set may not be available, but 
 
 ```{r}
 #| eval: true
-#| echo: false 
+#| echo: false
 gs_nr2 <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
   Xu = test_x_ref, # the available target domain spectra
   Yu = NULL, # NO available target domain response (accepts NAs)
   Yu_lims = c(0, 5), # the response range in the target domain
-  k = 50, b = 80, retain = 0.98,
+  k = 50, b = 15, retain = 0.98,
   target_size = 160,
   fit_method = fit_pls(ncomp = 20, method = "simpls", scale = TRUE),
   optimization = c("reconstruction", "similarity", "range"),
   control = my_control,
-  seed = 1124, 
+  seed = 1124,
   verbose = FALSE
 )
 ```
