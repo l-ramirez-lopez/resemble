@@ -566,6 +566,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// resemble_set_omp_threads
+void resemble_set_omp_threads(int n);
+RcppExport SEXP _resemble_resemble_set_omp_threads(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    resemble_set_omp_threads(n);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_resemble_fast_diss", (DL_FUNC) &_resemble_fast_diss, 3},
@@ -605,6 +615,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_ith_local_fit", (DL_FUNC) &_resemble_ith_local_fit, 10},
     {"_resemble_final_fits_cpp", (DL_FUNC) &_resemble_final_fits_cpp, 9},
     {"_resemble_ith_pred_cpp", (DL_FUNC) &_resemble_ith_pred_cpp, 4},
+    {"_resemble_resemble_set_omp_threads", (DL_FUNC) &_resemble_resemble_set_omp_threads, 1},
     {NULL, NULL, 0}
 };
 

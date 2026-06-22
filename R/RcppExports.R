@@ -1150,3 +1150,9 @@ ith_pred_cpp <- function(plslib, xscale, Xu, dxrxu = NULL) {
     .Call(`_resemble_ith_pred_cpp`, plslib, xscale, Xu, dxrxu)
 }
 
+#' @keywords internal
+#' @noRd
+resemble_set_omp_threads <- function(n) {
+    invisible(.Call(`_resemble_resemble_set_omp_threads`, n))
+}
+
