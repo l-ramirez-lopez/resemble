@@ -24,11 +24,11 @@ vignette: >
 ```{r}
 #| message: false
 #| echo: false
-library(resemble)
-library(prospectr)
 Sys.setenv(OMP_NUM_THREADS = 2)
 Sys.setenv(OMP_THREAD_LIMIT = 2)
 options(mc.cores = 2)
+library(resemble)
+library(prospectr)
 ```
 
 :::: {.columns}
