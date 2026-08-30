@@ -2,7 +2,7 @@ Package: resemble
 Type: Package
 Title: Similarity Retrieval and Local Learning for Spectral Chemometrics
 Version: 3.0.1
-Date: 2026-06-18
+Date: 2026-09-01
 Authors@R: c(
   person(given = "Leonardo",
          family = "Ramirez-Lopez",
