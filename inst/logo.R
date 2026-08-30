@@ -12,7 +12,7 @@ showtext_opts(dpi = 300)
 n_points <- 200
 r_min <- 1.5
 r_max <- 5.5
-n_turns <- 12  # many turns = looks like circles
+n_turns <- 12  
 
 radii <- seq(r_min, r_max, length.out = n_points)
 
