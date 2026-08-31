@@ -84,7 +84,7 @@ jobs:
             exit 0
           fi
           range="${base_sha}..${head_sha}"
-          messages="$(git log --format='%H%n%s%n%b%n----' "$range" || true)"
+          messages="$(git log --format='%H%n%s%n----' "$range" || true)"
 
           if [ -z "$messages" ]; then
             exit 0
@@ -112,22 +112,22 @@ jobs:
 
           if [ -n "$before" ] && [ "$before" != "0000000000000000000000000000000000000000" ]; then
             range="${before}..${after}"
-            messages="$(git log --format='%H%n%s%n%b%n----' "$range" || true)"
+            messages="$(git log --format='%H%n%s%n----' "$range" || true)"
           else
             default_branch="$(jq -r '.repository.default_branch // "main"' "$GITHUB_EVENT_PATH")"
             if git rev-parse --verify --quiet "refs/remotes/origin/${default_branch}" >/dev/null; then
               merge_base="$(git merge-base "$after" "refs/remotes/origin/${default_branch}" 2>/dev/null || true)"
               if [ -n "$merge_base" ] && [ "$merge_base" != "$after" ]; then
                 range="${merge_base}..${after}"
-                messages="$(git log --format='%H%n%s%n%b%n----' "$range" || true)"
+                messages="$(git log --format='%H%n%s%n----' "$range" || true)"
               fi
             fi
 
             if [ -z "$messages" ]; then
-              messages="$(jq -r '(.commits // [])[]?.message // empty' "$GITHUB_EVENT_PATH")"
+              messages="$(jq -r '(.commits // [])[]?.message // empty | split("\n")[0]' "$GITHUB_EVENT_PATH")"
             fi
             if [ -z "$messages" ]; then
-              messages="$(jq -r '.head_commit.message // ""' "$GITHUB_EVENT_PATH")"
+              messages="$(jq -r '.head_commit.message // "" | split("\n")[0]' "$GITHUB_EVENT_PATH")"
             fi
           fi
 
