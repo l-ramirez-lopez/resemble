@@ -29,3 +29,7 @@ docs
 /doc/
 /Meta/
 Makevars.omp
+
+vignettes/.quarto/
+vignettes/*_cache/
+vignettes/*_files/
