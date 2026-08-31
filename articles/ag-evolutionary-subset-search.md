@@ -50,18 +50,18 @@ As *gesearch* is an evolutionary search algorithm, it draws on
 terminology from evolutionary optimization and sample selection. This
 glossary summarizes the main terms used throughout the vignette.
 
-| Term                                 | Meaning                                                                                                                                                                                              |
-|:-------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Target set ($\mathcal{D}_{u}$)       | The population of interest (`Xu`, `Yu`), typically small ($m$ samples). Response values may be partially or entirely unavailable. The subscript $u$ denotes the target domain (partially “unknown”). |
-| Spectral library ($\mathcal{D}_{r}$) | A large, heterogeneous collection of candidate samples for model training (`Xr`, `Yr`), with $n \gg m$. The subscript $r$ denotes the reference library.                                             |
-| Gene                                 | A sample from the spectral library.                                                                                                                                                                  |
-| Gene pool                            | The set of genes currently eligible for selection.                                                                                                                                                   |
-| Individual                           | A subset of `k` genes used to fit a candidate PLS model.                                                                                                                                             |
-| Population                           | The collection of all individuals in a given generation.                                                                                                                                             |
-| Silenced gene                        | A gene permanently excluded from all subsequent generations.                                                                                                                                         |
-| Weakness score                       | A measure of how poorly a gene contributes to model performance for the target set.                                                                                                                  |
-| Generation                           | One iteration of the evolutionary cycle.                                                                                                                                                             |
-| Incidence count                      | The number of individuals in which a gene appears.                                                                                                                                                   |
+| Term | Meaning |
+|:---|:---|
+| Target set ($`\mathcal{D}_u`$) | The population of interest (`Xu`, `Yu`), typically small ($`m`$ samples). Response values may be partially or entirely unavailable. The subscript $`u`$ denotes the target domain (partially “unknown”). |
+| Spectral library ($`\mathcal{D}_r`$) | A large, heterogeneous collection of candidate samples for model training (`Xr`, `Yr`), with $`n \gg m`$. The subscript $`r`$ denotes the reference library. |
+| Gene | A sample from the spectral library. |
+| Gene pool | The set of genes currently eligible for selection. |
+| Individual | A subset of `k` genes used to fit a candidate PLS model. |
+| Population | The collection of all individuals in a given generation. |
+| Silenced gene | A gene permanently excluded from all subsequent generations. |
+| Weakness score | A measure of how poorly a gene contributes to model performance for the target set. |
+| Generation | One iteration of the evolutionary cycle. |
+| Incidence count | The number of individuals in which a gene appears. |
 
 ## 3 The *gesearch* algorithm: How it works
 
@@ -106,23 +106,25 @@ individuals containing that gene.
 
 #### 3.2.1 Step 1: Evaluate each individual
 
-For each individual $S_{i}^{(\gamma)}$ in generation $\gamma$, a PLS
+For each individual $`S_i^{(\gamma)}`$ in generation $`\gamma`$, a PLS
 model is fitted using its `k` active genes. This model is then evaluated
-on the target spectra $\mathbf{X}_{u}$, producing an individual-level
+on the target spectra $`\mathbf{X}_u`$, producing an individual-level
 score, for example, prediction error, reconstruction error, or distance
 to the target set.
 
 #### 3.2.2 Step 2: Aggregate to gene-level weakness
 
 Each gene appears in multiple individuals, with its frequency controlled
-by the representation factor `b`. The weakness of gene $g_{j}$ is the
+by the representation factor `b`. The weakness of gene $`g_j`$ is the
 mean of the individual-level scores across all individuals containing
 that gene:
 
-$$w^{(\gamma)}(g_{j}) = \frac{1}{h_{j}^{(\gamma)}}\sum\limits_{i:\, g_{j} \in S_{i}^{(\gamma)}}\text{score}(S_{i}^{(\gamma)})$$
+``` math
+w^{(\gamma)}(g_j) = \frac{1}{h_j^{(\gamma)}} \sum_{i:\, g_j \in S_i^{(\gamma)}} \text{score}(S_i^{(\gamma)})
+```
 
-where $h_{j}^{(\gamma)}$ is the incidence count, that is, the number of
-individuals containing gene $g_{j}$.
+where $`h_j^{(\gamma)}`$ is the incidence count, that is, the number of
+individuals containing gene $`g_j`$.
 
 #### 3.2.3 Interpretation
 
@@ -139,12 +141,12 @@ applied. Multiple criteria can be combined, for example
 `c("reconstruction", "similarity")`. At least one criterion must be
 specified:
 
-| Criterion                    | Individual-level score                                               | Requires `Yu`?   |
-|:-----------------------------|:---------------------------------------------------------------------|:-----------------|
-| `"reconstruction"` (default) | Error of reconstructing $\mathbf{X}_{u}$ from the PLS latent space   | No               |
-| `"similarity"` (default)     | Mahalanobis distance between the target and training score centroids | No               |
-| `"response"`                 | RMSE of predicting $\mathbf{y}_{u}$                                  | Yes              |
-| `"range"`                    | Penalty for predictions outside `Yu_lims`                            | No (bounds only) |
+| Criterion | Individual-level score | Requires `Yu`? |
+|:---|:---|:---|
+| `"reconstruction"` (default) | Error of reconstructing $`\mathbf{X}_u`$ from the PLS latent space | No |
+| `"similarity"` (default) | Mahalanobis distance between the target and training score centroids | No |
+| `"response"` | RMSE of predicting $`\mathbf{y}_u`$ | Yes |
+| `"range"` | Penalty for predictions outside `Yu_lims` | No (bounds only) |
 
 ### 3.4 Gene silencing
 
@@ -160,7 +162,9 @@ on the `retain` parameter and the retention strategy specified in
 
 Silenced genes are permanently excluded:
 
-$$G^{(\gamma + 1)} = G^{(\gamma)}\backslash U^{(\gamma)}$$
+``` math
+G^{(\gamma+1)} = G^{(\gamma)} \setminus U^{(\gamma)}
+```
 
 ### 3.5 Final model
 
@@ -172,19 +176,21 @@ components selected by cross-validation independently of the fixed
 
 ## 4 Key parameters
 
-| Parameter     | Description                                                                                               |
-|:--------------|:----------------------------------------------------------------------------------------------------------|
-| `k`           | Number of active genes per individual                                                                     |
-| `b`           | Gene-representation factor, that is, the target average number of individuals in which each gene appears  |
-| `retain`      | Retention threshold, that is, the proportion of genes kept per generation (values \> 0.9 are recommended) |
-| `target_size` | Minimum gene pool size at which evolution terminates                                                      |
-| `ncomp`       | Number of PLS components fixed during evolution for comparability                                         |
+| Parameter | Description |
+|:---|:---|
+| `k` | Number of active genes per individual |
+| `b` | Gene-representation factor, that is, the target average number of individuals in which each gene appears |
+| `retain` | Retention threshold, that is, the proportion of genes kept per generation (values \> 0.9 are recommended) |
+| `target_size` | Minimum gene pool size at which evolution terminates |
+| `ncomp` | Number of PLS components fixed during evolution for comparability |
 
-The population size at generation $\gamma$ is approximately:
+The population size at generation $`\gamma`$ is approximately:
 
-$$p^{(\gamma)} \approx \frac{b \cdot n^{(\gamma)}}{k}$$
+``` math
+p^{(\gamma)} \approx \frac{b \cdot n^{(\gamma)}}{k}
+```
 
-where $n^{(\gamma)}$ is the number of active genes remaining.
+where $`n^{(\gamma)}`$ is the number of active genes remaining.
 
 ## 5 Practical considerations
 
@@ -249,6 +255,7 @@ straightforward way to define a more spectrally homogeneous target set
 for demostration purposes.
 
 ``` r
+
 library(prospectr)
 data(NIRsoil)
 
@@ -274,6 +281,7 @@ threshold <- 0.4
 ```
 
 ``` r
+
 op <- par(mfrow = c(1, 2), mar = c(4.5, 4.5, 2, 1))
 
 plot(
@@ -341,6 +349,7 @@ available within a short time frame. The “target” subsets are then
 obtained as follows:
 
 ``` r
+
 keep <- md$dissimilarity < threshold
 
 cat("Number of samples retained:", sum(keep))
@@ -349,6 +358,7 @@ cat("Number of samples retained:", sum(keep))
     Number of samples retained: 119
 
 ``` r
+
 test_x_test <- test_x[keep, ]
 test_y_test <- test_y[keep]
 
@@ -373,6 +383,7 @@ The optimal number of components is selected by cross-validation, and
 the resulting model is evaluated on the test subset of the target set.
 
 ``` r
+
 set.seed(1124)
 
 pls_model <- model(
@@ -394,15 +405,17 @@ pls_model <- model(
     Fitting model...
 
 ``` r
+
 best_ncomp <- which(pls_model$cv_results$optimal)
 
 pred <- predict(pls_model, test_x_test, ncomp = best_ncomp)
 ```
 
-A quick function for computing the $R^{2}$ and root mean square error
-($RMSE$) of the predictions is defined here for convenience:
+A quick function for computing the $`R^2`$ and root mean square error
+($`RMSE`$) of the predictions is defined here for convenience:
 
 ``` r
+
 reg_metrics <- function(obs, pred, na.rm = TRUE) {
   if (na.rm) {
     ok <- complete.cases(obs, pred)
@@ -413,9 +426,10 @@ reg_metrics <- function(obs, pred, na.rm = TRUE) {
 }
 ```
 
-The $RMSE$ and $R^{2}$ of the globla PLS model:
+The $`RMSE`$ and $`R^2`$ of the globla PLS model:
 
 ``` r
+
 reg_metrics(test_y_test, pred)
 ```
 
@@ -471,6 +485,7 @@ additon, when `tune = FALSE`, the search process is considerable faster
 than if that is set to `TRUE`.
 
 ``` r
+
 my_control <- gesearch_control(
   retain_by = "probability",
   tune = FALSE,
@@ -480,6 +495,7 @@ my_control <- gesearch_control(
 ```
 
 ``` r
+
 gs <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
@@ -498,6 +514,7 @@ gs <- gesearch(
 scores through the generations of the search.
 
 ``` r
+
 plot(gs)
 ```
 
@@ -521,63 +538,66 @@ computed as the RMSE divided by the range of the response values
 groups (`rmse_sd_cv`), and the mean (R^2) across CV groups (`r2_cv`).
 
 ``` r
+
 # the internal leave-group out CV results for the data found
 gs$validation_results[[1]]$results$train
 ```
 
        ncomp   rmse_cv st_rmse_cv rmse_sd_cv     r2_cv
-    1      1 0.6732803 0.15690406 0.13047702 0.5149457
-    2      2 0.5827834 0.13435450 0.15603594 0.6216447
-    3      3 0.5486906 0.12768145 0.12736091 0.6754240
-    4      4 0.5282365 0.12284612 0.14380307 0.7115680
-    5      5 0.5022262 0.11803719 0.10685769 0.7343631
-    6      6 0.4628683 0.10937944 0.08639555 0.7701428
-    7      7 0.4214049 0.09917873 0.07420047 0.8140365
-    8      8 0.4187483 0.09897791 0.06458640 0.8205662
-    9      9 0.3932721 0.09341847 0.07149189 0.8444321
-    10    10 0.3819388 0.09095276 0.04332822 0.8428385
-    11    11 0.3683605 0.08787330 0.04741999 0.8550745
-    12    12 0.3677930 0.08772105 0.05675496 0.8557638
-    13    13 0.3779922 0.09034698 0.06539232 0.8450057
-    14    14 0.3684700 0.08783899 0.06825086 0.8529858
-    15    15 0.3513551 0.08364698 0.06910281 0.8613599
-    16    16 0.3584789 0.08569288 0.07196304 0.8518921
-    17    17 0.3522175 0.08400874 0.07696683 0.8593407
-    18    18 0.3560846 0.08464847 0.07103732 0.8587512
-    19    19 0.3590689 0.08516864 0.06655626 0.8562541
-    20    20 0.3569286 0.08476165 0.05807023 0.8572429
+    1      1 0.7423213  0.1518967  0.1457404 0.5295264
+    2      2 0.6778547  0.1381326  0.1477770 0.6433626
+    3      3 0.6559921  0.1335214  0.1640010 0.6798506
+    4      4 0.6259687  0.1284185  0.1545246 0.7052352
+    5      5 0.5936104  0.1206011  0.1879996 0.7494571
+    6      6 0.5550462  0.1121511  0.1988347 0.7747878
+    7      7 0.5915898  0.1193336  0.2359568 0.7603506
+    8      8 0.5776066  0.1168477  0.2292152 0.7679795
+    9      9 0.5953094  0.1200910  0.2447176 0.7599216
+    10    10 0.5473985  0.1115042  0.1909999 0.7798488
+    11    11 0.5829402  0.1183830  0.2386208 0.7685098
+    12    12 0.5583035  0.1144928  0.2041575 0.7797602
+    13    13 0.5558507  0.1133860  0.2044569 0.7807547
+    14    14 0.5512756  0.1119729  0.2021683 0.7921178
+    15    15 0.5782181  0.1172622  0.2313441 0.7828045
+    16    16 0.5942228  0.1206110  0.2412367 0.7749440
+    17    17 0.5622699  0.1147651  0.1932836 0.7843155
+    18    18 0.6239631  0.1264975  0.2435938 0.7607758
+    19    19 0.6214269  0.1262519  0.2512894 0.7634527
+    20    20 0.6282671  0.1272249  0.2541375 0.7586620
 
 ``` r
+
 # the CV on the target samples that drove the search (note that this is not a proper test set, as these samples were used to guide the search, but it can provide some insight into the performance of the final model on the target domain)
 gs$validation_results[[1]]$results$test
 ```
 
-       ncomp        r2      rmse         me
-    1      1 0.7762964 0.2626766 0.11838439
-    2      2 0.9080380 0.2516459 0.13116787
-    3      3 0.9246821 0.1896653 0.10324300
-    4      4 0.9635809 0.1331877 0.01036545
-    5      5 0.8903286 0.2138640 0.07942608
-    6      6 0.9108649 0.2195164 0.11948620
-    7      7 0.8958217 0.2247399 0.12598011
-    8      8 0.8184090 0.2510702 0.11254102
-    9      9 0.8309182 0.2250798 0.10101381
-    10    10 0.8888874 0.1856089 0.08846965
-    11    11 0.8950610 0.1628391 0.04442351
-    12    12 0.9208639 0.1473139 0.02593322
-    13    13 0.9158796 0.1430584 0.03487016
-    14    14 0.8693776 0.1843534 0.07842564
-    15    15 0.8878225 0.1802155 0.08492967
-    16    16 0.8963966 0.1844698 0.09497262
-    17    17 0.9183759 0.1741326 0.11417688
-    18    18 0.9583538 0.1323688 0.09552378
-    19    19 0.9702629 0.1338393 0.10971415
-    20    20 0.9786520 0.1079570 0.08540499
+       ncomp        r2      rmse           me
+    1      1 0.7186729 0.3880782  0.178819826
+    2      2 0.7825496 0.4394433  0.210942202
+    3      3 0.7490173 0.4014519  0.196384902
+    4      4 0.8544493 0.2871128  0.038958072
+    5      5 0.7466949 0.3805772  0.116686906
+    6      6 0.8588908 0.3185146  0.122656550
+    7      7 0.8805627 0.2958324  0.089620170
+    8      8 0.7824058 0.3545892  0.072620609
+    9      9 0.7960143 0.3203638  0.044627624
+    10    10 0.8644100 0.2923148  0.014111426
+    11    11 0.8750986 0.2334972 -0.025908034
+    12    12 0.8933767 0.2132827 -0.043190748
+    13    13 0.8692362 0.2087122 -0.027135068
+    14    14 0.8247885 0.2270104 -0.014325711
+    15    15 0.8056725 0.2275889  0.007272315
+    16    16 0.7737190 0.2502654  0.037042015
+    17    17 0.7900171 0.2381021  0.014605032
+    18    18 0.8100720 0.2237091  0.013401188
+    19    19 0.7982000 0.2285184  0.018382327
+    20    20 0.7809539 0.2529336  0.027141527
 
 Assume that the final model is chosen as the one with the lowest CV RMSE
 obtained from the samples found:
 
 ``` r
+
 best_ncomp <- which.min(gs$validation_results[[1]]$results$train$rmse_cv)
 ```
 
@@ -585,13 +605,14 @@ The predictions on the samples that represent the target set and that
 did not participate in the search process:
 
 ``` r
+
 pred_gs <- predict(gs, test_x_test)[[1]]
 
 reg_metrics(test_y_test, pred_gs[, best_ncomp])
 ```
 
          RMSE        R2
-    0.2692952 0.8120766 
+    0.3071948 0.8085528 
 
 [Figure 3](#fig-pred-comparison) compares the observed versus predicted
 values for the model fitted using all available training samples and the
@@ -599,6 +620,7 @@ model fitted using the subset of samples selected by
 [`gesearch()`](https://l-ramirez-lopez.github.io/resemble/reference/gesearch.md).
 
 ``` r
+
 op <- par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
 
 rng <- range(pred, pred_gs, test_y_test, na.rm = TRUE)
@@ -648,6 +670,7 @@ The search process can be conducted when no information on the response
 variable is available for the target set:
 
 ``` r
+
 gs_nr <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
@@ -663,6 +686,7 @@ gs_nr <- gesearch(
 ```
 
 ``` r
+
 best_ncomp_nr <- which.min(gs_nr$validation_results[[1]]$results$train$rmse_cv)
 best_ncomp_nr
 ```
@@ -670,13 +694,14 @@ best_ncomp_nr
     [1] 7
 
 ``` r
+
 pred_gs_nr <- predict(gs_nr, test_x_test)[[1]]
 
 reg_metrics(test_y_test, pred_gs_nr[, best_ncomp_nr])
 ```
 
          RMSE        R2
-    0.3472020 0.7986295 
+    0.3671099 0.7319804 
 
 #### 6.4.2 No response values in the target set but with information about the response range
 
@@ -690,6 +715,7 @@ tend to generate models that predict values for the target spectra that
 fall outside the specified limits.
 
 ``` r
+
 gs_nr2 <- gesearch(
   Xr = train_x[!is.na(train_y), ], # the spectra of the reference "set/library"
   Yr = train_y[!is.na(train_y)],   # the response of the reference "set/library"
@@ -706,20 +732,22 @@ gs_nr2 <- gesearch(
 ```
 
 ``` r
+
 best_ncomp_nr2 <- which.min(gs_nr2$validation_results[[1]]$results$train$rmse_cv)
 best_ncomp_nr2
 ```
 
-    [1] 11
+    [1] 7
 
 ``` r
+
 pred_gs_nr2 <- predict(gs_nr2, test_x_test)[[1]]
 
 reg_metrics(test_y_test, pred_gs_nr2[, best_ncomp_nr2])
 ```
 
          RMSE        R2
-    0.2892119 0.8071214 
+    0.3231525 0.8018905 
 
 ## 7 Supported parallel processing
 
@@ -761,6 +789,7 @@ using multiple cores. The example may not be faster than sequential
 execution:
 
 ``` r
+
 # Running gesearch() using multiple cores
 
 # Execute with two cores, if available, ...

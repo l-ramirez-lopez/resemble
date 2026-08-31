@@ -304,11 +304,13 @@ Kvalheim, O.M. 2009. Biomarker discovery in mass spectral profiles by
 means of selectivity ratio plot. Chemometrics and Intelligent Laboratory
 Systems 95:35-48.
 
-Ramirez-Lopez, L., Viscarra Rossel, R., Behrens, T., Orellano, C.,
-Perez-Fernandez, E., Kooijman, L., Wadoux, A. M. J.-C., Breure, T.,
-Summerauer, L., Safanelli, J. L., & Plans, M. (2026a). When spectral
-libraries are too complex to search: Evolutionary subset selection for
-domain-adaptive calibration. *Analytica Chimica Acta*, under review.
+Ramirez-Lopez, L., Viscarra Rossel, R., Orellano, C., Kooijman, L.,
+Perez-Fernandez, E., Wadoux, A. M. J.-C., Plans, M., Breure, T.,
+Summerauer, L., Safanelli, J. L., Behrens, T., & Boqué, R. (2026a). When
+spectral libraries are too complex to search: Evolutionary subset
+selection for domain-adaptive calibration. *Analytica Chimica Acta*,
+1412, 345651.
+[doi:10.1016/j.aca.2026.345651](https://doi.org/10.1016/j.aca.2026.345651)
 
 ## See also
 

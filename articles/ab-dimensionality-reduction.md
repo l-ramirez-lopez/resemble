@@ -32,27 +32,32 @@ matrix as possible. In PLS, the objective is to obtain latent variables
 that maximize the covariance between the predictor matrix and one or
 more external variables, such as response variables or side information.
 
-In PCA and PLS, the input spectra ($X$, of dimensions $n \times d$) are
-decomposed into a score matrix ($T$) and a loading matrix ($P$), such
-that
+In PCA and PLS, the input spectra ($`X`$, of dimensions $`n \times d`$)
+are decomposed into a score matrix ($`T`$) and a loading matrix ($`P`$),
+such that
 
-$$X = TP^{\top} + E$$
+``` math
+X = TP^\top + E
+```
 
-where the dimensions of $T$ and $P$ are $n \times o$ and $d \times o$,
-respectively, $o$ is the number of retained components, and $E$ is the
-residual matrix (reconstruction error). In PCA, the columns of $P$ are
-orthonormal ($P^{\top}P = I$), which allows new observations to be
-projected directly onto the latent space. For centered data, the maximum
-number of components that can be retained is ${\min}(n - 1,d)$.
+where the dimensions of $`T`$ and $`P`$ are $`n \times o`$ and
+$`d \times o`$, respectively, $`o`$ is the number of retained
+components, and $`E`$ is the residual matrix (reconstruction error). In
+PCA, the columns of $`P`$ are orthonormal ($`P^\top P = I`$), which
+allows new observations to be projected directly onto the latent space.
+For centered data, the maximum number of components that can be retained
+is $`\min(n - 1, d)`$.
 
 Once a projection model has been estimated, new observations can be
-projected onto the same latent space. If $X_{new}$ denotes a matrix of
-new spectra preprocessed in the same way as the original data, their
-scores can be obtained as
+projected onto the same latent space. If $`X_{\mathrm{new}}`$ denotes a
+matrix of new spectra preprocessed in the same way as the original data,
+their scores can be obtained as
 
-$$T_{new} = X_{new}P$$
+``` math
+T_{\mathrm{new}} = X_{\mathrm{new}} P
+```
 
-where $P$ contains the loading vectors defining the projection space.
+where $`P`$ contains the loading vectors defining the projection space.
 
 The `resemble` package provides the function
 [`ortho_projection()`](https://l-ramirez-lopez.github.io/resemble/reference/ortho_projection.md)
@@ -105,12 +110,12 @@ specification objects that are passed to the `ncomp` argument of
 [`ortho_projection()`](https://l-ramirez-lopez.github.io/resemble/reference/ortho_projection.md)
 and related functions:
 
-| Function                                                                                       | Criterion                                         |
-|------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| [`ncomp_by_var()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md)    | Individual variance threshold                     |
-| [`ncomp_by_cumvar()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md) | Cumulative variance threshold                     |
-| [`ncomp_by_opc()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md)    | Optimal selection via nearest-neighbor evaluation |
-| [`ncomp_fixed()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md)     | Fixed number of components                        |
+| Function | Criterion |
+|----|----|
+| [`ncomp_by_var()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md) | Individual variance threshold |
+| [`ncomp_by_cumvar()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md) | Cumulative variance threshold |
+| [`ncomp_by_opc()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md) | Optimal selection via nearest-neighbor evaluation |
+| [`ncomp_fixed()`](https://l-ramirez-lopez.github.io/resemble/reference/ncomp_selection.md) | Fixed number of components |
 
 Alternatively, passing a positive integer directly to `ncomp` is
 equivalent to using
@@ -127,6 +132,7 @@ Retains all components that individually explain at least a specified
 proportion of the total variance:
 
 ``` r
+
 library(resemble)
 library(prospectr)
 
@@ -157,10 +163,12 @@ compute the projection, but the same component selection criteria can be
 applied to any of the available methods.
 
 ``` r
+
 # Retain components that individually explain at least 1% of variance
 proj_var <- ortho_projection(train_x, ncomp = ncomp_by_var(0.01))
 proj_var
 ```
+
 
      Method:  pca
      Number of components retained:  8
@@ -185,10 +193,12 @@ Retains the minimum number of components needed to reach a specified
 cumulative proportion of explained variance:
 
 ``` r
+
 # Retain enough components to explain at least 99% of variance
 proj_cumvar <- ortho_projection(train_x, ncomp = ncomp_by_cumvar(0.99))
 proj_cumvar
 ```
+
 
      Method:  pca
      Number of components retained:  14
@@ -223,22 +233,26 @@ The method is based on the assumption that if two observations are
 similar in the spectral space, they should also be similar in terms of
 their *side information* ([Ramirez-Lopez et al.,
 2013](#ref-ramirez2013spectrum)). For a sequence of retained components
-$o = 1,2,\ldots,k$, the function computes a dissimilarity matrix at each
-step and identifies the nearest spectral neighbor for each observation.
-The side information values of each observation are then compared with
-those of its nearest neighbor.
+$`o = 1, 2, \ldots, k`$, the function computes a dissimilarity matrix at
+each step and identifies the nearest spectral neighbor for each
+observation. The side information values of each observation are then
+compared with those of its nearest neighbor.
 
 For continuous side information, the root mean squared difference (RMSD)
 is computed:
 
-$$j(i) = {NN}(x_{r_{i}},X_{r}^{\{-i\}})$$
+``` math
+j(i) = \mathrm{NN}(x_{r_i}, X_r^{\{-i\}})
+```
 
-$${RMSD} = \sqrt{\frac{1}{m}\sum\limits_{i = 1}^{m}(y_{i} - y_{j(i)})^{2}}$$
+``` math
+\mathrm{RMSD} = \sqrt{\frac{1}{m} \sum_{i=1}^m (y_i - y_{j(i)})^2}
+```
 
-where $j(i)$ is the index of the nearest neighbor of observation $i$
-(excluding itself), $y_{i}$ is the side information value for
-observation $i$, $y_{j(i)}$ is the side information value for the
-nearest neighbor, and $m$ is the total number of observations.
+where $`j(i)`$ is the index of the nearest neighbor of observation $`i`$
+(excluding itself), $`y_i`$ is the side information value for
+observation $`i`$, $`y_{j(i)}`$ is the side information value for the
+nearest neighbor, and $`m`$ is the total number of observations.
 
 For categorical side information, the kappa index is used instead of
 RMSD.
@@ -248,11 +262,13 @@ maximizes kappa). Note that in this case, the side information is
 represented by the response variable (`Ciso` in the `NIRSoil` dataset):
 
 ``` r
+
 # Optimal component selection using side information
 # using default max_ncomp which is 40
 proj_opc <- ortho_projection(train_x, Yr = train_y, ncomp = ncomp_by_opc())
 proj_opc
 ```
+
 
      Method:  pca
      Number of components retained:  20
@@ -302,6 +318,7 @@ If fewer than 40 latent variables are to be evaluated, the
 method can be used to set a smaller upper limit. For example:
 
 ``` r
+
 # this needs to be passed to the ncomp argument in ortho_projection()
 ncomp_by_opc(max_ncomp = 15)
 ```
@@ -314,6 +331,7 @@ When the number of components is known in advance, it can be specified
 directly:
 
 ``` r
+
 # Using ncomp_fixed()
 proj_fixed <- ortho_projection(train_x, ncomp = ncomp_fixed(10))
 
@@ -353,12 +371,14 @@ For PLS, the available algorithms are:
 ### 4.2 Example: PCA projection
 
 ``` r
+
 # PCA with default component selection (ncomp_by_var(0.01))
 pca_train <- ortho_projection(train_x, method = "pca")
 pca_train
 ```
 
 ``` r
+
 plot(pca_train)
 ```
 
@@ -375,6 +395,7 @@ The NIPALS algorithm provides an alternative to SVD and can be faster
 when only a few components are required:
 
 ``` r
+
 # PCA using NIPALS
 pca_nipals_train <- ortho_projection(train_x, method = "pca_nipals")
 ```
@@ -384,6 +405,7 @@ pca_nipals_train <- ortho_projection(train_x, method = "pca_nipals")
 For PLS methods, side information (`Yr`) must be provided:
 
 ``` r
+
 # PLS using SIMPLS with 10 components
 pls_train <- ortho_projection(
   train_x,
@@ -401,6 +423,7 @@ with the results.
 ### 4.4 Example: Optimal component selection
 
 ``` r
+
 # PCA with optimal component selection
 pca_opc <- ortho_projection(
   train_x,
@@ -412,6 +435,7 @@ pca_opc
 ```
 
 ``` r
+
 plot(pca_opc, col = "#F59E0B")
 ```
 
@@ -430,6 +454,7 @@ project new observations onto the latent space. Use the
 [`predict()`](https://rdrr.io/r/stats/predict.html) method:
 
 ``` r
+
 # Fit PLS projection model
 pls_model <- ortho_projection(
   train_x,
@@ -444,6 +469,7 @@ pls_test_scores <- predict(pls_model, newdata = test_x)
 ```
 
 ``` r
+
 plot(
   pls_model$scores[, 1:2], 
   col = rgb(0.231, 0.51, 0.965, 0.3), 
@@ -479,6 +505,7 @@ Alternatively, training and test data can be projected in a single call
 by passing the test data to `Xu`:
 
 ``` r
+
 # Project training and test data simultaneously
 pca_both <- ortho_projection(
   train_x,
@@ -503,6 +530,7 @@ The
 function accepts multiple variables as side information:
 
 ``` r
+
 train_y2 <- NIRsoil$Nt[NIRsoil$train == 1]
 train_y3 <- NIRsoil$CEC[NIRsoil$train == 1]
 

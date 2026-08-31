@@ -102,8 +102,9 @@ metrics for use with soil vis-NIR spectra. Geoderma 199, 43-53.
 ``` r
 # \donttest{
 library(prospectr)
-#> prospectr version 0.2.8 -- galo
-#> check the package repository at: https://github.com/l-ramirez-lopez/prospectr
+#> prospectr version 0.2.11 -- postdetrendy
+#> check the package repository at: https://l-ramirez-lopez.github.io/prospectr/,
+#> https://github.com/l-ramirez-lopez/prospectr
 data(NIRsoil)
 
 sg <- savitzkyGolay(NIRsoil$spc, p = 3, w = 11, m = 0)

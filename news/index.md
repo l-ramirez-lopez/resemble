@@ -1,5 +1,15 @@
 # Changelog
 
+## \# `resemble 3.0.1 (tarragona)`
+
+### Fixes
+
+- Fixed: An error was thrown when passing a categorical variable as side
+  info in
+  [`diss_evaluate()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_evaluate.md).
+
+- Vignettes appear now in the right order in CRAN.
+
 ## \# `resemble 3.0.0 (vertex)`
 
 CRAN release: 2026-04-20

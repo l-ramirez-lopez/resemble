@@ -13,34 +13,38 @@ that are well suited to complex and heterogeneous spectral datasets
 instead of fitting a single global regression function, a local
 regression model is fitted for each target observation using its nearest
 neighbors identified in a calibration or reference set. Although the
-global relationship between $X$ and $Y$ may be complex, MBL approximates
-it through a collection of simpler local models, each assumed to be
-valid within a restricted region of the predictor space ([Mitchell,
-1997](#ref-mitchell1997machine)).
+global relationship between $`X`$ and $`Y`$ may be complex, MBL
+approximates it through a collection of simpler local models, each
+assumed to be valid within a restricted region of the predictor space
+([Mitchell, 1997](#ref-mitchell1997machine)).
 
-For a set of $m$ observations requiring prediction, this can be
+For a set of $`m`$ observations requiring prediction, this can be
 expressed as
 
-$${\widehat{y}}_{i} = {\widehat{f}}_{i}(x_{i};\theta_{i}),\qquad i = 1,\ldots,m$$
+``` math
+\hat{y}_i = \hat{f}_i(x_i; \theta_i), \qquad i = 1, \ldots, m
+```
 
-where ${\widehat{f}}_{i}$ denotes the local prediction function fitted
-for observation $i$, and $\theta_{i}$ represents the corresponding model
+where $`\hat{f}_i`$ denotes the local prediction function fitted for
+observation $`i`$, and $`\theta_i`$ represents the corresponding model
 parameters, such as the number of latent variables in a local PLS model.
 
 In this sense, MBL can be viewed as a collection of local prediction
 functions,
 
-$$\widehat{f} = \{{\widehat{f}}_{1},\ldots,{\widehat{f}}_{m}\},$$
+``` math
+\hat{f} = \{\hat{f}_1, \ldots, \hat{f}_m\},
+```
 
 constructed on demand for the observations to be predicted. The
 [Figure 1](#fig-mbl) illustrates the basic steps in MBL for a set of
-five observations ($m = 5$).
+five observations ($`m = 5`$).
 
 ![](MBL.gif)
 
 Figure 1: Example of the main steps in memory-based learning for
 predicting a response variable for five observations in a
-$p$-dimensional space.
+$`p`$-dimensional space.
 
 There are four basic elements that must be specified in any MBL
 algorithm:
@@ -76,25 +80,27 @@ algorithm:
       PLS regression, [Naes et al., 1990](#ref-naes1990locally)).
     - *Used as a source of additional predictors* ([Ramirez-Lopez et
       al., 2013](#ref-ramirez2013spectrum)). In this case, the pairwise
-      dissimilarity matrix among the $k$ neighbors is also included in
-      the local predictor matrix. This $k \times k$ matrix is combined
-      with the original $p$ predictor variables, resulting in a final
-      predictor matrix of dimensions $k \times (k + p)$. For prediction
-      of the target observation, the $p$ spectral variables are combined
-      with the vector of dissimilarities between the target observation
-      and its neighbors. In some cases, this strategy can improve
-      predictive performance. The combined predictor matrix for the
-      neighborhood can be represented as:
+      dissimilarity matrix among the $`k`$ neighbors is also included in
+      the local predictor matrix. This $`k \times k`$ matrix is combined
+      with the original $`p`$ predictor variables, resulting in a final
+      predictor matrix of dimensions $`k \times (k + p)`$. For
+      prediction of the target observation, the $`p`$ spectral variables
+      are combined with the vector of dissimilarities between the target
+      observation and its neighbors. In some cases, this strategy can
+      improve predictive performance. The combined predictor matrix for
+      the neighborhood can be represented as:
 
-$$\begin{bmatrix}
+``` math
+\begin{bmatrix}
 0_{1,1} & d_{1,2} & \cdots & d_{1,k} & x_{1,1} & x_{1,2} & \cdots & x_{1,p} \\
 d_{2,1} & 0_{2,2} & \cdots & d_{2,k} & x_{2,1} & x_{2,2} & \cdots & x_{2,p} \\
-\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+\vdots  & \vdots  & \ddots & \vdots  & \vdots  & \vdots  & \ddots & \vdots \\
 d_{k,1} & d_{k,2} & \cdots & 0_{k,k} & x_{k,1} & x_{k,2} & \cdots & x_{k,p}
-\end{bmatrix}$$
+\end{bmatrix}
+```
 
-where $d_{i,j}$ represents the dissimilarity between the $i$th and $j$th
-neighbors.
+where $`d_{i,j}`$ represents the dissimilarity between the $`i`$th and
+$`j`$th neighbors.
 
 4.  **How to fit the local models**: This is determined by the
     regression method used within each neighborhood. In many
@@ -188,6 +194,7 @@ numbers for optimization. The following examples illustrate how to
 construct these fitting-method objects:
 
 ``` r
+
 # Creates an object with instructions to build PLS models
 my_pls <- fit_pls(ncomp = 15)
 my_pls
@@ -203,6 +210,7 @@ Fitting method: pls
 ```
 
 ``` r
+
 # Creates an object with instructions to build WAPLS models
 my_wapls <- fit_wapls(min_ncomp = 3, max_ncomp = 20)
 my_wapls
@@ -219,6 +227,7 @@ Fitting method: wapls
 ```
 
 ``` r
+
 # Creates an object with instructions to build GPR models
 my_gpr <- fit_gpr()
 my_gpr
@@ -267,6 +276,7 @@ validation in
 [`mbl()`](https://l-ramirez-lopez.github.io/resemble/reference/mbl.md):
 
 ``` r
+
 # Create an object with instructions to conduct both validation types
 # "NNv" and "local_cv"
 two_val_control <- mbl_control(
@@ -291,6 +301,7 @@ following configuration reproduces the LOCAL algorithm ([Shenk et al.,
 1997](#ref-shenk1997investigation)):
 
 ``` r
+
 library(resemble)
 library(prospectr)
 
@@ -317,6 +328,7 @@ test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
 ```
 
 ``` r
+
 # Define the neighborhood sizes to test
 my_ks <- seq(80, 160, by = 40)
 
@@ -350,12 +362,13 @@ reference or training set of predictors variables and the reponse while
 yet introduced here) is also available to specify the response values
 for the target set, which can be used for validation purposes.
 
-The subscript $u$ denotes the target domain (partially “unknown”),
-whereas $r$ denotes the reference library.
+The subscript $`u`$ denotes the target domain (partially “unknown”),
+whereas $`r`$ denotes the reference library.
 
 The `local_ciso` object can now be examined:
 
 ``` r
+
 plot(local_ciso, main = "")
 local_ciso
 ```
@@ -400,6 +413,7 @@ validation is 80. The corresponding LOCAL model can now be used to
 generate predictions for the `test_x` dataset:
 
 ``` r
+
 bki <- which.min(local_ciso$validation_results$nearest_neighbor_validation$rmse)
 bk <- local_ciso$validation_results$nearest_neighbor_validation$k[bki]
 
@@ -417,6 +431,7 @@ size according to nearest-neighbor validation, plotted against the
 reference values in `test_y`.
 
 ``` r
+
 # Plot predicted vs reference
 rng <- range(ciso_hat, test_y, na.rm = TRUE)
 plot(ciso_hat, test_y,
@@ -440,6 +455,7 @@ validation.
 The prediction root mean squared error is then:
 
 ``` r
+
 # Prediction RMSE:
 sqrt(mean((ciso_hat - test_y)^2, na.rm = TRUE))
 ```
@@ -449,6 +465,7 @@ sqrt(mean((ciso_hat - test_y)^2, na.rm = TRUE))
 ```
 
 ``` r
+
 # Squared R
 cor(ciso_hat, test_y, use = "complete.obs")^2
 ```
@@ -461,6 +478,7 @@ Similar results are obtained when the optimization of the neighborhoods
 is based on distance thresholds:
 
 ``` r
+
 # Create a vector of dissimilarity thresholds to evaluate
 # since the correlation dissimilarity will be used
 # these thresholds need to be > 0 and <= 1
@@ -483,10 +501,12 @@ local_ciso_diss <- mbl(
 ```
 
 ``` r
+
 plot(local_ciso_diss)
 ```
 
 ``` r
+
 local_ciso_diss
 ```
 
@@ -530,6 +550,7 @@ argument. The final validation lot is shown in
 [Figure 4](#fig-diss-predictions).
 
 ``` r
+
 # Best distance threshold
 bdi <- which.min(local_ciso_diss$validation_results$nearest_neighbor_validation$rmse)
 bd <- local_ciso_diss$validation_results$nearest_neighbor_validation$k_diss[bdi]
@@ -539,6 +560,7 @@ ciso_diss_hat <- as.matrix(get_predictions(local_ciso_diss))[, bdi]
 ```
 
 ``` r
+
 # Plot predicted vs reference
 plot(ciso_diss_hat, test_y,
      xlim = rng,
@@ -559,6 +581,7 @@ algorithm with the best neighborhood size according to nearest-neighbor
 validation and distance thresholds.
 
 ``` r
+
 # RMSE
 sqrt(mean((ciso_diss_hat - test_y)^2, na.rm = TRUE))
 ```
@@ -568,6 +591,7 @@ sqrt(mean((ciso_diss_hat - test_y)^2, na.rm = TRUE))
 ```
 
 ``` r
+
 # Squared R
 cor(ciso_diss_hat, test_y, use = "complete.obs")^2
 ```
@@ -585,17 +609,18 @@ challenging to predict in comparison to Total Carbon.
 [Table 1](#tbl-addexamples) provides a summary of the configurations
 tested in the following code examples.
 
-| Abbreviation      | Dissimilarity method | Dissimilarity usage  | Local regression     |
-|:------------------|:---------------------|:---------------------|:---------------------|
-| `mbl_cor` (LOCAL) | Correlation          | None                 | Weighted average PLS |
-| `mbl_pc`          | optimized PC         | Source of predictors | Weighted average PLS |
-| `mbl_pls`         | optimized PLS        | None                 | Weighted average PLS |
-| `mbl_gpr`         | optimized PC         | Source of predictors | Gaussian process     |
+| Abbreviation | Dissimilarity method | Dissimilarity usage | Local regression |
+|:---|:---|:---|:---|
+| `mbl_cor` (LOCAL) | Correlation | None | Weighted average PLS |
+| `mbl_pc` | optimized PC | Source of predictors | Weighted average PLS |
+| `mbl_pls` | optimized PLS | None | Weighted average PLS |
+| `mbl_gpr` | optimized PC | Source of predictors | Gaussian process |
 
 Table 1: Basic description of the different MBL configurations in the
 examples to predict Cation Exchange Capacity (CEC).
 
 ``` r
+
 train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
 train_cec <- NIRsoil$CEC[NIRsoil$train == 1]
 
@@ -604,6 +629,7 @@ test_cec  <- NIRsoil$CEC[NIRsoil$train == 0]
 ```
 
 ``` r
+
 # Define the WAPLS fitting method
 my_wapls <- fit_wapls(min_ncomp = 2, max_ncomp = 25, scale = FALSE)
 
@@ -662,6 +688,7 @@ mbl_gpr <- mbl(
 Collect the predictions for each configuration:
 
 ``` r
+
 # Get the indices of the best results according to
 # nearest neighbor validation statistics
 c_val_name <- "validation_results"
@@ -692,6 +719,7 @@ cor(test_cec, preds, use = "complete.obs")^2
 ```
 
 ``` r
+
 # RMSEs
 colMeans((preds - test_cec)^2, na.rm = TRUE)^0.5
 ```
@@ -705,6 +733,7 @@ colMeans((preds - test_cec)^2, na.rm = TRUE)^0.5
 obtained for CEC with each of the MBL configurations tested.
 
 ``` r
+
 old_par <- par("mfrow", "mar")
 par(mfrow = c(2, 2))
 
@@ -749,6 +778,7 @@ These values are used only for validation and are not involved in any
 optimization or modeling step. The argument can be used as follows:
 
 ``` r
+
 # Use Yu argument to validate the predictions
 pc_pred_cec_yu <- mbl(
   Xr = train_x[!is.na(train_cec), ],
@@ -830,6 +860,7 @@ up parallel processing for
 [`mbl()`](https://l-ramirez-lopez.github.io/resemble/reference/mbl.md):
 
 ``` r
+
 # Running the mbl function using multiple cores
 
 # Execute with two cores, if available, ...

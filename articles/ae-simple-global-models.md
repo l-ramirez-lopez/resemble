@@ -22,15 +22,16 @@ fits a single model to the entire reference set.
 Regression methods are specified via constructor functions. The
 available methods are:
 
-| Constructor                                                                        | Method               | Description                                                                                                                                                                                           | Reference                                                   |
-|------------------------------------------------------------------------------------|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
-| `fit_pls(method = "pls")`                                                          | PLS                  | Non-linear iterative partial least squares (NIPALS)                                                                                                                                                   | Wold ([1975](#ref-wold1975soft))                            |
-| `fit_pls(method = "simpls")`                                                       | SIMPLS               | Straightforward implementation of PLS                                                                                                                                                                 | De Jong ([1993](#ref-de1993simpls))                         |
-| `fit_pls(method = "mpls")`                                                         | Modified PLS         | Uses correlation instead of covariance for weights                                                                                                                                                    | Shenk and Westerhaus ([1991](#ref-shenk1991populations))    |
-| `fit_wapls(method = "mpls")`                                                       | Weighted average PLS | Predictions are a weighted average of multiple models from multiple PLS factors. **NOT YET AVAIABLE FOR THE** [`model()`](https://l-ramirez-lopez.github.io/resemble/reference/model.md) **FUNCTION** | Shenk et al. ([1997](#ref-shenk1997investigation))          |
-| [`fit_gpr()`](https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.md) | GPR                  | Gaussian process regression with dot product kernel                                                                                                                                                   | Rasmussen and Williams ([2006](#ref-rasmussen2006gaussian)) |
+| Constructor | Method | Description | Reference |
+|----|----|----|----|
+| `fit_pls(method = "pls")` | PLS | Non-linear iterative partial least squares (NIPALS) | Wold ([1975](#ref-wold1975soft)) |
+| `fit_pls(method = "simpls")` | SIMPLS | Straightforward implementation of PLS | De Jong ([1993](#ref-de1993simpls)) |
+| `fit_pls(method = "mpls")` | Modified PLS | Uses correlation instead of covariance for weights | Shenk and Westerhaus ([1991](#ref-shenk1991populations)) |
+| `fit_wapls(method = "mpls")` | Weighted average PLS | Predictions are a weighted average of multiple models from multiple PLS factors. **NOT YET AVAIABLE FOR THE** [`model()`](https://l-ramirez-lopez.github.io/resemble/reference/model.md) **FUNCTION** | Shenk et al. ([1997](#ref-shenk1997investigation)) |
+| [`fit_gpr()`](https://l-ramirez-lopez.github.io/resemble/reference/fit_methods.md) | GPR | Gaussian process regression with dot product kernel | Rasmussen and Williams ([2006](#ref-rasmussen2006gaussian)) |
 
 ``` r
+
 # PLS with 15 components
 fit_pls(ncomp = 15)
 ```
@@ -45,6 +46,7 @@ Fitting method: pls
 ```
 
 ``` r
+
 # SIMPLS with scaling
 fit_pls(ncomp = 15, method = "simpls", scale = TRUE)
 ```
@@ -59,6 +61,7 @@ Fitting method: pls
 ```
 
 ``` r
+
 # mPLS with scaling
 fit_pls(ncomp = 15, method = "mpls")
 ```
@@ -73,6 +76,7 @@ Fitting method: pls
 ```
 
 ``` r
+
 # GPR with default noise variance
 fit_gpr()
 ```
@@ -89,6 +93,7 @@ Fitting method: gpr
 ### 3.1 Data preparation
 
 ``` r
+
 library(prospectr)
 
 wavs <- as.numeric(colnames(NIRsoil$spc))
@@ -117,6 +122,7 @@ test_y  <- test_y[ok_test]
 ### 3.2 Fitting a PLS model
 
 ``` r
+
 set.seed(1124) # guarantee same CV splits for all methods
 pls_mod <- model(
  Xr = train_x,
@@ -131,6 +137,7 @@ pls_mod <- model(
     Fitting model...
 
 ``` r
+
 pls_mod
 ```
 
@@ -170,6 +177,7 @@ _______________________________________________________
 ### 3.3 Fitting a GPR model
 
 ``` r
+
 set.seed(1124) # guarantee same CV splits for all methods
 gpr_mod <- model(
  Xr = train_x,
@@ -184,6 +192,7 @@ gpr_mod <- model(
     Fitting model...
 
 ``` r
+
 gpr_mod
 ```
 
@@ -208,6 +217,7 @@ _______________________________________________________
 ### 3.4 Prediction
 
 ``` r
+
 # Predict using optimal number of components (from CV)
 pls_pred <- predict(pls_mod, newdata = test_x)
 
@@ -239,6 +249,7 @@ data.frame(
 ### 3.5 Validation statistics
 
 ``` r
+
 # Function to compute stats
 eval_pred <- function(obs, pred) {
   data.frame(
@@ -249,6 +260,7 @@ eval_pred <- function(obs, pred) {
 ```
 
 ``` r
+
 ## PLS evaluation
 eval_pred(test_y, pls_pred[, which(pls_mod$cv_results$optimal)])
 ```
@@ -259,6 +271,7 @@ eval_pred(test_y, pls_pred[, which(pls_mod$cv_results$optimal)])
 ```
 
 ``` r
+
 ## GPR evaluation
 eval_pred(test_y, gpr_pred)
 ```

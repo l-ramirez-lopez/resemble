@@ -46,6 +46,7 @@ Have an idea? Open an issue and tell us:
 ### Before submitting
 
 ``` r
+
 devtools::test()
 devtools::check()
 ```

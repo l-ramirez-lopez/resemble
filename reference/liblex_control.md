@@ -124,13 +124,13 @@ building the final library.
 
 ### Mode and tune combinations
 
-|              |         |                                                                |
-|--------------|---------|----------------------------------------------------------------|
-| `mode`       | `tune`  | Behavior                                                       |
-| `"build"`    | `FALSE` | Build library using parameters as provided                     |
-| `"build"`    | `TRUE`  | Validate, find optimal parameters, build library               |
-| `"validate"` | `FALSE` | Validate only, report performance statistics                   |
-| `"validate"` | `TRUE`  | Validate, report statistics with optimal parameters identified |
+|  |  |  |
+|----|----|----|
+| `mode` | `tune` | Behavior |
+| `"build"` | `FALSE` | Build library using parameters as provided |
+| `"build"` | `TRUE` | Validate, find optimal parameters, build library |
+| `"validate"` | `FALSE` | Validate only, report performance statistics |
+| `"validate"` | `TRUE` | Validate, report statistics with optimal parameters identified |
 
 ### Parallel chunk size
 

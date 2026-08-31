@@ -6,9 +6,14 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Evolutionary subset search and modeling using gesearch • resemble</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="ag-evolutionary-subset-search_files/libs/quarto-html/popper.min.js"></script><script src="ag-evolutionary-subset-search_files/libs/quarto-html/tippy.umd.min.js"></script><link href="ag-evolutionary-subset-search_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="ag-evolutionary-subset-search_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -63,7 +68,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Evolutionary subset search and modeling using gesearch</h1>
 
       <p class="author">Leonardo Ramirez-Lopez</p>
-      <p class="date">2026-04-21</p>
+      <p class="date">2026-08-31</p>
 
       <small class="dont-index">Source: <a href="https://github.com/l-ramirez-lopez/resemble/blob/main/vignettes/ag-evolutionary-subset-search.qmd" class="external-link"><code>vignettes/ag-evolutionary-subset-search.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
@@ -106,11 +111,11 @@
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Target set (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝒟</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathcal{D}_u</annotation></semantics></math>)</td>
+<td style="text-align: left;">Target set (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="script">𝒟</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathcal{D}_u</annotation></semantics></math>)</td>
 <td style="text-align: left;">The population of interest (<code>Xu</code>, <code>Yu</code>), typically small (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> samples). Response values may be partially or entirely unavailable. The subscript <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math> denotes the target domain (partially “unknown”).</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Spectral library (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝒟</mi><mi>r</mi></msub><annotation encoding="application/x-tex">\mathcal{D}_r</annotation></semantics></math>)</td>
+<td style="text-align: left;">Spectral library (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="script">𝒟</mi><mi>r</mi></msub><annotation encoding="application/x-tex">\mathcal{D}_r</annotation></semantics></math>)</td>
 <td style="text-align: left;">A large, heterogeneous collection of candidate samples for model training (<code>Xr</code>, <code>Yr</code>), with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≫</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \gg m</annotation></semantics></math>. The subscript <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math> denotes the reference library.</td>
 </tr>
 <tr class="odd">
@@ -168,7 +173,7 @@
 <section class="level3" data-number="3.2.1"><h4 data-number="3.2.1" id="step-1-evaluate-each-individual">
 <span class="header-section-number">3.2.1</span> Step 1: Evaluate each individual<a class="anchor" aria-label="anchor" href="#step-1-evaluate-each-individual"></a>
 </h4>
-<p>For each individual <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>S</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>γ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">S_i^{(\gamma)}</annotation></semantics></math> in generation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>, a PLS model is fitted using its <code>k</code> active genes. This model is then evaluated on the target spectra <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐗</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathbf{X}_u</annotation></semantics></math>, producing an individual-level score, for example, prediction error, reconstruction error, or distance to the target set.</p>
+<p>For each individual <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>S</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>γ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">S_i^{(\gamma)}</annotation></semantics></math> in generation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>, a PLS model is fitted using its <code>k</code> active genes. This model is then evaluated on the target spectra <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝑿</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathbf{X}_u</annotation></semantics></math>, producing an individual-level score, for example, prediction error, reconstruction error, or distance to the target set.</p>
 </section><section class="level3" data-number="3.2.2"><h4 data-number="3.2.2" id="step-2-aggregate-to-gene-level-weakness">
 <span class="header-section-number">3.2.2</span> Step 2: Aggregate to gene-level weakness<a class="anchor" aria-label="anchor" href="#step-2-aggregate-to-gene-level-weakness"></a>
 </h4>
@@ -198,7 +203,7 @@
 <tr class="odd">
 <td style="text-align: left;">
 <code>"reconstruction"</code> (default)</td>
-<td style="text-align: left;">Error of reconstructing <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐗</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathbf{X}_u</annotation></semantics></math> from the PLS latent space</td>
+<td style="text-align: left;">Error of reconstructing <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝑿</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathbf{X}_u</annotation></semantics></math> from the PLS latent space</td>
 <td style="text-align: left;">No</td>
 </tr>
 <tr class="even">
@@ -209,7 +214,7 @@
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>"response"</code></td>
-<td style="text-align: left;">RMSE of predicting <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐲</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathbf{y}_u</annotation></semantics></math>
+<td style="text-align: left;">RMSE of predicting <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒚</mi><mi>u</mi></msub><annotation encoding="application/x-tex">\mathbf{y}_u</annotation></semantics></math>
 </td>
 <td style="text-align: left;">Yes</td>
 </tr>
@@ -294,12 +299,12 @@
 <p>To better illustrate the main workflow and key parameters of the method, the target set was extracted from the test set using a simple filtering strategy intended to reduce potential non-linearities between spectra and response values. Spectra that were substantially dissimilar to the median spectrum of the test set were removed. Although this does not guarantee the elimination of non-linear relationships, it provides a straightforward way to define a more spectrally homogeneous target set for demostration purposes.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/l-ramirez-lopez/prospectr" class="external-link">prospectr</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://l-ramirez-lopez.github.io/prospectr/" class="external-link">prospectr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Preprocess spectra</span></span>
-<span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/prospectr/man/savitzkyGolay.html" class="external-link">savitzkyGolay</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/prospectr/man/detrend.html" class="external-link">detrend</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span>, wav <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://l-ramirez-lopez.github.io/prospectr/reference/savitzkyGolay.html" class="external-link">savitzkyGolay</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://l-ramirez-lopez.github.io/prospectr/reference/detrend.html" class="external-link">detrend</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span>, wav <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  m <span class="op">=</span> <span class="fl">1</span>, p <span class="op">=</span> <span class="fl">1</span>, w <span class="op">=</span> <span class="fl">7</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -502,26 +507,26 @@ Figure 2: Evolution of the three weakness metrics (response, reconstruction and
 <span><span class="va">gs</span><span class="op">$</span><span class="va">validation_results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">train</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   ncomp   rmse_cv st_rmse_cv rmse_sd_cv     r2_cv
-1      1 0.6732803 0.15690406 0.13047702 0.5149457
-2      2 0.5827834 0.13435450 0.15603594 0.6216447
-3      3 0.5486906 0.12768145 0.12736091 0.6754240
-4      4 0.5282365 0.12284612 0.14380307 0.7115680
-5      5 0.5022262 0.11803719 0.10685769 0.7343631
-6      6 0.4628683 0.10937944 0.08639555 0.7701428
-7      7 0.4214049 0.09917873 0.07420047 0.8140365
-8      8 0.4187483 0.09897791 0.06458640 0.8205662
-9      9 0.3932721 0.09341847 0.07149189 0.8444321
-10    10 0.3819388 0.09095276 0.04332822 0.8428385
-11    11 0.3683605 0.08787330 0.04741999 0.8550745
-12    12 0.3677930 0.08772105 0.05675496 0.8557638
-13    13 0.3779922 0.09034698 0.06539232 0.8450057
-14    14 0.3684700 0.08783899 0.06825086 0.8529858
-15    15 0.3513551 0.08364698 0.06910281 0.8613599
-16    16 0.3584789 0.08569288 0.07196304 0.8518921
-17    17 0.3522175 0.08400874 0.07696683 0.8593407
-18    18 0.3560846 0.08464847 0.07103732 0.8587512
-19    19 0.3590689 0.08516864 0.06655626 0.8562541
-20    20 0.3569286 0.08476165 0.05807023 0.8572429</code></pre>
+1      1 0.7423213  0.1518967  0.1457404 0.5295264
+2      2 0.6778547  0.1381326  0.1477770 0.6433626
+3      3 0.6559921  0.1335214  0.1640010 0.6798506
+4      4 0.6259687  0.1284185  0.1545246 0.7052352
+5      5 0.5936104  0.1206011  0.1879996 0.7494571
+6      6 0.5550462  0.1121511  0.1988347 0.7747878
+7      7 0.5915898  0.1193336  0.2359568 0.7603506
+8      8 0.5776066  0.1168477  0.2292152 0.7679795
+9      9 0.5953094  0.1200910  0.2447176 0.7599216
+10    10 0.5473985  0.1115042  0.1909999 0.7798488
+11    11 0.5829402  0.1183830  0.2386208 0.7685098
+12    12 0.5583035  0.1144928  0.2041575 0.7797602
+13    13 0.5558507  0.1133860  0.2044569 0.7807547
+14    14 0.5512756  0.1119729  0.2021683 0.7921178
+15    15 0.5782181  0.1172622  0.2313441 0.7828045
+16    16 0.5942228  0.1206110  0.2412367 0.7749440
+17    17 0.5622699  0.1147651  0.1932836 0.7843155
+18    18 0.6239631  0.1264975  0.2435938 0.7607758
+19    19 0.6214269  0.1262519  0.2512894 0.7634527
+20    20 0.6282671  0.1272249  0.2541375 0.7586620</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -529,27 +534,27 @@ Figure 2: Evolution of the three weakness metrics (response, reconstruction and
 <code class="sourceCode R"><span><span class="co"># the CV on the target samples that drove the search (note that this is not a proper test set, as these samples were used to guide the search, but it can provide some insight into the performance of the final model on the target domain)</span></span>
 <span><span class="va">gs</span><span class="op">$</span><span class="va">validation_results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">test</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   ncomp        r2      rmse         me
-1      1 0.7762964 0.2626766 0.11838439
-2      2 0.9080380 0.2516459 0.13116787
-3      3 0.9246821 0.1896653 0.10324300
-4      4 0.9635809 0.1331877 0.01036545
-5      5 0.8903286 0.2138640 0.07942608
-6      6 0.9108649 0.2195164 0.11948620
-7      7 0.8958217 0.2247399 0.12598011
-8      8 0.8184090 0.2510702 0.11254102
-9      9 0.8309182 0.2250798 0.10101381
-10    10 0.8888874 0.1856089 0.08846965
-11    11 0.8950610 0.1628391 0.04442351
-12    12 0.9208639 0.1473139 0.02593322
-13    13 0.9158796 0.1430584 0.03487016
-14    14 0.8693776 0.1843534 0.07842564
-15    15 0.8878225 0.1802155 0.08492967
-16    16 0.8963966 0.1844698 0.09497262
-17    17 0.9183759 0.1741326 0.11417688
-18    18 0.9583538 0.1323688 0.09552378
-19    19 0.9702629 0.1338393 0.10971415
-20    20 0.9786520 0.1079570 0.08540499</code></pre>
+<pre><code>   ncomp        r2      rmse           me
+1      1 0.7186729 0.3880782  0.178819826
+2      2 0.7825496 0.4394433  0.210942202
+3      3 0.7490173 0.4014519  0.196384902
+4      4 0.8544493 0.2871128  0.038958072
+5      5 0.7466949 0.3805772  0.116686906
+6      6 0.8588908 0.3185146  0.122656550
+7      7 0.8805627 0.2958324  0.089620170
+8      8 0.7824058 0.3545892  0.072620609
+9      9 0.7960143 0.3203638  0.044627624
+10    10 0.8644100 0.2923148  0.014111426
+11    11 0.8750986 0.2334972 -0.025908034
+12    12 0.8933767 0.2132827 -0.043190748
+13    13 0.8692362 0.2087122 -0.027135068
+14    14 0.8247885 0.2270104 -0.014325711
+15    15 0.8056725 0.2275889  0.007272315
+16    16 0.7737190 0.2502654  0.037042015
+17    17 0.7900171 0.2381021  0.014605032
+18    18 0.8100720 0.2237091  0.013401188
+19    19 0.7982000 0.2285184  0.018382327
+20    20 0.7809539 0.2529336  0.027141527</code></pre>
 </div>
 </div>
 <p>Assume that the final model is chosen as the one with the lowest CV RMSE obtained from the samples found:</p>
@@ -565,7 +570,7 @@ Figure 2: Evolution of the three weakness metrics (response, reconstruction and
 <span><span class="fu">reg_metrics</span><span class="op">(</span><span class="va">test_y_test</span>, <span class="va">pred_gs</span><span class="op">[</span>, <span class="va">best_ncomp</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     RMSE        R2
-0.2692952 0.8120766 </code></pre>
+0.3071948 0.8085528 </code></pre>
 </div>
 </div>
 <p><a href="#fig-pred-comparison" class="quarto-xref">Figure 3</a> compares the observed versus predicted values for the model fitted using all available training samples and the model fitted using the subset of samples selected by <code><a href="../reference/gesearch.html">gesearch()</a></code>.</p>
@@ -651,7 +656,7 @@ Figure 3: Comparison of observed versus predicted total carbon values. Left: mo
 <span><span class="fu">reg_metrics</span><span class="op">(</span><span class="va">test_y_test</span>, <span class="va">pred_gs_nr</span><span class="op">[</span>, <span class="va">best_ncomp_nr</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     RMSE        R2
-0.3472020 0.7986295 </code></pre>
+0.3671099 0.7319804 </code></pre>
 </div>
 </div>
 </section><section class="level3" data-number="6.4.2"><h4 data-number="6.4.2" id="no-response-values-in-the-target-set-but-with-information-about-the-response-range">
@@ -679,7 +684,7 @@ Figure 3: Comparison of observed versus predicted total carbon values. Left: mo
 <code class="sourceCode R"><span><span class="va">best_ncomp_nr2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">gs_nr2</span><span class="op">$</span><span class="va">validation_results</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">train</span><span class="op">$</span><span class="va">rmse_cv</span><span class="op">)</span></span>
 <span><span class="va">best_ncomp_nr2</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 11</code></pre>
+<pre><code>[1] 7</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_gs_nr2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">gs_nr2</span>, <span class="va">test_x_test</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
@@ -687,7 +692,7 @@ Figure 3: Comparison of observed versus predicted total carbon values. Left: mo
 <span><span class="fu">reg_metrics</span><span class="op">(</span><span class="va">test_y_test</span>, <span class="va">pred_gs_nr2</span><span class="op">[</span>, <span class="va">best_ncomp_nr2</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     RMSE        R2
-0.2892119 0.8071214 </code></pre>
+0.3231525 0.8018905 </code></pre>
 </div>
 </div>
 </section></section></section><section class="section level2" data-number="7"><h2 data-number="7" id="supported-parallel-processing">
@@ -860,7 +865,7 @@ Ramirez-Lopez, L., Viscarra Rossel, R., Behrens, T., Orellano, C., Perez-Fernand
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -79,16 +79,19 @@ The functions available for dimensionality reduction are:
 
 ## References
 
-Ramirez-Lopez, L., Viscarra Rossel, R., Behrens, T., Orellano, C.,
-Perez-Fernandez, E., Kooijman, L., Wadoux, A. M. J.-C., Breure, T.,
-Summerauer, L., Safanelli, J. L., & Plans, M. (2026a). When spectral
-libraries are too complex to search: Evolutionary subset selection for
-domain-adaptive calibration. *Analytica Chimica Acta*, under review.
+Ramirez-Lopez, L., Viscarra Rossel, R., Orellano, C., Kooijman, L.,
+Perez-Fernandez, E., Wadoux, A. M. J.-C., Plans, M., Breure, T.,
+Summerauer, L., Safanelli, J. L., Behrens, T., & Boqué, R. (2026a). When
+spectral libraries are too complex to search: Evolutionary subset
+selection for domain-adaptive calibration. *Analytica Chimica Acta*,
+1412, 345651.
+[doi:10.1016/j.aca.2026.345651](https://doi.org/10.1016/j.aca.2026.345651)
 
 Ramirez-Lopez, L., Metz, M., Lesnoff, M., Orellano, C., Perez-Fernandez,
 E., Plans, M., Breure, T., Behrens, T., Viscarra Rossel, R., & Peng, Y.
 (2026b). Rethinking local spectral modelling: From per-query refitting
-to model libraries. *Analytica Chimica Acta*, under review.
+to model libraries. *Analytica Chimica Acta*, 345682.
+[doi:10.1016/j.aca.2026.345682](https://doi.org/10.1016/j.aca.2026.345682)
 
 Ramirez-Lopez, L., Behrens, T., Schmidt, K., Stevens, A., Dematte,
 J.A.M., Scholten, T. (2013a). The spectrum-based learner: A new local

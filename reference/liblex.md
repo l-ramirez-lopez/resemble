@@ -379,7 +379,8 @@ Geoderma, 195-196, 268-279.
 Ramirez-Lopez, L., Metz, M., Lesnoff, M., Orellano, C., Perez-Fernandez,
 E., Plans, M., Breure, T., Behrens, T., Viscarra Rossel, R., & Peng, Y.
 (2026b). Rethinking local spectral modelling: From per-query refitting
-to model libraries. *Analytica Chimica Acta*, under review.
+to model libraries. *Analytica Chimica Acta*, 345682.
+[doi:10.1016/j.aca.2026.345682](https://doi.org/10.1016/j.aca.2026.345682)
 
 Rajalahti, T., Arneberg, R., Berven, F.S., Myhr, K.M., Ulvik, R.J.,
 Kvalheim, O.M. (2009). Biomarker discovery in mass spectral profiles by

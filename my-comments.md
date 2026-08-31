@@ -1,3 +1,35 @@
+# version 3.0.1
+
+Dear CRAN maintainers,
+
+This is a submission of resemble 3.0.1. This version introduces a fix in
+the
+[`diss_evaluate()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_evaluate.md)
+function.
+
+The tarball has been checked on R-winbuilder (R-release and R-devel). In
+addition, the package has been checked in multiple platforms using
+rhub::check().
+
+Best regards, Leonardo
+
+The package was tested locally:
+
+devtools::check( args = “–as-cran”, env_vars = c(
+`_R_CHECK_CRAN_INCOMING_` = “true”, `_R_CHECK_CRAN_INCOMING_REMOTE_` =
+“true” ) )
+
+❯ checking compilation flags used … NOTE Compilation used the following
+non-portable flag(s): ‘-mno-omit-leaf-frame-pointer’
+
+0 errors ✔ \| 0 warnings ✔ \| 1 note ✖
+
+The package was built using:
+
+devtools::install()
+
+devtools::build( vignettes = TRUE, manual = TRUE, clean_doc = FALSE )
+
 # version 3.0.0
 
 Dear CRAN maintainers,

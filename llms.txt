@@ -1,8 +1,8 @@
 # `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 
-*Last update: 2026-04-21*
+*Last update: 2026-08-30*
 
-Version: 3.0.0 – vortex
+Version: 3.0.1 – tarragona
 
 Think Globally, Fit Locally (Saul and Roweis, 2003)
 
@@ -140,12 +140,14 @@ See `NEWS.md` for full details on deprecated and removed functions.
 Install from CRAN:
 
 ``` r
+
 install.packages("resemble")
 ```
 
 Or install the development version from GitHub:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("l-ramirez-lopez/resemble")
 ```
@@ -158,6 +160,7 @@ tools](https://cran.r-project.org/bin/macosx/tools/).
 ## Example: Memory-based learning with `mbl()`
 
 ``` r
+
 library(resemble)
 library(prospectr)
 data(NIRsoil)
@@ -198,6 +201,7 @@ builds a library of local experts that can be reused for prediction
 without refitting:
 
 ``` r
+
 # Build model library
 model_lib <- liblex(
  Xr = train_x,
@@ -218,6 +222,7 @@ predictions <- predict(model_lib, test_x)
 selects optimal subsets from large spectral libraries:
 
 ``` r
+
 # Search for optimal calibration subset
 gs <- gesearch(
  Xr = train_x, 
@@ -263,10 +268,29 @@ function offers three regression methods for local models:
 ## Citing the package
 
 ``` r
+
 citation(package = "resemble")
 ```
 
 ## News: Memory-based learning and `resemble`
+
+- **2026.04:** [Greenberg et al.,
+  2026](https://doi.org/10.1016/j.geoderma.2026.117829)  
+  used `resemble` for MBL-PLSR modelling of portable X-ray fluorescence
+  (pXRF) spectra, showing improved soil property predictions relative to
+  global PLSR across in-situ and ex-situ measurement settings.
+
+- **2026.05:** [Ramirez-Lopez et al.,
+  2026](https://doi.org/10.1016/j.aca.2026.345682) introduced `liblex`,
+  a retrieval-gated modelling framework that converts spectral libraries
+  into libraries of precomputed local experts for scalable memory-based
+  learning. For this, `resemble` was used.
+
+- **2026.05:** [Ramirez-Lopez et al.,
+  2026](https://doi.org/10.1016/j.aca.2026.345651) introduced
+  `gesearch`, an evolutionary subset-selection method for identifying
+  target-domain-relevant samples from complex spectral libraries. For
+  this, `resemble` was used.
 
 - **2026.05:** [van Leeuwen et al.,
   2026](https://doi.org/10.1016/j.geoderma.2026.117804)  

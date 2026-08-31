@@ -44,7 +44,7 @@ Ramirez-Lopez et al. ([2013](#ref-ramirez2013spectrum)).
 The main functionalities of `resemble` include:
 
 - orthogonal projection of spectral data using principal component
-  analyssis (PCA) and partial least squares (PLS) methods
+  analysis (PCA) and partial least squares (PLS) methods
 
 - computation and evaluation of spectral dissimilarity measures
 
@@ -61,6 +61,7 @@ The main functionalities of `resemble` include:
 Simply type and you will get the info you need:
 
 ``` r
+
 citation(package = "resemble")
 ```
 
@@ -122,6 +123,7 @@ the following structure:
 Load the necessary packages and data:
 
 ``` r
+
 library(resemble)
 library(prospectr)
 ```
@@ -129,6 +131,7 @@ library(prospectr)
 The dataset can be loaded into R as follows:
 
 ``` r
+
 data(NIRsoil)
 dim(NIRsoil)
 str(NIRsoil)
@@ -154,6 +157,7 @@ The following steps are applied:
     spectral features and reduce remaining additive effects.
 
 ``` r
+
 # obtain a numeric vector of the wavelengths at which spectra is recorded 
 wavs <- as.numeric(colnames(NIRsoil$spc))
 
@@ -186,6 +190,7 @@ and test subsets. In the examples that require a response variable,
 `Ciso` is used to demonstrate the functionality of the package.
 
 ``` r
+
 train_x <- NIRsoil$spc_pr[NIRsoil$train == 1, ]
 train_y <- NIRsoil$Ciso[NIRsoil$train == 1]
 

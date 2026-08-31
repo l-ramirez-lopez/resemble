@@ -7,8 +7,8 @@
 
 ## 1 Searching for neighbors
 
-In the package, $k$-nearest neighbor search is used to identify, within
-a reference set of observations, a group of spectrally similar
+In the package, $`k`$-nearest neighbor search is used to identify,
+within a reference set of observations, a group of spectrally similar
 observations for another set of observations. For a given observation,
 the most similar observations are referred to as its nearest neighbors
 and are typically identified using dissimilarity measures.
@@ -25,9 +25,9 @@ Neighbors can be selected in two ways, each specified by a constructor
 function:
 
 - [`neighbors_k()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md):
-  by defining a fixed number of neighbors ($k$)
+  by defining a fixed number of neighbors ($`k`$)
 - [`neighbors_diss()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md):
-  by defining a dissimilarity threshold ($d_{\text{th}}$)
+  by defining a dissimilarity threshold ($`d_{\text{th}}`$)
 
 Readers are encouraged to review the section on dissimilarity measures
 first, as it provides the basis for the examples presented in this
@@ -35,17 +35,18 @@ section.
 
 ## 2 Neighbor selection methods
 
-### 2.1 Fixed-$k$ selection
+### 2.1 Fixed-$`k`$ selection
 
 [`neighbors_k()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md)
 selects a fixed number of nearest neighbors for each target observation:
 
 ``` r
+
 neighbors_k(k = 50)
 neighbors_k(k = c(40, 60, 80, 100))
 ```
 
-Multiple values of $k$ can be provided to evaluate different
+Multiple values of $`k`$ can be provided to evaluate different
 neighborhood sizes. The minimum allowed value is 4, ensuring sufficient
 observations for local model fitting.
 
@@ -53,9 +54,10 @@ observations for local model fitting.
 
 [`neighbors_diss()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md)
 selects neighbors whose dissimilarity falls below a threshold
-$d_{\text{th}}$:
+$`d_\text{th}`$:
 
 ``` r
+
 neighbors_diss(threshold = 0.3)
 neighbors_diss(threshold = c(0.1, 0.2, 0.3), k_min = 10, k_max = 150)
 ```
@@ -70,7 +72,7 @@ qualify, only the closest `k_max` are kept.
 This means that the neighboring observations are retained regardless
 their dissimilarity/distance to the target observation. Each target
 observation for which its neighbors are to be found ends up with the
-same neighborhood size ($k$). A drawback of this approach is that
+same neighborhood size ($`k`$). A drawback of this approach is that
 observations that are in fact largely dissimilar to the target
 observation might end up in its neighborhood. This is because the
 requirement for building the neighborhood is based on its size and not
@@ -82,6 +84,7 @@ can be used to search in the `train_x` set the spectral neighbors of the
 `test_x` set:
 
 ``` r
+
 library(resemble)
 library(prospectr)
 
@@ -113,6 +116,7 @@ dissimilarity with only 2 components and a fixed neighborhood size of
 30:
 
 ``` r
+
 set.seed(8011)
 rnd_idc <- sample(nrow(test_x), 3)
 
@@ -130,6 +134,7 @@ dissimilarity but use a dissimilarity threshold of 0.25 to reatin the
 neighbors:
 
 ``` r
+
 k_diss <- search_neighbors(
   Xr = train_x,
   Xu = test_x[rnd_idc, ],
@@ -144,14 +149,16 @@ Identify the indices of the test observations in the projection space of
 the PCA-based dissimilarity (their row names always start with “Xu\_”):
 
 ``` r
+
 test_scores_indices <- grep("^Xu_", rownames(k_fixed$projection$scores))
 ```
 
 Plot the projection scores of the training set and highlight the
-neighbors found with the two methods (fixed $k$ and dissimilarity
+neighbors found with the two methods (fixed $`k`$ and dissimilarity
 threshold) as well as the test observations:
 
 ``` r
+
 old_par <- par(no.readonly = TRUE)
 on.exit(par(old_par), add = TRUE)
 
@@ -220,9 +227,10 @@ Exploring what the
 [`search_neighbors()`](https://l-ramirez-lopez.github.io/resemble/reference/search_neighbors.md)
 function returns is useful to understand how the neighbors are stored
 and how to access them. For example, the following code shows how to
-access the neighbors found with the fixed-$k$ approach:
+access the neighbors found with the fixed-$`k`$ approach:
 
 ``` r
+
 # matrix of neighbors
 k_fixed$neighbors
 
@@ -270,6 +278,7 @@ Here are other examples of neighbor search based on other dissimilarity
 measures:
 
 ``` r
+
 # using PC dissimilarity with optimal selection of components
 knn_opc <- search_neighbors(
   Xr = train_x,
@@ -316,9 +325,9 @@ knn_mw <- search_neighbors(
 
 Here, the neighboring observations to be retained must have a
 dissimilarity score less or equal to a given dissimilarity threshold
-($d_{\text{th}}$). Therefore, the neighborhood size of the target
+($`d_\text{th}`$). Therefore, the neighborhood size of the target
 observations is not constant. A drawback with this approach is that
-choosing a meaningful $d_{\text{th}}$ can be difficult, especially
+choosing a meaningful $`d_\text{th}`$ can be difficult, especially
 because its value is largely influenced by the dissimilarity method
 used. Thresholds are not comparable across methods: a threshold of 0.3
 for correlation dissimilarity has no correspondence to 0.3 for Euclidean
@@ -329,18 +338,18 @@ Furthermore, without bounds, some neighborhoods retrieved by certain
 thresholds might be of a very small size or even empty, which constrains
 any type of analysis within such neighborhoods. On the other hand, some
 neighborhoods might end up with large sizes which might include either
-redundant observations or in some other cases where $d_{\text{th}}$ is
+redundant observations or in some other cases where $`d_\text{th}`$ is
 too large the complexity in the neighborhood might be large.
 
 In
 [`neighbors_diss()`](https://l-ramirez-lopez.github.io/resemble/reference/neighbors.md),
-$d_{\text{th}}$ is controlled by the argument `threshold`. This argument
+$`d_\text{th}`$ is controlled by the argument `threshold`. This argument
 is accompanied by the arguments `k_min` and `k_max` which are used to
 control the minimum and maximum neighborhood sizes. For example, if a
 neighborhood size is below the minimum size `k_min`, the function
-automatically ignores $d_{\text{th}}$ and retrieves the `k_min` closest
+automatically ignores $`d_\text{th}`$ and retrieves the `k_min` closest
 observations. Similarly, if the neighborhood size is above the maximum
-size `k_max`, the function automatically ignores $d_{\text{th}}$ and
+size `k_max`, the function automatically ignores $`d_\text{th}`$ and
 retrieves only a maximum of `k_max` neighbors.
 
 In the package, we can use
@@ -349,6 +358,7 @@ to find in the `train_x` set the neighbors of the `test_x` set which
 dissimilarity scores are less or equal to a user-defined threshold:
 
 ``` r
+
 # a dissimilarity threshold
 d_th <- 1
 
@@ -390,6 +400,7 @@ histogram shows that many neighborhoods were reset to a size of `k_min`
 or to a size of `k_max`.
 
 ``` r
+
 hist(
   dnn_pca$k_diss_info$final_n_k,
   breaks = 20,
@@ -421,6 +432,7 @@ neighborhoods.
 The following example demonstrates how to do that:
 
 ``` r
+
 # the indices of the observations that we want to "invite" to every neighborhood
 forced_guests <- c(1, 5, 8, 9)
 

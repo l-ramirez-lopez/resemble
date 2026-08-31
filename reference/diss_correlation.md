@@ -63,6 +63,7 @@ Thread count is controlled by the `OMP_NUM_THREADS` environment
 variable. To limit threads (e.g., when calling from within a parallel
 backend):
 
+
     Sys.setenv(OMP_NUM_THREADS = 1)
 
 ## See also

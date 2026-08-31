@@ -21,10 +21,10 @@ metric distances. For reference, a metric distance is typically expected
 to satisfy three properties: minimality (or identity), meaning that the
 distance between an observation and itself is zero and no greater than
 the distance between distinct observations; symmetry, meaning that the
-distance from $a$ to $b$ is the same as the distance from $b$ to $a$;
-and the triangle inequality, meaning that the distance between two
-observations cannot exceed the sum of their distances through a third
-observation. Some of the measures implemented in `resemble` do not
+distance from $`a`$ to $`b`$ is the same as the distance from $`b`$ to
+$`a`$; and the triangle inequality, meaning that the distance between
+two observations cannot exceed the sum of their distances through a
+third observation. Some of the measures implemented in `resemble` do not
 satisfy all of these properties. For example, correlation dissimilarity
 does not satisfy the triangle inequality, and cosine dissimilarity can
 be zero for non-identical observations.
@@ -49,15 +49,15 @@ methods and compare results.
 
 Here, the following notation is used:
 
-- $Xr$ is the training set of spectra (or predictors), with dimensions
-  $n \times p$ (observations $\times$ variables).
+- $`Xr`$ is the training set of spectra (or predictors), with dimensions
+  $`n \times p`$ (observations $`\times`$ variables).
 
-- $Yr$ is the training set of response variables, with dimensions
-  $n \times m$ (observations $\times$ response variables). Typically,
-  $Yr$ includes only one response variable only.
+- $`Yr`$ is the training set of response variables, with dimensions
+  $`n \times m`$ (observations $`\times`$ response variables).
+  Typically, $`Yr`$ includes only one response variable only.
 
-- $Xu$ is the test set of spectra, with dimensions $n_{u} \times p$
-  (observations $\times$ variables).
+- $`Xu`$ is the test set of spectra, with dimensions $`n_u \times p`$
+  (observations $`\times`$ variables).
 
 ### 1.2 Available dissimilarity construtors
 
@@ -66,14 +66,14 @@ The
 function accepts method constructor objects that fully specify the
 dissimilarity computation:
 
-| Constructor                                                                                      | Description                                               |
-|--------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| [`diss_pca()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_pca.md)                 | Mahalanobis distance in PCA score space                   |
-| [`diss_pls()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_pls.md)                 | Mahalanobis distance in PLS score space (requires `Yr`)   |
-| [`diss_correlation()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_correlation.md) | Correlation-based dissimilarity                           |
-| [`diss_euclidean()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_euclidean.md)     | Euclidean distance                                        |
-| [`diss_mahalanobis()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_mahalanobis.md) | Mahalanobis distance in original space (requires $n > p$) |
-| [`diss_cosine()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_cosine.md)           | Cosine dissimilarity (spectral angle mapper)              |
+| Constructor | Description |
+|----|----|
+| [`diss_pca()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_pca.md) | Mahalanobis distance in PCA score space |
+| [`diss_pls()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_pls.md) | Mahalanobis distance in PLS score space (requires `Yr`) |
+| [`diss_correlation()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_correlation.md) | Correlation-based dissimilarity |
+| [`diss_euclidean()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_euclidean.md) | Euclidean distance |
+| [`diss_mahalanobis()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_mahalanobis.md) | Mahalanobis distance in original space (requires $`n > p`$) |
+| [`diss_cosine()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_cosine.md) | Cosine dissimilarity (spectral angle mapper) |
 
 In all of these constructors, preprocessing instructions can be
 specified through the `center` and `scale` arguments. Setting
@@ -86,6 +86,7 @@ all the constructors use `center = TRUE` and `scale = FALSE` as
 defaults.
 
 ``` r
+
 diss_correlation()
 ```
 
@@ -95,6 +96,7 @@ diss_correlation()
        scale            : FALSE 
 
 ``` r
+
 diss_correlation(center = TRUE, scale = TRUE)
 ```
 
@@ -111,12 +113,14 @@ reduced space (via PCA or PLS projections) is often more meaningful than
 operating directly on raw spectra ([Ramirez-Lopez et al.,
 2013](#ref-ramirez2013distance)).
 
-Given two observations $t_{i}$ and $t_{j}$ already projected onto their
+Given two observations $`t_i`$ and $`t_j`$ already projected onto their
 score space, their Mahalanobis distance/dissimilarity is:
 
-$$d(x_{i},x_{j}) = d(t_{i},t_{j}) = \sqrt{\frac{1}{o}(t_{i} - t_{j})\, C^{-1}(t_{i} - t_{j})^{\top}}$$
+``` math
+d(x_i, x_j) = d(t_i, t_j) = \sqrt{\frac{1}{o} (t_i - t_j) \, C^{-1} (t_i - t_j)^\top}
+```
 
-where $o$ is the number of components and $C^{-1}$ is the inverse
+where $`o`$ is the number of components and $`C^{-1}`$ is the inverse
 covariance of the scores. Because PCA scores are orthogonal, their
 covariance matrix ((C)) is diagonal, with the variance of each score on
 the diagonal. As a result, the Mahalanobis distance in PCA score space
@@ -129,15 +133,16 @@ standardized PCA score space ([De Maesschalck et al.,
 2000](#ref-de2000mahalanobis)).
 
 One important aspect to note in this computation is that the Mahalanobis
-distance is scaled by the number of components ($o$) to ensure that the
-resulting dissimilarity values are on a comparable scale regardless of
-the number of components retained. This scaling prevents the distance
+distance is scaled by the number of components ($`o`$) to ensure that
+the resulting dissimilarity values are on a comparable scale regardless
+of the number of components retained. This scaling prevents the distance
 from artificially increasing as more components are included, which
 could otherwise lead to misleading interpretations of similarity or
 dissimilarity between observations. This scaling is often overlooked in
 other `R` implementations.
 
 ``` r
+
 library(resemble)
 library(prospectr)
 
@@ -166,6 +171,7 @@ test_y  <- NIRsoil$Ciso[NIRsoil$train == 0]
 ### 2.1 *PCA-based dissimilarity*
 
 ``` r
+
 # Default: variance-based component selection (ncomp_by_var(0.01))
 d_pca <- dissimilarity(train_x, diss_method = diss_pca())
 
@@ -206,6 +212,7 @@ d_pca_tr_ts
 To access the dissimilarity matrix:
 
 ``` r
+
 # Example of the first 5 rows and columns of the dissimilarity 
 # matrix between training and test sets
 # Rows: training observations; 
@@ -228,8 +235,10 @@ the PCA score space, which can provide insights into their spectral
 similarity and potential model performance.
 
 ``` r
+
 d_pca_tr_ts$projection
 ```
+
 
      Method:  pca
      Number of components retained:  11
@@ -255,6 +264,7 @@ them particularly effective when the goal is to find spectrally similar
 observations that also have similar response values.
 
 ``` r
+
 # Default: OPC-based component selection
 d_pls <- dissimilarity(
   train_x,
@@ -277,15 +287,18 @@ d_pls_fixed <- dissimilarity(
 ### 3.1 *Conventional correlation dissimilarity*
 
 Correlation dissimilarity is based on the Pearson correlation
-coefficient $\rho$ between observations:
+coefficient $`\rho`$ between observations:
 
-$$d(x_{i},x_{j}) = \frac{1}{2}(1 - \rho(x_{i},x_{j}))$$
+``` math
+d(x_i, x_j) = \frac{1}{2}(1 - \rho(x_i, x_j))
+```
 
 Values range from 0 (identical shape) to 1 (perfectly anticorrelated).
 This measure captures spectral shape regardless of amplitude
 differences.
 
 ``` r
+
 # Standard correlation dissimilarity
 d_cor <- dissimilarity(train_x, diss_method = diss_correlation())
 d_cor
@@ -296,6 +309,7 @@ standard [`cor()`](https://rdrr.io/r/stats/cor.html) function in `R` as
 follows:
 
 ``` r
+
 correlation_baser <- 0.5 * (1 - cor(t(train_x)))
 corrrelation_resemble <- dissimilarity(
   train_x, diss_method = diss_correlation(center = FALSE)
@@ -305,7 +319,7 @@ corrrelation_resemble <- dissimilarity(
 max(abs(corrrelation_resemble$dissimilarity - correlation_baser))
 ```
 
-    [1] 2.220446e-15
+    [1] 1.498801e-15
 
 However, the correlation dissimilarity implemented in `resemble` is
 computationally more efficient than the corresponding approach in base
@@ -316,6 +330,7 @@ be run locally to compare the computational performance of the two
 implementations:
 
 ``` r
+
 # Compare computational speed: resemble vs base R correlation dissimilarity
 n_iter <- 50
 
@@ -353,7 +368,9 @@ hundreds of variables. The moving window variant addresses this by
 computing correlation over sliding windows of width `ws`, then averaging
 across all windows:
 
-$$d(x_{i},x_{j};w) = \frac{1}{2w}\sum\limits_{k = 1}^{p - w}\left( 1 - \rho(x_{i,k:k + w},x_{j,k:k + w}) \right)$$
+``` math
+d(x_i, x_j; w) = \frac{1}{2w} \sum_{k=1}^{p-w} \left(1 - \rho(x_{i,k:k+w}, x_{j,k:k+w})\right)
+```
 
 This accumulates evidence from multiple local comparisons, making the
 dissimilarity more sensitive to region-specific absorption features. It
@@ -368,6 +385,7 @@ computed using the `ws` argument in the
 constructor as in the following example:
 
 ``` r
+
 # Moving window correlation (window size must be odd)
 d_cor_mw <- dissimilarity(
   train_x,
@@ -388,6 +406,7 @@ By default, OpenMP will use all available cores. To explicitly control
 the number of threads:
 
 ``` r
+
 # Use 4 threads
 Sys.setenv(OMP_NUM_THREADS = 4)
 
@@ -406,6 +425,7 @@ library (OpenBLAS, MKL), its threads may compete with OpenMP threads.
 To avoid these issues in nested parallel contexts:
 
 ``` r
+
 # Limit OpenMP threads
 Sys.setenv(OMP_NUM_THREADS = 1)
 
@@ -419,22 +439,26 @@ Sys.setenv(MKL_NUM_THREADS = 1)
 Alternatively, the `RhpcBLASctl` package provides programmatic control:
 
 ``` r
+
 RhpcBLASctl::blas_set_num_threads(1)
 RhpcBLASctl::omp_set_num_threads(1)
 ```
 
 ## 4 Euclidean dissimilarity
 
-The Euclidean distance between two observations $x_{i}$ and $x_{j}$ is
+The Euclidean distance between two observations $`x_i`$ and $`x_j`$ is
 computed as:
 
-$$d(x_{i},x_{j}) = \sqrt{\frac{1}{p}\sum\limits_{k = 1}^{p}(x_{i,k} - x_{j,k})^{2}}$$
+``` math
+d(x_i, x_j) = \sqrt{\frac{1}{p} \sum_{k=1}^{p} (x_{i,k} - x_{j,k})^2}
+```
 
-where $p$ is the number of variables. The implementation in `resemble`
-scales by $1/p$, making results comparable across datasets with
+where $`p`$ is the number of variables. The implementation in `resemble`
+scales by $`1/p`$, making results comparable across datasets with
 different numbers of variables.
 
 ``` r
+
 d_euclid <- dissimilarity(train_x, Xu = test_x, diss_method = diss_euclidean())
 d_euclid
 ```
@@ -469,6 +493,7 @@ dissimilarity is scaled by the number of variables, whereas
 Euclidean distance.
 
 ``` r
+
 ed_resemble <- dissimilarity(train_x, diss_method = diss_euclidean(center = FALSE))
 ed_baser <- as.matrix(dist(train_x, method = "euclidean"))
 
@@ -479,7 +504,7 @@ ed_baser_scaled <- sqrt((ed_baser^2) / ncol(train_x))
 max(abs(ed_baser_scaled - ed_resemble$dissimilarity))
 ```
 
-    [1] 1.471452e-14
+    [1] 3.703797e-15
 
 Another important aspect to note is that the Euclidean dissimilarity
 computations in `resemble` tend to be more computationally efficient
@@ -491,6 +516,7 @@ local environment to compare the computational speed of the two
 implementations:
 
 ``` r
+
 # Compare computational speed: resemble vs base R
 n_iter <- 50
 
@@ -521,7 +547,9 @@ data.frame(
 Cosine dissimilarity, also known as the spectral angle mapper (SAM),
 measures the angle between two observation vectors:
 
-$$d(x_{i},x_{j}) = {\cos}^{-1}\frac{\sum\limits_{k = 1}^{p}x_{i,k}\, x_{j,k}}{\sqrt{\sum\limits_{k = 1}^{p}x_{i,k}^{2}}\sqrt{\sum\limits_{k = 1}^{p}x_{j,k}^{2}}}$$
+``` math
+d(x_i, x_j) = \cos^{-1} \frac{\sum_{k=1}^{p} x_{i,k} \, x_{j,k}}{\sqrt{\sum_{k=1}^{p} x_{i,k}^2} \sqrt{\sum_{k=1}^{p} x_{j,k}^2}}
+```
 
 This measure captures spectral shape independently of overall amplitude.
 Two spectra that differ only by a multiplicative scaling factor will
@@ -530,6 +558,7 @@ intensity variations arise from path length differences or sample
 concentration rather than compositional changes.
 
 ``` r
+
 d_cosine <- dissimilarity(train_x, Xu = test_x, diss_method = diss_cosine())
 d_cosine
 ```
@@ -544,12 +573,14 @@ which evaluates a dissimilarity matrix by comparing each observation
 with its first nearest neighbor using external information provided
 through `side_info`.
 
-Let $j(i)$ denote the index of the nearest neighbor of observation $i$,
-excluding the observation itself:
+Let $`j(i)`$ denote the index of the nearest neighbor of observation
+$`i`$, excluding the observation itself:
 
-$$j(i) = NN(x_{i},X^{\{-i\}})$$
+``` math
+j(i) = NN(x_i, X^{\{-i\}})
+```
 
-where $NN(x_{i},X^{\{-i\}})$ returns the nearest neighbor of $x_{i}$
+where $`NN(x_i, X^{\{-i\}})`$ returns the nearest neighbor of $`x_i`$
 among all other observations.
 
 For numeric side information, such as `Ciso` in the `NIRSoil` dataset,
@@ -558,9 +589,11 @@ summarizes the quality of the dissimilarity matrix using two criteria:
 
 1.  The root mean squared difference (RMSD) between each observation and
     its nearest neighbor:
-    $$RMSD = \sqrt{\frac{1}{m}\sum\limits_{i = 1}^{m}\left( y_{i} - y_{j(i)} \right)^{2}},$$
-    where $y_{i}$ is the side-information value of observation $i$,
-    $y_{j(i)}$ is the value of its nearest neighbor, and $m$ is the
+    ``` math
+    RMSD = \sqrt{\frac{1}{m} \sum_{i=1}^{m} \left(y_i - y_{j(i)}\right)^2},
+    ```
+    where $`y_i`$ is the side-information value of observation $`i`$,
+    $`y_{j(i)}`$ is the value of its nearest neighbor, and $`m`$ is the
     number of observations.
 
 2.  The correlation between the observed side-information values and the
@@ -574,7 +607,9 @@ For categorical side information,
 [`diss_evaluate()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_evaluate.md)
 uses Cohen’s kappa index:
 
-$$\kappa = \frac{p_{o} - p_{e}}{1 - p_{e}}$$
+``` math
+\kappa = \frac{p_o - p_e}{1 - p_e}
+```
 
 where (p_o) is the observed agreement and (p_e) is the agreement
 expected by chance.
@@ -586,6 +621,7 @@ The code below computes several dissimilarity matrices using different
 methods:
 
 ``` r
+
 # Compute dissimilarity matrices using different methods
 d_pca_var <- dissimilarity(train_x, diss_method = diss_pca(scale = TRUE))
 
@@ -621,6 +657,7 @@ The following code evaluates each dissimilarity matrix using `Ciso` as
 side information:
 
 ``` r
+
 # Evaluate each method using Ciso as side information
 side_info <- as.matrix(train_y)
 
@@ -681,6 +718,7 @@ agreement between observations and their nearest neighbors in terms of
 the side information.
 
 ``` r
+
 blue  <- "#3B82F6"
 amber <- "#F59E0B"
 slate_grid <- "#33415540"

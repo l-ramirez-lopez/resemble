@@ -6,13 +6,18 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>resemble - Local Learning for Spectral Chemometrics • resemble</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="resemble - Local Learning for Spectral Chemometrics">
-<meta name="description" content="Functions for dissimilarity analysis and machine learning in complex spectral data sets, including memory-based learning (MBL), optimal subset search and selection, and retrieval-based modelling with model libraries. Supports local learning, optimisation of spectral libraries, and ensemble prediction from precomputed models. Most of these functions are based on the methods presented in Ramirez-Lopez et al. (2013) &lt;doi:10.1016/j.geoderma.2012.12.014&gt;.">
-<meta property="og:description" content="Functions for dissimilarity analysis and machine learning in complex spectral data sets, including memory-based learning (MBL), optimal subset search and selection, and retrieval-based modelling with model libraries. Supports local learning, optimisation of spectral libraries, and ensemble prediction from precomputed models. Most of these functions are based on the methods presented in Ramirez-Lopez et al. (2013) &lt;doi:10.1016/j.geoderma.2012.12.014&gt;.">
+<meta name="description" content="Functions for dissimilarity analysis and machine learning in complex spectral data sets, including memory-based learning (MBL), optimal subset search and selection, and retrieval-based modelling with model libraries. Supports local learning, optimisation of spectral libraries, and ensemble prediction from precomputed models. Most of these functions are based on the methods presented in Ramirez-Lopez et al. (2013) &lt;doi:10.1016/j.geoderma.2012.12.014&gt;, Ramirez-Lopez et al. (2026a) &lt;doi:10.1016/j.aca.2026.345682&gt;, and Ramirez-Lopez et al. (2026b) &lt;doi:10.1016/j.aca.2026.345651&gt;.">
+<meta property="og:description" content="Functions for dissimilarity analysis and machine learning in complex spectral data sets, including memory-based learning (MBL), optimal subset search and selection, and retrieval-based modelling with model libraries. Supports local learning, optimisation of spectral libraries, and ensemble prediction from precomputed models. Most of these functions are based on the methods presented in Ramirez-Lopez et al. (2013) &lt;doi:10.1016/j.geoderma.2012.12.014&gt;, Ramirez-Lopez et al. (2026a) &lt;doi:10.1016/j.aca.2026.345682&gt;, and Ramirez-Lopez et al. (2026b) &lt;doi:10.1016/j.aca.2026.345651&gt;.">
 <meta property="og:image" content="https://l-ramirez-lopez.github.io/resemble/logo.png">
 </head>
 <body>
@@ -69,8 +74,8 @@
 
 
 <!-- badges: end -->
-<p><em>Last update: 2026-04-21</em></p>
-<p>Version: 3.0.0 – vortex</p>
+<p><em>Last update: 2026-08-30</em></p>
+<p>Version: 3.0.1 – tarragona</p>
 <em>
 <p align="right">
 Think Globally, Fit Locally (Saul and Roweis, 2003)
@@ -202,12 +207,12 @@ Think Globally, Fit Locally (Saul and Roweis, 2003)
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://l-ramirez-lopez.github.io/resemble/">resemble</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/l-ramirez-lopez/prospectr" class="external-link">prospectr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://l-ramirez-lopez.github.io/prospectr/" class="external-link">prospectr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Preprocess spectra</span></span>
-<span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/prospectr/man/savitzkyGolay.html" class="external-link">savitzkyGolay</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/prospectr/man/detrend.html" class="external-link">detrend</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span>, wav <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc_pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://l-ramirez-lopez.github.io/prospectr/reference/savitzkyGolay.html" class="external-link">savitzkyGolay</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://l-ramirez-lopez.github.io/prospectr/reference/detrend.html" class="external-link">detrend</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span>, wav <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">NIRsoil</span><span class="op">$</span><span class="va">spc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  m <span class="op">=</span> <span class="fl">1</span>, p <span class="op">=</span> <span class="fl">1</span>, w <span class="op">=</span> <span class="fl">7</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -308,6 +313,10 @@ Think Globally, Fit Locally (Saul and Roweis, 2003)
 <a class="anchor" aria-label="anchor" href="#news-memory-based-learning-and-resemble"></a>
 </h2>
 <ul>
+<li><p><strong>2026.04:</strong> <a href="https://doi.org/10.1016/j.geoderma.2026.117829" class="external-link">Greenberg et al., 2026</a><br>
+used <code>resemble</code> for MBL-PLSR modelling of portable X-ray fluorescence (pXRF) spectra, showing improved soil property predictions relative to global PLSR across in-situ and ex-situ measurement settings.</p></li>
+<li><p><strong>2026.05:</strong> <a href="https://doi.org/10.1016/j.aca.2026.345682" class="external-link">Ramirez-Lopez et al., 2026</a> introduced <code>liblex</code>, a retrieval-gated modelling framework that converts spectral libraries into libraries of precomputed local experts for scalable memory-based learning. For this, <code>resemble</code> was used.</p></li>
+<li><p><strong>2026.05:</strong> <a href="https://doi.org/10.1016/j.aca.2026.345651" class="external-link">Ramirez-Lopez et al., 2026</a> introduced <code>gesearch</code>, an evolutionary subset-selection method for identifying target-domain-relevant samples from complex spectral libraries. For this, <code>resemble</code> was used.</p></li>
 <li><p><strong>2026.05:</strong> <a href="https://doi.org/10.1016/j.geoderma.2026.117804" class="external-link">van Leeuwen et al., 2026</a><br>
 used <code>resemble</code> for principal component Mahalanobis nearest-neighbour search to extract spectrally similar samples from the KSSL library for MIR model calibration in Dutch soils.</p></li>
 <li><p><strong>2026.04:</strong> <a href="https://doi.org/10.1016/j.seh.2026.100205" class="external-link">Irving et al., 2026</a><br>
@@ -425,7 +434,7 @@ used <code>resemble</code> for local VNIR modelling of soil carbon fractions (PO
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
