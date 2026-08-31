@@ -23,7 +23,8 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          pattern="$BLOCKED_TERM"
+          # Match the blocked term only as a standalone word (not hyphenated compound like "no-claude-policy")
+          pattern="(^|[^a-z-])${BLOCKED_TERM}([^a-z-]|$)"
           branch_pattern="(^|/)${BLOCKED_TERM}/"
           fail=0
 
@@ -74,7 +75,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          pattern="$BLOCKED_TERM"
+          # Match the blocked term only as a standalone word (not hyphenated compound like "no-claude-policy")
+          pattern="(^|[^a-z-])${BLOCKED_TERM}([^a-z-]|$)"
 
           base_sha="$(jq -r '.pull_request.base.sha // ""' "$GITHUB_EVENT_PATH")"
           head_sha="$(jq -r '.pull_request.head.sha // ""' "$GITHUB_EVENT_PATH")"
@@ -98,7 +100,8 @@ jobs:
         if: github.event_name == 'push' && !github.event.deleted
         run: |
           set -euo pipefail
-          pattern="$BLOCKED_TERM"
+          # Match the blocked term only as a standalone word (not hyphenated compound like "no-claude-policy")
+          pattern="(^|[^a-z-])${BLOCKED_TERM}([^a-z-]|$)"
           messages=""
 
           before="$(jq -r '.before // ""' "$GITHUB_EVENT_PATH")"
