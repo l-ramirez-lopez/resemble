@@ -1038,6 +1038,7 @@ get_plsr <- function(
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal
 #' @noRd
+#' @export
 predict.plsr <- function(object, newdata, ncomp = NULL, ...) {
   if (!inherits(object, "plsr")) {
     stop("'object' must be of class 'plsr'", call. = FALSE)
