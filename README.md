@@ -10,13 +10,13 @@
 status](https://www.r-pkg.org/badges/version/resemble?v=2.png)](https://CRAN.R-project.org/package=resemble)
 [![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/resemble?v=2.png)](https://CRAN.R-project.org/package=resemble)
 
-<img align="right" src="./man/figures/logo.png" width="15%">
+\<img6.5src=“./man/figures/logo.png” width=“15%”\>
 
 <!-- badges: end -->
 
-*Last update: 2026-04-21*
+*Last update: 2026-08-30*
 
-Version: 3.0.0 – vortex
+Version: 3.0.1 – tarragona
 
 <em>
 <p align="right">
@@ -260,6 +260,24 @@ citation(package = "resemble")
 ```
 
 ## News: Memory-based learning and `resemble`
+
+- **2026.04:** [Greenberg et al.,
+  2026](https://doi.org/10.1016/j.geoderma.2026.117829)  
+  used `resemble` for MBL-PLSR modelling of portable X-ray fluorescence
+  (pXRF) spectra, showing improved soil property predictions relative to
+  global PLSR across in-situ and ex-situ measurement settings.
+
+- **2026.05:** [Ramirez-Lopez et al.,
+  2026](https://doi.org/10.1016/j.aca.2026.345682) introduced `liblex`,
+  a retrieval-gated modelling framework that converts spectral libraries
+  into libraries of precomputed local experts for scalable memory-based
+  learning. For this, `resemble` was used.
+
+- **2026.05:** [Ramirez-Lopez et al.,
+  2026](https://doi.org/10.1016/j.aca.2026.345651) introduced
+  `gesearch`, an evolutionary subset-selection method for identifying
+  target-domain-relevant samples from complex spectral libraries. For
+  this, `resemble` was used.
 
 - **2026.05:** [van Leeuwen et al.,
   2026](https://doi.org/10.1016/j.geoderma.2026.117804)  

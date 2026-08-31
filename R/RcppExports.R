@@ -318,6 +318,18 @@ top_k_neighbors <- function(D, k_min, k_max, threshold = NULL) {
     .Call(`_resemble_top_k_neighbors`, D, k_min, k_max, threshold)
 }
 
+#' Set the number of OpenMP threads
+#'
+#' Calls \code{omp_set_num_threads()} so that the limit takes effect for all
+#' subsequent parallel regions, regardless of when \code{OMP_NUM_THREADS} was
+#' set in the environment.
+#' @param n Number of threads.
+#' @keywords internal
+#' @noRd
+resemble_set_omp_threads <- function(n) {
+    invisible(.Call(`_resemble_resemble_set_omp_threads`, n))
+}
+
 #' @title Function for identifiying the column in a matrix with the largest standard deviation
 #' @description Identifies the column with the largest standard deviation. For internal use only!
 #' @usage get_col_largest_sd(X)

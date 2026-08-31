@@ -110,17 +110,21 @@ diss_evaluate <- function(diss, side_info) {
         call. = FALSE
       )
     }
-    side_info <- as.factor(side_info)
-    if (nlevels(side_info) < 2L) {
+    side_info_cat <- as.factor(side_info[, 1])  
+    if (nlevels(side_info_cat) < 2L) {
       stop(
         "'side_info' must have at least two categories.",
         call. = FALSE
       )
     }
-    get_eval <- .eval_categorical
+    get_eval <- function(y, indices_closest) 
+      .eval_categorical(as.matrix(as.factor(y[, 1])), indices_closest)
   } else {
     get_eval <- .eval_continuous
   }
+  
+  
+  
   
   if (any(colSums(!is.na(side_info)) < 4L)) {
     stop(

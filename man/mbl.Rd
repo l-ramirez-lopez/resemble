@@ -55,7 +55,7 @@ side information (see \code{ncomp_by_opc}()).
 \item \code{\link{diss_correlation}()}: Correlation-based dissimilarity
 }
 A precomputed matrix can also be passed. When \code{diss_usage =
-  "predictors"}, it must be square with dimensions
+"predictors"}, it must be square with dimensions
 \code{(nrow(Xr) + nrow(Xu))} and zeros on the diagonal. Otherwise, it must
 have \code{nrow(Xr)} rows and \code{nrow(Xu)} columns.}
 
