@@ -2,24 +2,15 @@
 
 Dear CRAN maintainers,
 
-This is a resubmission of resemble 3.0.1. The previous submission was held up
-by two NOTEs about CPU/elapsed time ratio in tests and vignettes. Both have
-been resolved by capping OpenMP threads via `OMP_THREAD_LIMIT` and
-`OMP_NUM_THREADS` in `tests/testthat/setup.R` and in the affected vignette
-setup chunks.
+This is a submission of resemble 3.0.1. This version introduces a fix in the 
+`diss_evaluate()` function.
 
-## Test environments
-- Ubuntu 24.04, R 4.5.3 (local)
-- winbuilder R-release: 0 errors, 0 warnings, 0 notes
-- winbuilder R-oldrelease: 0 errors, 0 warnings, 0 notes
-- winbuilder R-devel: likely false positive ERROR — known incompatibility
-  between Rcpp 1.1.1 and R 4.6.0 RC (R_NamespaceRegistry removed from R API),
-  affecting all Rcpp-dependent packages. See:
-  https://github.com/RcppCore/Rcpp/issues/1473
-  Debian R-devel passes with Status: OK.
+The tarball has been checked on R-winbuilder (R-release and R-devel). In addition,
+the package has been checked in multiple platforms using rhub::check().
 
 Best regards,
-Leo
+Leonardo
+
 
 The package was tested locally:
 
