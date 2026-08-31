@@ -1,8 +1,8 @@
 # `resemble` Similarity Retrieval and Local Learning for Spectral Chemometrics
 
-*Last update: 2026-08-30*
+*Last update: 2026-08-31*
 
-Version: 3.0.1 – tarragona
+Version: 3.0.0 – vortex
 
 Think Globally, Fit Locally (Saul and Roweis, 2003)
 

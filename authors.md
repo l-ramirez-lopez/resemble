@@ -13,7 +13,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/l-ramirez-lopez/resemble/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/l-ramirez-lopez/resemble/blob/v3.0.1/inst/CITATION)
 
 Ramirez-Lopez, L., and Stevens, A., and Orellano, C., (2026). resemble:
 Regression and similarity evaluation for memory-based learning in
