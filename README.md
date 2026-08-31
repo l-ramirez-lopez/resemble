@@ -10,13 +10,13 @@
 status](https://www.r-pkg.org/badges/version/resemble?v=2.png)](https://CRAN.R-project.org/package=resemble)
 [![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/resemble?v=2.png)](https://CRAN.R-project.org/package=resemble)
 
-\<img6.5src=“./man/figures/logo.png” width=“15%”\>
+<img align="right" src="./man/figures/logo.png" width="15%">
 
 <!-- badges: end -->
 
-*Last update: 2026-08-30*
+*Last update: 2026-08-31*
 
-Version: 3.0.1 – tarragona
+Version: 3.0.0 – vortex
 
 <em>
 <p align="right">
