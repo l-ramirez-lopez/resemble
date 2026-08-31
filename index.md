@@ -2,7 +2,7 @@
 
 *Last update: 2026-08-31*
 
-Version: 3.0.0 – vortex
+Version: 3.0.1 – tarragona
 
 Think Globally, Fit Locally (Saul and Roweis, 2003)
 
