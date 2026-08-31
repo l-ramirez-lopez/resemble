@@ -1,0 +1,96 @@
+name: no-claude-policy
+
+on:
+  push:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  policy-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name and PR title
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          pattern='claude'
+          fail=0
+
+          check_text() {
+            local field="$1"
+            local value="$2"
+            if [ -n "$value" ] && echo "$value" | grep -Eiq "$pattern"; then
+              echo "::error title=Blocked keyword found::${field} contains blocked term"
+              echo "$field: $value"
+              fail=1
+            fi
+          }
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            pr_title="$(jq -r '.pull_request.title // ""' "$GITHUB_EVENT_PATH")"
+            pr_branch="$(jq -r '.pull_request.head.ref // ""' "$GITHUB_EVENT_PATH")"
+            check_text "PR title" "$pr_title"
+            check_text "PR head branch" "$pr_branch"
+          elif [ "$EVENT_NAME" = "push" ]; then
+            deleted="$(jq -r '.deleted // false' "$GITHUB_EVENT_PATH")"
+            if [ "$deleted" = "true" ]; then
+              exit 0
+            fi
+            check_text "Branch name" "$REF_NAME"
+          fi
+
+          if [ "$fail" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Checkout repository
+        if: github.event_name != 'push' || github.event.deleted == false
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages
+        if: github.event_name != 'push' || github.event.deleted == false
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          pattern='claude'
+          range=""
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base_sha="$(jq -r '.pull_request.base.sha // ""' "$GITHUB_EVENT_PATH")"
+            head_sha="$(jq -r '.pull_request.head.sha // ""' "$GITHUB_EVENT_PATH")"
+            if [ -z "$base_sha" ] || [ -z "$head_sha" ]; then
+              exit 0
+            fi
+            range="${base_sha}..${head_sha}"
+          elif [ "$EVENT_NAME" = "push" ]; then
+            before="$(jq -r '.before // ""' "$GITHUB_EVENT_PATH")"
+            after="$(jq -r '.after // ""' "$GITHUB_EVENT_PATH")"
+            if [ -z "$after" ] || [ "$after" = "0000000000000000000000000000000000000000" ]; then
+              exit 0
+            fi
+            if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+              range="$after"
+            else
+              range="${before}..${after}"
+            fi
+          fi
+
+          if [ -z "$range" ]; then
+            exit 0
+          fi
+
+          messages="$(git log --format='%H%n%s%n%b%n----' "$range" || true)"
+          if [ -n "$messages" ] && echo "$messages" | grep -Eiq "$pattern"; then
+            echo "::error title=Blocked keyword found::Commit messages contain blocked term"
+            git log --format='%h %s' "$range" | grep -Ei "$pattern" || true
+            exit 1
+          fi
