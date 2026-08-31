@@ -29,3 +29,7 @@
 ^CODE_OF_CONDUCT\.md$
 ^vignettes/.*_files$
 
+vignettes/.quarto/
+vignettes/*_cache/
+vignettes/*_files/
+
