@@ -756,6 +756,9 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @param Xscale a matrix of one row with the scaling values
 #' @param scale_back compute the reconstruction error after de-centering the 
 #' data and de-scaling it.
+#' @param by_sample a logical indicating if the reconstruction error must be 
+#' computed by sample (`true`). If `false`, the reconstruction error is 
+#' computed as the average for the entire `x`.
 #' @return a matrix of 1 row and 1 column.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 

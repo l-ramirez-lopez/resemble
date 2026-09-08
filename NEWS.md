@@ -5,7 +5,8 @@
 matrices of each model in the library of models. So, it is now possible to use 
 these matrices to project new samples into the local latent spaces of each model 
 in the library.any new spectra into the PLS space of any of the models and also 
-do back-transformation/projection.
+do back-transformation/projection which helps for judging the quality of the 
+local models in the library.
 
 ## Fixes
 
