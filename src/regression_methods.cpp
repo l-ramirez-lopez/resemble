@@ -1808,6 +1808,9 @@ Rcpp::NumericMatrix project_opls(
 //' @param Xscale a matrix of one row with the scaling values
 //' @param scale_back compute the reconstruction error after de-centering the 
 //' data and de-scaling it.
+//' @param by_sample a logical indicating if the reconstruction error must be 
+//' computed by sample (`true`). If `false`, the reconstruction error is 
+//' computed as the average for the entire `x`.
 //' @return a matrix of 1 row and 1 column.
 //' @author Leonardo Ramirez-Lopez
 //' @keywords internal 
@@ -1820,7 +1823,8 @@ Rcpp::NumericMatrix reconstruction_error(
     bool scale,
     arma::mat Xcenter,
     arma::mat Xscale, 
-    bool scale_back = false
+    bool scale_back = false, 
+    bool by_sample = false
 ) {
   
   if (scale){
@@ -1833,7 +1837,6 @@ Rcpp::NumericMatrix reconstruction_error(
   // x = x - arma::repmat(Xcenter, x.n_rows, 1);
   
   arma::mat xrec = x;
-  arma::mat xrmse;
   xrec = x * projection_mat * xloadings; 
   
   if (scale_back) {
@@ -1844,14 +1847,16 @@ Rcpp::NumericMatrix reconstruction_error(
       xrec = xrec.each_row() % Xscale;
     }
   }
-  // if(scale){
-  //   xrec = xrec % arma::repmat(Xscale, x.n_rows, 1);
-  // }
-  // 
-  // //Necessary to center
-  // xrec = xrec + arma::repmat(Xcenter, newdata.n_rows, 1);
   
-  xrmse = arma::mean(sqrt(arma::mean(pow(x - xrec, 2), 0)), 1);
+  arma::mat sq = arma::square(x - xrec);
+  arma::mat xrmse;
+  
+  if (by_sample) {
+    xrmse = arma::sqrt(arma::mean(sq, 1));        
+  } else {
+    xrmse = arma::mean(arma::sqrt(arma::mean(sq, 0)), 1); 
+  }
+  
   return Rcpp::wrap(xrmse);
 }
 
@@ -3245,13 +3250,17 @@ Rcpp::List final_fits_cpp(
     double tol, 
     String algorithm = "mpls"
 ) {
-  // 1) Fit iPLS (unchanged contract)
+  // 1) Fit iPLS 
   Rcpp::List ipls = opls_get_all(
     X, Y, ncomp_max, scale, maxiter, tol, algorithm
   );
   
   // 2) Extract transform data safely
   Rcpp::List transf = ipls["transf"];
+  
+  
+  arma::mat proj_mat = Rcpp::as<arma::mat>(ipls["projection_mat"]);
+  arma::mat x_loadings = Rcpp::as<arma::mat>(ipls["X_loadings"]);
   
   arma::mat Xcenter_m = Rcpp::as<arma::mat>(transf["Xcenter"]);
   arma::rowvec Xcenter = arma::rowvec(Xcenter_m);     // expect 1 x p
@@ -3332,7 +3341,9 @@ Rcpp::List final_fits_cpp(
     Rcpp::Named("ivips") = ivips,
     Rcpp::Named("isratio") = isratio,
     Rcpp::Named("Xcenter") = Xcenter,
-    Rcpp::Named("Xscale") = Xscale
+    Rcpp::Named("Xscale") = Xscale,
+    Rcpp::Named("projection_mat") = proj_mat,
+    Rcpp::Named("X_loadings") = x_loadings
   );
 }
 

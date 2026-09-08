@@ -1,8 +1,8 @@
 Package: resemble
 Type: Package
 Title: Similarity Retrieval and Local Learning for Spectral Chemometrics
-Version: 3.0.1
-Date: 2026-09-01
+Version: 3.1.0
+Date: 2026-09-08
 Authors@R: c(
   person(given = "Leonardo",
          family = "Ramirez-Lopez",
@@ -41,7 +41,6 @@ Imports:
     lifecycle (>= 0.2.0)
 Suggests: 
     prospectr, 
-    parallel, 
     doParallel, 
     testthat,
     quarto,
@@ -56,5 +55,5 @@ LazyData: true
 Repository: CRAN
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Config/VersionName: tarragona
+Config/VersionName: reconstructions
 Config/roxygen2/version: 8.0.0

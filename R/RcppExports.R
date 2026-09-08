@@ -756,12 +756,15 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @param Xscale a matrix of one row with the scaling values
 #' @param scale_back compute the reconstruction error after de-centering the 
 #' data and de-scaling it.
+#' @param by_sample a logical indicating if the reconstruction error must be 
+#' computed by sample (`true`). If `false`, the reconstruction error is 
+#' computed as the average for the entire `x`.
 #' @return a matrix of 1 row and 1 column.
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back = FALSE) {
-    .Call(`_resemble_reconstruction_error`, x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back)
+reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back = FALSE, by_sample = FALSE) {
+    .Call(`_resemble_reconstruction_error`, x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back, by_sample)
 }
 
 #' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 

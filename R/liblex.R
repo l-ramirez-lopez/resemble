@@ -223,6 +223,12 @@
 #'     each neighborhood size.
 #'   \item \code{anchor_indices}: The anchor indices used.
 #'   \item \code{neighbors}: The object passed to \code{neighbors}.
+#'   \item \code{projection_mats}: The projection matrix for each model in the 
+#'   library. Not output when only validation mode is enabled, 
+#'   i.e. \code{liblex_control(mode = "validate")}.
+#'   \item \code{X_loadings}: The X loadings matrix for each model in the 
+#'   library. Not output when only validation mode is enabled, 
+#'   i.e. \code{liblex_control(mode = "validate")}.
 #' }
 #'
 #' \strong{For \code{predict.liblex}:} A list with the following components:
@@ -567,9 +573,7 @@ liblex <- function(
     }
   }
   
-  # ---------------------------------------------------------------------------
   # Parallel setup
-  # ---------------------------------------------------------------------------
   "%mydo%" <- get("%do%")
   if (control$allow_parallel && getDoParRegistered()) {
     "%mydo%" <- get("%dopar%")
@@ -1177,7 +1181,7 @@ liblex <- function(
     optimal_ks <- ks[which(thresholds_ks == optimal_param), ]
     
     # Calculate number of variables for library storage
-    n_var <- 1L + (5L * ncol(Xr))
+    n_var <- 1L + (5L * ncol(Xr)) + (2L * optimal_max_ncomp * ncol(Xr))
     
     # Template matrix for storing PLS library coefficients
     plslib_template <- matrix(
@@ -1226,7 +1230,7 @@ liblex <- function(
         )
         iplslib[, j] <- unlist(ij_pls, recursive = FALSE, use.names = FALSE)
       }
-      
+
       # Trim unused columns if last chunk is smaller
       if (j < ncol(iplslib)) {
         iplslib <- iplslib[, seq_len(j), drop = FALSE]
@@ -1247,6 +1251,37 @@ liblex <- function(
     namesk <- NULL
     npredictors <- ncol(Xr)
 
+    if ("build" %in% control$mode) {
+      # Extract X loadings
+      col_pm <- ((1 + ncol(plslib) - ncol(Xr) * optimal_max_ncomp):ncol(plslib))
+      x_loadings <- plslib[ , col_pm]
+      plslib <- plslib[ , -col_pm]
+      
+      x_loadings_list <- vector("list", nrow(x_loadings))
+      comp_nms <- paste0("comp_", seq_len(optimal_max_ncomp))
+      for (i in seq_len(nrow(x_loadings))) {
+        ith_xloadings <- matrix(x_loadings[i, ], ncol = optimal_max_ncomp)
+        rownames(ith_xloadings) <- colnames(Xr)
+        colnames(ith_xloadings) <- comp_nms
+        x_loadings_list[[i]] <- ith_xloadings
+      }
+      rm(x_loadings)
+      
+      # Extract projection matrices
+      col_pm <- ((1 + ncol(plslib) - ncol(Xr) * optimal_max_ncomp):ncol(plslib))
+      proj_matrices <- plslib[ , col_pm]
+      plslib <- plslib[ , -col_pm]
+      
+      proj_matrices_list <- vector("list", nrow(proj_matrices))
+      for (i in seq_len(nrow(proj_matrices))) {
+        ith_prj_m <- matrix(proj_matrices[i, ], ncol = optimal_max_ncomp)
+        rownames(ith_prj_m) <- colnames(Xr)
+        colnames(ith_prj_m) <- comp_nms
+        proj_matrices_list[[i]] <- ith_prj_m
+      }
+      rm(proj_matrices)
+    }
+    
     # Extract scaling vectors from library matrix
     xscale <- plslib[, -seq_len((4L * npredictors) + 1L), drop = FALSE]
     plslib <- plslib[, seq_len((4L * npredictors) + 1L), drop = FALSE]
@@ -1393,6 +1428,15 @@ liblex <- function(
   
   # add the original object passed to neighbors
   fresults$neighbors <- neighbors
+  
+  # add the original object passed to neighbors
+  fresults$neighbors <- neighbors
+
+  # add the projection matrices and X loadings to the results 
+  if ("build" %in% control$mode) {
+    fresults$projection_mats <- proj_matrices_list
+    fresults$X_loadings <- x_loadings_list
+  }
   
   attr(fresults, "call") <- f_call
   class(fresults) <- c("liblex", "list")

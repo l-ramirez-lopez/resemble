@@ -1253,6 +1253,21 @@ List top_k_neighbors(
   for (int j = 0; j < m; j++) {
     out[j] = wrap(results[j]);
   }
-  
+
   return out;
+}
+
+//' Set the number of OpenMP threads
+//'
+//' Calls \code{omp_set_num_threads()} so that the limit takes effect for all
+//' subsequent parallel regions, regardless of when \code{OMP_NUM_THREADS} was
+//' set in the environment.
+//' @param n Number of threads.
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(visible = false)]]
+void resemble_set_omp_threads(int n) {
+#ifdef _OPENMP
+  omp_set_num_threads(n);
+#endif
 }
