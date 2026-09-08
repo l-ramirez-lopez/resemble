@@ -70,7 +70,7 @@ citation(package = "resemble")
       Ramirez-Lopez, L., and Stevens, A., and Orellano, C., (2026).
       resemble: Regression and similarity evaluation for memory-based
       learning in spectral chemometrics. R package Vignette R package
-      version 3.0.1.
+      version 3.1.0.
 
     A BibTeX entry for LaTeX users is
 
@@ -79,7 +79,7 @@ citation(package = "resemble")
         author = {Leonardo Ramirez-Lopez and Antoine Stevens and Claudio Orellano},
         publication = {R package Vignette},
         year = {2026},
-        note = {R package version 3.0.1},
+        note = {R package version 3.1.0},
         url = {https://CRAN.R-project.org/package=resemble},
       }
 

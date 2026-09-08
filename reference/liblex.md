@@ -238,6 +238,14 @@ plot(x, ...)
 
 - `neighbors`: The object passed to `neighbors`.
 
+- `projection_mats`: The projection matrix for each model in the
+  library. Not output when only validation mode is enabled, i.e.
+  `liblex_control(mode = "validate")`.
+
+- `X_loadings`: The X loadings matrix for each model in the library. Not
+  output when only validation mode is enabled, i.e.
+  `liblex_control(mode = "validate")`.
+
 **For `predict.liblex`:** A list with the following components:
 
 - `predictions`: A data frame containing:

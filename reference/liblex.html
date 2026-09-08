@@ -19,7 +19,7 @@ Ramirez-Lopez et al. (2026b).'><meta property="og:image" content="https://l-rami
 
     <a class="navbar-brand me-2" href="../index.html">resemble</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -271,6 +271,12 @@ for prediction.</p></li>
 each neighborhood size.</p></li>
 <li><p><code>anchor_indices</code>: The anchor indices used.</p></li>
 <li><p><code>neighbors</code>: The object passed to <code>neighbors</code>.</p></li>
+<li><p><code>projection_mats</code>: The projection matrix for each model in the
+library. Not output when only validation mode is enabled,
+i.e. <code>liblex_control(mode = "validate")</code>.</p></li>
+<li><p><code>X_loadings</code>: The X loadings matrix for each model in the
+library. Not output when only validation mode is enabled,
+i.e. <code>liblex_control(mode = "validate")</code>.</p></li>
 </ul><p><strong>For <code>predict.liblex</code>:</strong> A list with the following components:</p><ul><li><p><code>predictions</code>: A data frame containing:</p><ul><li><p><code>pred</code>: Weighted mean predictions.</p></li>
 <li><p><code>pred_sd</code>: Weighted standard deviation of expert
 predictions.</p></li>

@@ -8,14 +8,14 @@ subset search in spectral chemometrics.
 
 ## Details
 
-This is the version 3.0.1 – tarragona of the package. It implements a
-number of functions useful for modeling complex spectral spectra (e.g.
-NIR, IR). The package includes functions for dimensionality reduction,
-computing spectral dissimilarity matrices, nearest neighbor search, and
-modeling spectral data using memory-based learning and evolutionary
-search of optimal training subsets in large and complex datasets. This
-package builds upon the methods presented in Ramirez-Lopez et al.
-(2013a)
+This is the version 3.1.0 – reconstructions of the package. It
+implements a number of functions useful for modeling complex spectral
+spectra (e.g. NIR, IR). The package includes functions for
+dimensionality reduction, computing spectral dissimilarity matrices,
+nearest neighbor search, and modeling spectral data using memory-based
+learning and evolutionary search of optimal training subsets in large
+and complex datasets. This package builds upon the methods presented in
+Ramirez-Lopez et al. (2013a)
 [doi:10.1016/j.geoderma.2012.12.014](https://doi.org/10.1016/j.geoderma.2012.12.014)
 , Ramirez-Lopez et al. (2026a) and Ramirez-Lopez et al. (2026b).
 

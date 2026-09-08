@@ -1,5 +1,24 @@
 # Changelog
 
+## \# `resemble 3.1.0 (reconstructions)`
+
+- Feature: The
+  [`liblex()`](https://l-ramirez-lopez.github.io/resemble/reference/liblex.md)
+  function now outputs the projection and X loading matrices of each
+  model in the library of models. So, it is now possible to use these
+  matrices to project new samples into the local latent spaces of each
+  model in the library.any new spectra into the PLS space of any of the
+  models and also do back-transformation/projection which helps for
+  judging the quality of the local models in the library.
+
+### Fixes
+
+- Fixed: An error was thrown when passing a categorical variable as side
+  info in
+  [`diss_evaluate()`](https://l-ramirez-lopez.github.io/resemble/reference/diss_evaluate.md).
+
+- Vignettes appear now in the right order in CRAN.
+
 ## \# `resemble 3.0.1 (tarragona)`
 
 ### Fixes
