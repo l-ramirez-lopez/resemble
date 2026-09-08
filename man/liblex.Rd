@@ -164,6 +164,8 @@ for prediction.
 each neighborhood size.
 \item \code{anchor_indices}: The anchor indices used.
 \item \code{neighbors}: The object passed to \code{neighbors}.
+\item \code{projection_mats}: The projection matrix for each model in the library.
+\item \code{X_loadings}: The X loadings matrix for each model in the library.
 }
 
 \strong{For \code{predict.liblex}:} A list with the following components:

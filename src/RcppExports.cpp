@@ -396,8 +396,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // reconstruction_error
-Rcpp::NumericMatrix reconstruction_error(arma::mat x, arma::mat projection_mat, arma::mat xloadings, bool scale, arma::mat Xcenter, arma::mat Xscale, bool scale_back);
-RcppExport SEXP _resemble_reconstruction_error(SEXP xSEXP, SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP, SEXP scale_backSEXP) {
+Rcpp::NumericMatrix reconstruction_error(arma::mat x, arma::mat projection_mat, arma::mat xloadings, bool scale, arma::mat Xcenter, arma::mat Xscale, bool scale_back, bool by_sample);
+RcppExport SEXP _resemble_reconstruction_error(SEXP xSEXP, SEXP projection_matSEXP, SEXP xloadingsSEXP, SEXP scaleSEXP, SEXP XcenterSEXP, SEXP XscaleSEXP, SEXP scale_backSEXP, SEXP by_sampleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -408,7 +408,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Xcenter(XcenterSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Xscale(XscaleSEXP);
     Rcpp::traits::input_parameter< bool >::type scale_back(scale_backSEXP);
-    rcpp_result_gen = Rcpp::wrap(reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back));
+    Rcpp::traits::input_parameter< bool >::type by_sample(by_sampleSEXP);
+    rcpp_result_gen = Rcpp::wrap(reconstruction_error(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back, by_sample));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -606,7 +607,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_resemble_opls_get_basics", (DL_FUNC) &_resemble_opls_get_basics, 9},
     {"_resemble_predict_opls", (DL_FUNC) &_resemble_predict_opls, 6},
     {"_resemble_project_opls", (DL_FUNC) &_resemble_project_opls, 6},
-    {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 7},
+    {"_resemble_reconstruction_error", (DL_FUNC) &_resemble_reconstruction_error, 8},
     {"_resemble_opls_cv_cpp", (DL_FUNC) &_resemble_opls_cv_cpp, 14},
     {"_resemble_opls_gesearch", (DL_FUNC) &_resemble_opls_gesearch, 10},
     {"_resemble_gaussian_process", (DL_FUNC) &_resemble_gaussian_process, 4},

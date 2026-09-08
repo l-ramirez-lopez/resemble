@@ -760,8 +760,8 @@ project_opls <- function(projection_mat, ncomp, newdata, scale, Xcenter, Xscale)
 #' @author Leonardo Ramirez-Lopez
 #' @keywords internal 
 #' @noRd
-reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back = FALSE) {
-    .Call(`_resemble_reconstruction_error`, x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back)
+reconstruction_error <- function(x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back = FALSE, by_sample = FALSE) {
+    .Call(`_resemble_reconstruction_error`, x, projection_mat, xloadings, scale, Xcenter, Xscale, scale_back, by_sample)
 }
 
 #' @title Internal Cpp function for performing leave-group-out cross-validations for pls regression 
