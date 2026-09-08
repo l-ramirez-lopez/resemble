@@ -41,7 +41,6 @@ Imports:
     lifecycle (>= 0.2.0)
 Suggests: 
     prospectr, 
-    parallel, 
     doParallel, 
     testthat,
     quarto,
