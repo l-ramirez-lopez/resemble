@@ -261,6 +261,26 @@ citation(package = "resemble")
 
 ## News: Memory-based learning and `resemble`
 
+- **2026.09:** [Ghassan et al.,
+  2026](https://doi.org/10.1016/j.acags.2026.100398) used `resemble` for
+  MBL modelling of soil salinity and alkalinity indicators (pH, EC, SAR,
+  ESP) from MIR spectra in southern Morocco, comparing a mobile
+  (Alpha II) against a benchtop (Tensor II) spectrometer; MBL gave the
+  best predictions for most property-instrument combinations.
+
+- **2026.08:** [Schmuker et al.,
+  2026](https://doi.org/10.1002/ppj2.70099) used `resemble` for local
+  PLSR modelling of club wheat milling yields from NIR grain spectra;
+  local PLSR outperformed global PLSR, PCR, elastic net, random forest
+  and SVM for both total and break flour yield.
+
+- **2026.06:** [Prout et al., 2026](https://doi.org/10.1111/ejss.70353)
+  used `resemble` in MIR calibrations of soil organic carbon and clay
+  concentrations for estimating the SOC/clay index across the National
+  Soil Inventory of England and Wales, including bootstrapped
+  uncertainty estimates used to flag samples for conventional
+  re-analysis.
+
 - **2026.04:** [Greenberg et al.,
   2026](https://doi.org/10.1016/j.geoderma.2026.117829)  
   used `resemble` for MBL-PLSR modelling of portable X-ray fluorescence
@@ -373,6 +393,10 @@ citation(package = "resemble")
 
 - [`prospectr`](https://github.com/l-ramirez-lopez/prospectr): Signal
   processing and chemometrics for spectroscopy
+
+- [`proximetricsR`](https://github.com/buchi-labortechnik-ag/proximetricsR):
+  Spectral preprocessing and chemometric calibration of near-infrared
+  (NIR) sensors
 
 ## Contributing
 
