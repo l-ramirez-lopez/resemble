@@ -10,9 +10,12 @@ local models in the library.
 
 ## Fixes
 
-- Fixed: An error was thrown when passing a categorical variable as side info in `diss_evaluate()`.
+- Fixed: An error was thrown when using `residual_cutoff` in `predict.liblex()`
 
-- Vignettes appear now in the right order in CRAN.
+- Fixed: An error in `liblex()` was thrown when using neighbor selection based 
+on dissimilarity thresholds. If the length of the vector of threshold was only 
+one, the function was crashing.
+
 
 # `resemble 3.0.1 (tarragona)`
 ===============
