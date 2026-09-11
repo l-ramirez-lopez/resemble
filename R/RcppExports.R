@@ -1129,7 +1129,7 @@ final_fits_cpp <- function(X, Y, new_x, ncomp_min, ncomp_max, scale, maxiter, to
 #' @description
 #' Computes predictions for a new observation using local PLS models
 #' represented by coefficients (\code{plslib}). The prediction is based on
-#' inverse-scaled feature values. If a dissimilarity vector is provided, it is
+#' scaled feature values. If a dissimilarity vector is provided, it is
 #' prepended to the input features before inverse scaling.
 #'
 #' @param plslib A numeric matrix of PLS model coefficients (n_models × p+1).
