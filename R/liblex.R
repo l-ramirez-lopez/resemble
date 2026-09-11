@@ -938,6 +938,9 @@ liblex <- function(
     ks[ks < neighbors$k_min] <- neighbors$k_min
     ks[ks > neighbors$k_max] <- neighbors$k_max
     thresholds_ks <- neighbors$threshold
+    if (length(neighbors$threshold) == 1) {
+      ks <- matrix(ks, nrow = 1L) 
+    }
   } else {
     ks <- matrix(k, nrow = length(k), ncol = nrow(Xr)) 
     thresholds_ks <- neighbors$k
@@ -1181,7 +1184,7 @@ liblex <- function(
     optimal_ks <- ks[which(thresholds_ks == optimal_param), ]
     
     # Calculate number of variables for library storage
-    n_var <- 1L + (5L * ncol(Xr)) + (2L * optimal_max_ncomp * ncol(Xr))
+    n_var <- 1L + (5L * ncol(Xr)) + (2L * optimal_max_ncomp * ncol(Xr)) + optimal_max_ncomp
     
     # Template matrix for storing PLS library coefficients
     plslib_template <- matrix(
@@ -1252,6 +1255,13 @@ liblex <- function(
     npredictors <- ncol(Xr)
 
     if ("build" %in% control$mode) {
+      
+      # Extract sds of scores
+      col_pm <- (1 + ncol(plslib) - optimal_max_ncomp):ncol(plslib)
+      sds_scores <- plslib[ , col_pm]
+      plslib <- plslib[ , -col_pm]
+      
+      
       # Extract X loadings
       col_pm <- ((1 + ncol(plslib) - ncol(Xr) * optimal_max_ncomp):ncol(plslib))
       x_loadings <- plslib[ , col_pm]
@@ -1436,6 +1446,7 @@ liblex <- function(
   if ("build" %in% control$mode) {
     fresults$projection_mats <- proj_matrices_list
     fresults$X_loadings <- x_loadings_list
+    fresults$sds_scores <- sds_scores
   }
   
   attr(fresults, "call") <- f_call
@@ -1712,19 +1723,19 @@ predict.liblex <- function(
     k_max = k_max,
     threshold = diss_threshold
   )
-  
+
   # --- Filter models with high residuals (optional) ---
   # Models exceeding residual_cutoff are penalized with max dissimilarity
   # to prevent their selection as neighbors
   if (!is.null(object$residuals) && !is.null(residual_cutoff)) {
     abs_res <- abs(object$residuals)
-    
+
     # Flag models with residuals exceeding cutoff
     high_residual_flag <- abs_res >= residual_cutoff
     high_residual_flag[is.na(high_residual_flag)] <- TRUE
     
     # Penalize high-residual models by assigning max dissimilarity
-    neighbor_diss <- sapply(
+    neighbor_diss <- lapply(
       seq_along(neighbor_indices),
       FUN = function(col_idx, diss, nn, flag) {
         knns <- nn[[col_idx]]
@@ -1753,7 +1764,7 @@ predict.liblex <- function(
     
     high_residual_flag <- rep(FALSE, nrow(object$coefficients$B))
   }
-  
+
   # --- Enforce specific models into all neighborhoods (optional) ---
   # Enforced models are prepended with minimal dissimilarity to ensure selection
   if (!is.null(enforce_indices)) {
@@ -1769,7 +1780,7 @@ predict.liblex <- function(
     # neighbor dissimilarities
     neighbor_diss <- Map(c, min_diss_per_obs, neighbor_diss)
   }
-  
+
   # --- Compute neighbor weights ---
   if (weighting == "none") {
     # Equal weights for all neighbors
@@ -1809,7 +1820,7 @@ predict.liblex <- function(
       w / s
     })
   }
-  
+
   # --- Prepare coefficient library and scaling parameters ---
   # Standard model without dissimilarity predictors
   coef_library <- cbind(
@@ -1844,7 +1855,7 @@ predict.liblex <- function(
       dxrxu = iset$idxrxu
     )
   }
-  
+
   # --- Combine predictions into matrix ---
   max_len <- max(lengths(predictions_raw))
   predictions_raw <- t(do.call("cbind", lapply(predictions_raw, function(x) {
@@ -1854,9 +1865,7 @@ predict.liblex <- function(
   
   colnames(predictions_raw) <- paste0("expert_", seq_len(ncol(predictions_raw)))
   rownames(predictions_raw) <- rownames(newdata) %||% seq_len(nrow(newdata))
-  
-  
-  
+
   max_len_weights <- max(lengths(dweights))
   dweights <- t(do.call("cbind", lapply(dweights, function(x) {
     length(x) <- max_len_weights
@@ -1867,7 +1876,7 @@ predict.liblex <- function(
   # Transpose weights to match predictions matrix layout
   rownames(dweights) <- rownames(predictions_raw)
   colnames(dweights) <- colnames(predictions_raw)
-  
+
   # Weighted predictions per expert
   weighted_predictions <- predictions_raw * dweights
   
@@ -1886,14 +1895,14 @@ predict.liblex <- function(
     probs = probs,
     exclude_last = TRUE
   )
-  
+
   # Assemble predictions data frame
   predictions <- data.frame(
     pred = pred_mean,
     pred_sd = pred_sd,
     pred_quantiles
   )
-  
+
   # --- Add GH distance to predictions ---
   predictions$gh <- gh_newdata
   
@@ -1901,7 +1910,7 @@ predict.liblex <- function(
   if (!is.null(rownames(newdata))) {
     rownames(predictions) <- rownames(newdata)
   }
-  
+
   # --- Assemble output list ---
   result <- list(
     predictions = predictions,
@@ -1917,13 +1926,12 @@ predict.liblex <- function(
   )
 
   # --- Compute prediction limits from neighbor statistics ---
-  
   if ( inherits(object$neighbors, "neighbors_diss") ) {
     nn_stats_indx <- which(object$neighbors$threshold == object$optimal_params[[1]])
   } else {
     nn_stats_indx <- which(object$neighbors$k == object$optimal_params[[1]])
   }
-  
+
   neighborhood_stats <- object$neighborhood_stats[[nn_stats_indx]]
 
   # Extract min/max response values across neighbors for each observation
@@ -1942,7 +1950,7 @@ predict.liblex <- function(
   
   result$predictions$min_yr <- min_yr
   result$predictions$max_yr <- max_yr
-  
+
   # Flag predictions outside neighborhood range
   result$predictions$below_min <- result$predictions$pred < min_yr
   result$predictions$above_max <- result$predictions$pred > max_yr
