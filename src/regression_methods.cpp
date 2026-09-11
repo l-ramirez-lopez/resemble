@@ -3261,6 +3261,10 @@ Rcpp::List final_fits_cpp(
   
   arma::mat proj_mat = Rcpp::as<arma::mat>(ipls["projection_mat"]);
   arma::mat x_loadings = Rcpp::as<arma::mat>(ipls["X_loadings"]);
+  arma::mat scores = Rcpp::as<arma::mat>(ipls["scores"]);
+  
+  // DELETE
+  arma::rowvec score_sds = arma::stddev(scores, 0, 0);
   
   arma::mat Xcenter_m = Rcpp::as<arma::mat>(transf["Xcenter"]);
   arma::rowvec Xcenter = arma::rowvec(Xcenter_m);     // expect 1 x p
@@ -3343,7 +3347,8 @@ Rcpp::List final_fits_cpp(
     Rcpp::Named("Xcenter") = Xcenter,
     Rcpp::Named("Xscale") = Xscale,
     Rcpp::Named("projection_mat") = proj_mat,
-    Rcpp::Named("X_loadings") = x_loadings
+    Rcpp::Named("X_loadings") = x_loadings, 
+    Rcpp::Named("score_sds") = score_sds
   );
 }
 
@@ -3354,7 +3359,7 @@ Rcpp::List final_fits_cpp(
 //' @description
 //' Computes predictions for a new observation using local PLS models
 //' represented by coefficients (\code{plslib}). The prediction is based on
-//' inverse-scaled feature values. If a dissimilarity vector is provided, it is
+//' scaled feature values. If a dissimilarity vector is provided, it is
 //' prepended to the input features before inverse scaling.
 //'
 //' @param plslib A numeric matrix of PLS model coefficients (n_models × p+1).
@@ -3414,14 +3419,29 @@ NumericVector ith_pred_cpp(
  }
  
  // Compute predictions for each model
- for (int i = 0; i < n_models; i++) {
-   double pred = plslib(i, 0);  // intercept
-   for (int j = 0; j < p; j++) {
-     double scaled = dxu[j] / xscale(i, j);
-     pred += plslib(i, j + 1) * scaled;
+ // for (int i = 0; i < n_models; i++) {
+ //   double pred = plslib(i, 0);  // intercept
+ //   for (int j = 0; j < p; j++) {
+ //     double scaled = dxu[j] / xscale(i, j);
+ //     pred += plslib(i, j + 1) * scaled;
+ //   }
+ //   ipred[i] = pred;
+ // }
+ // Start from the intercept column (column 0 of plslib)
+ const double* B = plslib.begin();   // column-major storage
+ const double* S = xscale.begin();
+ std::copy(B, B + n_models, ipred.begin());
+ 
+ // Variables outer, models inner: both pointers walk contiguous memory
+ for (int j = 0; j < p; j++) {
+   const double  xj = dxu[j];
+   const double* b  = B + static_cast<std::size_t>(j + 1) * n_models;
+   const double* s  = S + static_cast<std::size_t>(j)     * n_models;
+   for (int i = 0; i < n_models; i++) {
+     ipred[i] += b[i] * (xj / s[i]);
    }
-   ipred[i] = pred;
  }
+ 
  
  return ipred;
 }
